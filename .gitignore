@@ -1,0 +1,21 @@
+# ignore 32 & 64 Binary
+LittleLimboLauncher/Win32/
+LittleLimboLauncher/Win64/
+
+# ignore history
+LittleLimboLauncher/__recovery/
+LittleLimboLauncher/__history/
+
+# ignore not cover file
+LittleLimboLauncher/*.vlb
+LittleLimboLauncher/*.local
+LittleLimboLauncher/*.identcache
+LittleLimboLauncher/*.res
+
+# ignore my custom component
+# Because It is my experimental function
+LittleLimboLauncher/MyComponent/
+
+# ignore some privacy code
+# Such as CurseForge API Key and Microsoft AZure Client ID
+LittleLimboLauncher/PrivacyMethod.pas
