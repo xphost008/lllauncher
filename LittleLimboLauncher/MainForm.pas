@@ -12,7 +12,7 @@ uses
   Vcl.Imaging.jpeg;
 
 type
-  TForm1 = class(TForm)
+  Tmainform_mainpage = class(TForm)
     mainmenu_mainpage: TMainMenu;
     n_misc: TMenuItem;
     n_message_board: TMenuItem;
@@ -260,6 +260,31 @@ type
     label_launch_additional_game_argument: TLabel;
     edit_launch_additional_game_argument: TEdit;
     button_launch_additional_game_argument_tip: TButton;
+    tabsheet_version_part: TTabSheet;
+    pagecontrol_version_part: TPageControl;
+    label_version_tip: TLabel;
+    tabsheet_version_control: TTabSheet;
+    tabsheet_version_isolation: TTabSheet;
+    label_select_game_version: TLabel;
+    label_select_file_list: TLabel;
+    combobox_select_game_version: TComboBox;
+    combobox_select_file_list: TComboBox;
+    label_version_name: TLabel;
+    button_version_choose_any_directory: TButton;
+    button_version_create_minecraft: TButton;
+    label_version_add_mc_path: TLabel;
+    label_version_choose_path: TLabel;
+    edit_version_name: TEdit;
+    label_version_current_path: TLabel;
+    tabsheet_version_export_modpack: TTabSheet;
+    radiogroup_partition_version: TRadioGroup;
+    button_add_version_to_list: TButton;
+    button_version_complete: TButton;
+    button_clear_version_list: TButton;
+    button_rename_version_list: TButton;
+    button_remove_version_list: TButton;
+    button_rename_game_version: TButton;
+    button_delete_game_version: TButton;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -269,13 +294,13 @@ type
   end;
 
 var
-  Form1: TForm1;
+  mainform_mainpage: Tmainform_mainpage;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm1.button_launch_gameClick(Sender: TObject);
+procedure Tmainform_mainpage.button_launch_gameClick(Sender: TObject);
 begin
 //  var mm := TTabSheet.Create(pagecontrol_mainpage);
 //  with mm do begin
@@ -293,11 +318,16 @@ begin
 //  self.Color := 0;
 end;
 
-procedure TForm1.FormShow(Sender: TObject);
+procedure Tmainform_mainpage.FormShow(Sender: TObject);
 begin
 //  buttoncolor1.SymbolColor := rgb(255, 0, 255);
 //  SetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE, GetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE) or WS_EX_LAYERED);
 //  SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), 162, LWA_ALPHA);
 end;
+
+//procedure TForm1.pagecontrol_mainpageChange(Sender: TObject);
+//begin
+//  pagecontrol_mainpage.ActivePage := tabsheet_mainform_part;
+//end;
 
 end.

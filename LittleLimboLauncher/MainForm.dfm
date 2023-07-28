@@ -1,16 +1,23 @@
-object Form1: TForm1
+object mainform_mainpage: Tmainform_mainpage
   Left = 0
   Top = 0
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
   Caption = 'Little Limbo Launcher (Delphi)'
   ClientHeight = 480
   ClientWidth = 854
   Color = clBtnFace
+  Constraints.MaxHeight = 538
+  Constraints.MaxWidth = 866
+  Constraints.MinHeight = 538
+  Constraints.MinWidth = 866
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
   Menu = mainmenu_mainpage
+  Position = poDesktopCenter
   OnShow = FormShow
   TextHeight = 15
   object image_mainpage_background_image: TImage
@@ -25,7 +32,7 @@ object Form1: TForm1
     Top = 8
     Width = 838
     Height = 464
-    ActivePage = tabsheet_launch_part
+    ActivePage = tabsheet_version_part
     MultiLine = True
     TabOrder = 0
     object tabsheet_mainform_part: TTabSheet
@@ -719,7 +726,7 @@ object Form1: TForm1
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_playing_download_part
+        ActivePage = tabsheet_playing_manage_part
         TabOrder = 0
         object tabsheet_playing_download_part: TTabSheet
           Caption = #19979#36733#29609#27861
@@ -1671,9 +1678,9 @@ object Form1: TForm1
         Caption = #21551#21160#28216#25103#35774#32622#37096#20998
         TabOrder = 9
         object radiobutton_background_launch_hide: TRadioButton
-          Left = 0
+          Left = 3
           Top = 21
-          Width = 197
+          Width = 194
           Height = 25
           Caption = #21551#21160'MC'#26102#38544#34255#31383#21475
           TabOrder = 0
@@ -2034,6 +2041,200 @@ object Form1: TForm1
         ParentShowHint = False
         ShowHint = True
         TabOrder = 20
+      end
+    end
+    object tabsheet_version_part: TTabSheet
+      Caption = #29256#26412#37096#20998
+      ImageIndex = 7
+      object label_version_tip: TLabel
+        Left = 3
+        Top = 3
+        Width = 676
+        Height = 15
+        Caption = #36825#37324#26159#29256#26412#37096#20998#65292#20320#21487#20197#25805#20316#28216#25103#25991#20214#22841#65292#36824#21487#20197#36873#25321#29256#26412#38548#31163#65292#36824#21487#20197#20026#29420#31435#29256#26412#35774#35745#22114#65292#29978#33267#21487#20197#23548#20986#25972#21512#21253#22114#65281
+      end
+      object pagecontrol_version_part: TPageControl
+        Left = 3
+        Top = 24
+        Width = 824
+        Height = 407
+        ActivePage = tabsheet_version_control
+        TabOrder = 0
+        object tabsheet_version_control: TTabSheet
+          Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
+          Caption = #29256#26412#25511#21046
+          object label_select_game_version: TLabel
+            Left = 3
+            Top = 6
+            Width = 78
+            Height = 15
+            Caption = #36873#25321#28216#25103#29256#26412
+          end
+          object label_select_file_list: TLabel
+            Left = 3
+            Top = 35
+            Width = 78
+            Height = 15
+            Caption = #36873#25321#25991#20214#21015#34920
+          end
+          object label_version_name: TLabel
+            Left = 3
+            Top = 64
+            Width = 78
+            Height = 15
+            Caption = #28216#25103#21015#34920#21517#31216
+          end
+          object label_version_add_mc_path: TLabel
+            Left = 3
+            Top = 93
+            Width = 71
+            Height = 15
+            Caption = #28155#21152'MC'#36335#24452
+          end
+          object label_version_choose_path: TLabel
+            Left = 3
+            Top = 119
+            Width = 39
+            Height = 15
+            Caption = #26410#36873#20013
+          end
+          object label_version_current_path: TLabel
+            Left = 3
+            Top = 140
+            Width = 109
+            Height = 15
+            Caption = #24403#21069#36873#20013#36335#24452#65306'000'
+          end
+          object combobox_select_game_version: TComboBox
+            Left = 120
+            Top = 3
+            Width = 693
+            Height = 23
+            Style = csDropDownList
+            TabOrder = 0
+          end
+          object combobox_select_file_list: TComboBox
+            Left = 120
+            Top = 32
+            Width = 693
+            Height = 23
+            Style = csDropDownList
+            TabOrder = 1
+          end
+          object button_version_choose_any_directory: TButton
+            Left = 120
+            Top = 90
+            Width = 227
+            Height = 23
+            Caption = #35831#36873#25321#20219#19968#25991#20214#22841
+            TabOrder = 2
+          end
+          object button_version_create_minecraft: TButton
+            Left = 353
+            Top = 90
+            Width = 227
+            Height = 23
+            Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
+            Caption = #26032#24314#12304'.minecraft'#12305
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 3
+          end
+          object edit_version_name: TEdit
+            Left = 120
+            Top = 61
+            Width = 693
+            Height = 23
+            TabOrder = 4
+            TextHint = #38543#20415#36755#20837#19968#20010#21517#31216#65292#20294#26159#24314#35758#24471#26377#20123#20195#34920#24615#65292#27604#22914#12304#32852#26426#12305
+          end
+          object radiogroup_partition_version: TRadioGroup
+            Left = 3
+            Top = 161
+            Width = 810
+            Height = 121
+            Caption = #29256#26412#38548#31163
+            Items.Strings = (
+              #19981#20351#29992#29256#26412#38548#31163
+              #38548#31163#12304#27491#24335#29256'/'#24555#29031#29256'/'#36828#21476'Beta'#29256'/'#36828#21476'Alpha'#29256#12305
+              #38548#31163#12304'Forge/Fabric/Quilt/NeoForge'#12305#31561#29256
+              #38548#31163#20840#37096#29256#26412)
+            TabOrder = 5
+          end
+          object button_add_version_to_list: TButton
+            Left = 586
+            Top = 90
+            Width = 227
+            Height = 23
+            Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
+            Caption = #23558#36873#20013#36335#24452#19982#21517#31216#28155#21152#21040#21015#34920
+            ParentShowHint = False
+            ShowHint = True
+            TabOrder = 6
+          end
+          object button_version_complete: TButton
+            Left = 3
+            Top = 288
+            Width = 266
+            Height = 40
+            Caption = #25163#21160#34917#20840#35813#29256#26412#30340#31867#24211
+            TabOrder = 7
+            WordWrap = True
+          end
+          object button_clear_version_list: TButton
+            Left = 3
+            Top = 334
+            Width = 266
+            Height = 40
+            Caption = #28165#31354#25991#20214#21015#34920
+            TabOrder = 8
+            WordWrap = True
+          end
+          object button_rename_version_list: TButton
+            Left = 275
+            Top = 288
+            Width = 266
+            Height = 40
+            Caption = #37325#21629#21517#25991#20214#21015#34920
+            TabOrder = 9
+            WordWrap = True
+          end
+          object button_remove_version_list: TButton
+            Left = 275
+            Top = 334
+            Width = 266
+            Height = 40
+            Caption = #31227#38500#25991#20214#21015#34920
+            TabOrder = 10
+            WordWrap = True
+          end
+          object button_rename_game_version: TButton
+            Left = 547
+            Top = 288
+            Width = 266
+            Height = 40
+            Caption = #37325#21629#21517#28216#25103#29256#26412
+            TabOrder = 11
+            WordWrap = True
+          end
+          object button_delete_game_version: TButton
+            Left = 547
+            Top = 334
+            Width = 266
+            Height = 40
+            Caption = #21024#38500#28216#25103#29256#26412
+            TabOrder = 12
+            WordWrap = True
+          end
+        end
+        object tabsheet_version_isolation: TTabSheet
+          Caption = #29420#31435#35774#32622
+          ImageIndex = 1
+        end
+        object tabsheet_version_export_modpack: TTabSheet
+          Caption = #23548#20986#25972#21512#21253
+          ImageIndex = 2
+        end
       end
     end
   end
