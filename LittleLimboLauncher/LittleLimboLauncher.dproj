@@ -123,9 +123,14 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="MainForm.pas">
-            <Form>Form1</Form>
+            <Form>form_mainform</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="LaunchMethod.pas"/>
+        <DCCReference Include="MainMethod.pas"/>
+        <DCCReference Include="Log4Delphi.pas"/>
+        <DCCReference Include="BackgroundMethod.pas"/>
+        <DCCReference Include="LanguageMethod.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -150,6 +155,24 @@
             <Deployment Version="4">
                 <DeployFile LocalName="Win32\Debug\LittleLimboLauncher.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
+                        <RemoteName>LittleLimboLauncher.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Debug\LittleLimboLauncher.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>LittleLimboLauncher.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Debug\LittleLimboLauncher.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64">
+                        <RemoteName>LittleLimboLauncher.rsm</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Release\LittleLimboLauncher.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
                         <RemoteName>LittleLimboLauncher.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
