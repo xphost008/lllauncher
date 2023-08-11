@@ -5,7 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, VCLTee.TeCanvas, CheckLst, JSON, ShellAPI,
-  IniFiles, Menus, ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg;
+  IniFiles, Menus, ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg,
+  Vcl.Buttons;
 
 type
   Tform_mainform = class(TForm)
@@ -31,7 +32,7 @@ type
     label_launch_tips: TLabel;
     image_refresh_background_music: TImage;
     image_refresh_background_image: TImage;
-    image_finish_running_mc: TImage;
+    image_exit_running_mc: TImage;
     image_open_download_prograss: TImage;
     button_launch_game: TButton;
     tabsheet_account_part: TTabSheet;
@@ -111,7 +112,7 @@ type
     label_choose_view_mode: TLabel;
     label_minecraft_version_name: TLabel;
     label_select_minecraft: TLabel;
-    label_select_mod_loader: TLabel;
+    label_select_modloader: TLabel;
     label_download_return_value: TLabel;
     label_download_biggest_thread: TLabel;
     checklistbox_choose_view_mode: TCheckListBox;
@@ -120,8 +121,8 @@ type
     radiogroup_choose_mod_loader: TRadioGroup;
     listbox_select_minecraft: TListBox;
     button_reset_download_part: TButton;
-    listbox_select_mod_loader: TListBox;
-    button_load_mod_loader: TButton;
+    listbox_select_modloader: TListBox;
+    button_load_modloader: TButton;
     button_download_start_download_minecraft: TButton;
     scrollbar_download_biggest_thread: TScrollBar;
     tabsheet_download_custom_part: TTabSheet;
@@ -134,17 +135,17 @@ type
     button_custom_download_choose_path: TButton;
     button_custom_download_open_path: TButton;
     button_custom_download_start: TButton;
-    tabsheet_download_mod_loader_part: TTabSheet;
-    label_download_mod_loader_forge: TLabel;
-    label_download_mod_loader_fabric: TLabel;
-    label_download_mod_loader_quilt: TLabel;
-    label_download_mod_loader_neoforge: TLabel;
-    listbox_download_mod_loader_forge: TListBox;
-    listbox_download_mod_loader_fabric: TListBox;
-    listbox_download_mod_loader_quilt: TListBox;
-    listbox_download_mod_loader_neoforge: TListBox;
-    button_download_mod_loader_download: TButton;
-    button_download_mod_loader_refresh: TButton;
+    tabsheet_download_modloader_part: TTabSheet;
+    label_download_modloader_forge: TLabel;
+    label_download_modloader_fabric: TLabel;
+    label_download_modloader_quilt: TLabel;
+    label_download_modloader_neoforge: TLabel;
+    listbox_download_modloader_forge: TListBox;
+    listbox_download_modloader_fabric: TListBox;
+    listbox_download_modloader_quilt: TListBox;
+    listbox_download_modloader_neoforge: TListBox;
+    button_download_modloader_download: TButton;
+    button_download_modloader_refresh: TButton;
     tabsheet_online_part: TTabSheet;
     label_online_tip: TLabel;
     pagecontrol_online_part: TPageControl;
@@ -179,10 +180,9 @@ type
     image_mainpage_background_image: TImage;
     n_official: TMenuItem;
     n_entry_official_website: TMenuItem;
-    n_sponsor_author: TMenuItem;
-    n_sponsor_bmclapi: TMenuItem;
+    n_support_author: TMenuItem;
+    n_support_bmclapi: TMenuItem;
     n_manual: TMenuItem;
-    n_reset_launcher: TMenuItem;
     n_export_argument: TMenuItem;
     n_current_version: TMenuItem;
     n_check_update: TMenuItem;
@@ -287,9 +287,6 @@ type
     edit_isolation_window_title: TEdit;
     label_isolation_window_title: TLabel;
     label_isolation_window_size: TLabel;
-    edit_isolation_window_width: TEdit;
-    label_isolation_window_x: TLabel;
-    edit_launch_window_height: TEdit;
     label_launch_game_memory: TLabel;
     scrollbar_launch_game_memory: TScrollBar;
     label_launch_current_memory: TLabel;
@@ -332,7 +329,7 @@ type
     edit_export_additional_game: TEdit;
     label_export_additional_jvm: TLabel;
     edit_export_additional_jvm: TEdit;
-    label_export_max_memory: TLabel;
+    label_export_memory: TLabel;
     scrollbar_export_max_memory: TScrollBar;
     memo_export_modpack_profile: TMemo;
     label_export_modpack_profile: TLabel;
@@ -355,6 +352,15 @@ type
     label_launch_download_java: TLabel;
     label_launch_window_height_tip: TLabel;
     label_launch_window_width_tip: TLabel;
+    scrollbar_isolation_window_height: TScrollBar;
+    toggleswitch_isolation_window_height: TToggleSwitch;
+    scrollbar_isolation_window_width: TScrollBar;
+    toggleswitch_isolation_window_width: TToggleSwitch;
+    label_isolation_window_current_width: TLabel;
+    label_isolation_window_current_height: TLabel;
+    label_isolation_window_width_tip: TLabel;
+    label_isolation_window_height_tip: TLabel;
+    n_reset_launcher: TMenuItem;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -366,6 +372,30 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure image_refresh_background_musicClick(Sender: TObject);
     procedure image_refresh_background_imageClick(Sender: TObject);
+    procedure radiobutton_background_music_openClick(Sender: TObject);
+    procedure radiobutton_background_music_launchClick(Sender: TObject);
+    procedure radiobutton_background_music_notClick(Sender: TObject);
+    procedure radiobutton_background_launch_hideClick(Sender: TObject);
+    procedure radiobutton_background_launch_showClick(Sender: TObject);
+    procedure radiobutton_background_launch_exitClick(Sender: TObject);
+    procedure toggleswitch_background_gradientClick(Sender: TObject);
+    procedure scrollbar_background_gradient_valueChange(Sender: TObject);
+    procedure scrollbar_background_gradient_stepChange(Sender: TObject);
+    procedure buttoncolor_custom_colorClick(Sender: TObject);
+    procedure button_grass_colorClick(Sender: TObject);
+    procedure button_sun_colorClick(Sender: TObject);
+    procedure button_sultan_colorClick(Sender: TObject);
+    procedure button_sky_colorClick(Sender: TObject);
+    procedure button_cute_colorClick(Sender: TObject);
+    procedure button_normal_colorClick(Sender: TObject);
+    procedure edit_background_mainform_titleChange(Sender: TObject);
+    procedure timer_form_gradient_tickTimer(Sender: TObject);
+    procedure button_background_play_musicClick(Sender: TObject);
+    procedure button_background_pause_musicClick(Sender: TObject);
+    procedure button_background_stop_musicClick(Sender: TObject);
+    procedure button_add_accountClick(Sender: TObject);
+    procedure combobox_all_accountChange(Sender: TObject);
+    procedure button_delete_accountClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -395,10 +425,79 @@ var
 implementation
 
 uses
-  MainMethod, LaunchMethod, BackgroundMethod, LanguageMethod;
+  MainMethod, LaunchMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow;
 
 {$R *.dfm}
-
+//背景设置：自定义配色按钮
+procedure Tform_mainform.buttoncolor_custom_colorClick(Sender: TObject);
+begin
+  Color := buttoncolor_custom_color.SymbolColor;
+  mred := Color and $FF;
+  mgreen := (Color and $FF00) shr 8;
+  mblue := (Color and $FF0000) shr 16;
+end;
+//账号部分：添加账号
+procedure Tform_mainform.button_add_accountClick(Sender: TObject);
+begin
+  if combobox_all_account.Items.Count > 32 then begin
+    MyMessagebox('登录的账号太多了', '你登录的账号超过32个了，情删掉一些之后再重新登录吧！', MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  if pagecontrol_account_part.ActivePage = tabsheet_account_offline_part then begin
+    OfflineLogin(edit_offline_name.Text, edit_offline_uuid.Text);
+  end;
+end;
+//背景设置：暂停音乐
+procedure Tform_mainform.button_background_pause_musicClick(Sender: TObject);
+begin
+  if v.FileName = '' then
+    exit;
+  v.Pause;
+end;
+//背景设置：播放音乐
+procedure Tform_mainform.button_background_play_musicClick(Sender: TObject);
+begin
+  if v.FileName = '' then begin
+    ResetBackMusic(true);
+  end else begin
+    if v.Mode = mpPaused then
+      v.Resume
+    else
+      PlayMusic;
+  end;
+end;
+//背景设置：停止音乐
+procedure Tform_mainform.button_background_stop_musicClick(Sender: TObject);
+begin
+  if v.FileName = '' then
+    exit;
+  v.Stop;
+  v.Position := 0;
+end;
+//背景设置：可爱粉
+procedure Tform_mainform.button_cute_colorClick(Sender: TObject);
+begin
+  mred := 255;
+  mgreen := 110;
+  mblue := 180;
+  Color := rgb(mred, mgreen, mblue);
+  buttoncolor_custom_color.SymbolColor := Color;
+end;
+//删除账号
+procedure Tform_mainform.button_delete_accountClick(Sender: TObject);
+begin
+  //
+end;
+//背景设置：小草绿
+procedure Tform_mainform.button_grass_colorClick(Sender: TObject);
+begin
+  mred := 50;
+  mgreen := 205;
+  mblue := 50;
+  Color := rgb(mred, mgreen, mblue);
+  buttoncolor_custom_color.SymbolColor := Color;
+end;
+//主界面：启动游戏按钮
 procedure Tform_mainform.button_launch_gameClick(Sender: TObject);
 begin
 //  var mm := TTabSheet.Create(pagecontrol_mainpage);
@@ -415,13 +514,79 @@ begin
 //  showmessage('finish!!');
 //  self.Color := buttonColor1.SymbolColor;
 //  self.Color := 0;
+//  var MainHandle := OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessID);
+//  if SetProcessWorkingSetSize(GetCurrentProcess, 1024 * 1024, 1024 * 4096) then begin
+//    showmessage('OK')
+//  end else showmessage('NO');
+//  CloseHandle(MainHandle);
+//  try
+//    var MainHandle := OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessID);
+//    if SetProcessWorkingSetSize(GetCurrentProcess, $FFFFFFFF, $FFFFFFFF) then showmessage('OK1');
+//    CloseHandle(MainHandle);
+//    showmessage('OK2');
+//  except
+//    // 处理异常
+//    showmessage('NO');
+//  end;
 end;
+//背景设置：默认白
+procedure Tform_mainform.button_normal_colorClick(Sender: TObject);
+begin
+  mred := 240;
+  mgreen := 240;
+  mblue := 240;
+  Color := rgb(mred, mgreen, mblue);
+  buttoncolor_custom_color.SymbolColor := Color;
+end;
+//背景设置：天空蓝
+procedure Tform_mainform.button_sky_colorClick(Sender: TObject);
+begin
+  mred := 0;
+  mgreen := 191;
+  mblue := 255;
+  Color := rgb(mred, mgreen, mblue);
+  buttoncolor_custom_color.SymbolColor := Color;
+end;
+//背景设置：苏丹红
+procedure Tform_mainform.button_sultan_colorClick(Sender: TObject);
+begin
+  mred := 189;
+  mgreen := 0;
+  mblue := 0;
+  Color := rgb(mred, mgreen, mblue);
+  buttoncolor_custom_color.SymbolColor := Color;
+end;
+//背景设置：日落黄
+procedure Tform_mainform.button_sun_colorClick(Sender: TObject);
+begin
+  mred := 255;
+  mgreen := 215;
+  mblue := 0;
+  Color := rgb(mred, mgreen, mblue);
+  buttoncolor_custom_color.SymbolColor := Color;
+end;
+//账号部分：所有账号下拉框改变事件
+procedure Tform_mainform.combobox_all_accountChange(Sender: TObject);
+begin
+  var pla := ((AccountJson.Values['account'] as TJsonArray)[combobox_all_account.ItemIndex] as TJsonObject);
+  var pln := pla.GetValue('name').Value;
+  JudgeJSONSkin;
+  label_account_return_value.Caption := Concat('已登录，玩家名称：', pln);
+end;
+//背景设置：窗口标题
+procedure Tform_mainform.edit_background_mainform_titleChange(Sender: TObject);
+begin
+  Caption := edit_background_mainform_title.Text;
+end;
+
+//主界面：窗口关闭事件
 procedure Tform_mainform.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   SaveBackground;
+  SaveAccount;
   ShellExecute(Application.Handle, 'open', 'taskkill.exe', '/F /IM LittleLimboLauncher.exe', nil, SW_HIDE);
 end;
-//窗口创建
+//主界面：窗口创建事件
 procedure Tform_mainform.FormCreate(Sender: TObject);
 begin
   Log := Log4D.Create;
@@ -468,13 +633,14 @@ begin
     LLLini.WriteInteger('Misc', 'Green', 240);
     LLLini.WriteInteger('Misc', 'Blue', 240);
     LLLini.WriteInteger('Misc', 'WindowAlpha', 255);
-    LLLini.WriteInteger('Misc', 'ControlAlpha', 195);
+    LLLini.WriteInteger('Misc', 'ControlAlpha', 191);
     LLLini.WriteInteger('Misc', 'WindowControl', 2);
     LLLini.WriteInteger('Misc', 'SelectType', 3);
     LLLini.WriteBool('Misc', 'IsGradient', False);
     LLLini.WriteInteger('Misc', 'GradientValue', 20);
-    LLLini.WriteString('Misc', 'LauncherName', 'Little Limbo Launcher (Delphi)');
+    LLLini.WriteString('Misc', 'LauncherName', 'Little Limbo Launcher');
     LLLini.WriteInteger('Account', 'SelectLoginMode', 1);
+    LLLini.WriteString('Language', 'SelectLanguageFile', 'zh_cn');
   end;
   if not FileExists(Concat(AppData, '\LLLauncher\Other.ini')) then begin
     Otherini.WriteString('Other', 'Random', inttostr(random(2000000) + 1));
@@ -483,8 +649,9 @@ begin
   end;
   Log.Write('初始化变量2完毕。', LOG_INFO); //输出Log
   Log.Write('判断完成窗口创建事件！', LOG_INFO);
+  InitLanguage;
 end;
-//窗口已经开始展示
+//主界面：窗口展示事件
 procedure Tform_mainform.FormShow(Sender: TObject);
 begin
   pagecontrol_mainpage.ActivePage := tabsheet_mainpage_part;
@@ -495,6 +662,9 @@ begin
   pagecontrol_version_part.ActivePage := tabsheet_version_control_part;
   v.ParentWindow := Handle;
   v.Visible := False;
+  Log.Write('正在读取语言文件……', LOG_INFO);
+  var langtle := LLLini.ReadString('Language', 'SelectLanguageFile', '');
+  SetLanguage(langtle);
   Log.Write('开始判断窗口显示事件！', LOG_INFO);
   try  //判断打开启动器的次数
     Log.Write('开始判断打开启动器次数。', LOG_INFO);
@@ -506,7 +676,6 @@ begin
     mopen_number := 1;
     Log.Write('判断打开启动器次数失败，默认降为1次。', LOG_ERROR);
     Otherini.WriteString('Misc', 'Launcher', inttostr(mopen_number));
-    label_open_launcher_number.Caption := Concat('打开启动器次数：', inttostr(mopen_number));
   end;
   label_open_launcher_number.Caption := GetLanguageText('label_open_launcher_number.caption').Replace('${open_launcher_number}', inttostr(mopen_number));
   try  //判断启动游戏的次数
@@ -552,10 +721,10 @@ begin
     var IltIni := TIniFile.Create(Concat(svp, '\LLLauncher.ini'));
     if IltIni.ReadString('Isolation', 'IsIsolation', '') = 'True' then svv := Concat(svv, GetLanguageText('button_launch_game.caption.isolation'));
     Log.Write(Concat('游戏版本：已确认宁所选版本为：', svv), LOG_INFO);
-    button_launch_game.Caption := Concat(GetLanguageText('button_launch_game.caption'), #13, svv);
+    button_launch_game.Caption := GetLanguageText('button_launch_game.caption').Replace('${launch_version_name}', svv);
   except
     Log.Write('游戏版本：找不到所选Version文件夹，判断为暂未选择一个版本。', LOG_ERROR);
-    button_launch_game.Caption := Concat(GetLanguageText('button_launch_game.caption.absence'));
+    button_launch_game.Caption := GetLanguageText('button_launch_game.caption.absence');
   end;
   Log.Write(Concat('开始判断窗口颜色。'), LOG_INFO);
   try //判断RGBA
@@ -594,58 +763,148 @@ begin
   AlphaBlendValue := mwindow_alpha;
   try
     mcontrol_alpha := LLLini.ReadInteger('Misc', 'ControlAlpha', -1);
-    if (mcontrol_alpha < 63) or (mcontrol_alpha > 195) then raise Exception.Create('Format Exception');
+    if (mcontrol_alpha < 63) or (mcontrol_alpha > 191) then raise Exception.Create('Format Exception');
   except
     Log.Write(Concat('窗口透明度有误，位置：Ini文件的ControlAlpha位置。'), LOG_ERROR);
-    mcontrol_alpha := 195;
+    mcontrol_alpha := 191;
     LLLini.WriteInteger('Misc', 'ControlAlpha', mcontrol_alpha);
   end;
+  mis_gradient := LLLini.ReadBool('Misc', 'IsGradient', False);
+  mgradient_value := LLLini.ReadInteger('Misc', 'GradientValue', -1);
+  try
+    if (mgradient_value > 100) or (mgradient_value < 1) then raise Exception.Create('Format Exception');
+  except
+    mgradient_value := 20;
+    LLLini.WriteInteger('Misc', 'GradientValue', mgradient_value);
+  end;
+  mgradient_step := LLLini.ReadInteger('Misc', 'GradientStep', -1);
+  try
+    if (mgradient_step > 10) or (mgradient_step < 1) then raise Exception.Create('Format Exception');
+  except
+    mgradient_step := 10;
+    LLLini.WriteInteger('Misc', 'GradientStep', mgradient_step);
+  end;
+  timer_form_gradient_tick.Interval := mgradient_value;
   SetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE, GetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE) or WS_EX_LAYERED);
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);
   Log.Write(Concat('已判断完成，开始应用窗口颜色。'), LOG_INFO);
   Color := rgb(mred, mgreen, mblue); //实装RGBA。
   ResetBackImage(false);
 end;
-//图片切换按钮
+//主界面：图片切换按钮
 procedure Tform_mainform.image_refresh_background_imageClick(Sender: TObject);
 begin
   ResetBackImage(true);
 end;
-//音乐切换按钮
+//主界面：音乐切换按钮
 procedure Tform_mainform.image_refresh_background_musicClick(Sender: TObject);
 begin
   ResetBackMusic(true);
 end;
-//初次切换页
+//主界面：初次切换页
 procedure Tform_mainform.pagecontrol_mainpageChange(Sender: TObject);
 begin
-  if pagecontrol_mainpage.ActivePage = tabsheet_background_part then begin
-    InitBackground;
-  end;
+  if pagecontrol_mainpage.ActivePage = tabsheet_background_part then
+    InitBackground
+  else if pagecontrol_mainpage.ActivePage = tabsheet_account_part then
+    InitAccount;
 end;
-//切换该页前
+//主界面：切换该页前
 procedure Tform_mainform.pagecontrol_mainpageChanging(Sender: TObject;
   var AllowChange: Boolean);
 begin
-  if pagecontrol_mainpage.ActivePage = tabsheet_background_part then begin
-    SaveBackground;
-  end;
+  if pagecontrol_mainpage.ActivePage = tabsheet_background_part then
+    SaveBackground
+  else if pagecontrol_mainpage.ActivePage = tabsheet_account_part then
+    SaveAccount;
 end;
-//控件透明度滑动条
+//背景设置：启动游戏时退出窗口的单选框
+procedure Tform_mainform.radiobutton_background_launch_exitClick(
+  Sender: TObject);
+begin
+  mwindow_control := 3;
+end;
+//背景设置：启动游戏时隐藏窗口的单选框
+procedure Tform_mainform.radiobutton_background_launch_hideClick(
+  Sender: TObject);
+begin
+  mwindow_control := 1;
+end;
+//背景设置：启动游戏时显示窗口的单选框
+procedure Tform_mainform.radiobutton_background_launch_showClick(
+  Sender: TObject);
+begin
+  mwindow_control := 2;
+end;
+//背景设置：启动游戏时播放音乐的单选框
+procedure Tform_mainform.radiobutton_background_music_launchClick(
+  Sender: TObject);
+begin
+  mselect_type := 2;
+end;
+//背景设置：不播放音乐的单选框
+procedure Tform_mainform.radiobutton_background_music_notClick(Sender: TObject);
+begin
+  mselect_type := 3;
+end;
+//背景设置：打开启动器时播放音乐的单选框
+procedure Tform_mainform.radiobutton_background_music_openClick(
+  Sender: TObject);
+begin
+  mselect_type := 1;
+end;
+//背景设置：控件透明度滑动条
 procedure Tform_mainform.scrollbar_background_control_alphaChange(
   Sender: TObject);
 begin
   mcontrol_alpha := scrollbar_background_control_alpha.Position;
-  label_background_control_current_alpha.Caption := GetLanguageText('label_background_control_current_alpha.caption').Replace('${background_control_alpha}', inttostr(mcontrol_alpha));
+  label_background_control_current_alpha.Caption := GetLanguageText('label_background_control_current_alpha.caption').Replace('${control_alpha}', inttostr(mcontrol_alpha));
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);
 end;
-//窗口透明度滑动条
+//背景设置：窗口渐变产生步长滑动条
+procedure Tform_mainform.scrollbar_background_gradient_stepChange(
+  Sender: TObject);
+begin
+  mgradient_step := scrollbar_background_gradient_step.Position;
+  label_background_gradient_current_step.Caption := GetLanguageText('label_background_gradient_current_step.caption').Replace('${gradient_step}', inttostr(mgradient_step));
+end;
+//背景设置：窗口渐变产生值滑动条
+procedure Tform_mainform.scrollbar_background_gradient_valueChange(
+  Sender: TObject);
+begin
+  mgradient_value := scrollbar_background_gradient_value.Position;
+  label_background_gradient_current_value.Caption := GetLanguageText('label_background_gradient_current_value.caption').Replace('${gradient_value}', inttostr(mgradient_value));
+end;
+//背景设置：窗口透明度滑动条
 procedure Tform_mainform.scrollbar_background_window_alphaChange(
   Sender: TObject);
 begin
   mwindow_alpha := scrollbar_background_window_alpha.Position;
-  label_background_window_current_alpha.Caption := GetLanguageText('label_background_window_current_alpha.caption').Replace('${background_window_alpha}', inttostr(mwindow_alpha));
+  label_background_window_current_alpha.Caption := GetLanguageText('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
   AlphaBlendValue := mwindow_alpha;
+end;
+//主窗口：窗口渐变产生计时器
+var mgradient_temp: Integer = 0;
+procedure Tform_mainform.timer_form_gradient_tickTimer(Sender: TObject);
+begin
+  if mis_gradient then begin
+    mgradient_temp := mgradient_temp + mgradient_step;
+    if mgradient_temp >= mwindow_alpha then begin
+      timer_form_gradient_tick.Enabled := False;
+      AlphaBlendValue := LLLini.ReadInteger('Misc', 'WindowAlpha', -1);
+    end else AlphaBlendValue := mgradient_temp;
+  end else timer_form_gradient_tick.Enabled := false;
+end;
+//背景设置：窗口渐变产生开关
+procedure Tform_mainform.toggleswitch_background_gradientClick(Sender: TObject);
+begin
+  if toggleswitch_background_gradient.IsOn then begin
+    scrollbar_background_gradient_value.Enabled := true;
+  end else begin
+    scrollbar_background_gradient_value.Enabled := false;
+  end;
+  scrollbar_background_gradient_step.Enabled := scrollbar_background_gradient_value.Enabled;
+  mis_gradient := scrollbar_background_gradient_value.Enabled;
 end;
 
 end.

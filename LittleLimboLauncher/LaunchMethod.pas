@@ -26,7 +26,6 @@ begin
           var god := GetFile(I);
           try
             var Root := TJsonObject.ParseJSONValue(god) as TJsonObject;
-//            var dd := Root.GetValue('id').Value;
             var tmp := Root.GetValue('libraries').ToString;
             var ttt := Root.GetValue('mainClass').Value;
             result := I;

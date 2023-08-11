@@ -8,14 +8,14 @@ uses
 procedure InitBackground;
 procedure SaveBackground;
 
+var
+  mselect_type, mwindow_control: Integer;
+
 implementation
 
 uses
   mainform, LanguageMethod;
 
-
-var
-  mselect_type, mwindow_control: Integer;
 var f: Boolean = false;
 //³õÊ¼»¯±³¾°
 procedure InitBackground;
@@ -23,8 +23,8 @@ begin
   if f then exit;
   f := true;
   form_mainform.buttoncolor_custom_color.SymbolColor := rgb(mred, mgreen, mblue);
-  form_mainform.label_background_window_current_alpha.Caption := GetLanguageText('label_background_window_current_alpha.caption').Replace('${background_window_alpha}', inttostr(mwindow_alpha));
-  form_mainform.label_background_control_current_alpha.Caption := GetLanguageText('label_background_control_current_alpha.caption').Replace('${background_control_alpha}', inttostr(mcontrol_alpha));
+  form_mainform.label_background_window_current_alpha.Caption := GetLanguageText('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
+  form_mainform.label_background_control_current_alpha.Caption := GetLanguageText('label_background_control_current_alpha.caption').Replace('${control_alpha}', inttostr(mcontrol_alpha));
   form_mainform.scrollbar_background_window_alpha.Position := mwindow_alpha;
   form_mainform.scrollbar_background_control_alpha.Position := mcontrol_alpha;
   form_mainform.edit_background_mainform_title.Text := LLLini.ReadString('Misc', 'LauncherName', '');
@@ -54,25 +54,10 @@ begin
     LLLini.WriteInteger('Misc', 'WindowControl', mwindow_control);
     form_mainform.radiobutton_background_launch_show.Checked := true;
   end;
-  mgradient_value := LLLini.ReadInteger('Misc', 'GradientValue', -1);
-  try
-    if (mgradient_value > 100) or (mgradient_value < 1) then raise Exception.Create('Format Exception');
-  except
-    mgradient_value := 20;
-    LLLini.WriteInteger('Misc', 'GradientValue', mgradient_value);
-  end;
-  mgradient_step := LLLini.ReadInteger('Misc', 'GradientStep', -1);
-  try
-    if (mgradient_step > 10) or (mgradient_step < 1) then raise Exception.Create('Format Exception');
-  except
-    mgradient_step := 10;
-    LLLini.WriteInteger('Misc', 'GradientStep', mgradient_step);
-  end;
   form_mainform.scrollbar_background_gradient_value.Position := mgradient_value;
   form_mainform.scrollbar_background_gradient_step.Position := mgradient_step;
   form_mainform.label_background_gradient_current_value.Caption := GetLanguageText('label_background_gradient_current_value.caption').Replace('${gradient_value}', inttostr(mgradient_value));
   form_mainform.label_background_gradient_current_step.Caption := GetLanguageText('label_background_gradient_current_step.caption').Replace('${gradient_step}', inttostr(mgradient_step));
-  mis_gradient := LLLini.ReadBool('Misc', 'IsGradient', False);
   if mis_gradient then begin
     form_mainform.toggleswitch_background_gradient.State := tsson;
     form_mainform.scrollbar_background_gradient_step.Enabled := true;
@@ -82,6 +67,7 @@ begin
     form_mainform.scrollbar_background_gradient_step.Enabled := false;
     form_mainform.scrollbar_background_gradient_value.Enabled := false;
   end;
+  form_mainform.edit_background_mainform_title.Text := form_mainform.Caption;
 end;
 //±£´æ±³¾°
 procedure SaveBackground;
@@ -96,6 +82,7 @@ begin
   LLLini.WriteBool('Misc', 'IsGradient', mis_gradient);
   LLLini.WriteInteger('Misc', 'GradientValue', mgradient_value);
   LLLini.WriteInteger('Misc', 'GradientStep', mgradient_step);
+  LLLini.WriteString('Misc', 'LauncherName', form_mainform.Caption);
 end;
 
 end.
