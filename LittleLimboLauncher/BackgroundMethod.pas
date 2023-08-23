@@ -1,4 +1,4 @@
-unit BackgroundMethod;
+Ôªøunit BackgroundMethod;
 
 interface
 
@@ -17,14 +17,14 @@ uses
   mainform, LanguageMethod;
 
 var f: Boolean = false;
-//≥ı ºªØ±≥æ∞
+//ÂàùÂßãÂåñËÉåÊôØ
 procedure InitBackground;
 begin
   if f then exit;
   f := true;
   form_mainform.buttoncolor_custom_color.SymbolColor := rgb(mred, mgreen, mblue);
-  form_mainform.label_background_window_current_alpha.Caption := GetLanguageText('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
-  form_mainform.label_background_control_current_alpha.Caption := GetLanguageText('label_background_control_current_alpha.caption').Replace('${control_alpha}', inttostr(mcontrol_alpha));
+  form_mainform.label_background_window_current_alpha.Caption := GetLanguage('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
+  form_mainform.label_background_control_current_alpha.Caption := GetLanguage('label_background_control_current_alpha.caption').Replace('${control_alpha}', inttostr(mcontrol_alpha));
   form_mainform.scrollbar_background_window_alpha.Position := mwindow_alpha;
   form_mainform.scrollbar_background_control_alpha.Position := mcontrol_alpha;
   form_mainform.edit_background_mainform_title.Text := LLLini.ReadString('Misc', 'LauncherName', '');
@@ -56,8 +56,8 @@ begin
   end;
   form_mainform.scrollbar_background_gradient_value.Position := mgradient_value;
   form_mainform.scrollbar_background_gradient_step.Position := mgradient_step;
-  form_mainform.label_background_gradient_current_value.Caption := GetLanguageText('label_background_gradient_current_value.caption').Replace('${gradient_value}', inttostr(mgradient_value));
-  form_mainform.label_background_gradient_current_step.Caption := GetLanguageText('label_background_gradient_current_step.caption').Replace('${gradient_step}', inttostr(mgradient_step));
+  form_mainform.label_background_gradient_current_value.Caption := GetLanguage('label_background_gradient_current_value.caption').Replace('${gradient_value}', inttostr(mgradient_value));
+  form_mainform.label_background_gradient_current_step.Caption := GetLanguage('label_background_gradient_current_step.caption').Replace('${gradient_step}', inttostr(mgradient_step));
   if mis_gradient then begin
     form_mainform.toggleswitch_background_gradient.State := tsson;
     form_mainform.scrollbar_background_gradient_step.Enabled := true;
@@ -69,7 +69,7 @@ begin
   end;
   form_mainform.edit_background_mainform_title.Text := form_mainform.Caption;
 end;
-//±£¥Ê±≥æ∞
+//‰øùÂ≠òËÉåÊôØ
 procedure SaveBackground;
 begin
   LLLini.WriteInteger('Misc', 'Red', mred);

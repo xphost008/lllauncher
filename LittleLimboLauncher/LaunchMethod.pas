@@ -1,27 +1,113 @@
-unit LaunchMethod;
+ï»¿unit LaunchMethod;
 
 interface
 
 uses
-  SysUtils, Classes, Windows, IOUtils, StrUtils, JSON;
+  SysUtils, Classes, Windows, IOUtils, StrUtils, JSON, Zip;
 
 function GetMCRealPath(path, suffix: string): String;
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
+function ReplaceMCInheritsFrom(yuanjson, gaijson: String): String;
+function ConvertNameToPath(name: String): String;
+function Unzip(zippath, extpath: String): Boolean;
 
 implementation
 
 uses
   MainMethod;
-// »ñÈ¡MCµÄÕæÊµÎÄ¼şÂ·¾¶¡£
+//è§£å‹Zip
+function Unzip(zippath, extpath: String): Boolean;
+begin
+  result := false;
+  if not DirectoryExists(extpath) then ForceDirectories(extpath);
+  if not FileExists(zippath) then begin result := false; exit; end;
+  var zp := TZipFile.Create;
+  try
+    try
+      zp.Open(zippath, zmRead); //æ‰“å¼€å‹ç¼©åŒ…
+      zp.ExtractAll(extpath); //è§£å‹å‹ç¼©åŒ…
+      result := true;
+    except end;
+  finally
+    zp.Free;
+  end;
+end;
+// å°†åç§°è½¬æ¢æˆè·¯å¾„ ï¼ˆæ­¤æ–¹æ³•ç®€ç§°ï¼ŒæŠŠjsonä¸­çš„nameæ–‡ä»¶è½¬æ¢æˆpathçš„æ ¼å¼ã€‚ï¼‰
+function ConvertNameToPath(name: String): String;
+begin //é‡æ–°å†å†å†å†å†™ä¸€éã€‚ã€‚
+  var all := TStringList.Create;
+  var sb := TStringBuilder.Create;
+  try
+    var hou: TArray<String> := SplitString(name, '@'); //å…ˆæŒ‰ç…§@åˆ‡å‰²ä¸€é
+    name := hou[0];
+    var n1 := name.Substring(0, name.IndexOf(':'));
+    var n2 := name.Substring(name.IndexOf(':') + 1, name.Length);
+    var c1 := SplitString(n1, '.');
+    for var I in c1 do all.Add(Concat(I, '\'));
+    var c2: TArray<String> := SplitString(n2, ':');
+    for var I := 0 to Length(c2) - 1 do begin
+      if Length(c2) >= 3 then begin
+        if I < Length(c2) - 1 then begin
+          all.Add(Concat(c2[I], '\'));
+        end;
+      end else all.Add(Concat(c2[I], '\'));
+    end;
+    for var I := 0 to Length(c2) - 1 do begin
+      if I < Length(c2) - 1 then begin
+        all.Add(Concat(c2[I], '-'));
+      end else begin
+        try
+          all.Add(Concat(c2[I], '.', hou[1]))
+        except
+          all.Add(Concat(c2[I], '.jar'));
+        end;
+      end;
+    end;
+    for var I in all do sb.Append(I);
+    result := sb.ToString;
+  finally
+    all.Free;
+    sb.Free;
+  end;
+end;
+//åé¦ˆç»™ç¨‹åºâ€”â€”å°†åŸæ¥çš„MCJsonä¸æœ‰ç€InheritsFromé”®çš„JSONç»™åˆå¹¶ä¹‹åå†è¿”å›ã€‚
+function ReplaceMCInheritsFrom(yuanjson, gaijson: String): String;
+begin
+  if yuanjson = '' then begin result := ''; exit; end;  //å¦‚æœä»»æ„ä¸€ä¸ªjsonä¸ºç©ºï¼Œåˆ™è¿”å›ç©ºã€‚
+  if gaijson = '' then begin result := ''; exit; end;
+  if yuanjson = gaijson then begin result := yuanjson; exit; end; //å¦‚æœä¸¤ä¸ªjsonä¸€æ ·ï¼Œåˆ™è¿”å›åŸå€¼ã€‚
+  var Rty := TJsonObject.ParseJSONValue(yuanjson) as TJsonObject;
+  var Rtg := TJsonObject.ParseJSONValue(gaijson) as TJsonObject;
+  Rtg.RemovePair('mainClass');
+  Rtg.AddPair('mainClass', Rty.GetValue('mainClass').Value);
+  Rtg.RemovePair('id');
+  Rtg.AddPair('id', Rty.GetValue('id').Value);
+  for var I in (Rty.GetValue('libraries') as TJsonArray) do (Rtg.GetValue('libraries') as TJsonArray).Add(I as TJsonObject);
+  try
+    for var I in ((Rty.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray) do
+      ((Rtg.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray).Add(I.GetValue<String>);
+  except end;
+  try
+    for var I in ((Rty.GetValue('arguments') as TJsonObject).GetValue('jvm') as TJsonArray) do
+      ((Rtg.GetValue('arguments') as TJsonObject).GetValue('jvm') as TJsonArray).Add(I.GetValue<String>);
+  except end;
+  try
+    var ma := Rty.GetValue('minecraftArguments').Value;
+    Rtg.RemovePair('minecraftArguments');
+    Rtg.AddPair('minecraftArguments', ma);
+  except end;
+  result := Rtg.ToString;
+end;
+// è·å–MCçš„çœŸå®æ–‡ä»¶è·¯å¾„ã€‚
 function GetMCRealPath(path, suffix: string): String;
 var
   Files: TArray<String>;
 begin
   result := '';
-  if DirectoryExists(path) then begin // ÅĞ¶ÏÎÄ¼ş¼ĞÊÇ·ñ´æÔÚ
-    Files := TDirectory.GetFiles(path); // ÕÒµ½ËùÓĞÎÄ¼ş
-    for var I in Files do begin // ±éÀúÎÄ¼ş
-      if I.IndexOf(suffix) <> -1 then begin // ÊÇ·ñ·ûºÏÌõ¼ş
+  if DirectoryExists(path) then begin // åˆ¤æ–­æ–‡ä»¶å¤¹æ˜¯å¦å­˜åœ¨
+    Files := TDirectory.GetFiles(path); // æ‰¾åˆ°æ‰€æœ‰æ–‡ä»¶
+    for var I in Files do begin // éå†æ–‡ä»¶
+      if I.IndexOf(suffix) <> -1 then begin // æ˜¯å¦ç¬¦åˆæ¡ä»¶
         if suffix = '.json' then begin
           var god := GetFile(I);
           try
@@ -41,7 +127,7 @@ begin
     end;
   end;
 end;
-//»ñÈ¡MCµÄInheritsFrom»òjar¼ü£¬Ëù¶ÔÓ¦µÄMCÎÄ¼ş¼Ğ¡£¡¾Èç¹ûMC²»´æÔÚInheritsFrom»òjar¼ü£¬Ôò·µ»ØÔ­±¾²ÎÊıÖµ¡£Èç¹ûÕÒ²»µ½JsonÎÄ¼ş£¬Ôò·µ»Ø¿Õ¡£Èç¹ûÕÒµ½ÁËInheritsFrom¼üµ«ÊÇÈ´ÕÒ²»µ½Ô­±¾µÄÎÄ¼ş¼Ğ£¬ÔòÒ²Í¬Ñù·µ»Ø¿Õ¡£µ±Ò»ÇĞ¶¼Âú×ãµÄÊ±ºò£¬Ôò·µ»ØÕÒµ½ºóµÄJsonÎÄ¼şµØÖ·¡£¡¿
+//è·å–MCçš„InheritsFromæˆ–jaré”®ï¼Œæ‰€å¯¹åº”çš„MCæ–‡ä»¶å¤¹ã€‚ã€å¦‚æœMCä¸å­˜åœ¨InheritsFromæˆ–jaré”®ï¼Œåˆ™è¿”å›åŸæœ¬å‚æ•°å€¼ã€‚å¦‚æœæ‰¾ä¸åˆ°Jsonæ–‡ä»¶ï¼Œåˆ™è¿”å›ç©ºã€‚å¦‚æœæ‰¾åˆ°äº†InheritsFromé”®ä½†æ˜¯å´æ‰¾ä¸åˆ°åŸæœ¬çš„æ–‡ä»¶å¤¹ï¼Œåˆ™ä¹ŸåŒæ ·è¿”å›ç©ºã€‚å½“ä¸€åˆ‡éƒ½æ»¡è¶³çš„æ—¶å€™ï¼Œåˆ™è¿”å›æ‰¾åˆ°åçš„Jsonæ–‡ä»¶åœ°å€ã€‚ã€‘
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
 var
   Dirs: TArray<String>;

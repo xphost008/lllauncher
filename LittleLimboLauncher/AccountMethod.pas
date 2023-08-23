@@ -1,14 +1,45 @@
-unit AccountMethod;
+ï»¿unit AccountMethod;
 
 interface
 
 uses
-  SysUtils, JSON, Generics.Collections, System.RegularExpressions, Threading, Classes, NetEncoding, ExtCtrls, PngImage;
+  SysUtils, JSON, Generics.Collections, System.RegularExpressions, Threading, Classes, NetEncoding, ExtCtrls, PngImage, Dialogs,
+  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent, StrUtils, Forms, ShellAPI, Windows,
+  ClipBrd;
 
 procedure InitAuthlib();
 procedure InitAccount();
 procedure SaveAccount;
 procedure OfflineLogin(offline_name, offline_uuid: String);
+function AvatarToUUID(num: Integer): String;
+function UUIDToAvatar(uuid: String): Integer;
+function JudgeOfflineSkin(choNumber: Integer; isSlim: Boolean): String;
+function DeleteAccount(index: Integer): Integer;
+procedure ThirdPartyLogin(server, account, password: String);
+procedure JudgeJSONSkin(index: Integer);
+procedure RefreshAccount(index: Integer);
+procedure OAuthLogin;
+
+type
+  TAccount = class
+  private
+  //ç°åœ¨åªæä¾›å¾®è½¯OAuthç™»å½•äº†ï¼Œä¸æä¾›æµè§ˆå™¨ç™»å½•äº†ã€‚ã€‚
+    username, accesstoken, uuid, refreshtoken, avatar: String;
+    thirdclienttoken, thirdbase64: String;
+    function JudgeThirdSkin(web, uuid: String): String;
+  public
+    constructor InitializeAccount(token, client_id, rr: String); overload; //æ„é€ å‡½æ•°
+    constructor InitializeAccount(servername, username, password, clienttoken, uuid, rr: String); overload; //æ„é€ å‡½æ•°
+    function GetUserName: String;
+    function GetAccessToken: String;
+    function GetUUID: String;
+    function GetRefreshToken: String;
+    function GetAvatar: String;
+    function GetThirdClientToken: String;
+    function GetThirdBase64: String;
+    class function GetHttpf(key, web: String; that: Boolean = false): String;
+    class function GetHttph(key, web: String): String;
+  end;
 
 var
   AccountJSON: TJsonObject;
@@ -16,7 +47,7 @@ var
 implementation
 
 uses
-  Log4Delphi, MainForm, MainMethod, MyCustomWindow;
+  Log4Delphi, MainForm, MainMethod, MyCustomWindow, LanguageMethod, DownloadMethod, PrivacyMethod;
 
 var
   mauthlib_download: String;
@@ -61,29 +92,10 @@ const
 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABcElEQVR4nO2aMUoDQRhGExmSLSKIrGBjGRFsPILgDVJZeAZ7C0HxAsEzWHsDwUsIYi5gEYvAIksIaCsI388yLg+Z77X/7vLyGJhJssObk92vgeBgb0eNB5/rjZxHzE7P5Pzx+Snr+RFbvT79H+AAtACNA9ACNA5AC9' +
 'Ck8XgkL4j2+Wgfn9TbnaW6PD86J3ysGjkvfgU4AC1A4wC0AI0D0AI0aVLpc0C0D9dH07/0+UVV78v5LLg/OicUvwIcgBagcQBagMYBaAGaFF3Q9z6fS+jnc4DGAWgBGgegBWgcgBagSU27lheMzq/kfJr0UeLl4a6z1E+OL67lfLHR/1s083s5L34FOAAtQOMAtACNA9ACNMPV7aV8' +
 'TzCiOtS/2/dN+/aedX/xK8ABaAEaB6AFaByAFqBJfe/jy9dF1v3R7/65/sWvAAegBWgcgBagcQBagCa1S/19OnpPL4J+vyD6fMWvAAegBWgcgBagcQBagOYblfMz+bzIKgUAAAAASUVORK5CYII=';
-var g: Boolean = false;
-//¸ù¾İUUIDÅĞ¶ÏĞòºÅ¡£
-function UUIDToAvatar(uuid: String): Integer;
-begin
-  result := UUIDToHashCode(uuid) mod 18;
-end;
-//¸ù¾İĞòºÅ»ñÈ¡UUID¡£
-function AvatarToUUID(num: Integer): String;
-var
-  uid: TGuid;
-begin
-  while True do begin
-    CreateGuid(uid);
-    var str := GuidToString(uid).Replace('{', '').Replace('}', '').Replace('-', '').ToLower;
-    if UUIDToAvatar(str) = num then begin
-      result := str;
-      break;
-    end;
-  end;
-end;
-//ÇĞ¸îBase64µÄÍ¼Ïñ£¬ÌîÈëÍ¼ÏñµÄbase64±àÂë£¬È»ºóÌîÈë×óÉÏµÄ¶¥£¬×óÉÏµÄ×ó£¬ÓÒÏÂµÄ¶¥ºÍÓÒÏÂµÄ×ó£¬ĞÂÍ¼ÏóµÄ¿í¶ÈºÍ¸ß¶È¡£
-//·µ»ØÖµÎªÒ»¸öĞÂµÄbase64±àÂë¡£
-//Èç¹û²Ã¼ôÖµ¸ßÓÚÔ­Í¼Ïñ³¤¿í£¬ÔòÄ¬ÈÏ·µ»Øzstop~×îµÍ£¬»òÕßzsleft~×îÓÒµÈ¡£È»ºó½«¸ÃÍ¼Ïñ°´ÕÕµÈ±ÈÀıËõ·Å³ÉxwidthºÍxheightµÄ¡£
+
+//åˆ‡å‰²Base64çš„å›¾åƒï¼Œå¡«å…¥å›¾åƒçš„base64ç¼–ç ï¼Œç„¶åå¡«å…¥å·¦ä¸Šçš„é¡¶ï¼Œå·¦ä¸Šçš„å·¦ï¼Œå³ä¸‹çš„é¡¶å’Œå³ä¸‹çš„å·¦ï¼Œæ–°å›¾è±¡çš„å®½åº¦å’Œé«˜åº¦ã€‚
+//è¿”å›å€¼ä¸ºä¸€ä¸ªæ–°çš„base64ç¼–ç ã€‚
+//å¦‚æœè£å‰ªå€¼é«˜äºåŸå›¾åƒé•¿å®½ï¼Œåˆ™é»˜è®¤è¿”å›zstop~æœ€ä½ï¼Œæˆ–è€…zsleft~æœ€å³ç­‰ã€‚ç„¶åå°†è¯¥å›¾åƒæŒ‰ç…§ç­‰æ¯”ä¾‹ç¼©æ”¾æˆxwidthå’Œxheightçš„ã€‚
 function CutBase64Image(ig: String; zstop, zsleft, yxtop, yxleft, xwidth, xheight: Integer): String;
 begin
   var pic := TImage.Create(nil);
@@ -112,13 +124,402 @@ begin
     c.Free;
   end;
 end;
-//ÀëÏßµÇÂ¼
+//Postç½‘ç»œï¼Œä½†æ˜¯éœ€è¦è¯·æ±‚å¤´
+class function TAccount.GetHttpf(key, web: string; that: Boolean = false): string;
+begin
+  var ss := TStringStream.Create('', TEncoding.UTF8, False);
+  var http := TNetHTTPClient.Create(nil);
+  try
+    ss.WriteString(key); //å†™å…¥æµ
+    ss.Position := 0;
+    with http do begin
+      AcceptCharSet := 'utf-8'; //è®¾ç½®ç½‘ç»œè¯·æ±‚ç¼–ç 
+      AcceptEncoding := '65001'; //è®¾ç½®ç¼–ç ä»£å·
+      AcceptLanguage := 'en-US'; //è®¾ç½®ç½‘ç»œè¯·æ±‚è¯­è¨€
+      ResponseTimeout := 200000; //è®¾ç½®è¯·æ±‚æ—¶é•¿
+      ConnectionTimeout := 200000; //è®¾ç½®è¿æ¥æ—¶é•¿
+      SendTimeout := 200000; //è®¾ç½®å‘é€æ—¶é•¿ã€å®Œç¾çš„è‹±æ–‡ç†è§£ã€‘ï¼Œä»¥ä¸‹ä¸ºè®¾ç½®è¯·æ±‚åè®®ã€‚
+      SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
+      HandleRedirects := True;  //å¯ä»¥ç½‘å€é‡å®šå‘
+      if that then begin
+        ContentType := Concat('application/x-www-form-urlencoded;charset=utf-8'); //å¦‚æœthatä¸ºtrueï¼Œåˆ™è®¾å®šè¯·æ±‚ç±»å‹ä¸ºformï¼Œåä¹‹åˆ™ä¸ºjson
+      end else begin
+        ContentType := Concat('application/json;charset=utf-8');
+      end;
+      try
+        var res := Post(web, ss);
+        if res.StatusCode = 404 then result := '' else
+        result := res.ContentAsString;
+      except
+        result := '';
+      end;
+    end;
+  finally
+    http.Free; //é‡Šæ”¾èµ„æºã€‚ä»¥ä¸‹ä¸¤ä¸ªçš†å¦‚æ­¤
+    ss.Free;
+  end;
+end;
+//Getç½‘ç»œï¼Œä½†æ˜¯éœ€è¦è¯·æ±‚å¤´
+class function TAccount.GetHttph(key, web: string): string;
+begin
+  var ss := TStringStream.Create('', TEncoding.UTF8, False);
+  var http := TNetHTTPClient.Create(nil);
+  try
+    with http do begin
+      AcceptCharSet := 'utf-8';
+      AcceptEncoding := '65001';
+      AcceptLanguage := 'en-US';
+      ResponseTimeout := 200000;
+      ConnectionTimeout := 200000;
+      SendTimeout := 200000;
+      SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
+      HandleRedirects := True;
+      CustomHeaders['Authorization'] := Concat('Bearer ', key); //è®¾ç½®è‡ªå®šä¹‰å¤´ã€‚
+      try
+        var res := Get(web, ss);
+        if res.StatusCode = 404 then result := '' else
+        result := ss.DataString;
+      except
+        result := '';
+      end;
+    end;
+  finally
+    http.Free;
+    ss.Free;
+  end;
+end;
+//è·å–çš®è‚¤å¤§å¤´åƒã€‚
+function TAccount.JudgeThirdSkin(web, uuid: String): String;
+begin
+  var sj := GetWebText(Concat(web, 'sessionserver/session/minecraft/profile/', uuid));
+  if sj = '' then begin
+    result := '';
+    exit;
+  end;
+  var prop := (TJsonObject.ParseJSONValue(sj) as TJsonObject).GetValue('properties') as TJsonArray;
+  for var I in prop do begin
+    var o := I as TJsonObject;
+    if o.GetValue('name').Value = 'textures' then begin
+      var value := o.GetValue('value').Value;
+      var sj2 := TNetEncoding.Base64.Decode(value);
+      var surl := (((TJsonObject.ParseJSONValue(sj2) as TJsonObject).GetValue('textures') as TJsonObject).GetValue('SKIN') as TJsonObject).GetValue('url').Value;
+      var pic := GetWebStream(surl);
+      if pic = nil then begin
+        result := '';
+        exit;
+      end;
+      var ss := TStringStream.Create;
+      TNetEncoding.Base64.Encode(pic, ss);
+      result := CutBase64Image(ss.DataString, 8, 8, 16, 16, 64, 64);
+    end;
+  end;
+end;
+//åˆå§‹åŒ–å¾®è½¯ç™»å½•
+constructor TAccount.InitializeAccount(token, client_id, rr: string);
+const
+  micro = 'https://login.live.com/oauth20_token.srf';
+  oauth = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
+  xbox = 'https://user.auth.xboxlive.com/user/authenticate';
+  xsts = 'https://xsts.auth.xboxlive.com/xsts/authorize';
+  mc = 'https://api.minecraftservices.com/authentication/login_with_xbox';
+  ishas = 'https://api.minecraftservices.com/minecraft/profile';
+var
+  k1: String;
+  t1: String;
+begin
+  if client_id = '' then begin
+    if rr = 'refresh' then begin
+      k1 := Concat('client_id=00000000402b5328',
+        '&refresh_token=', token,
+        '&grant_type=refresh_token',
+        '&redirect_uri=https://login.live.com/oauth20_desktop.srf',
+        '&scope=service::user.auth.xboxlive.com::MBI_SSL');
+    end else begin
+      k1 := Concat('client_id=00000000402b5328',
+        '&code=', token,
+        '&grant_type=authorization_code',
+        '&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf',
+        '&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL');
+    end;
+    t1 := micro;
+  end else begin
+    if rr = 'refresh' then begin
+      k1 := Concat('grant_type=refresh_token',
+      '&client_id=', client_id,
+      '&refresh_token=', token);
+    end else begin
+      k1 := Concat('grant_type=urn:ietf:params:oauth:grant-type:device_code',
+      '&client_id=', client_id,
+      '&device_code=', token);
+    end;
+    t1 := oauth;
+  end;
+  Log.Write('æ­£åœ¨è¯·æ±‚microsoftä¸­â€¦â€¦', LOG_ACCOUNT, LOG_INFO);
+  form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.post_microsoft');
+  //è¿™é‡Œæ˜¯è¯·æ±‚microsoftçš„ã€‚
+  var g1 := TAccount.GetHttpf(k1, t1, true);  //ä¼ å€¼è¿›æ–¹æ³•å¹¶å°†è¿”å›å€¼è®¾ç½®ã€‚
+  var j1 := TJsonObject.ParseJSONValue(g1) as TJsonObject; //è®¾ç½®json
+  var w1 := '';
+  try
+    w1 := j1.GetValue('access_token').Value; //è·å–assets_tokenï¼Œä¸‹é¢ç»§ç»­è®¾ç½®è¯·æ±‚å‚æ•°ã€‚
+  except
+    var e1 := (j1.GetValue('error_codes') as TJsonArray)[0].GetValue<Integer>;
+    if e1 = 70016 then begin
+      Log.Write('ä½ æš‚æœªå®Œå–„ä½ çš„ç™»å½•éªŒè¯æµç¨‹ï¼Œè¯·é‡è¯•â€¦â€¦', LOG_ACCOUNT, LOG_ERROR);
+      MyMessagebox(GetLanguage('messagebox_account_microsoft_error.not_complete_oauth_login.caption'), GetLanguage('messagebox_account_microsoft_error.not_complete_oauth_login.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.microsoft_not_complete_oauth_login');
+      self.accesstoken := 'noneaccount';
+      exit;
+    end else if e1 = 70020 then begin
+      Log.Write('ä½ åœ¨ç™»å½•è¿‡ç¨‹ä¸­è¶…æ—¶äº†ï¼Œè¯·é‡è¯•â€¦â€¦', LOG_ACCOUNT, LOG_ERROR);
+      MyMessagebox(GetLanguage('messagebox_account_microsoft_error.login_timeout.caption'), GetLanguage('messagebox_account_microsoft_error.login_timeout.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.microsoft_login_timeout');
+      self.accesstoken := 'noneaccount';
+      exit;
+    end else raise Exception.Create('Not support script');
+  end;
+  Log.Write('è¯·æ±‚å®Œæ¯•microsoftï¼Œæ­£åœ¨è¯·æ±‚xboxä¸­â€¦â€¦', LOG_ACCOUNT, LOG_INFO);
+  form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.post_xbox');
+  //è¿™é‡Œæ˜¯è¯·æ±‚xboxçš„
+  var k2 := Concat('{"Properties":{"AuthMethod":"RPS","SiteName":"user.auth.xboxlive.com","RpsTicket":"d=', w1, '"},"RelyingParty":"http://auth.xboxlive.com","TokenType":"JWT"}');
+  var t2 := TAccount.GetHttpf(k2, xbox);
+  var j2 := TJsonObject.ParseJSONValue(t2) as TJsonObject;
+  var w2 := j2.GetValue('Token').Value;
+  //è¿™é‡Œå°†è·å–åˆ°uhsçš„å€¼ã€‚
+  var r1 := j2.GetValue('DisplayClaims') as TJsonObject;
+  var uhs := ((r1.GetValue('xui') as TJsonArray)[0] as TJsonObject).GetValue('uhs').Value;
+  Log.Write('è¯·æ±‚å®Œæ¯•xboxï¼Œæ­£åœ¨è¯·æ±‚xstsä¸­â€¦â€¦', LOG_ACCOUNT, LOG_INFO);
+  form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.post_xsts');
+  //è¿™é‡Œæ˜¯è¯·æ±‚xstsçš„
+  var k3 := Concat('{"Properties":{"SandboxId":"RETAIL","UserTokens":["', w2, '"]},"RelyingParty":"rp://api.minecraftservices.com/","TokenType":"JWT"}');
+  var t3 := TAccount.GetHttpf(k3, xsts);
+  var j3 := TJsonObject.ParseJSONValue(t3) as TJsonObject;
+  var w3 := j3.GetValue('Token').Value;
+  //è¿™é‡Œå°†åˆ¤æ–­uhsæ˜¯å¦ä¸€è‡´ã€åŸºæœ¬ä¸Šéƒ½ä¼šä¸€è‡´çš„ï¼Œæ²¡æœ‰å­˜åœ¨ä¸ä¸€è‡´çš„æƒ…å†µã€‚ã€‚ã€‚ã€‘
+  var rr1 := j3.GetValue('DisplayClaims') as TJsonObject;
+  var uhs2 := ((rr1.GetValue('xui') as TJsonArray)[0] as TJsonObject).GetValue('uhs').Value;
+  try
+    if uhs <> uhs2 then raise Exception.Create('Error Message');
+  except
+    Log.Write('xboxä¸xstsçš„uhsä¸ä¸€è‡´ï¼Œè¯·ç«‹åˆ»å°†æ­¤Logåé¦ˆç»™ä½œè€…ï¼â€¦â€¦', LOG_ACCOUNT, LOG_ERROR);
+    MyMessagebox(GetLanguage('messagebox_account_microsoft_error.uhs_not_same.caption'), GetLanguage('messagebox_account_microsoft_error.uhs_not_same.text'), MY_ERROR, [mybutton.myOK]);
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.microsoft_uhs_not_same');
+    self.accesstoken := 'noneaccount';
+    exit;
+  end;
+  Log.Write('è¯·æ±‚å®Œæ¯•xstsï¼Œæ­£åœ¨è¯·æ±‚mcä¸­â€¦â€¦', LOG_ACCOUNT, LOG_INFO);
+  form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.post_mc');
+  //è¿™ä¸€æ­¥æ˜¯è¯·æ±‚mcçš„ã€‚
+  var k4 := Concat('{"identityToken":"XBL3.0 x=', uhs, ';', w3, '"}');
+  var t4 := TAccount.GetHttpf(k4, mc);
+  var j4 := TJsonObject.ParseJSONValue(t4) as TJsonObject;
+  var w4 := j4.GetValue('access_token').Value; //è·å–åˆ°accesstokenã€‚
+  Log.Write('è¯·æ±‚å®Œæ¯•mcï¼Œæ­£åœ¨è·å–æ˜¯å¦æ‹¥æœ‰æ¸¸æˆä¸­â€¦â€¦', LOG_ACCOUNT, LOG_INFO);
+  form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.get_has_mc');
+  var t5 := TAccount.GetHttph(w4, ishas);
+  var j5 := TJsonObject.ParseJSONValue(t5) as TJsonObject;
+  try
+    self.username := j5.GetValue('name').Value;
+    self.uuid := j5.GetValue('id').Value;
+    self.refreshtoken := j1.GetValue('refresh_token').Value;
+    self.accesstoken := j4.GetValue('access_token').Value;
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.microsoft_get_avatar');
+    var skurl := ((j5.GetValue('skins') as TJsonArray)[0] as TJsonObject).GetValue('url').Value;
+    var ss := TStringStream.Create;
+    var stre := GetWebStream(skurl);
+    TNetEncoding.Base64.Encode(stre, ss);
+    self.avatar := CutBase64Image(ss.DataString, 8, 8, 16, 16, 64, 64);
+//    Log.Write('ç™»å½•æˆåŠŸï¼', LOG_ACCOUNT, LOG_INFO);
+//    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.microsoft_login_success');
+  except
+    Log.Write('ç™»å½•å¤±è´¥ï¼Œæ‚¨æš‚æœªæ‹¥æœ‰æ¸¸æˆã€‚', LOG_ACCOUNT, LOG_ERROR);
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.not_buy_mc');
+    if MyMessagebox(GetLanguage('messagebox_account_microsoft_error.not_buy_mc.caption'), GetLanguage('messagebox_account_microsoft_error.not_buy_mc.text'), MY_ERROR, [mybutton.myNo, mybutton.myYes]) = 6 then begin
+      ShellExecute(Application.Handle, nil,
+        'https://www.minecraft.net/zh-hans/store/minecraft-java-edition',
+        nil, nil, SW_SHOWNORMAL)
+    end;
+  end;
+end;
+//åˆå§‹åŒ–å¤–ç½®ç™»å½•ï¼ˆservernameä¸€å®šæ˜¯ã€https://example.com/api/yggdrasil/ã€‘å½¢å¼çš„ï¼Œä¸”æœ€åä¸€å®šè¦æ¥ä¸€ä¸ª/ç¬¦å·ã€‚ï¼‰
+constructor TAccount.InitializeAccount(servername, username, password, clienttoken, uuid, rr: string);
+begin
+  Log.Write('æ­£åœ¨è¯·æ±‚çš®è‚¤ç«™å…ƒæ•°æ®é“¾æ¥ã€‚', LOG_ACCOUNT, LOG_INFO);
+  var metadata := GetWebText(servername);
+  if metadata = '' then begin
+    Log.Write('çš®è‚¤ç«™å…ƒæ•°æ®é“¾æ¥è¯·æ±‚å¤±è´¥ï¼Œè¯·é‡è¯•ã€‚', LOG_ACCOUNT, LOG_ERROR);
+    MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.cannot_get_metadata.caption'), GetLanguage('messagebox_account_thirdparty_error.cannot_get_metadata.text'), MY_ERROR, [mybutton.myOK]);
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_cannot_get_metadata');
+    accesstoken := 'noneaccount';
+    exit;
+  end;
+  var res := servername;
+  var basecode := TNetEncoding.Base64.Encode(metadata);
+  if rr = 'refresh' then begin
+    res := Concat(res, 'authserver/refresh');
+    var k1 := Concat('{"accessToken":"', username, '","clientToken":"', password, '","requestUser":false,"selectedProfile":{"id":"', clienttoken, '","name":"', uuid, '"}}');
+    Log.Write('æ­£åœ¨ä½¿ç”¨å½“å‰è´¦å·ä»¥åŠè§’è‰²é‡ç½®å¤–ç½®ç™»å½•ã€‚', LOG_ACCOUNT, LOG_INFO);
+    var t1 := TAccount.GetHttpf(k1, res);
+    if t1 = '' then begin abort; end;
+    var j1 := TJsonObject.ParseJSONValue(t1) as TJsonObject;
+    try //ä»¥ä¸Šä¸ºç›´æ¥postå¾—åˆ°åçš„jsonï¼Œç„¶åè§£æjsonã€‚ä¸‹é¢ä¸ºç›´æ¥è·å–jsonï¼Œå¦‚æœæ²¡æœ‰çš®è‚¤ï¼Œåˆ™æ¢ã€‚ä½†ç»å¤§æ¦‚ç‡æ˜¯æœ‰çš®è‚¤çš„ã€‚
+      var j2 := TJsonObject.ParseJSONValue(j1.GetValue('selectedProfile').ToString) as TJsonObject;
+      self.username := j2.GetValue('name').Value;
+      self.uuid := j2.GetValue('id').Value;
+      self.accesstoken := j1.GetValue('accessToken').Value;
+      self.thirdclienttoken := j1.GetValue('clientToken').Value;
+      self.thirdbase64 := basecode;
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_account_success_and_get_avatar');
+      self.avatar := JudgeThirdSkin(servername, self.uuid);
+    except
+      Log.Write('ä½ åœ¨é‡ç½®å¤–ç½®ç™»å½•æ—¶ï¼Œå¯èƒ½å®˜ç½‘ä¸Šå·²ç»åˆ æ‰äº†è¯¥çš®è‚¤ï¼Œå»ºè®®é‡æ–°å°è¯•åå†ç»§ç»­ï¼', LOG_ACCOUNT, LOG_ERROR);
+      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.refresh_skin_error.caption'), GetLanguage('messagebox_account_thirdparty_error.refresh_skin_error.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_cannot_refresh_skin');
+      accesstoken := 'noneaccount';
+      exit;
+    end;
+  end else begin
+    res := Concat(res, 'authserver/authenticate');
+    var k1 := Concat('{"username":"', username, '","password":"', password, '","clientToken":"', clienttoken, '","requestUser":false,"agent":{"name":"Minecraft","version":1}}');
+    Log.Write('æ­£åœ¨ä½¿ç”¨è´¦å·å¯†ç è¿›è¡Œå¤–ç½®ç™»å½•ã€‚', LOG_ACCOUNT, LOG_INFO);
+    var t1 := TAccount.GetHttpf(k1, res);
+    if t1 = '' then abort;
+    var j1 := TJsonObject.ParseJSONValue(t1) as TJsonObject;
+    try //å¦‚æœé‚®ç®±ä¸è´¦å·ä¸åŒ¹é…ï¼Œåˆ™è¿”å›ã€‚
+      j1.GetValue('accessToken').ToString;
+    except
+      Log.Write('è¾“å…¥çš„é‚®ç®±ä¸å¯†ç ä¸åŒ¹é…ï¼Œè¯·é‡æ–°è¾“å…¥ã€‚', LOG_ACCOUNT, LOG_ERROR);
+      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.caption'), GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_username_or_password_nottrue');
+      accesstoken := 'noneaccount';
+      exit;
+    end;//æŸ¥è¯¢é‚®ç®±ï¼Œå¦‚æœé‚®ç®±é‡Œæ²¡æœ‰çš®è‚¤ï¼Œåˆ™æ‰§è¡Œ
+    var r1 := j1.GetValue('availableProfiles') as TJsonArray;
+    if r1.Count = 0 then begin
+      Log.Write('ç™»å½•æˆåŠŸï¼ä½†æ˜¯ä½ è¿˜æœªåœ¨çš®è‚¤ç«™ä¸­é€‰æ‹©ä»»ä½•ä¸€ä¸ªè§’è‰²ï¼Œè¯·è¯•å›¾é€‰æ‹©ä¸€ä¸ªè§’è‰²ä¹‹åå†è¿›è¡Œç™»å½•å§ã€‚', LOG_ACCOUNT, LOG_ERROR);
+      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.not_choose_any_skin.caption'), GetLanguage('messagebox_account_thirdparty_error.not_choose_any_skin.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_not_choose_skin');
+      accesstoken := 'noneaccount';
+      exit;
+    end else if r1.Count = 1 then begin
+      var j2 := r1[0] as TJsonObject;
+      self.uuid := j2.GetValue('id').Value;
+      self.username := j2.GetValue('name').Value;
+      self.accesstoken := j1.GetValue('accessToken').Value;
+      self.thirdclienttoken := j1.GetValue('clientToken').Value;
+      self.thirdbase64 := basecode;
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_account_success_and_get_avatar');
+      self.avatar := JudgeThirdSkin(servername, self.uuid);
+    end else begin
+      var st := '';
+      for var I := 0 to r1.Count - 1 do
+      begin
+        var j2 := r1[I] as TJsonObject;
+        st := Concat(st, #13#10, inttostr(i + 1), '. ', j2.GetValue('name').Value);
+      end;
+      Log.Write('ç°åœ¨å¼€å§‹è¾“å…¥è§’è‰²åºå·ã€‚', LOG_ACCOUNT, LOG_INFO);
+      var input := MyInputBox(GetLanguage('inputbox_account_thirdparty.choose_a_role.caption'), GetLanguage('inputbox_account_thirdparty.choose_a_role.text').Replace('${role_group}', st), MY_INFORMATION);
+      try
+        if (strtoint(input) < 1) or (strtoint(input) > r1.Count) then raise Exception.Create('Entry Error');
+      except
+        Log.Write('ä¸è¦å°è¯•åœ¨é€‰æ‹©è§’è‰²çš„æ—¶å€™è¾“å…¥é”™è¯¯çš„å­—ç¬¦ã€‚', LOG_ACCOUNT, LOG_ERROR);
+        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.dont_entry_other_char.caption'), GetLanguage('messagebox_account_thirdparty_error.dont_entry_other_char.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_entry_other_char');
+        accesstoken := 'noneaccount';
+        exit;
+      end;
+      var sa := strtoint(input) - 1;
+      var j3 := r1[sa] as TJsonObject;
+      self.uuid := j3.GetValue('id').Value;
+      self.username := j3.GetValue('name').Value;
+      self.accesstoken := j1.GetValue('accessToken').Value;
+      self.thirdclienttoken := j1.GetValue('clientToken').Value;
+      self.thirdbase64 := basecode;
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_account_success_and_get_avatar');
+      self.avatar := JudgeThirdSkin(servername, self.uuid);
+    end;
+  end;
+end;
+function TAccount.GetUserName: string;
+begin
+  result := username;
+end;
+function TAccount.GetAccessToken: string;
+begin
+  result := accesstoken;
+end;
+function TAccount.GetUUID: string;
+begin
+  result := uuid;
+end;
+function TAccount.GetRefreshToken: string;
+begin
+  result := refreshtoken
+end;
+function TAccount.GetAvatar: string;
+begin
+  result := avatar;
+end;
+function TAccount.GetThirdClientToken: string;
+begin
+  result := thirdclienttoken;
+end;
+function TAccount.GetThirdBase64: string;
+begin
+  result := thirdbase64;
+end;
+//æ ¹æ®UUIDåˆ¤æ–­åºå·ã€‚
+function UUIDToAvatar(uuid: String): Integer;
+begin
+  result := UUIDToHashCode(uuid) mod 18;
+end;
+//æ ¹æ®åºå·è·å–UUIDã€‚
+function AvatarToUUID(num: Integer): String;
+var
+  uid: TGuid;
+begin
+  while True do begin
+    CreateGuid(uid);
+    var str := GuidToString(uid).Replace('{', '').Replace('}', '').Replace('-', '').ToLower;
+    if UUIDToAvatar(str) = num then begin
+      result := str;
+      break;
+    end;
+  end;
+end;
+//åˆ¤æ–­ç¦»çº¿æ¨¡å¼çš®è‚¤ã€‚
+function JudgeOfflineSkin(choNumber: Integer; isSlim: Boolean): String;
+begin
+  if isSlim then begin
+    result := AvatarToUUID(choNumber);
+  end else begin
+    result := AvatarToUUID(choNumber + 9);
+  end;
+end;
+//æ›´æ¢çš®è‚¤
+procedure JudgeJSONSkin(index: Integer);
+begin
+  try
+    var pla := ((AccountJson.Values['account'] as TJsonArray)[index] as TJsonObject);
+    var pls := pla.GetValue('head_skin').Value;
+    var base := TNetEncoding.Base64.DecodeStringToBytes(pls);
+    var png := TPngImage.Create;
+    try
+      png.LoadFromStream(TBytesStream.Create(base));
+      form_mainform.image_login_avatar.Picture.Assign(png);
+    finally
+      png.Free;
+    end;
+  except end;
+end;
+//ç¦»çº¿ç™»å½•
 procedure OfflineLogin(offline_name, offline_uuid: String);
 var
   uid: TGuid;
 begin
   if (offline_name = '') or (not TRegex.IsMatch(offline_name, '^[a-zA-Z0-9_]+$')) or (offline_name.Length > 16) or (offline_name.Length < 3) then begin
-    MyMessagebox('´íÎó¾¯¸æ', 'ÄãµÄÀëÏßµÇÂ¼Ãû³Æ²¢²»ÀíÏë£¬ÊäÈë´íÎó£¡Çë²»ÒªÊäÈëÖĞÎÄ£¬Ò²²»Òª³¬¹ı16¸ö×Ö·û£¡²»ÒªÎª¿Õ¡£', MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_account_offline_error.cannot_name.caption'), GetLanguage('messagebox_account_offline_error.cannot_name.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
   end;
   offline_uuid := offline_uuid.ToLower;
   if offline_uuid = '' then begin
@@ -126,12 +527,12 @@ begin
     offline_uuid := GuidToString(uid).Replace('{', '').Replace('}', '').Replace('-', '').ToLower;
   end;
   if not TRegex.IsMatch(offline_uuid, '^[a-f0-9]{32}') then begin
-    MyMessagebox('´íÎó¾¯¸æ', 'ÄãµÄÀëÏßµÇÂ¼UUIDÊäÈë´íÎó£¬ÇëÊäÈëÒ»´®³¤32Î»ÎŞ·ûºÅUUID¡£»òÕß²»ÊäÈëµÈ´ıËæ»úÉú³É', MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_account_offline_error.cannot_uuid.caption'), GetLanguage('messagebox_account_offline_error.cannot_uuid.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   TTask.Run(procedure begin
     var skin := '';
-    form_mainform.label_account_return_value.Caption := 'ÕıÔÚ³¢ÊÔ¸ù¾İUUID»ñÈ¡ÓÃ»§´óÍ·Ïñ¡£';
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.offline_get_avatar');
     form_mainform.button_add_account.Enabled := false;
     form_mainform.button_refresh_account.Enabled := false;
     form_mainform.combobox_all_account.Enabled := false;
@@ -172,94 +573,257 @@ begin
         17: skin := zuri;
         else raise Exception.Create('No Offline Skin Found!');
       end;
-    form_mainform.label_account_return_value.Caption := 'Ìí¼Ó³É¹¦£¡ÒÑÍ¨¹ıUUID»ñÈ¡ÀëÏßÆ¤·ô£¡';
-    end; //½«ËùÓĞÄ¿±êÌí¼Óµ½ÅäÖÃÎÄ¼ş£¬Ğ´ÈëJson
+    end; //å°†æ‰€æœ‰ç›®æ ‡æ·»åŠ åˆ°é…ç½®æ–‡ä»¶ï¼Œå†™å…¥Json
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_offline_success');
     (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
       .AddPair('type', 'offline')
       .AddPair('name', offline_name)
       .AddPair('uuid', offline_uuid)
       .AddPair('head_skin', skin)
     );
-    form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(offline_name, '£¨ÀëÏß£©')); //¸øÏÂÀ­¿òÌí¼ÓÔªËØ£¬Ë³±ã¸³Öµ¸ø×îÖÕÖµ¡£
-    form_mainform.edit_offline_name.Text := '';//¸øEditÉèÖÃÎª¿Õ
+    form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(offline_name, GetLanguage('combobox_all_account.offline_tip'))); //ç»™ä¸‹æ‹‰æ¡†æ·»åŠ å…ƒç´ ï¼Œé¡ºä¾¿èµ‹å€¼ç»™æœ€ç»ˆå€¼ã€‚
+    form_mainform.edit_offline_name.Text := '';//ç»™Editè®¾ç½®ä¸ºç©º
     form_mainform.edit_offline_uuid.Text := '';
     form_mainform.button_add_account.Enabled := true;
     form_mainform.button_refresh_account.Enabled := true;
     form_mainform.combobox_all_account.Enabled := true;
     form_mainform.combobox_all_accountChange(TObject.Create);
-    TThread.Queue(nil, procedure begin
-      MyMessagebox('Ìí¼Ó³É¹¦', 'Ìí¼Ó³É¹¦£¡', MY_INFORMATION, [mybutton.myOK]);
-    end);
+    MyMessagebox(GetLanguage('messagebox_account_offline.add_account_success.caption'), GetLanguage('messagebox_account_offline.add_account_success.text'), MY_PASS, [mybutton.myOK]);
   end);
 end;
-//³õÊ¼»¯µÚÈı·½µÇÂ¼
+//åˆ é™¤è´¦å·
+function DeleteAccount(index: Integer): Integer;
+begin
+  result := index;
+  if index = -1 then begin
+    MyMessagebox(GetLanguage('messagebox_account.cannot_get_account.caption'), GetLanguage('messagebox_account.cannot_get_account.text'), MY_ERROR, [mybutton.myOK]);
+    result := index;
+    exit;
+  end;
+  if MyMessagebox(GetLanguage('messagebox_account.is_remove_account.caption'), GetLanguage('messagebox_account.is_remove_account.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 2 then begin
+    result := -1;
+    (AccountJson.GetValue('account') as TJsonArray).Remove(form_mainform.combobox_all_account.ItemIndex);
+    form_mainform.combobox_all_account.Items.Delete(form_mainform.combobox_all_account.ItemIndex);
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.not_login');
+    form_mainform.image_login_avatar.Picture := nil;
+    LLLini.WriteString('Account', 'SelectAccount', '0');
+  end;
+end;
+//ç¬¬ä¸‰æ–¹ç™»å½•å‡½æ•°
+procedure ThirdPartyLogin(server, account, password: String);
+var
+  uid: TGuid;
+begin
+  if (account = '') or (password = '') or (server = '') then begin
+    MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.account_or_password_empty.caption'), GetLanguage('messagebox_account_thirdparty_error.account_or_password_empty.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  if LeftStr(server, 5) <> 'https' then begin
+    server := server.Replace('http', 'https');
+  end;
+  if LeftStr(server, 8) <> 'https://' then begin
+    server := Concat('https://', server);
+  end;
+  if RightStr(server, 1) <> '/' then begin
+    server := Concat(server, '/');
+  end;
+  if RightStr(server, 14) <> 'api/yggdrasil/' then begin
+    server := Concat(server, 'api/yggdrasil/');
+  end;
+  CreateGuid(uid);
+  var clienttoken := GuidToString(uid).Replace('{', '').Replace('}', '').Replace('-', '');
+  form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_login_start');
+  TTask.Run(procedure begin
+    Log.Write('æ­£åœ¨æ·»åŠ å¤–ç½®ç™»å½•ã€‚', LOG_ACCOUNT, LOG_INFO);
+    form_mainform.button_add_account.Enabled := false;
+    form_mainform.button_refresh_account.Enabled := false;
+    form_mainform.combobox_all_account.Enabled := false;
+    var taccm: TAccount;
+    try
+      taccm := TAccount.InitializeAccount(server, account, password, clienttoken, '', 'post');
+    except
+      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.connect_error.caption'), GetLanguage('messagebox_account_thirdparty_error.connect_error.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.button_add_account.Enabled := true;
+      form_mainform.button_refresh_account.Enabled := true;
+      form_mainform.combobox_all_account.Enabled := true;
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.connect_error');
+      exit;
+    end;
+    var tat := taccm.GetAccessToken; //çº¿ç¨‹é‡å¯
+    if taccm.accesstoken = 'noneaccount' then begin
+      form_mainform.button_add_account.Enabled := true;
+      form_mainform.button_refresh_account.Enabled := true;
+      form_mainform.combobox_all_account.Enabled := true;
+      exit;
+    end;
+    var tct := taccm.GetThirdClientToken;
+    var tun := taccm.GetUserName;
+    var tuu := taccm.GetUUID;
+    var tbs := taccm.GetThirdBase64;
+    var tsk := taccm.GetAvatar;
+    (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
+      .AddPair('type', 'authlib-injector')
+      .AddPair('server', server)
+      .AddPair('name', tun)
+      .AddPair('uuid', tuu)
+      .AddPair('access_token', tat)
+      .AddPair('client_token', tct)
+      .AddPair('base_code', tbs)
+      .AddPair('head_skin', tsk)
+    ); //ç»™ä¸‹æ‹‰æ¡†æ·»åŠ å…ƒç´ 
+    form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(tun, GetLanguage('combobox_all_account.thirdparty_tip')));
+    form_mainform.edit_thirdparty_server.Text := '';
+    form_mainform.edit_thirdparty_account.Text := '';
+    form_mainform.edit_thirdparty_password.Text := '';
+    form_mainform.button_add_account.Enabled := true;
+    form_mainform.button_refresh_account.Enabled := true;
+    form_mainform.combobox_all_account.Enabled := true;
+    form_mainform.combobox_all_accountChange(TObject.Create);
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_thirdparty_success');
+    MyMessagebox(GetLanguage('messagebox_account_thirdparty.add_account_success.caption'), GetLanguage('messagebox_account_thirdparty.add_account_success.text'), MY_PASS, [mybutton.myOK]);
+  end);
+end;
+//å¾®è½¯OAuthç™»å½•
+procedure OAuthLogin;
+const
+  dcurl = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode?mkt=zh-CN';
+begin
+  form_mainform.button_add_account.Enabled := false;
+  form_mainform.button_refresh_account.Enabled := false;
+  form_mainform.combobox_all_account.Enabled := false;
+  TTask.Run(procedure begin
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.get_oauth_user_code');
+    Log.Write('æ­£åœ¨è·å–ç”¨æˆ·ä»£ç â€¦â€¦', LOG_ACCOUNT, LOG_INFO);
+    var k1 := Concat('client_id=', MS_CLIENT_ID, '&scope=XboxLive.signin%20offline_access');  //æ­¤å¤„ä½¿ç”¨äº†ç§æœ‰å‡½æ•°ä¸­çš„MS_CLIENT_ID
+    var w1 := TAccount.GetHttpf(k1, dcurl, true);
+    if w1 = '' then begin
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.cannot_get_user_code');
+      MyMessagebox(GetLanguage('messagebox_account_microsoft_error.cannot_get_user_code.caption'), GetLanguage('messagebox_account_microsoft_error.cannot_get_user_code.caption'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.button_add_account.Enabled := true;
+      form_mainform.button_refresh_account.Enabled := true;
+      form_mainform.combobox_all_account.Enabled := true;
+      exit;
+    end;
+    var json := TJsonObject.ParseJSONValue(w1) as TJsonObject;
+    var usercode := json.GetValue('user_code').Value;
+    var link := json.GetValue('verification_uri').Value;
+    ClipBoard.SetTextBuf(pchar(usercode));
+    ShellExecute(Application.Handle, nil, pchar(TrimStrm(link)), nil, nil, SW_SHOWNORMAL);
+    MyInputBox(GetLanguage('inputbox_account_microsoft.start_login.caption'), GetLanguage('inputbox_account_microsoft.start_login.text'), MY_INFORMATION, usercode);
+    var devicecode := json.GetValue('device_code').Value; //è·å–device_codeã€‚
+    var accm: TAccount;
+    try
+      accm := TAccount.InitializeAccount(devicecode, MS_CLIENT_ID, 'post');
+    except
+      MyMessagebox(GetLanguage('messagebox_account_microsoft_error.connect_error.caption'), GetLanguage('messagebox_account_microsoft_error.connect_error.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.button_add_account.Enabled := true;
+      form_mainform.button_refresh_account.Enabled := true;
+      form_mainform.combobox_all_account.Enabled := true;
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.connect_error');
+      exit;
+    end;
+    var at := accm.GetAccessToken;
+    if at = 'noneaccount' then begin
+      form_mainform.button_add_account.Enabled := true;
+      form_mainform.button_refresh_account.Enabled := true;
+      form_mainform.combobox_all_account.Enabled := true;
+      exit;
+    end;//å¦‚æœatæ²¡æœ‰è´¦å·ï¼Œåˆ™ä¸ºè¿”å›æ–¹æ³•ã€‚
+    var rt := accm.GetRefreshToken;  //è·å–RefreshTokenåˆ·æ–°ç§˜é’¥
+    var un := accm.GetUserName;   //è·å–ç©å®¶åå­—
+    var ud := accm.GetUUID;       //è·å–UUID
+    var sk := accm.GetAvatar;
+    (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
+      .AddPair('type', 'oauth')
+      .AddPair('name', un)
+      .AddPair('uuid', ud)
+      .AddPair('access_token', at)
+      .AddPair('refresh_token', rt)
+      .AddPair('head_skin', sk)
+    );
+    form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(un, GetLanguage('combobox_all_account.microsoft_tip')));
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_microsoft_success');
+    form_mainform.button_add_account.Enabled := true;
+    form_mainform.button_refresh_account.Enabled := true;
+    form_mainform.combobox_all_account.Enabled := true;
+    form_mainform.combobox_all_accountChange(TObject.Create);
+    MyMessagebox(GetLanguage('messagebox_account_microsoft.add_account_success.caption'), GetLanguage('messagebox_account_microsoft.add_account_success.text'), MY_PASS, [mybutton.myOK]);
+  end)
+end;
+//åˆ·æ–°è´¦å·
+procedure RefreshAccount(index: Integer);
+begin
+  //
+end;
+//åˆå§‹åŒ–ç¬¬ä¸‰æ–¹ç™»å½•
+var g: Boolean = false;
 procedure InitAuthlib();
 begin
   if g then exit;
   g := true;
-  //ĞèÒªÏÂÔØ²¿·Ö¡­¡­
+  //éœ€è¦ä¸‹è½½éƒ¨åˆ†â€¦â€¦
 end;
+//åˆå§‹åŒ–è´¦å·éƒ¨åˆ†
 var f: Boolean = false;
-//³õÊ¼»¯ÕËºÅ²¿·Ö
 procedure InitAccount();
 begin
   if f then exit;
   f := true;
-  Log.Write('ÕıÔÚ³õÊ¼»¯ÕËºÅ²¿·Ö´úÂë¡­¡­', LOG_INFO);
-  if not SysUtils.FileExists(Concat(AppData, '\LLLauncher\', 'AccountJson.json')) then begin //¸øJson±äÁ¿³õÖµ¸½ÉÏÒ»¸öaccountµÄJsonArray
-    Log.Write('Î´ÕÒµ½AccountJsonÎÄ¼ş£¬ÒÑ×Ô¶¯°ïÄú³õÊ¼»¯Ò»¸ö¡£', LOG_ERROR);
+  Log.Write('æ­£åœ¨åˆå§‹åŒ–è´¦å·éƒ¨åˆ†ä»£ç â€¦â€¦', LOG_INFO, LOG_START);
+  if not SysUtils.FileExists(Concat(AppData, '\LLLauncher\', 'AccountJson.json')) then begin //ç»™Jsonå˜é‡åˆå€¼é™„ä¸Šä¸€ä¸ªaccountçš„JsonArray
+    Log.Write('æœªæ‰¾åˆ°AccountJsonæ–‡ä»¶ï¼Œå·²è‡ªåŠ¨å¸®æ‚¨åˆå§‹åŒ–ä¸€ä¸ªã€‚', LOG_ERROR, LOG_START);
     AccountJson.AddPair('account', TJsonArray.Create);
-    var j := AccountJson.Format;  //½«Json¸ñÊ½»¯
+    var j := AccountJson.Format;  //å°†Jsonæ ¼å¼åŒ–
     SetFile(Concat(AppData, '\LLLauncher\', 'AccountJson.json'), j);
-  end else begin //Èç¹ûÓĞÔòÖ´ĞĞ
-    Log.Write('ÒÑÕÒµ½AccountJsonÎÄ¼ş£¬ÕıÔÚµ¼ÈëÖĞ¡­¡­', LOG_INFO);
+  end else begin //å¦‚æœæœ‰åˆ™æ‰§è¡Œ
+    Log.Write('å·²æ‰¾åˆ°AccountJsonæ–‡ä»¶ï¼Œæ­£åœ¨å¯¼å…¥ä¸­â€¦â€¦', LOG_INFO, LOG_START);
     var j := GetFile(Concat(AppData, '\LLLauncher\', 'AccountJson.json'));
-    AccountJson := TJsonObject.ParseJSONValue(j) as TJsonObject; //¸øAccount¸½ÉÏ³õÖµ¡£
+    AccountJson := TJsonObject.ParseJSONValue(j) as TJsonObject; //ç»™Accounté™„ä¸Šåˆå€¼ã€‚
   end;
   try
-    Log.Write('ÕıÔÚÎªÕËºÅ²¿·ÖÏÂÀ­¿òÌí¼ÓÕËºÅ¡£', LOG_INFO);//±éÀúJsonÊı×é
-    for var I in (AccountJson.GetValue('account') as TJsonArray) do begin //Èç¹ûÕÒµ½µÄtypeÎªoffline£¬ÄÇÃ´Ìí¼ÓÎªÀëÏßµÇÂ¼£¬Èç¹û¼ì²âµ½microsoft£¬ÄÇÃ´Ìí¼ÓÎªÎ¢ÈíÕı°æµÇÂ¼¡£
+    Log.Write('æ­£åœ¨ä¸ºè´¦å·éƒ¨åˆ†ä¸‹æ‹‰æ¡†æ·»åŠ è´¦å·ã€‚', LOG_INFO, LOG_START);//éå†Jsonæ•°ç»„
+    for var I in (AccountJson.GetValue('account') as TJsonArray) do begin //å¦‚æœæ‰¾åˆ°çš„typeä¸ºofflineï¼Œé‚£ä¹ˆæ·»åŠ ä¸ºç¦»çº¿ç™»å½•ï¼Œå¦‚æœæ£€æµ‹åˆ°microsoftï¼Œé‚£ä¹ˆæ·»åŠ ä¸ºå¾®è½¯æ­£ç‰ˆç™»å½•ã€‚
       var tpe := I.GetValue<String>('type');
-      if tpe = 'offline' then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), '£¨ÀëÏß£©'))
-      else if (tpe = 'microsoft') or (tpe = 'oauth') then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), '£¨Î¢Èí£©'))
-      else if tpe = 'authlib-injector' then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), '£¨ÍâÖÃ£©'))
+      if tpe = 'offline' then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), GetLanguage('combobox_all_account.offline_tip')))
+      else if (tpe = 'microsoft') or (tpe = 'oauth') then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), GetLanguage('combobox_all_account.microsoft_tip')))
+      else if tpe = 'authlib-injector' then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), GetLanguage('combobox_all_account.thirdparty_tip')))
       else raise Exception.Create('Format Exception');
     end;
   except
-    Log.Write('ÒÑ¼ì²â³öÕËºÅ²¿·ÖÒÑ±»ĞŞ¸Ä£¬ÇëÁ¢¿Ì¸ü¸Ä»ØÀ´£¡', LOG_ERROR);
+    Log.Write('å·²æ£€æµ‹å‡ºè´¦å·éƒ¨åˆ†å·²è¢«ä¿®æ”¹ï¼Œè¯·ç«‹åˆ»æ›´æ”¹å›æ¥ï¼', LOG_ERROR, LOG_START);
     form_mainform.combobox_all_account.ItemIndex := -1;
   end;
   try
-    Log.Write('ÅĞ¶ÏÏÂÔØÔ´ÒÔÏÂÔØAuthlib-Injector', LOG_INFO);
+    Log.Write('åˆ¤æ–­ä¸‹è½½æºä»¥ä¸‹è½½Authlib-Injector', LOG_INFO, LOG_START);
     var ds := strtoint(LLLini.ReadString('Version', 'SelectDownloadSouece', ''));
     if ds = 1 then mauthlib_download := 'https://authlib-injector.yushi.moe/'
     else if ds = 2 then mauthlib_download := 'https://bmclapi2.bangbang93.com/mirrors/authlib-injector/'
     else if ds = 3 then mauthlib_download := 'https://download.mcbbs.net/mirrors/authlib-injector/'
     else raise Exception.Create('Format Exception');
   except
-    Log.Write('ÏÂÔØÔ´ÅĞ¶ÏÊ§°Ü£¬ÒÑ×Ô¶¯ÖØÖÃÎª¹Ù·½ÏÂÔØÔ´¡£', LOG_ERROR);
-    LLLini.WriteString('Version', 'SelectDownloadSouece', '1');
+    Log.Write('ä¸‹è½½æºåˆ¤æ–­å¤±è´¥ï¼Œå·²è‡ªåŠ¨é‡ç½®ä¸ºå®˜æ–¹ä¸‹è½½æºã€‚', LOG_ERROR, LOG_START);
+    LLLini.WriteInteger('Version', 'SelectDownloadSouece', 1);
     mauthlib_download := 'https://authlib-injector.yushi.moe/';
   end;
-  try  //ÅĞ¶ÏµÇÂ¼µÄÕËºÅ
-    Log.Write('ÏÂÔØÔ´ÅĞ¶ÏÍê±Ï£¬ÏÖÔÚÊÇÅĞ¶ÏÉÏÒ»´ÎµÇÂ¼µÄÕËºÅÊÇÊ²Ã´¡£', LOG_INFO);
+  try  //åˆ¤æ–­ç™»å½•çš„è´¦å·
+    Log.Write('ä¸‹è½½æºåˆ¤æ–­å®Œæ¯•ï¼Œç°åœ¨æ˜¯åˆ¤æ–­ä¸Šä¸€æ¬¡ç™»å½•çš„è´¦å·æ˜¯ä»€ä¹ˆã€‚', LOG_INFO, LOG_START);
     var acc := Otherini.ReadString('Account', 'SelectAccount', '');
-    if not (acc = '0') and not (strtoint(acc) > (AccountJson.GetValue('account') as TJsonArray).Count) then  //Èç¹ûÕËºÅ²»Îª¿Õ£¬
-    begin  //Èç¹û·ûºÏ¹æ¶¨£¬ÔòÖ´ĞĞ¡£
-      form_mainform.combobox_all_account.ItemIndex := strtoint(acc) - 1; //ÉèÖÃÎªÉÏÒ»´ÎµÇÂ¼µÄÏÂÀ­¿òÑùÊ½
-      var tm: String := form_mainform.combobox_all_account.Items[form_mainform.combobox_all_account.ItemIndex]; //½«tmÁÙÊ±±äÁ¿¸³Öµ¡£
-      tm := tm.Replace('£¨Î¢Èí£©', '').Replace('£¨ÍâÖÃ£©', '').Replace('£¨ÀëÏß£©', ''); //¸øtmÈ¥³ıÎ¢Èí±êÇ©¡£
-      form_mainform.label_account_return_value.Caption := Concat('ÒÑµÇÂ¼£¬Íæ¼ÒÃû³Æ£º', tm); //¸øLabelÉèÖÃÒÑµÇÂ¼
-      Log.Write(Concat('ÅĞ¶Ï³É¹¦£¬ÄãµÇÂ¼µÄÍæ¼ÒÓÎÏ·ÃûÊÇ£º', tm), LOG_INFO);
+    if not (acc = '0') and not (strtoint(acc) > (AccountJson.GetValue('account') as TJsonArray).Count) then  //å¦‚æœè´¦å·ä¸ä¸ºç©ºï¼Œ
+    begin  //å¦‚æœç¬¦åˆè§„å®šï¼Œåˆ™æ‰§è¡Œã€‚
+      form_mainform.combobox_all_account.ItemIndex := strtoint(acc) - 1; //è®¾ç½®ä¸ºä¸Šä¸€æ¬¡ç™»å½•çš„ä¸‹æ‹‰æ¡†æ ·å¼
+      var tm: String := form_mainform.combobox_all_account.Items[form_mainform.combobox_all_account.ItemIndex]; //å°†tmä¸´æ—¶å˜é‡èµ‹å€¼ã€‚
+      tm := tm.Replace(GetLanguage('combobox_all_account.microsoft_tip'), '').Replace(GetLanguage('combobox_all_account.thirdparty_tip'), '').Replace(GetLanguage('combobox_all_account.offline_tip'), ''); //ç»™tmå»é™¤å¾®è½¯æ ‡ç­¾ã€‚
+      form_mainform.label_account_return_value.Caption := Concat('å·²ç™»å½•ï¼Œç©å®¶åç§°ï¼š', tm); //ç»™Labelè®¾ç½®å·²ç™»å½•
+      Log.Write(Concat('åˆ¤æ–­æˆåŠŸï¼Œä½ ç™»å½•çš„ç©å®¶æ¸¸æˆåæ˜¯ï¼š', tm), LOG_INFO, LOG_START);
     end else raise Exception.Create('Format Exception');
   except
-    Log.Write('ÅĞ¶ÏÊ§°Ü£¬ÒÑÖØÖÃÕËºÅµÄÑ¡Ôñ¡£', LOG_ERROR);
-    Otherini.WriteString('Account', 'SelectAccount', '0'); //Èç¹ûÃ»ÓĞ£¬Ôò¸³ÖµÖØĞÂĞ´ÈëÎÄ¼ş
+    Log.Write('åˆ¤æ–­å¤±è´¥ï¼Œå·²é‡ç½®è´¦å·çš„é€‰æ‹©ã€‚', LOG_ERROR, LOG_START);
+    Otherini.WriteString('Account', 'SelectAccount', '0'); //å¦‚æœæ²¡æœ‰ï¼Œåˆ™èµ‹å€¼é‡æ–°å†™å…¥æ–‡ä»¶
     form_mainform.combobox_all_account.ItemIndex := -1;
-    form_mainform.label_account_return_value.Caption := 'Î´µÇÂ¼';
+    form_mainform.label_account_return_value.Caption := 'æœªç™»å½•';
   end;
-  try //¸øµÇÂ¼·½Ê½½øĞĞ¸³Öµ¡£
-    Log.Write(Concat('ÕËºÅÑ¡ÔñÅĞ¶ÏÍê±Ï£¬ÏÖÔÚ¿ªÊ¼ÅĞ¶ÏÑ¡ÔñµÇÂ¼·½Ê½¡£'), LOG_INFO);
+  try //ç»™ç™»å½•æ–¹å¼è¿›è¡Œèµ‹å€¼ã€‚
+    Log.Write(Concat('è´¦å·é€‰æ‹©åˆ¤æ–­å®Œæ¯•ï¼Œç°åœ¨å¼€å§‹åˆ¤æ–­é€‰æ‹©ç™»å½•æ–¹å¼ã€‚'), LOG_INFO, LOG_START);
     maccount_logintype := strtoint(LLLini.ReadString('Account', 'SelectLoginMode', ''));
     case maccount_logintype of
       1: form_mainform.pagecontrol_account_part.ActivePage := form_mainform.tabsheet_account_offline_part;
@@ -267,14 +831,18 @@ begin
       3: form_mainform.pagecontrol_account_part.ActivePage := form_mainform.tabsheet_account_thirdparty_part;
       else raise Exception.Create('Format Exception');
     end;
-  except  //Èç¹ûµÇÂ¼·½Ê½²»ºÏÀí£¬ÔòÅ×³ö±¨´í¡£
-    Log.Write(Concat('µÇÂ¼·½Ê½ÅĞ¶ÏÊ§°Ü£¬ÒÑÖØÖÃµÇÂ¼·½Ê½ÎªÀëÏßµÇÂ¼¡£'), LOG_ERROR);
+  except  //å¦‚æœç™»å½•æ–¹å¼ä¸åˆç†ï¼Œåˆ™æŠ›å‡ºæŠ¥é”™ã€‚
+    Log.Write(Concat('ç™»å½•æ–¹å¼åˆ¤æ–­å¤±è´¥ï¼Œå·²é‡ç½®ç™»å½•æ–¹å¼ä¸ºç¦»çº¿ç™»å½•ã€‚'), LOG_ERROR, LOG_START);
     LLLini.WriteString('Account', 'SelectLoginMode', '1');
     form_mainform.pagecontrol_account_part.ActivePage := form_mainform.tabsheet_account_offline_part;
     maccount_logintype := 1;
   end;
+  form_mainform.combobox_all_accountChange(TObject.Create);
+  TTask.Run(procedure begin
+    InitAuthlib;
+  end);
 end;
-
+//ä¿å­˜è´¦å·éƒ¨åˆ†
 procedure SaveAccount;
 begin
   if AccountJson = nil then begin
@@ -283,12 +851,12 @@ begin
   SetFile(Concat(AppData, '\LLLauncher\AccountJson.json'), AccountJson.Format);
   Otherini.WriteString('Account', 'SelectAccount', inttostr(form_mainform.combobox_all_account.ItemIndex + 1));
   LLLini.WriteString('Account', 'SelectLoginMode', inttostr(maccount_logintype));
-  if form_mainform.combobox_all_account.ItemIndex = -1 then
-    form_mainform.label_account_view.Caption := 'Äã»¹ÔİÎ´µÇÂ¼ÈÎºÎÒ»¸öÕËºÅ£¬µÇÂ¼ºó¼´¿ÉÔÚÕâÀï²é¿´»¶Ó­Óï£¡'
-  else begin
+  if form_mainform.combobox_all_account.ItemIndex = -1 then begin
+    form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.absence')
+  end else begin
     var player_name := form_mainform.combobox_all_account.Items[form_mainform.combobox_all_account.ItemIndex];
-    player_name := player_name.Replace('£¨Î¢Èí£©', '').Replace('£¨ÍâÖÃ£©', '').Replace('£¨ÀëÏß£©', '');
-    form_mainform.label_account_view.Caption := Concat('ÄãºÃ°¡£º', player_name, '£¬×£ÄúÓĞ¸öÓä¿ìµÄÒ»Ìì£¡');
+    player_name := player_name.Replace(GetLanguage('combobox_all_account.microsoft_tip'), '').Replace(GetLanguage('combobox_all_account.thirdparty_tip'), '').Replace(GetLanguage('combobox_all_account.offline_tip'), '');
+    form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', player_name);
   end;
 end;
 

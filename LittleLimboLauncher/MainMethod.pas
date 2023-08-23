@@ -1,10 +1,10 @@
-unit MainMethod;
+ï»¿unit MainMethod;
 
 interface         
 
 uses
-  SysUtils, Classes, Windows, IOUtils, StrUtils, JSON, Forms, JPEG, PngImage, GIFImg, Dialogs, RegularExpressions, Math,
-  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent, NetEncoding;
+  Classes, Windows, IOUtils, StrUtils, JSON, Forms, JPEG, PngImage, GIFImg, RegularExpressions, Math, IdHashSHA,
+  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent, SysUtils, NetEncoding, Generics.Collections;
 
 function GetWebStream(url: String): TStringStream;
 function GetWebText(url: String): String;
@@ -18,28 +18,82 @@ procedure ResetBackImage(resume: Boolean);
 procedure ResetBackMusic(resume: Boolean);
 procedure PlayMusic;
 function UUIDToHashCode(UUID: String): Int64;
-procedure JudgeJSONSkin;
+function DeleteDirectory(N: String): Boolean;
+function GetFileHash(filename: String): String;
+procedure RunDOSOnlyWait(CommandLine: string);
+
+var
+  MCRootJSON: TJsonObject;
 
 implementation
 
 uses
   MainForm, Log4Delphi, LanguageMethod, MyCustomWindow, AccountMethod;
 
-//¸ü»»Æ¤·ô
-procedure JudgeJSONSkin;
+//è¿è¡ŒDOSå‘½ä»¤ï¼Œä»…ç­‰å¾…ã€‚
+//åº”ç”¨äºæ’ä»¶æ‰§è¡Œã€å¯åŠ¨å‰æ‰§è¡Œå‘½ä»¤ã€Forgeå®‰è£…Processorsï¼ˆå®éªŒæ€§ï¼‰ã€‚
+//å‚æ•°1ï¼šå‘½ä»¤è¡Œã€‚å‚æ•°2ï¼šç­‰å¾…æ—¶é—´ã€ä»¥æ¯«ç§’åšå•ä½ã€‚ã€‘
+procedure RunDOSOnlyWait(CommandLine: string);
+var
+  HRead, HWrite: THandle;
+  StartInfo: TStartupInfo;
+  ProceInfo: TProcessInformation;
+  b: Boolean;
+  sa: TSecurityAttributes;
 begin
-  var pla := ((AccountJson.Values['account'] as TJsonArray)[form_mainform.combobox_all_account.ItemIndex] as TJsonObject);
-  var pls := pla.GetValue('head_skin').Value;
-  var base := TNetEncoding.Base64.DecodeStringToBytes(pls);
-  var png := TPngImage.Create;
+  UniqueString(CommandLine);
+  FillChar(sa, sizeof(sa), 0);
+  //è®¾ç½®å…è®¸ç»§æ‰¿ï¼Œå¦åˆ™åœ¨NTå’Œ2000ä¸‹æ— æ³•å–å¾—è¾“å‡ºç»“æœ
+  with sa do begin
+    nLength := sizeof(sa);
+    bInheritHandle := True;
+    lpSecurityDescriptor := nil;
+  end;
+  b := CreatePipe(HRead, HWrite, @sa, 0); //æ­¤å¤„å»ºç«‹ä¸€ä¸ªç®¡é“ã€‚ç›®æ ‡æ˜¯TSecurityAttributesçš„å¼•ç”¨ã€è¯»å…¥å’Œå†™å‡ºã€‚
+  if not b then
+    raise Exception.Create(SysErrorMessage(GetLastError));
+  FillChar(StartInfo, SizeOf(StartInfo), 0);
+  with StartInfo do begin
+    cb := SizeOf(StartInfo);  //ä¸ºStartä¿¡æ¯å»ºç«‹åˆå€¼ã€‚
+    wShowWindow := SW_HIDE;
+    //ä½¿ç”¨æŒ‡å®šçš„å¥æŸ„ä½œä¸ºæ ‡å‡†è¾“å…¥è¾“å‡ºçš„æ–‡ä»¶å¥æŸ„,ä½¿ç”¨æŒ‡å®šçš„æ˜¾ç¤ºæ–¹å¼
+    dwFlags := STARTF_USESTDHANDLES or STARTF_USESHOWWINDOW;
+    hStdError := HWrite;
+    hStdInput := GetStdHandle(STD_INPUT_HANDLE); //HRead;
+//    hStdOutput := HWrite;
+  end;
+  b := CreateProcess(
+    nil, //lpApplicationName: PChar  //å»ºç«‹è¿›ç¨‹
+    PChar(CommandLine), //lpCommandLine: PChar
+    nil, //lpProcessAttributes: PSecurityAttributes
+    nil, //lpThreadAttributes: PSecurityAttributes
+    True, //bInheritHandles: BOOL
+    CREATE_NEW_CONSOLE,
+    nil,
+    nil,
+    StartInfo,
+    ProceInfo);
+  if not b then
+    raise Exception.Create(SysErrorMessage(GetLastError));
+  WaitForSingleObject(ProceInfo.hProcess, Integer.MaxValue); //è¿™é‡Œå¹¶ä¸ä¼šä½¿ç”¨ç­‰å¾…å‘½ä»¤è¡Œæ‰§è¡Œå®Œæ¯•ï¼Œç›´æ¥ä½¿ç”¨å‚æ•°ç­‰å¾…ã€‚
+  CloseHandle(HWrite);
+end;
+//è·å–æ–‡ä»¶hashå€¼
+function GetFileHash(filename: String): String;
+var
+  psha : TIdHashSha1;
+  pStream : TFileStream;
+begin
+  psha := TIdHashSha1.Create;
+  pStream := TFileStream.Create(filename, fmOpenRead or fmShareDenyWrite);
   try
-    png.LoadFromStream(TBytesStream.Create(base));
-    form_mainform.image_login_avatar.Picture.Assign(png);
+    result := string(pSHA.HashStreamAsHex(pStream)).ToLower;
   finally
-    png.Free;
+    psha.Free;
+    pStream.Free;
   end;
 end;
-//ÓÃUUIDÇ¿×ª³ÉHashCode¡£
+//ç”¨UUIDå¼ºè½¬æˆHashCodeã€‚
 function UUIDToHashCode(UUID: String): Int64;
 begin
   result := -1;
@@ -111,9 +165,10 @@ begin
     result := ten;
   end;
 end;
+//è·å–ç½‘ç»œæµ
 function GetWebStream(url: String): TStringStream;
 begin
-  var http := TNetHttpClient.Create(nil); //¸ø³õÊ¼±äÁ¿¸³Öµ
+  var http := TNetHttpClient.Create(nil); //ç»™åˆå§‹å˜é‡èµ‹å€¼
   var strt := TStringStream.Create('', TEncoding.UTF8, False);
   result := nil;
   try
@@ -126,22 +181,22 @@ begin
       SendTimeout := 200000;
       ContentType := 'text/html';
       SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
-      HandleRedirects := True;  //¿ÉÒÔÍøÖ·ÖØ¶¨Ïò
+      HandleRedirects := True;  //å¯ä»¥ç½‘å€é‡å®šå‘
     end;
     try
-      var h := http.Get(url, strt);  //»ñÈ¡ÍøÂçÎÄ±¾
-      result := strt; //¸ø×îºó±äÁ¿¸³ÖµÎªÍøÂçÎÄ±¾µÄ±äÁ¿£¬·µ»Ø
+      var h := http.Get(url, strt);  //è·å–ç½‘ç»œæ–‡æœ¬
+      result := strt; //ç»™æœ€åå˜é‡èµ‹å€¼ä¸ºç½‘ç»œæ–‡æœ¬çš„å˜é‡ï¼Œè¿”å›
       if h.StatusCode = 404 then result := nil;
-    except  //Èç¹ûÎŞ·¨»ñÈ¡£¬ÔòÅ×³ö±¨´í
+    except  //å¦‚æœæ— æ³•è·å–ï¼Œåˆ™æŠ›å‡ºæŠ¥é”™
     end;
   finally
-    http.Free; //ÊÍ·Å×ÊÔ´
+    http.Free; //é‡Šæ”¾èµ„æº
   end;
 end;
-//»ñÈ¡ÍøÂçÎÄ¼ş
+//è·å–ç½‘ç»œæ–‡ä»¶
 function GetWebText(url: String): String;
 begin
-  var http := TNetHTTPClient.Create(nil); //¸ø³õÊ¼±äÁ¿¸³Öµ
+  var http := TNetHTTPClient.Create(nil); //ç»™åˆå§‹å˜é‡èµ‹å€¼
   var strt := TStringStream.Create('', TEncoding.UTF8, False);
   result := '';
   try
@@ -154,20 +209,45 @@ begin
       SendTimeout := 200000;
       ContentType := 'text/html';
       SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
-      HandleRedirects := True;  //¿ÉÒÔÍøÖ·ÖØ¶¨Ïò
+      HandleRedirects := True;  //å¯ä»¥ç½‘å€é‡å®šå‘
     end;
     try
-      var h := http.Get(url, strt);  //»ñÈ¡ÍøÂçÎÄ±¾
-      result := strt.DataString; //¸ø×îºó±äÁ¿¸³ÖµÎªÍøÂçÎÄ±¾µÄ±äÁ¿£¬·µ»Ø
+      var h := http.Get(url, strt);  //è·å–ç½‘ç»œæ–‡æœ¬
+      result := strt.DataString; //ç»™æœ€åå˜é‡èµ‹å€¼ä¸ºç½‘ç»œæ–‡æœ¬çš„å˜é‡ï¼Œè¿”å›
       if h.StatusCode = 404 then result := '';
-    except  //Èç¹ûÎŞ·¨»ñÈ¡£¬ÔòÅ×³ö±¨´í
+    except  //å¦‚æœæ— æ³•è·å–ï¼Œåˆ™æŠ›å‡ºæŠ¥é”™
     end;
   finally
-    http.Free; //ÊÍ·Å×ÊÔ´
+    http.Free; //é‡Šæ”¾èµ„æº
     strt.Free;
   end;
 end;
-//²¥·ÅÒôÀÖ
+//åˆ é™¤ä»»ä¸€æ–‡ä»¶å¤¹çš„æ–¹æ³•ï¼Œè¯·æ…ç”¨ï¼
+function DeleteDirectory(N: String): Boolean;
+var
+  F: TSearchRec;
+begin
+  result := false;
+  if (N = '') then exit;
+  if N.IndexOf('\') = -1 then N := Concat(N, '\/"*}{:D:D:DCC:');
+  if FindFirst(Concat(N, '\*.*'), faAnyFile, F) = 0 then begin  //æŸ¥æ‰¾æ–‡ä»¶å¹¶èµ‹å€¼
+    try
+      repeat  //æ­¤å¤„è°ƒç”¨äº†APIå‡½æ•°ã€‚
+        if (F.Attr and faDirectory) > 0 then begin//æŸ¥æ‰¾æ˜¯å¦ä¸ºæ–‡ä»¶ï¼Œå¦‚æœæ˜¯åˆ™æ‰§è¡Œ
+          if (F.Name <> '.') and (F.Name <> '..') then //åˆ é™¤é¦–æ¬¡å¯»æ‰¾æ–‡ä»¶æ—¶å‡ºç°çš„ã€.ã€‘å’Œã€..ã€‘å­—ç¬¦ã€‚
+            DeleteDirectory(Concat(N, '\', F.Name)) //é‡å¤è°ƒç”¨æœ¬å‡½æ•°ï¼Œå¹¶ä¸”åŠ ä¸Šæ–‡ä»¶åã€‚
+        end else begin
+          DeleteFile(Concat(N, '\', F.Name)); //å¦‚æœå‘ç°äº†æ–‡ä»¶ï¼Œåˆ™ç«‹åˆ»åˆ é™¤
+        end;
+      until FindNext(F) <> 0; //æŸ¥è¯¢ä¸‹ä¸€ä¸ªã€‚
+    finally
+      FindClose(F); //å…³é—­æ–‡ä»¶æŸ¥è¯¢ã€‚
+    end;
+    RemoveDir(N); //æœ€ç»ˆåˆ é™¤æ€»æ–‡ä»¶å¤¹ã€‚
+    result := true;
+  end;
+end;
+//æ’­æ”¾éŸ³ä¹
 procedure PlayMusic;
 begin
   if v.FileName <> '' then
@@ -176,33 +256,33 @@ begin
     v.Play;
   end;
 end;
-//ÖØÖÃ±³¾°Í¼Æ¬µÄ·½·¨¡£
+//é‡ç½®èƒŒæ™¯å›¾ç‰‡çš„æ–¹æ³•ã€‚
 procedure ResetBackImage(resume: Boolean);
 var
   Files: TArray<String>;
 begin
   randomize;
   var jrr := 0;
-  var MList := TStringList.Create;  //±éÀúÎÄ¼ş¼ĞÏÂµÄBackGroundÎÄ¼ş¼Ğ¡£
+  var MList := TStringList.Create;  //éå†æ–‡ä»¶å¤¹ä¸‹çš„BackGroundæ–‡ä»¶å¤¹ã€‚
   var path := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\BackGroundImage');
-  if SysUtils.DirectoryExists(path) then begin //Èç¹ûÎÄ¼ş´æÔÚ£¬ÔòÖ´ĞĞ
+  if SysUtils.DirectoryExists(path) then begin //å¦‚æœæ–‡ä»¶å­˜åœ¨ï¼Œåˆ™æ‰§è¡Œ
     Files := TDirectory.GetFiles(path);
-    for var I in Files do begin  //Ìí¼Ó²¿·Öºó×ºµÄÎÄ¼ş
+    for var I in Files do begin  //æ·»åŠ éƒ¨åˆ†åç¼€çš„æ–‡ä»¶
       var J := ExtractFileExt(I);
       if (J = '.jpg') or (J = '.png') or (J = '.gif') or (J = '.bmp') or (J = '.jpeg') then begin
-        MList.Add(I); //¸øÁĞ±íÌí¼Ó¡£
+        MList.Add(I); //ç»™åˆ—è¡¨æ·»åŠ ã€‚
         inc(jrr);
       end;
     end;
   end;
-  var imgpth: String; //¸øÁĞ±íÂ·¾¶¸½ÉÏ¿ÕÖµ
+  var imgpth: String; //ç»™åˆ—è¡¨è·¯å¾„é™„ä¸Šç©ºå€¼
   if jrr <> 0 then begin
-    imgpth := MList[random(jrr)]; //Èç¹ûÀïÃæÓĞÔªËØ£¬ÔòÖ´ĞĞ¡£
-    Log.Write('±³¾°Í¼Æ¬ÒÑ±»Ëæ»ú¼ÓÔØ¡£', LOG_INFO);
+    imgpth := MList[random(jrr)]; //å¦‚æœé‡Œé¢æœ‰å…ƒç´ ï¼Œåˆ™æ‰§è¡Œã€‚
+    Log.Write('èƒŒæ™¯å›¾ç‰‡å·²è¢«éšæœºåŠ è½½ã€‚', LOG_INFO, LOG_LOAD);
   end else begin
     if resume then
-      MyMessageBox(GetLanguageText('messagebox_background_reset_image.not_found.caption'), GetLanguageText('messagebox_background_reset_image.not_found.text'), MY_ERROR, [mybutton.myYes]);
-    exit;  //Ã»ÓĞÔªËØ£¬ÔòÌø³ö¡£
+      MyMessageBox(GetLanguage('messagebox_background_reset_image.not_found.caption'), GetLanguage('messagebox_background_reset_image.not_found.text'), MY_ERROR, [mybutton.myYes]);
+    exit;  //æ²¡æœ‰å…ƒç´ ï¼Œåˆ™è·³å‡ºã€‚
   end;
   var suffix := ExtractFileExt(imgpth);
   if (suffix = '.jpg') or (suffix = '.jpeg') then begin
@@ -226,9 +306,9 @@ begin
     gif.Free;
   end;
   if resume then
-    MyMessageBox(GetLanguageText('messagebox_background_reset_image.success.caption'), GetLanguageText('messagebox_background_reset_image.success.text').Replace('${background_image_filename}', ExtractFileName(imgpth)), MY_INFORMATION, [mybutton.myYes]);
+    MyMessageBox(GetLanguage('messagebox_background_reset_image.success.caption'), GetLanguage('messagebox_background_reset_image.success.text').Replace('${background_image_filename}', ExtractFileName(imgpth)), MY_INFORMATION, [mybutton.myYes]);
 end;
-//ÖØÖÃ±³¾°ÒôÀÖµÄ·½·¨¡£
+//é‡ç½®èƒŒæ™¯éŸ³ä¹çš„æ–¹æ³•ã€‚
 procedure ResetBackMusic(resume: Boolean);
 var
   Files: TArray<String>;
@@ -239,7 +319,7 @@ begin
   var path := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\BackGroundMusic');
   if SysUtils.DirectoryExists(path) then begin
     Files := TDirectory.GetFiles(path);
-    for var I in Files do begin //±éÀú
+    for var I in Files do begin //éå†
       var J := I.Substring(I.LastIndexOf('.'), I.Length - I.LastIndexOf('.'));
       if (J = '.mp3') or (J = '.wav') or (J = 'm4a') then begin
         MList.Add(I);
@@ -252,26 +332,26 @@ begin
     mic := MList[random(jrr)];
   end else begin
     if resume then
-      MyMessageBox(GetLanguageText('messagebox_background_reset_music.not_found.caption'), GetLanguageText('messagebox_background_reset_music.not_found.text'), MY_ERROR, [mybutton.myYes]);
+      MyMessageBox(GetLanguage('messagebox_background_reset_music.not_found.caption'), GetLanguage('messagebox_background_reset_music.not_found.text'), MY_ERROR, [mybutton.myYes]);
     exit;
   end;
   v.FileName := mic;
-  Log.Write('±³¾°ÒôÀÖÒÑ±»Ëæ»ú¼ÓÔØ¡£', LOG_INFO);
+  Log.Write('èƒŒæ™¯éŸ³ä¹å·²è¢«éšæœºåŠ è½½ã€‚', LOG_INFO, LOG_LOAD);
   if resume then begin
-    MyMessageBox(GetLanguageText('messagebox_background_reset_music.success.caption'), GetLanguageText('messagebox_background_reset_music.success.text').Replace('${background_music_filename}', ExtractFileName(mic)), MY_INFORMATION, [mybutton.myYes]);
+    MyMessageBox(GetLanguage('messagebox_background_reset_music.success.caption'), GetLanguage('messagebox_background_reset_music.success.text').Replace('${background_music_filename}', ExtractFileName(mic)), MY_INFORMATION, [mybutton.myYes]);
     PlayMusic;
   end;
 end;
-//ÅĞ¶Ï°æ±¾ÊÇ·ñÓĞÎó
+//åˆ¤æ–­ç‰ˆæœ¬æ˜¯å¦æœ‰è¯¯
 function IsVersionError(path: String): Boolean;
 var
   Files: TArray<String>;
 begin
   result := true;
-  if DirectoryExists(path) then // ÅĞ¶ÏÎÄ¼ş¼ĞÊÇ·ñ´æÔÚ
+  if DirectoryExists(path) then // åˆ¤æ–­æ–‡ä»¶å¤¹æ˜¯å¦å­˜åœ¨
   begin
-    Files := TDirectory.GetFiles(path); // ÕÒµ½ËùÓĞÎÄ¼ş
-    for var I in Files do begin // ±éÀúÎÄ¼ş
+    Files := TDirectory.GetFiles(path); // æ‰¾åˆ°æ‰€æœ‰æ–‡ä»¶
+    for var I in Files do begin // éå†æ–‡ä»¶
       if I.IndexOf('.json') <> -1 then begin
         var god := GetFile(I);
         try
@@ -287,34 +367,34 @@ begin
     end;
   end;
 end;
-//È¥³ı×Ö·û´®¿Õ¸ñ
+//å»é™¤å­—ç¬¦ä¸²ç©ºæ ¼
 function TrimStrM(str: String): String;
 var
   i: Integer;
 begin
-  repeat  //Ê¹ÓÃÑ­»·±éÀú×Ö·û´®
-    i := pos(' ', str); //»ñÈ¡¿Õ¸ñ×Ö·ûÔÚ×Ö·û´®µÄÎ»ÖÃ¡£
-    var j := length(str); //»ñÈ¡×Ö·û´®µÄ³¤¶È
-    if i > 0 then  //Èç¹û×Ö·û´®ÄÚÓĞ¿Õ¸ñ
-      str := copy(str, 1, i - 1) + copy(str, i + 1, j - i); //Ç°ÃæÎª¸´ÖÆ×Ö·û´®Ç°ÃæµÄ×Ö·û£¬
+  repeat  //ä½¿ç”¨å¾ªç¯éå†å­—ç¬¦ä¸²
+    i := pos(' ', str); //è·å–ç©ºæ ¼å­—ç¬¦åœ¨å­—ç¬¦ä¸²çš„ä½ç½®ã€‚
+    var j := length(str); //è·å–å­—ç¬¦ä¸²çš„é•¿åº¦
+    if i > 0 then  //å¦‚æœå­—ç¬¦ä¸²å†…æœ‰ç©ºæ ¼
+      str := copy(str, 1, i - 1) + copy(str, i + 1, j - i); //å‰é¢ä¸ºå¤åˆ¶å­—ç¬¦ä¸²å‰é¢çš„å­—ç¬¦ï¼Œ
   until i = 0;
   str := str.Replace(#13, '').Replace(#10, '');
   Result := str;
 end; 
-//»ñÈ¡ÎÄ¼ş    
+//è·å–æ–‡ä»¶    
 function GetFile(path: String): String;
 begin
   result := '';
   if not FileExists(path) then exit;
   var ss := TStringStream.Create('', TEncoding.UTF8, False);
   try
-    ss.LoadFromFile(path); //Ö±½Ó¶ÁÈ¡
+    ss.LoadFromFile(path); //ç›´æ¥è¯»å–
     result := ss.DataString;
   finally
     ss.Free;
   end;
 end;
-//±£´æÎÄ¼ş
+//ä¿å­˜æ–‡ä»¶
 procedure SetFile(path, content: String);
 begin
   if not SysUtils.DirectoryExists(ExtractFilePath(path)) then
@@ -327,19 +407,19 @@ begin
     ss.Free;
   end;
 end;        
-//»ñÈ¡µçÄÔÏµÍ³ÊÇ·ñÎª64Î»¡£   
+//è·å–ç”µè„‘ç³»ç»Ÿæ˜¯å¦ä¸º64ä½ã€‚   
 function isX64: Boolean;
 var
   si: SYSTEM_INFO;
 begin
-  GetNativeSystemInfo(&si); // = 9 ±íÊ¾µÄÊÇ AMD64
+  GetNativeSystemInfo(&si); // = 9 è¡¨ç¤ºçš„æ˜¯ AMD64
   if(si.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_AMD64 {9}) or
     (si.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_IA64) then
     Result := True
   else
     Result := False;
 end;          
-//»ñÈ¡ÎÄ¼şÄÚ×ÜÊıÁ¿¡¾µÚÒ»¸ö²ÎÊıÎªÎÄ¼ş¼Ğ£¬µÚ¶ş¸ö²ÎÊıÎª¸ÃÎÄ¼şµÄÌØÕ÷£¬·µ»ØÖµÊÇ¸ÃÎÄ¼şµÄÎÄ¼şÁĞ±í¡£¡¿¡£
+//è·å–æ–‡ä»¶å†…æ€»æ•°é‡ã€ç¬¬ä¸€ä¸ªå‚æ•°ä¸ºæ–‡ä»¶å¤¹ï¼Œç¬¬äºŒä¸ªå‚æ•°ä¸ºè¯¥æ–‡ä»¶çš„ç‰¹å¾ï¼Œè¿”å›å€¼æ˜¯è¯¥æ–‡ä»¶çš„æ–‡ä»¶åˆ—è¡¨ã€‚ã€‘ã€‚
 function GetDirectoryFileCount(Dir: String; suffix: String): TStringList;
 var
   d: TArray<String>;

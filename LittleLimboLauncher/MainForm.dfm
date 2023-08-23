@@ -170,7 +170,7 @@ object form_mainform: Tform_mainform
     Top = 8
     Width = 838
     Height = 464
-    ActivePage = tabsheet_mainpage_part
+    ActivePage = tabsheet_version_part
     MultiLine = True
     TabOrder = 0
     OnChange = pagecontrol_mainpageChange
@@ -533,6 +533,7 @@ object form_mainform: Tform_mainform
           7F2AD59BACFC3E402C6F1D4154210ADD7637C6F884E8302EBD4901F0BF0E06E0
           B600B747DE03F80B41C2885F1E35CCBF0000000049454E44AE426082}
         ShowHint = True
+        OnClick = image_open_download_prograssClick
       end
       object button_launch_game: TButton
         Left = 3
@@ -571,7 +572,7 @@ object form_mainform: Tform_mainform
         Height = 64
       end
       object label_all_account: TLabel
-        Left = 73
+        Left = 89
         Top = 6
         Width = 52
         Height = 15
@@ -585,9 +586,9 @@ object form_mainform: Tform_mainform
         Caption = #36820#22238#20540
       end
       object combobox_all_account: TComboBox
-        Left = 131
+        Left = 160
         Top = 3
-        Width = 696
+        Width = 667
         Height = 23
         Style = csDropDownList
         TabOrder = 0
@@ -621,6 +622,7 @@ object form_mainform: Tform_mainform
         Caption = #21047#26032#36134#21495
         TabOrder = 3
         WordWrap = True
+        OnClick = button_refresh_accountClick
       end
       object button_account_get_uuid: TButton
         Left = 626
@@ -630,13 +632,14 @@ object form_mainform: Tform_mainform
         Caption = #33719#21462#36134#21495'UUID'
         TabOrder = 4
         WordWrap = True
+        OnClick = button_account_get_uuidClick
       end
       object pagecontrol_account_part: TPageControl
         Left = 3
         Top = 94
         Width = 824
         Height = 134
-        ActivePage = tabsheet_account_offline_part
+        ActivePage = tabsheet_account_microsoft_part
         TabOrder = 5
         object tabsheet_account_offline_part: TTabSheet
           Caption = #31163#32447#30331#24405
@@ -668,6 +671,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Steve'
               TabOrder = 0
+              OnClick = radiobutton_steveClick
             end
             object radiobutton_alex: TRadioButton
               Left = 63
@@ -676,6 +680,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Alex'
               TabOrder = 1
+              OnClick = radiobutton_alexClick
             end
             object radiobutton_zuri: TRadioButton
               Left = 119
@@ -684,6 +689,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Zuri'
               TabOrder = 2
+              OnClick = radiobutton_zuriClick
             end
             object radiobutton_sunny: TRadioButton
               Left = 175
@@ -692,6 +698,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Sunny'
               TabOrder = 3
+              OnClick = radiobutton_sunnyClick
             end
             object radiobutton_noor: TRadioButton
               Left = 239
@@ -700,6 +707,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Noor'
               TabOrder = 4
+              OnClick = radiobutton_noorClick
             end
             object radiobutton_makena: TRadioButton
               Left = 295
@@ -708,6 +716,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Makena'
               TabOrder = 5
+              OnClick = radiobutton_makenaClick
             end
             object radiobutton_kai: TRadioButton
               Left = 367
@@ -716,6 +725,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Kai'
               TabOrder = 6
+              OnClick = radiobutton_kaiClick
             end
             object radiobutton_efe: TRadioButton
               Left = 415
@@ -724,6 +734,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Efe'
               TabOrder = 7
+              OnClick = radiobutton_efeClick
             end
             object radiobutton_ari: TRadioButton
               Left = 463
@@ -732,6 +743,7 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Ari'
               TabOrder = 8
+              OnClick = radiobutton_ariClick
             end
             object checkbox_slim: TCheckBox
               Left = 511
@@ -740,20 +752,21 @@ object form_mainform: Tform_mainform
               Height = 17
               Caption = 'Slim'
               TabOrder = 9
+              OnClick = checkbox_slimClick
             end
           end
           object edit_offline_name: TEdit
-            Left = 36
+            Left = 48
             Top = 49
-            Width = 528
+            Width = 516
             Height = 23
             TabOrder = 1
             TextHint = #35831#36755#20837#31163#32447#27169#24335#21517#31216
           end
           object edit_offline_uuid: TEdit
-            Left = 36
+            Left = 48
             Top = 78
-            Width = 528
+            Width = 516
             Height = 23
             TabOrder = 2
             TextHint = #36755#20837'32'#20301'16'#36827#21046#30340'UUID'#12304#21487#20197#30041#31354#65292#30041#31354#21017#38543#26426#29983#25104#19968#20010'UUID'#12305
@@ -778,45 +791,18 @@ object form_mainform: Tform_mainform
         object tabsheet_account_microsoft_part: TTabSheet
           Caption = #24494#36719#30331#24405
           ImageIndex = 1
-          object label_microsoft_callback_link: TLabel
-            Left = 3
-            Top = 52
-            Width = 52
-            Height = 15
-            Caption = #22238#35843#38142#25509
-          end
           object button_microsoft_oauth_login: TButton
-            Left = 3
-            Top = 3
-            Width = 402
-            Height = 40
+            Left = 66
+            Top = 24
+            Width = 671
+            Height = 57
             Hint = #35813#31181#30331#24405#26041#24335#24456#23433#20840#65292#38750#24120#24314#35758#20351#29992#35813#31181#30331#24405#26041#24335#65292#19988#35813#31181#30331#24405#26041#24335#26080#38656#28857#20987#28155#21152#36134#21495#21363#21487#30331#24405#12290
             Caption = 'OAuth'#39564#35777#27969#30331#24405
             ParentShowHint = False
             ShowHint = True
             TabOrder = 0
             WordWrap = True
-          end
-          object button_microsoft_external_browser: TButton
-            Left = 411
-            Top = 3
-            Width = 402
-            Height = 40
-            Hint = 
-              #35813#31181#30331#24405#26041#24335#24456#19981#23433#20840#65292#23558#20250#33258#20027#35843#29992#20320#27983#35272#22120#30340'Cookie'#20445#23384#30340#36134#21495#23494#30721#36827#34892#30331#24405#65292#22914#26524#25285#24515#33258#24049#30340#37038#31665#22403#22334#24456#22810#65292#21487#20197#23581#35797#36825#31181#30331#24405#26041#24335 +
-              #65292#20294#26159#38750#24517#35201#24773#20917#19981#24314#35758#20351#29992#65281#35813#31181#30331#24405#26041#24335#38656#35201#36755#20837#22238#35843#38142#25509#65292#21516#26102#38656#35201#28857#20987#28155#21152#36134#21495#25165#20250#28155#21152#12290
-            Caption = #27983#35272#22120#25163#21160#30331#24405
-            ParentShowHint = False
-            ShowHint = True
-            TabOrder = 1
-            WordWrap = True
-          end
-          object edit_microsoft_callback_link: TEdit
-            Left = 61
-            Top = 49
-            Width = 752
-            Height = 23
-            TabOrder = 2
+            OnClick = button_microsoft_oauth_loginClick
           end
         end
         object tabsheet_account_thirdparty_part: TTabSheet
@@ -844,23 +830,23 @@ object form_mainform: Tform_mainform
             Caption = #23494#30721
           end
           object edit_thirdparty_server: TEdit
-            Left = 48
+            Left = 59
             Top = 3
-            Width = 765
+            Width = 754
             Height = 23
             TabOrder = 0
           end
           object edit_thirdparty_account: TEdit
-            Left = 48
+            Left = 59
             Top = 32
-            Width = 766
+            Width = 755
             Height = 23
             TabOrder = 1
           end
           object edit_thirdparty_password: TEdit
-            Left = 48
+            Left = 59
             Top = 61
-            Width = 766
+            Width = 755
             Height = 23
             TabOrder = 2
           end
@@ -882,7 +868,7 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_playing_manage_part
+        ActivePage = tabsheet_playing_download_part
         TabOrder = 0
         object tabsheet_playing_download_part: TTabSheet
           Caption = #19979#36733#29609#27861
@@ -1270,7 +1256,7 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_download_modloader_part
+        ActivePage = tabsheet_download_minecraft_part
         TabOrder = 0
         object tabsheet_download_minecraft_part: TTabSheet
           Caption = #19979#36733'Minecraft'
@@ -1283,8 +1269,8 @@ object form_mainform: Tform_mainform
             Caption = #36873#25321#26174#31034#26041#24335
           end
           object label_minecraft_version_name: TLabel
-            Left = 3
-            Top = 212
+            Left = 472
+            Top = 216
             Width = 78
             Height = 15
             Caption = #19979#36733#29256#26412#21517#31216
@@ -1335,7 +1321,7 @@ object form_mainform: Tform_mainform
             Left = 3
             Top = 120
             Width = 121
-            Height = 86
+            Height = 122
             Caption = #36873#25321#19979#36733#28304
             Items.Strings = (
               #23448#26041#19979#36733#28304
@@ -1344,18 +1330,18 @@ object form_mainform: Tform_mainform
             TabOrder = 1
           end
           object edit_minecraft_version_name: TEdit
-            Left = 3
-            Top = 233
-            Width = 121
+            Left = 472
+            Top = 237
+            Width = 341
             Height = 23
             TabOrder = 2
             TextHint = #35831#36755#20837#29256#26412#21517#31216
           end
           object radiogroup_choose_mod_loader: TRadioGroup
             Left = 3
-            Top = 262
+            Top = 248
             Width = 121
-            Height = 112
+            Height = 126
             Caption = #36873#25321#27169#32452#21152#36733#22120
             Items.Strings = (
               'Forge'
@@ -1394,7 +1380,10 @@ object form_mainform: Tform_mainform
             Top = 337
             Width = 165
             Height = 37
+            Hint = #20174#24038#36793#12304#36873#25321#27169#32452#21152#36733#22120#12305#20013#65292#36890#36807#36873#25321#30340#21333#36873#26694#36827#34892#23545#24212#30340#27169#32452#21152#36733#22120#21152#36733#12290
             Caption = #21152#36733#27169#32452#21152#36733#22120
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 7
           end
           object button_download_start_download_minecraft: TButton
@@ -1448,6 +1437,13 @@ object form_mainform: Tform_mainform
             Height = 15
             Caption = #36335#24452#65306
           end
+          object label_custom_download_sha1: TLabel
+            Left = 3
+            Top = 103
+            Width = 128
+            Height = 15
+            Caption = #25991#20214'sha1'#36755#20837#65288#21487#31354#65289
+          end
           object edit_custom_download_url: TEdit
             Left = 3
             Top = 24
@@ -1490,6 +1486,14 @@ object form_mainform: Tform_mainform
             Caption = #24320#22987#19979#36733
             TabOrder = 4
             WordWrap = True
+          end
+          object edit_custom_download_sha1: TEdit
+            Left = 3
+            Top = 124
+            Width = 810
+            Height = 23
+            TabOrder = 5
+            TextHint = #36825#37324#36755#20837#25991#20214'sha1'#65292#20027#35201#29992#20110#19979#36733#23436#25104#21518#26657#39564#25991#20214#26159#21542#23436#25972#65292#22914#26524#19981#30693#36947#21487#20197#30041#31354#12290
           end
         end
         object tabsheet_download_modloader_part: TTabSheet
@@ -1780,12 +1784,12 @@ object form_mainform: Tform_mainform
         Left = 215
         Top = 124
         Width = 610
-        Height = 85
+        Height = 77
         Caption = #38899#20048#25773#25918#35774#32622
         TabOrder = 8
         object button_background_play_music: TButton
           Left = 3
-          Top = 24
+          Top = 16
           Width = 194
           Height = 28
           Hint = #25163#21160#25773#25918#19978#34987#25346#36215#19982#24050#32463#25918#23436#30340#38899#20048#65292#22914#26524#26410#28857#20027#30028#38754#21047#26032#38899#20048#21017#20250#37325#26032#38543#26426#25773#25918#19968#27425#12290
@@ -1797,7 +1801,7 @@ object form_mainform: Tform_mainform
         end
         object button_background_pause_music: TButton
           Left = 203
-          Top = 24
+          Top = 16
           Width = 194
           Height = 28
           Hint = #28857#27492#21482#26159#20250#23558#38899#20048#26242#20572#65292#28857#20987#25773#25918#38899#20048#21518#23558#20250#25353#29031#19978#27425#26242#20572#26102#38271#25509#30528#25773#25918#12290
@@ -1809,7 +1813,7 @@ object form_mainform: Tform_mainform
         end
         object button_background_stop_music: TButton
           Left = 403
-          Top = 24
+          Top = 16
           Width = 195
           Height = 28
           Hint = #28857#27492#20250#35760#24405#19979'mp3'#25991#20214#21517#65292#20877#28857#20987#25773#25918#38899#20048#26102#20250#20174#22836#25773#25918#12290
@@ -1821,7 +1825,7 @@ object form_mainform: Tform_mainform
         end
         object radiobutton_background_music_open: TRadioButton
           Left = 3
-          Top = 58
+          Top = 50
           Width = 194
           Height = 24
           Caption = #25171#24320#21551#21160#22120#26102#25773#25918
@@ -1830,7 +1834,7 @@ object form_mainform: Tform_mainform
         end
         object radiobutton_background_music_launch: TRadioButton
           Left = 203
-          Top = 58
+          Top = 50
           Width = 194
           Height = 24
           Caption = #21551#21160#28216#25103#26102#25773#25918
@@ -1839,7 +1843,7 @@ object form_mainform: Tform_mainform
         end
         object radiobutton_background_music_not: TRadioButton
           Left = 403
-          Top = 58
+          Top = 50
           Width = 195
           Height = 24
           Caption = #19981#33258#21160#25773#25918
@@ -1849,7 +1853,7 @@ object form_mainform: Tform_mainform
       end
       object groupbox_background_launch_setting: TGroupBox
         Left = 215
-        Top = 215
+        Top = 207
         Width = 612
         Height = 44
         Caption = #21551#21160#28216#25103#35774#32622#37096#20998
@@ -1954,7 +1958,7 @@ object form_mainform: Tform_mainform
       object edit_background_mainform_title: TEdit
         Left = 3
         Top = 270
-        Width = 209
+        Width = 824
         Height = 23
         TabOrder = 11
         Text = 'Little Limbo Launcher (Delphi)'
@@ -2321,10 +2325,10 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_version_control_part
+        ActivePage = tabsheet_version_export_part
         TabOrder = 0
         object tabsheet_version_control_part: TTabSheet
-          Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
+          Hint = #23558#36873#20013#30340#25991#20214#21015#34920#19982#21517#31216#65292#28155#21152#36827#21015#34920#20013#20197#20379#38271#26399#36873#25321#12290
           Caption = #29256#26412#25511#21046
           object label_select_game_version: TLabel
             Left = 3
@@ -2389,7 +2393,10 @@ object form_mainform: Tform_mainform
             Top = 90
             Width = 227
             Height = 23
+            Hint = #20808#28857#20987#25105#28155#21152#19968#20010#25991#20214#22841#65292#28982#21518#20877#28857#20987#23558#36873#20013#30446#24405#19982#21517#31216#28155#21152#21040#21015#34920#21734#65281
             Caption = #35831#36873#25321#20219#19968#25991#20214#22841
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 2
           end
           object button_version_create_minecraft: TButton
@@ -2429,7 +2436,7 @@ object form_mainform: Tform_mainform
             Top = 90
             Width = 227
             Height = 23
-            Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
+            Hint = #23558#36873#20013#30340#25991#20214#21015#34920#19982#21517#31216#65292#28155#21152#36827#21015#34920#20013#20197#20379#38271#26399#36873#25321#12290
             Caption = #23558#36873#20013#36335#24452#19982#21517#31216#28155#21152#21040#21015#34920
             ParentShowHint = False
             ShowHint = True
@@ -2772,9 +2779,11 @@ object form_mainform: Tform_mainform
           object label_export_current_version: TLabel
             Left = 3
             Top = 3
-            Width = 109
+            Width = 439
             Height = 15
-            Caption = #24403#21069#36873#20013#29256#26412#65306'666'
+            Caption = 
+              #24403#21069#36873#20013#29256#26412#65306'666666666666666666666666666666666666666666666666666666666' +
+              '6'
           end
           object label_export_mode: TLabel
             Left = 3
@@ -2875,7 +2884,7 @@ object form_mainform: Tform_mainform
             Caption = #38656#35201#20445#30041#30340#25991#20214
           end
           object label_export_current_memory: TLabel
-            Left = 279
+            Left = 496
             Top = 318
             Width = 101
             Height = 15
@@ -2985,7 +2994,7 @@ object form_mainform: Tform_mainform
           object scrollbar_export_max_memory: TScrollBar
             Left = 88
             Top = 314
-            Width = 185
+            Width = 402
             Height = 23
             Max = 8192
             Min = 1024
@@ -2997,7 +3006,7 @@ object form_mainform: Tform_mainform
             Left = 387
             Top = 53
             Width = 210
-            Height = 284
+            Height = 255
             ScrollBars = ssBoth
             TabOrder = 12
           end
@@ -3020,31 +3029,91 @@ object form_mainform: Tform_mainform
         end
       end
     end
+    object tabsheet_download_progress_part: TTabSheet
+      Caption = #19979#36733#36827#24230#30028#38754
+      ImageIndex = 8
+      TabVisible = False
+      object label_progress_download_progress: TLabel
+        Left = 3
+        Top = 3
+        Width = 312
+        Height = 15
+        Caption = #19979#36733#36827#24230#65306'0% | 6666666666666666666666666666666666666'
+      end
+      object label_progress_tips: TLabel
+        Left = 671
+        Top = 75
+        Width = 156
+        Height = 15
+        Caption = #19968#26086#24320#22987#19979#36733#23601#26080#27861#20572#27490#20102
+      end
+      object progressbar_progress_download_bar: TProgressBar
+        Left = 3
+        Top = 24
+        Width = 824
+        Height = 41
+        ParentShowHint = False
+        ShowHint = False
+        TabOrder = 0
+      end
+      object button_progress_hide_show_details: TButton
+        Left = 3
+        Top = 71
+        Width = 662
+        Height = 25
+        Caption = #38544#34255#35814#24773#12304'Hide Details'#12305
+        TabOrder = 1
+        OnClick = button_progress_hide_show_detailsClick
+      end
+      object listbox_progress_download_list: TListBox
+        Left = 3
+        Top = 102
+        Width = 824
+        Height = 293
+        ItemHeight = 15
+        TabOrder = 2
+      end
+      object button_progress_clean_download_list: TButton
+        Left = 3
+        Top = 401
+        Width = 479
+        Height = 30
+        Caption = #28165#31354#19979#36733#20449#24687#21015#34920#26694
+        TabOrder = 3
+        OnClick = button_progress_clean_download_listClick
+      end
+      object button_progress_cancel_download: TButton
+        Left = 488
+        Top = 401
+        Width = 339
+        Height = 30
+        Caption = #21462#28040#19979#36733
+        ParentShowHint = False
+        ShowHint = False
+        TabOrder = 4
+        OnClick = button_progress_cancel_downloadClick
+      end
+    end
   end
   object mainmenu_mainpage: TMainMenu
-    Left = 704
-    Top = 72
+    Left = 752
+    Top = 104
     object n_misc: TMenuItem
       Caption = #26434#39033
       object n_message_board: TMenuItem
         Caption = #30041#35328#26495
-        ShortCut = 67
       end
       object n_answer_book: TMenuItem
         Caption = #31572#26696#20043#20070
-        ShortCut = 65
       end
       object n_intro_self: TMenuItem
         Caption = #33258#25105#20171#32461
-        ShortCut = 83
       end
       object n_lucky_today: TMenuItem
         Caption = #20170#26085#20154#21697
-        ShortCut = 76
       end
       object n_puzzle_game: TMenuItem
         Caption = #35299#35868#28216#25103
-        ShortCut = 80
       end
     end
     object n_official: TMenuItem
@@ -3093,8 +3162,8 @@ object form_mainform: Tform_mainform
     end
   end
   object popupmenu_view_minecraft_info: TPopupMenu
-    Left = 755
-    Top = 60
+    Left = 771
+    Top = 52
     object n_view_minecraft_info: TMenuItem
       Caption = #26597#30475'Minecraft'#29256#26412#20449#24687
     end
@@ -3118,7 +3187,7 @@ object form_mainform: Tform_mainform
   end
   object timer_form_gradient_tick: TTimer
     OnTimer = timer_form_gradient_tickTimer
-    Left = 700
+    Left = 668
     Top = 58
   end
 end

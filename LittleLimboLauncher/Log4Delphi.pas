@@ -1,4 +1,4 @@
-unit Log4Delphi;
+﻿unit Log4Delphi;
 
 interface
 
@@ -9,19 +9,23 @@ uses
 type
   Log4D = class
   public
-    procedure Write(text: String; MB: Integer);
+    procedure Write(text: String; MB, LL: Integer);
     procedure WriteWithoutTime(text: String);
     constructor Create; overload;
   private
     pah: String;
   end;
 
-const
+const // Log信息框输出
   LOG_INFO = 1;
   LOG_QUESTION = 2;
   LOG_WARNING = 3;
   LOG_ERROR = 4;
-
+const // Log内部输出
+  LOG_LAUNCH = 1;
+  LOG_LOAD = 2;
+  LOG_START = 3;
+  LOG_ACCOUNT = 4;
 var
   FileStr: String;
   filesize: Integer;
@@ -30,11 +34,12 @@ implementation
 
 uses MainForm;
 
-procedure Log4D.Write(text: String; MB: Integer);
+procedure Log4D.Write(text: String; MB, LL: Integer);
 var
   fe: TextFile;
 begin
   var tdd := '';
+  var tdt := '';
   case MB of
     1: tdd := 'INFO';
     2: tdd := 'QUESTION';
@@ -42,7 +47,13 @@ begin
     4: tdd := 'ERROR';
     else raise Exception.Create('Read Log Stream Error');
   end;
-  var FileStr := Concat('[', Now.Format('yyyy/mm/dd HH:nn:ss'), ']', '[Thread/', tdd, '] ', text);
+  case LL of
+    1: tdt := 'Launch';
+    2: tdt := 'Load';
+    3: tdt := 'Start';
+    4: tdt := 'Account';
+  end;
+  var FileStr := Concat('[', Now.Format('yyyy/mm/dd HH:nn:ss'), ']', '[', tdt, '/', tdd, '] ', text);
   try
     AssignFile(fe, pah);
     if FileExists(pah) then begin
@@ -75,11 +86,14 @@ begin
   end;
 end;
 constructor Log4D.Create;
+var
+  pph: String;
 begin
-  if not DirectoryExists(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\Logs')) then
-    ForceDirectories(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\Logs'));
-  var tmr := Now.Format('yyyy-mm-dd_HH.nn.ss');
-  pah := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\Logs\Log-', tmr, '.txt');
+  pph := Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\Logs');
+  if not DirectoryExists(pph) then
+    ForceDirectories(pph);
+  deleteFile(Concat(pph, '\latest.log'));
+  pah := Concat(pph, '\latest.log');
 end;
 
 end.

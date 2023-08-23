@@ -1,9 +1,8 @@
-unit MyCustomWindow;
+Ôªøunit MyCustomWindow;
 interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Threading, Vcl.ExtCtrls, JSON,
-  Generics.Collections;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Threading, Vcl.ExtCtrls;
 type
   btn = class(TForm)
     procedure MCWButtonClick(Sender: TObject);
@@ -35,7 +34,7 @@ var
   InputMCW: TEdit;
   OkMCW, CancalMCW: TButton;
   PictureMCW: TImage;
-//≥ı ºªØ¥∞ø⁄
+//ÂàùÂßãÂåñÁ™óÂè£
 procedure InitMCW(nme: String);
 begin
   FormMCW := TForm.Create(nil);
@@ -67,7 +66,7 @@ begin
       Width := 766;
       Height := 179;
       Font.Charset := ANSI_CHARSET;
-      Font.Name := 'Œ¢»Ì—≈∫⁄';
+      Font.Name := 'ÂæÆËΩØÈõÖÈªë';
       Font.Height := -25;
       Font.Style := [fsBold];
       Font.Color := clWindowText;
@@ -98,7 +97,7 @@ begin
       Font.Charset := ANSI_CHARSET;
       Font.Color := clWindowText;
       Font.Height := -19;
-      Font.Name := 'Œ¢»Ì—≈∫⁄';
+      Font.Name := 'ÂæÆËΩØÈõÖÈªë';
       Color := clbtnface;
       BorderStyle := bsNone;
       ReadOnly := True;
@@ -112,7 +111,7 @@ begin
       Top := 687;
       Width := 129;
       Height := 39;
-      Caption := GetLanguageText('picturebox_button_ok.caption');
+      Caption := GetLanguage('picturebox_button_ok.caption');
       OnClick := bt.MCWOKClick;
     end;
     exit;
@@ -135,7 +134,7 @@ begin
     Width := 484;
     Height := 25;
     Font.Charset := ANSI_CHARSET;
-    Font.Name := 'Œ¢»Ì—≈∫⁄';
+    Font.Name := 'ÂæÆËΩØÈõÖÈªë';
     Font.Height := -20;
     Font.Style := [fsBold];
   end;
@@ -160,7 +159,7 @@ begin
     Height := 126;
     Font.Color := clWindowText;
     Font.Charset := ANSI_CHARSET;
-    Font.Name := 'Œ¢»Ì—≈∫⁄';
+    Font.Name := 'ÂæÆËΩØÈõÖÈªë';
     Font.Height := -16;
     Color := clbtnface;
     BorderStyle := bsNone;
@@ -187,7 +186,7 @@ begin
       Top := 221;
       Width := 100;
       Height := 28;
-      Caption := GetLanguageText('inputbox_button_yes.caption');
+      Caption := GetLanguage('inputbox_button_yes.caption');
       OnClick := bt.MCWOKClick;
     end;
     CancalMCW := TButton.Create(FormMCW);
@@ -198,7 +197,7 @@ begin
       Top := 221;
       Width := 100;
       Height := 28;
-      Caption := GetLanguageText('inputbox_button_no.caption');
+      Caption := GetLanguage('inputbox_button_no.caption');
       OnClick := bt.MCWCancalClick;
     end;
   end;
@@ -227,82 +226,87 @@ begin
   end;
   FormMCW.Close;
 end;
-//◊‘∂®“Â–≈œ¢øÚ
+//Ëá™ÂÆö‰πâ‰ø°ÊÅØÊ°Ü
 function MyMessageBox(title, content: String; color: Integer; button: TArray<MyButton>; custom: TArray<String> = []; defbutton: Integer = 1): Integer;
 begin
-  InitMCW('MyMessageBox');
-  ContentMCW.Lines.Clear;
-  TitleMCW.Caption := title;
-  ContentMCW.Lines.Add(content);
-  case color of
-    MY_ERROR: begin TitleMCW.Font.Color := rgb(255, 10, 10); CutMCW.Font.Color := clRed; end;
-    MY_WARNING: begin TitleMCW.Font.Color := rgb(255, 215, 10); CutMCW.Font.Color := clYellow; end;
-    MY_INFORMATION: begin TitleMCW.Font.Color := rgb(10, 10, 255); CutMCW.Font.Color := clBlue; end;
-    MY_PASS: begin TitleMCW.Font.Color := rgb(10, 192, 10); CutMCW.Font.Color := clGreen; end;
-    else raise Exception.Create('So much color');
-  end;
-  var len := Length(button);
-  if (len < 1) or (len > 4) then raise Exception.Create('So much button');
-  SetLength(tbt, len);
-  for var I := 0 to len - 1 do begin
-    tbt[I] := TButton.Create(FormMCW);
-    tbt[I].Parent := FormMCW;
-    tbt[I].Width := 100;
-    tbt[I].Height := 50;
-    tbt[I].Top := 192;
-    tbt[I].WordWrap := true;
-    case I of
-      0: tbt[I].Left := 392;
-      1: tbt[I].Left := 286;
-      2: tbt[I].Left := 180;
-      3: tbt[I].Left := 74;
+  TThread.Synchronize(nil, procedure begin
+    InitMCW('MyMessageBox');
+    ContentMCW.Lines.Clear;
+    TitleMCW.Caption := title;
+    ContentMCW.Lines.Add(content);
+    case color of
+      MY_ERROR: begin TitleMCW.Font.Color := rgb(255, 10, 10); CutMCW.Font.Color := clRed; end;
+      MY_WARNING: begin TitleMCW.Font.Color := rgb(255, 215, 10); CutMCW.Font.Color := clYellow; end;
+      MY_INFORMATION: begin TitleMCW.Font.Color := rgb(10, 10, 255); CutMCW.Font.Color := clBlue; end;
+      MY_PASS: begin TitleMCW.Font.Color := rgb(10, 192, 10); CutMCW.Font.Color := clGreen; end;
+      else raise Exception.Create('So much color');
     end;
-    tbt[I].OnClick := bt.MCWButtonClick;
-  end;
-  if (defbutton > len) or (defbutton < 1) then raise Exception.Create('So much default button');
-  tbt[defbutton - 1].Default := true;
-  var O := 0;
-  var P := 0;
-  for var I := 0 to len - 1 do begin
-    case button[I] of
-      myYes: tbt[O].Caption := GetLanguageText('messagebox_button_yes.caption');
-      myOK: tbt[O].Caption := GetLanguageText('messagebox_button_ok.caption');
-      myNo: tbt[O].Caption := GetLanguageText('messagebox_button_no.caption');
-      myCancal: tbt[O].Caption := GetLanguageText('messagebox_button_cancel.caption');
-      myRetry: tbt[O].Caption := GetLanguageText('messagebox_button_retry.caption');
-      myAbort: tbt[O].Caption := GetLanguageText('messagebox_button_abort.caption');
-      myIgnore: tbt[O].Caption := GetLanguageText('messagebox_button_ignore.caption');
-      myCustom: begin tbt[O].Caption := custom[P]; inc(P); end;
+    var len := Length(button);
+    if (len < 1) or (len > 4) then raise Exception.Create('So much button');
+    SetLength(tbt, len);
+    for var I := 0 to len - 1 do begin
+      tbt[I] := TButton.Create(FormMCW);
+      tbt[I].Parent := FormMCW;
+      tbt[I].Width := 100;
+      tbt[I].Height := 50;
+      tbt[I].Top := 192;
+      tbt[I].WordWrap := true;
+      case I of
+        0: tbt[I].Left := 392;
+        1: tbt[I].Left := 286;
+        2: tbt[I].Left := 180;
+        3: tbt[I].Left := 74;
+      end;
+      tbt[I].OnClick := bt.MCWButtonClick;
     end;
-    inc(O);
-  end;
-  FormMCW.ShowModal;
+    if (defbutton > len) or (defbutton < 1) then raise Exception.Create('So much default button');
+    tbt[defbutton - 1].Default := true;
+    var O := 0;
+    var P := 0;
+    for var I := 0 to len - 1 do begin
+      case button[I] of
+        myYes: tbt[O].Caption := GetLanguage('messagebox_button_yes.caption');
+        myOK: tbt[O].Caption := GetLanguage('messagebox_button_ok.caption');
+        myNo: tbt[O].Caption := GetLanguage('messagebox_button_no.caption');
+        myCancal: tbt[O].Caption := GetLanguage('messagebox_button_cancel.caption');
+        myRetry: tbt[O].Caption := GetLanguage('messagebox_button_retry.caption');
+        myAbort: tbt[O].Caption := GetLanguage('messagebox_button_abort.caption');
+        myIgnore: tbt[O].Caption := GetLanguage('messagebox_button_ignore.caption');
+        myCustom: begin tbt[O].Caption := custom[P]; inc(P); end;
+      end;
+      inc(O);
+    end;
+    FormMCW.ShowModal;
+  end);
   Result := ResMessage;
 end;
-//◊‘∂®“Â ‰»ÎøÚ
+//Ëá™ÂÆö‰πâËæìÂÖ•Ê°Ü
 function MyInputBox(title, content: String; color: Integer; defcontent: String = ''; defbutton: Integer = 1): String;
 begin
-  InitMCW('MyInputBox');
-  if (defbutton > 2) or (defbutton < 1) then raise Exception.Create('So much default button');
-  ContentMCW.Lines.Clear;
-  TitleMCW.Caption := title;
-  ContentMCW.Lines.Add(content);
-  case color of
-    MY_ERROR: begin TitleMCW.Font.Color := clRed; CutMCW.Font.Color := clRed; end;
-    MY_WARNING: begin TitleMCW.Font.Color := clYellow; CutMCW.Font.Color := clYellow; end;
-    MY_INFORMATION: begin TitleMCW.Font.Color := clBlue; CutMCW.Font.Color := clBlue; end;
-    MY_PASS: begin TitleMCW.Font.Color := clGreen; CutMCW.Font.Color := clGreen; end;
-    else raise Exception.Create('So much color');
-  end;
-  case defbutton of
-    1: OkMCW.Default := true;
-    2: CancalMCW.Default := true;
-  end;
-  InputMCW.Text := defcontent;
-  FormMCW.ShowModal;
+  TThread.Synchronize(nil, procedure begin
+    InitMCW('MyInputBox');
+    if (defbutton > 2) or (defbutton < 1) then raise Exception.Create('So much default button');
+    ContentMCW.Lines.Clear;
+    TitleMCW.Caption := title;
+    ContentMCW.Lines.Add(content);
+    case color of
+      MY_ERROR: begin TitleMCW.Font.Color := clRed; CutMCW.Font.Color := clRed; end;
+      MY_WARNING: begin TitleMCW.Font.Color := clYellow; CutMCW.Font.Color := clYellow; end;
+      MY_INFORMATION: begin TitleMCW.Font.Color := clBlue; CutMCW.Font.Color := clBlue; end;
+      MY_PASS: begin TitleMCW.Font.Color := clGreen; CutMCW.Font.Color := clGreen; end;
+      else raise Exception.Create('So much color');
+    end;
+    case defbutton of
+      1: OkMCW.Default := true;
+      2: CancalMCW.Default := true;
+      else raise Exception.Create('Not Support');
+    end;
+    InputMCW.Text := defcontent;
+    FormMCW.ShowModal;
+  end);
   Result := ResInput;
 end;
-//◊‘∂®“ÂÕº∆¨–≈œ¢øÚ°æ◊®”√”⁄ƒ£◊È–≈œ¢œ‘ æ°ø
+//Ëá™ÂÆö‰πâÂõæÁâá‰ø°ÊÅØÊ°Ü„Äê‰∏ìÁî®‰∫éÊ®°ÁªÑ‰ø°ÊÅØÊòæÁ§∫„Äë
 procedure MyPictureBox(title, content: String; web: TStringStream);
 begin
   InitMCW('MyPictureBox');

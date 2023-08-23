@@ -1,12 +1,12 @@
-unit MainForm;
+ï»¿unit MainForm;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, VCLTee.TeCanvas, CheckLst, JSON, ShellAPI,
-  IniFiles, Menus, ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg,
-  Vcl.Buttons;
+  IniFiles, Menus, ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections,
+  Vcl.Buttons, Vcl.ControlList, Threading, ClipBrd;
 
 type
   Tform_mainform = class(TForm)
@@ -65,10 +65,7 @@ type
     button_offline_name_to_uuid: TButton;
     button_offline_uuid_to_name: TButton;
     tabsheet_account_microsoft_part: TTabSheet;
-    label_microsoft_callback_link: TLabel;
     button_microsoft_oauth_login: TButton;
-    button_microsoft_external_browser: TButton;
-    edit_microsoft_callback_link: TEdit;
     tabsheet_account_thirdparty_part: TTabSheet;
     label_thirdparty_server: TLabel;
     label_thirdparty_account: TLabel;
@@ -361,6 +358,16 @@ type
     label_isolation_window_width_tip: TLabel;
     label_isolation_window_height_tip: TLabel;
     n_reset_launcher: TMenuItem;
+    label_custom_download_sha1: TLabel;
+    edit_custom_download_sha1: TEdit;
+    tabsheet_download_progress_part: TTabSheet;
+    progressbar_progress_download_bar: TProgressBar;
+    label_progress_download_progress: TLabel;
+    button_progress_hide_show_details: TButton;
+    label_progress_tips: TLabel;
+    listbox_progress_download_list: TListBox;
+    button_progress_clean_download_list: TButton;
+    button_progress_cancel_download: TButton;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -396,6 +403,23 @@ type
     procedure button_add_accountClick(Sender: TObject);
     procedure combobox_all_accountChange(Sender: TObject);
     procedure button_delete_accountClick(Sender: TObject);
+    procedure image_open_download_prograssClick(Sender: TObject);
+    procedure radiobutton_steveClick(Sender: TObject);
+    procedure radiobutton_alexClick(Sender: TObject);
+    procedure radiobutton_zuriClick(Sender: TObject);
+    procedure radiobutton_sunnyClick(Sender: TObject);
+    procedure radiobutton_noorClick(Sender: TObject);
+    procedure radiobutton_makenaClick(Sender: TObject);
+    procedure radiobutton_kaiClick(Sender: TObject);
+    procedure radiobutton_efeClick(Sender: TObject);
+    procedure radiobutton_ariClick(Sender: TObject);
+    procedure checkbox_slimClick(Sender: TObject);
+    procedure button_microsoft_oauth_loginClick(Sender: TObject);
+    procedure button_account_get_uuidClick(Sender: TObject);
+    procedure button_refresh_accountClick(Sender: TObject);
+    procedure button_progress_hide_show_detailsClick(Sender: TObject);
+    procedure button_progress_clean_download_listClick(Sender: TObject);
+    procedure button_progress_cancel_downloadClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -403,7 +427,7 @@ type
   end;
 
 const
-  LauncherVersion = '0.1.3-Beta-3';
+  LauncherVersion = '1.0.0-Beta-1';
 
 var
   form_mainform: Tform_mainform;
@@ -421,6 +445,7 @@ var
   mred, mgreen, mblue, mwindow_alpha, mcontrol_alpha: Integer;
   mgradient_value, mgradient_step: Integer;
   mis_gradient: Boolean;
+  mchoose_skin: Integer;
 
 implementation
 
@@ -428,7 +453,7 @@ uses
   MainMethod, LaunchMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow;
 
 {$R *.dfm}
-//±³¾°ÉèÖÃ£º×Ô¶¨ÒåÅäÉ«°´Å¥
+//èƒŒæ™¯è®¾ç½®ï¼šè‡ªå®šä¹‰é…è‰²æŒ‰é’®
 procedure Tform_mainform.buttoncolor_custom_colorClick(Sender: TObject);
 begin
   Color := buttoncolor_custom_color.SymbolColor;
@@ -436,25 +461,41 @@ begin
   mgreen := (Color and $FF00) shr 8;
   mblue := (Color and $FF0000) shr 16;
 end;
-//ÕËºÅ²¿·Ö£ºÌí¼ÓÕËºÅ
+//è´¦å·éƒ¨åˆ†ï¼šè·å–è´¦å·UUID
+procedure Tform_mainform.button_account_get_uuidClick(Sender: TObject);
+begin
+  if combobox_all_account.ItemIndex = -1 then begin
+    MyMessagebox(GetLanguage('messagebox_account.not_choose_any_account.caption'), GetLanguage('messagebox_account.not_choose_any_account.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var uuid := ((AccountJSON.GetValue('account') as TJsonArray)[combobox_all_account.ItemIndex] as TJsonObject).GetValue('uuid').Value;
+  if MyMessagebox(GetLanguage('messagebox_account.get_current_uuid.caption'), GetLanguage('messagebox_account.get_current_uuid.text').Replace('${account_uuid}', uuid), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 2 then begin
+    ClipBoard.SetTextBuf(pchar(uuid));
+  end;
+end;
+//è´¦å·éƒ¨åˆ†ï¼šæ·»åŠ è´¦å·
 procedure Tform_mainform.button_add_accountClick(Sender: TObject);
 begin
   if combobox_all_account.Items.Count > 32 then begin
-    MyMessagebox('µÇÂ¼µÄÕËºÅÌ«¶àÁË', 'ÄãµÇÂ¼µÄÕËºÅ³¬¹ı32¸öÁË£¬ÇéÉ¾µôÒ»Ğ©Ö®ºóÔÙÖØĞÂµÇÂ¼°É£¡', MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_account.login_account_too_much.caption'), GetLanguage('messagebox_account.login_account_too_much.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   if pagecontrol_account_part.ActivePage = tabsheet_account_offline_part then begin
     OfflineLogin(edit_offline_name.Text, edit_offline_uuid.Text);
+  end else if pagecontrol_account_part.ActivePage = tabsheet_account_thirdparty_part then begin
+    ThirdPartyLogin(edit_thirdparty_server.Text, edit_thirdparty_account.Text, edit_thirdparty_password.Text);
+  end else if pagecontrol_account_part.ActivePage = tabsheet_account_microsoft_part then begin
+    MyMessagebox(GetLanguage('messagebox_account.not_support_login_way.caption'), GetLanguage('messagebox_account.not_support_login_way.text'), MY_ERROR, [mybutton.myOK]);
   end;
 end;
-//±³¾°ÉèÖÃ£ºÔİÍ£ÒôÀÖ
+//èƒŒæ™¯è®¾ç½®ï¼šæš‚åœéŸ³ä¹
 procedure Tform_mainform.button_background_pause_musicClick(Sender: TObject);
 begin
   if v.FileName = '' then
     exit;
   v.Pause;
 end;
-//±³¾°ÉèÖÃ£º²¥·ÅÒôÀÖ
+//èƒŒæ™¯è®¾ç½®ï¼šæ’­æ”¾éŸ³ä¹
 procedure Tform_mainform.button_background_play_musicClick(Sender: TObject);
 begin
   if v.FileName = '' then begin
@@ -466,7 +507,7 @@ begin
       PlayMusic;
   end;
 end;
-//±³¾°ÉèÖÃ£ºÍ£Ö¹ÒôÀÖ
+//èƒŒæ™¯è®¾ç½®ï¼šåœæ­¢éŸ³ä¹
 procedure Tform_mainform.button_background_stop_musicClick(Sender: TObject);
 begin
   if v.FileName = '' then
@@ -474,7 +515,7 @@ begin
   v.Stop;
   v.Position := 0;
 end;
-//±³¾°ÉèÖÃ£º¿É°®·Û
+//èƒŒæ™¯è®¾ç½®ï¼šå¯çˆ±ç²‰
 procedure Tform_mainform.button_cute_colorClick(Sender: TObject);
 begin
   mred := 255;
@@ -483,12 +524,12 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
-//É¾³ıÕËºÅ
+//åˆ é™¤è´¦å·
 procedure Tform_mainform.button_delete_accountClick(Sender: TObject);
 begin
-  //
+  combobox_all_account.ItemIndex := DeleteAccount(combobox_all_account.ItemIndex);
 end;
-//±³¾°ÉèÖÃ£ºĞ¡²İÂÌ
+//èƒŒæ™¯è®¾ç½®ï¼šå°è‰ç»¿
 procedure Tform_mainform.button_grass_colorClick(Sender: TObject);
 begin
   mred := 50;
@@ -497,23 +538,9 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
-//Ö÷½çÃæ£ºÆô¶¯ÓÎÏ·°´Å¥
+//ä¸»ç•Œé¢ï¼šå¯åŠ¨æ¸¸æˆæŒ‰é’®
 procedure Tform_mainform.button_launch_gameClick(Sender: TObject);
 begin
-//  var mm := TTabSheet.Create(pagecontrol_mainpage);
-//  with mm do begin
-//    mm.Parent := pagecontrol_mainpage;
-//  end;
-//  pagecontrol_mainpage.ActivePage := mm;
-//  image_finish_running_mc.Cursor := crHelp;
-//  mm.Show;
-//  pagecontrol_mainpage.ActivePage := mm;
-//  ½«¿Ø¼şµÄ´°¿ÚÑùÊ½ÉèÖÃÎª WS_EX_LAYERED
-
-//  Ê¹ÓÃ SetLayeredWindowAttributes º¯ÊıÉèÖÃ¿Ø¼şµÄÍ¸Ã÷¶È
-//  showmessage('finish!!');
-//  self.Color := buttonColor1.SymbolColor;
-//  self.Color := 0;
 //  var MainHandle := OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessID);
 //  if SetProcessWorkingSetSize(GetCurrentProcess, 1024 * 1024, 1024 * 4096) then begin
 //    showmessage('OK')
@@ -525,11 +552,16 @@ begin
 //    CloseHandle(MainHandle);
 //    showmessage('OK2');
 //  except
-//    // ´¦ÀíÒì³£
+//    // å¤„ç†å¼‚å¸¸
 //    showmessage('NO');
 //  end;
 end;
-//±³¾°ÉèÖÃ£ºÄ¬ÈÏ°×
+//å¾®è½¯OAuthç™»å½•
+procedure Tform_mainform.button_microsoft_oauth_loginClick(Sender: TObject);
+begin
+  OAuthLogin;
+end;
+//èƒŒæ™¯è®¾ç½®ï¼šé»˜è®¤ç™½
 procedure Tform_mainform.button_normal_colorClick(Sender: TObject);
 begin
   mred := 240;
@@ -538,7 +570,37 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
-//±³¾°ÉèÖÃ£ºÌì¿ÕÀ¶
+//ä¸‹è½½è¿›åº¦ç•Œé¢ï¼šå–æ¶ˆä¸‹è½½
+procedure Tform_mainform.button_progress_cancel_downloadClick(Sender: TObject);
+begin
+  messagebox(Handle, 'æš‚æœªå®Œæˆï¼Œè¯·ç¨åï¼', 'æš‚æœªå®Œæˆ', MB_ICONWARNING);
+end;
+//ä¸‹è½½è¿›åº¦ç•Œé¢ï¼šæ¸…ç©ºåˆ—è¡¨æ¡†
+procedure Tform_mainform.button_progress_clean_download_listClick(
+  Sender: TObject);
+begin
+  progressbar_progress_download_bar.Position := 0;
+  listbox_progress_download_list.Items.Clear;
+  label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', '0');
+end;
+//ä¸‹è½½è¿›åº¦ç•Œé¢ï¼šéšè—è¯¦æƒ…
+procedure Tform_mainform.button_progress_hide_show_detailsClick(
+  Sender: TObject);
+begin
+  if listbox_progress_download_list.Visible then begin
+    button_progress_hide_show_details.Caption := 'æ˜¾ç¤ºè¯¦æƒ…ã€Show Detailsã€‘';
+    listbox_progress_download_list.Visible := false;
+  end else begin
+    button_progress_hide_show_details.Caption := 'éšè—è¯¦æƒ…ã€Hide Detailsã€‘';
+    listbox_progress_download_list.Visible := true;
+  end;
+end;
+//åˆ·æ–°è´¦å·
+procedure Tform_mainform.button_refresh_accountClick(Sender: TObject);
+begin
+  RefreshAccount(combobox_all_account.ItemIndex);
+end;
+//èƒŒæ™¯è®¾ç½®ï¼šå¤©ç©ºè“
 procedure Tform_mainform.button_sky_colorClick(Sender: TObject);
 begin
   mred := 0;
@@ -547,7 +609,7 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
-//±³¾°ÉèÖÃ£ºËÕµ¤ºì
+//èƒŒæ™¯è®¾ç½®ï¼šè‹ä¸¹çº¢
 procedure Tform_mainform.button_sultan_colorClick(Sender: TObject);
 begin
   mred := 189;
@@ -556,7 +618,7 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
-//±³¾°ÉèÖÃ£ºÈÕÂä»Æ
+//èƒŒæ™¯è®¾ç½®ï¼šæ—¥è½é»„
 procedure Tform_mainform.button_sun_colorClick(Sender: TObject);
 begin
   mred := 255;
@@ -565,38 +627,42 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
-//ÕËºÅ²¿·Ö£ºËùÓĞÕËºÅÏÂÀ­¿ò¸Ä±äÊÂ¼ş
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šSlim
+procedure Tform_mainform.checkbox_slimClick(Sender: TObject);
+begin
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//è´¦å·éƒ¨åˆ†ï¼šæ‰€æœ‰è´¦å·ä¸‹æ‹‰æ¡†æ”¹å˜äº‹ä»¶
 procedure Tform_mainform.combobox_all_accountChange(Sender: TObject);
 begin
   var pla := ((AccountJson.Values['account'] as TJsonArray)[combobox_all_account.ItemIndex] as TJsonObject);
   var pln := pla.GetValue('name').Value;
-  JudgeJSONSkin;
-  label_account_return_value.Caption := Concat('ÒÑµÇÂ¼£¬Íæ¼ÒÃû³Æ£º', pln);
+  JudgeJSONSkin(combobox_all_account.ItemIndex);
+  label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', pln);;
 end;
-//±³¾°ÉèÖÃ£º´°¿Ú±êÌâ
+//èƒŒæ™¯è®¾ç½®ï¼šçª—å£æ ‡é¢˜
 procedure Tform_mainform.edit_background_mainform_titleChange(Sender: TObject);
 begin
   Caption := edit_background_mainform_title.Text;
 end;
-
-//Ö÷½çÃæ£º´°¿Ú¹Ø±ÕÊÂ¼ş
+//ä¸»ç•Œé¢ï¼šçª—å£å…³é—­äº‹ä»¶
 procedure Tform_mainform.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   SaveBackground;
   SaveAccount;
   ShellExecute(Application.Handle, 'open', 'taskkill.exe', '/F /IM LittleLimboLauncher.exe', nil, SW_HIDE);
 end;
-//Ö÷½çÃæ£º´°¿Ú´´½¨ÊÂ¼ş
+//ä¸»ç•Œé¢ï¼šçª—å£åˆ›å»ºäº‹ä»¶
 procedure Tform_mainform.FormCreate(Sender: TObject);
 begin
   Log := Log4D.Create;
-  Log.Write('´°¿Ú´´½¨£¡', LOG_INFO);
+  Log.Write('çª—å£åˆ›å»ºï¼', LOG_INFO, LOG_START);
   AppData := GetEnvironmentVariable('AppData');
   Cave := TStringList.Create;
   Answer := TStringList.Create;
   Lucky := TStringList.Create;
-  v := TMediaPlayer.Create(nil);
-  Log.Write('³õÊ¼»¯±äÁ¿1Íê±Ï¡£', LOG_INFO);
+  v := TMediaPlayer.Create(form_mainform);
+  Log.Write('åˆå§‹åŒ–å˜é‡1å®Œæ¯•ã€‚', LOG_INFO, LOG_START);
   LLLini := TIniFile.Create(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\LittleLimboLauncher.ini'));
   OtherIni := TIniFile.Create(Concat(AppData, '\LLLauncher\Other.ini'));
   if not SysUtils.DirectoryExists(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher')) then
@@ -647,11 +713,11 @@ begin
     Otherini.WriteString('Misc', 'Launcher', '0');
     Otherini.WriteString('Misc', 'StartGame', '0');
   end;
-  Log.Write('³õÊ¼»¯±äÁ¿2Íê±Ï¡£', LOG_INFO); //Êä³öLog
-  Log.Write('ÅĞ¶ÏÍê³É´°¿Ú´´½¨ÊÂ¼ş£¡', LOG_INFO);
+  Log.Write('åˆå§‹åŒ–å˜é‡2å®Œæ¯•ã€‚', LOG_INFO, LOG_START); //è¾“å‡ºLog
+  Log.Write('åˆ¤æ–­å®Œæˆçª—å£åˆ›å»ºäº‹ä»¶ï¼', LOG_INFO, LOG_START);
   InitLanguage;
 end;
-//Ö÷½çÃæ£º´°¿ÚÕ¹Ê¾ÊÂ¼ş
+//ä¸»ç•Œé¢ï¼šçª—å£å±•ç¤ºäº‹ä»¶
 procedure Tform_mainform.FormShow(Sender: TObject);
 begin
   pagecontrol_mainpage.ActivePage := tabsheet_mainpage_part;
@@ -662,76 +728,76 @@ begin
   pagecontrol_version_part.ActivePage := tabsheet_version_control_part;
   v.ParentWindow := Handle;
   v.Visible := False;
-  Log.Write('ÕıÔÚ¶ÁÈ¡ÓïÑÔÎÄ¼ş¡­¡­', LOG_INFO);
+  Log.Write('æ­£åœ¨è¯»å–è¯­è¨€æ–‡ä»¶â€¦â€¦', LOG_INFO, LOG_START);
   var langtle := LLLini.ReadString('Language', 'SelectLanguageFile', '');
   SetLanguage(langtle);
-  Log.Write('¿ªÊ¼ÅĞ¶Ï´°¿ÚÏÔÊ¾ÊÂ¼ş£¡', LOG_INFO);
-  try  //ÅĞ¶Ï´ò¿ªÆô¶¯Æ÷µÄ´ÎÊı
-    Log.Write('¿ªÊ¼ÅĞ¶Ï´ò¿ªÆô¶¯Æ÷´ÎÊı¡£', LOG_INFO);
+  Log.Write('å¼€å§‹åˆ¤æ–­çª—å£æ˜¾ç¤ºäº‹ä»¶ï¼', LOG_INFO, LOG_START);
+  try  //åˆ¤æ–­æ‰“å¼€å¯åŠ¨å™¨çš„æ¬¡æ•°
+    Log.Write('å¼€å§‹åˆ¤æ–­æ‰“å¼€å¯åŠ¨å™¨æ¬¡æ•°ã€‚', LOG_INFO, LOG_START);
     mopen_number := Otherini.ReadInteger('Misc', 'Launcher', -1) + 1;
     if mopen_number < 1 then raise Exception.Create('Format Exception');
     Otherini.WriteString('Misc', 'Launcher', inttostr(mopen_number));
-    Log.Write(Concat('ÅĞ¶Ï³É¹¦£¬´ò¿ªÆô¶¯Æ÷´ÎÊıÎª', inttostr(mopen_number), '´Î¡£'), LOG_INFO);
+    Log.Write(Concat('åˆ¤æ–­æˆåŠŸï¼Œæ‰“å¼€å¯åŠ¨å™¨æ¬¡æ•°ä¸º', inttostr(mopen_number), 'æ¬¡ã€‚'), LOG_INFO, LOG_START);
   except
     mopen_number := 1;
-    Log.Write('ÅĞ¶Ï´ò¿ªÆô¶¯Æ÷´ÎÊıÊ§°Ü£¬Ä¬ÈÏ½µÎª1´Î¡£', LOG_ERROR);
+    Log.Write('åˆ¤æ–­æ‰“å¼€å¯åŠ¨å™¨æ¬¡æ•°å¤±è´¥ï¼Œé»˜è®¤é™ä¸º1æ¬¡ã€‚', LOG_ERROR, LOG_START);
     Otherini.WriteString('Misc', 'Launcher', inttostr(mopen_number));
   end;
-  label_open_launcher_number.Caption := GetLanguageText('label_open_launcher_number.caption').Replace('${open_launcher_number}', inttostr(mopen_number));
-  try  //ÅĞ¶ÏÆô¶¯ÓÎÏ·µÄ´ÎÊı
-    Log.Write(Concat('¿ªÊ¼ÅĞ¶ÏÆô¶¯ÓÎÏ·µÄ´ÎÊı¡£'), LOG_INFO);
+  label_open_launcher_number.Caption := GetLanguage('label_open_launcher_number.caption').Replace('${open_launcher_number}', inttostr(mopen_number));
+  try  //åˆ¤æ–­å¯åŠ¨æ¸¸æˆçš„æ¬¡æ•°
+    Log.Write(Concat('å¼€å§‹åˆ¤æ–­å¯åŠ¨æ¸¸æˆçš„æ¬¡æ•°ã€‚'), LOG_INFO, LOG_START);
     mlaunch_number := Otherini.ReadInteger('Misc', 'StartGame', -1);
     if mlaunch_number < 0 then raise Exception.Create('Format Exception');
-    Log.Write(Concat('ÅĞ¶Ï³É¹¦£¬Æô¶¯ÓÎÏ·´ÎÊıÎª', inttostr(mlaunch_number), '´Î¡£'), LOG_INFO);
+    Log.Write(Concat('åˆ¤æ–­æˆåŠŸï¼Œå¯åŠ¨æ¸¸æˆæ¬¡æ•°ä¸º', inttostr(mlaunch_number), 'æ¬¡ã€‚'), LOG_INFO, LOG_START);
   except
     mlaunch_number := 0;
-    Log.Write(Concat('ÅĞ¶ÏÆô¶¯ÓÎÏ·´ÎÊıÊ§°Ü£¬Ä¬ÈÏ½µÎª1´Î¡£'), LOG_ERROR);
+    Log.Write(Concat('åˆ¤æ–­å¯åŠ¨æ¸¸æˆæ¬¡æ•°å¤±è´¥ï¼Œé»˜è®¤é™ä¸º1æ¬¡ã€‚'), LOG_ERROR, LOG_START);
     Otherini.WriteString('Misc', 'StartGame', inttostr(mlaunch_number));
   end;
-  label_launch_game_number.Caption := GetLanguageText('label_launch_game_number.caption').Replace('${launch_game_number}', inttostr(mlaunch_number));
-  Log.Write(Concat('ÏÔÊ¾½ñÈÕ´ò¿ªÆô¶¯Æ÷µÄÈÕÆÚ¡£'), LOG_INFO);//ÏÔÊ¾½ñÈÕÈÕÆÚ
-  label_open_launcher_time.Caption := GetLanguageText('label_open_launcher_time.caption').Replace('${open_launcher_time}', Now.Format('yyyy/mm/dd HH:nn:ss'));
-  try //²éÕÒÕËºÅ²¢¸³Öµ
-    Log.Write(Concat('¿ªÊ¼²éÕÒÕËºÅ²¿·ÖÊÇ·ñ·ûºÏ¹æ¶¨¡£'), LOG_INFO);
+  label_launch_game_number.Caption := GetLanguage('label_launch_game_number.caption').Replace('${launch_game_number}', inttostr(mlaunch_number));
+  Log.Write(Concat('æ˜¾ç¤ºä»Šæ—¥æ‰“å¼€å¯åŠ¨å™¨çš„æ—¥æœŸã€‚'), LOG_INFO, LOG_START);//æ˜¾ç¤ºä»Šæ—¥æ—¥æœŸ
+  label_open_launcher_time.Caption := GetLanguage('label_open_launcher_time.caption').Replace('${open_launcher_time}', Now.Format('yyyy/mm/dd HH:nn:ss'));
+  try //æŸ¥æ‰¾è´¦å·å¹¶èµ‹å€¼
+    Log.Write(Concat('å¼€å§‹æŸ¥æ‰¾è´¦å·éƒ¨åˆ†æ˜¯å¦ç¬¦åˆè§„å®šã€‚'), LOG_INFO, LOG_START);
     var json := GetFile(Concat(AppData, '\LLLauncher\AccountJson.json'));
     var s := strtoint(OtherIni.ReadString('Account', 'SelectAccount', '')) - 1;
     if s <= -1 then raise Exception.Create('Format Exception');
     maccount_view := (((TJsonObject.ParseJSONValue(json) as TJsonObject).GetValue('account') as TJsonArray)[s] as TJsonObject).GetValue('name').Value;
-    Log.Write(Concat('ÕËºÅÅĞ¶ÏÍê±Ï£¬»¶Ó­', maccount_view, '¡£'), LOG_INFO);
-    label_account_view.Caption := GetLanguageText('label_account_view.caption.have').Replace('${account_view}', maccount_view);
+    Log.Write(Concat('è´¦å·åˆ¤æ–­å®Œæ¯•ï¼Œæ¬¢è¿', maccount_view, 'ã€‚'), LOG_INFO, LOG_START);
+    label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', maccount_view);
   except
     maccount_view := '';
-    Log.Write(Concat('ÕËºÅÅĞ¶ÏÊ§°Ü£¬Äş»¹ÔİÎ´µÇÂ¼Ò»¸öÕËºÅ¡£'), LOG_ERROR);
-    label_account_view.Caption := GetLanguageText('label_account_view.caption.absence');
+    Log.Write(Concat('è´¦å·åˆ¤æ–­å¤±è´¥ï¼Œå®è¿˜æš‚æœªç™»å½•ä¸€ä¸ªè´¦å·ã€‚'), LOG_ERROR, LOG_START);
+    label_account_view.Caption := GetLanguage('label_account_view.caption.absence');
   end;
-  try  //²éÑ¯°æ±¾ÊÇ·ñÓĞÎó£¬Èç¹ûÕÒ²»µ½£¬ÔòÔİÎ´Ñ¡Ôñ°æ±¾¡£
-    Log.Write('¿ªÊ¼ÅĞ¶ÏÓÎÏ·°æ±¾¡£', LOG_INFO);
+  try  //æŸ¥è¯¢ç‰ˆæœ¬æ˜¯å¦æœ‰è¯¯ï¼Œå¦‚æœæ‰¾ä¸åˆ°ï¼Œåˆ™æš‚æœªé€‰æ‹©ç‰ˆæœ¬ã€‚
+    Log.Write('å¼€å§‹åˆ¤æ–­æ¸¸æˆç‰ˆæœ¬ã€‚', LOG_INFO, LOG_START);
     var ssj := strtoint(LLLini.ReadString('MC', 'SelectVer', ''));
     var sjn := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
     var svr := ((TJsonObject.ParseJSONValue(sjn) as TJsonObject).GetValue('mcsel') as TJsonArray)[ssj - 1] as TJsonObject;
     var svv := svr.GetValue('name').Value;
     var svp := svr.GetValue('path').Value;
     if IsVersionError(svp) then begin
-      Log.Write('ÓÎÏ·°æ±¾£º´íÎó£¬Î´ÕÒµ½Json¡£', LOG_ERROR);
-      svv := Concat(svv, GetLanguageText('button_launch_game.caption.error.cannot_find_json'));
+      Log.Write('æ¸¸æˆç‰ˆæœ¬ï¼šé”™è¯¯ï¼Œæœªæ‰¾åˆ°Jsonã€‚', LOG_ERROR, LOG_START);
+      svv := Concat(svv, GetLanguage('button_launch_game.caption.error.cannot_find_json'));
     end else if GetMCInheritsFrom(svp, 'inheritsFrom') = '' then begin
-      Log.Write('ÓÎÏ·°æ±¾£º´íÎó£¬È±ÉÙÇ°ÖÃ°æ±¾¡£', LOG_ERROR);
-      svv := Concat(svv, GetLanguageText('button_launch_game.caption.error.missing_inherits_version'));
+      Log.Write('æ¸¸æˆç‰ˆæœ¬ï¼šé”™è¯¯ï¼Œç¼ºå°‘å‰ç½®ç‰ˆæœ¬ã€‚', LOG_ERROR, LOG_START);
+      svv := Concat(svv, GetLanguage('button_launch_game.caption.error.missing_inherits_version'));
     end;
     var IltIni := TIniFile.Create(Concat(svp, '\LLLauncher.ini'));
-    if IltIni.ReadString('Isolation', 'IsIsolation', '') = 'True' then svv := Concat(svv, GetLanguageText('button_launch_game.caption.isolation'));
-    Log.Write(Concat('ÓÎÏ·°æ±¾£ºÒÑÈ·ÈÏÄşËùÑ¡°æ±¾Îª£º', svv), LOG_INFO);
-    button_launch_game.Caption := GetLanguageText('button_launch_game.caption').Replace('${launch_version_name}', svv);
+    if IltIni.ReadString('Isolation', 'IsIsolation', '') = 'True' then svv := Concat(svv, GetLanguage('button_launch_game.caption.isolation'));
+    Log.Write(Concat('æ¸¸æˆç‰ˆæœ¬ï¼šå·²ç¡®è®¤å®æ‰€é€‰ç‰ˆæœ¬ä¸ºï¼š', svv), LOG_INFO, LOG_START);
+    button_launch_game.Caption := GetLanguage('button_launch_game.caption').Replace('${launch_version_name}', svv);
   except
-    Log.Write('ÓÎÏ·°æ±¾£ºÕÒ²»µ½ËùÑ¡VersionÎÄ¼ş¼Ğ£¬ÅĞ¶ÏÎªÔİÎ´Ñ¡ÔñÒ»¸ö°æ±¾¡£', LOG_ERROR);
-    button_launch_game.Caption := GetLanguageText('button_launch_game.caption.absence');
+    Log.Write('æ¸¸æˆç‰ˆæœ¬ï¼šæ‰¾ä¸åˆ°æ‰€é€‰Versionæ–‡ä»¶å¤¹ï¼Œåˆ¤æ–­ä¸ºæš‚æœªé€‰æ‹©ä¸€ä¸ªç‰ˆæœ¬ã€‚', LOG_ERROR, LOG_START);
+    button_launch_game.Caption := GetLanguage('button_launch_game.caption.absence');
   end;
-  Log.Write(Concat('¿ªÊ¼ÅĞ¶Ï´°¿ÚÑÕÉ«¡£'), LOG_INFO);
-  try //ÅĞ¶ÏRGBA
+  Log.Write(Concat('å¼€å§‹åˆ¤æ–­çª—å£é¢œè‰²ã€‚'), LOG_INFO, LOG_START);
+  try //åˆ¤æ–­RGBA
     mred := LLLini.ReadInteger('Misc', 'Red', -1);
     if (mred > 255) or (mred < 0) then raise Exception.Create('Format Exception');
   except
-    Log.Write(Concat('´°¿ÚÑÕÉ«ÓĞÎó£¬Î»ÖÃ£ºIniÎÄ¼şµÄRedºìÉ«Î»ÖÃ¡£'), LOG_ERROR);
+    Log.Write(Concat('çª—å£é¢œè‰²æœ‰è¯¯ï¼Œä½ç½®ï¼šIniæ–‡ä»¶çš„Redçº¢è‰²ä½ç½®ã€‚'), LOG_ERROR, LOG_START);
     mred := 240;
     LLLini.WriteInteger('Misc', 'Red', mred);
   end;
@@ -739,7 +805,7 @@ begin
     mgreen := LLLini.ReadInteger('Misc', 'Green', -1);
     if (mgreen > 255) or (mgreen < 0) then raise Exception.Create('Format Exception');
   except
-    Log.Write(Concat('´°¿ÚÑÕÉ«ÓĞÎó£¬Î»ÖÃ£ºIniÎÄ¼şµÄGreenÂÌÉ«Î»ÖÃ¡£'), LOG_ERROR);
+    Log.Write(Concat('çª—å£é¢œè‰²æœ‰è¯¯ï¼Œä½ç½®ï¼šIniæ–‡ä»¶çš„Greenç»¿è‰²ä½ç½®ã€‚'), LOG_ERROR, LOG_START);
     mgreen := 240;
     LLLini.WriteInteger('Misc', 'Green', mgreen);
   end;
@@ -747,7 +813,7 @@ begin
     mblue := LLLini.ReadInteger('Misc', 'Blue', -1);
     if (mblue > 255) or (mblue < 0) then raise Exception.Create('Format Exception');
   except
-    Log.Write(Concat('´°¿ÚÑÕÉ«ÓĞÎó£¬Î»ÖÃ£ºIniÎÄ¼şµÄBlueÀ¶É«Î»ÖÃ¡£'), LOG_ERROR);
+    Log.Write(Concat('çª—å£é¢œè‰²æœ‰è¯¯ï¼Œä½ç½®ï¼šIniæ–‡ä»¶çš„Blueè“è‰²ä½ç½®ã€‚'), LOG_ERROR, LOG_START);
     mblue := 240;
     LLLini.WriteInteger('Misc', 'Blue', mblue);
   end;
@@ -756,7 +822,7 @@ begin
     mwindow_alpha := LLLini.ReadInteger('Misc', 'WindowAlpha', -1);
     if (mwindow_alpha > 255) or (mwindow_alpha < 127) then raise Exception.Create('Format Exception');
   except
-    Log.Write(Concat('´°¿ÚÍ¸Ã÷¶ÈÓĞÎó£¬Î»ÖÃ£ºIniÎÄ¼şµÄWindowAlphaÎ»ÖÃ¡£'), LOG_ERROR);
+    Log.Write(Concat('çª—å£é€æ˜åº¦æœ‰è¯¯ï¼Œä½ç½®ï¼šIniæ–‡ä»¶çš„WindowAlphaä½ç½®ã€‚'), LOG_ERROR, LOG_START);
     mwindow_alpha := 255;
     LLLini.WriteInteger('Misc', 'WindowAlpha', mwindow_alpha);
   end;
@@ -765,7 +831,7 @@ begin
     mcontrol_alpha := LLLini.ReadInteger('Misc', 'ControlAlpha', -1);
     if (mcontrol_alpha < 63) or (mcontrol_alpha > 191) then raise Exception.Create('Format Exception');
   except
-    Log.Write(Concat('´°¿ÚÍ¸Ã÷¶ÈÓĞÎó£¬Î»ÖÃ£ºIniÎÄ¼şµÄControlAlphaÎ»ÖÃ¡£'), LOG_ERROR);
+    Log.Write(Concat('çª—å£é€æ˜åº¦æœ‰è¯¯ï¼Œä½ç½®ï¼šIniæ–‡ä»¶çš„ControlAlphaä½ç½®ã€‚'), LOG_ERROR, LOG_START);
     mcontrol_alpha := 191;
     LLLini.WriteInteger('Misc', 'ControlAlpha', mcontrol_alpha);
   end;
@@ -787,21 +853,26 @@ begin
   timer_form_gradient_tick.Interval := mgradient_value;
   SetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE, GetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE) or WS_EX_LAYERED);
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);
-  Log.Write(Concat('ÒÑÅĞ¶ÏÍê³É£¬¿ªÊ¼Ó¦ÓÃ´°¿ÚÑÕÉ«¡£'), LOG_INFO);
-  Color := rgb(mred, mgreen, mblue); //Êµ×°RGBA¡£
+  Log.Write(Concat('å·²åˆ¤æ–­å®Œæˆï¼Œå¼€å§‹åº”ç”¨çª—å£é¢œè‰²ã€‚'), LOG_INFO, LOG_START);
+  Color := rgb(mred, mgreen, mblue); //å®è£…RGBAã€‚
   ResetBackImage(false);
 end;
-//Ö÷½çÃæ£ºÍ¼Æ¬ÇĞ»»°´Å¥
+//æ‰“å¼€ä¸‹è½½ç•Œé¢
+procedure Tform_mainform.image_open_download_prograssClick(Sender: TObject);
+begin
+  pagecontrol_mainpage.ActivePage := self.tabsheet_download_progress_part;
+end;
+//ä¸»ç•Œé¢ï¼šå›¾ç‰‡åˆ‡æ¢æŒ‰é’®
 procedure Tform_mainform.image_refresh_background_imageClick(Sender: TObject);
 begin
   ResetBackImage(true);
 end;
-//Ö÷½çÃæ£ºÒôÀÖÇĞ»»°´Å¥
+//ä¸»ç•Œé¢ï¼šéŸ³ä¹åˆ‡æ¢æŒ‰é’®
 procedure Tform_mainform.image_refresh_background_musicClick(Sender: TObject);
 begin
   ResetBackMusic(true);
 end;
-//Ö÷½çÃæ£º³õ´ÎÇĞ»»Ò³
+//ä¸»ç•Œé¢ï¼šåˆæ¬¡åˆ‡æ¢é¡µ
 procedure Tform_mainform.pagecontrol_mainpageChange(Sender: TObject);
 begin
   if pagecontrol_mainpage.ActivePage = tabsheet_background_part then
@@ -809,7 +880,7 @@ begin
   else if pagecontrol_mainpage.ActivePage = tabsheet_account_part then
     InitAccount;
 end;
-//Ö÷½çÃæ£ºÇĞ»»¸ÃÒ³Ç°
+//ä¸»ç•Œé¢ï¼šåˆ‡æ¢è¯¥é¡µå‰
 procedure Tform_mainform.pagecontrol_mainpageChanging(Sender: TObject;
   var AllowChange: Boolean);
 begin
@@ -818,72 +889,126 @@ begin
   else if pagecontrol_mainpage.ActivePage = tabsheet_account_part then
     SaveAccount;
 end;
-//±³¾°ÉèÖÃ£ºÆô¶¯ÓÎÏ·Ê±ÍË³ö´°¿ÚµÄµ¥Ñ¡¿ò
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šAlex
+procedure Tform_mainform.radiobutton_alexClick(Sender: TObject);
+begin
+  mchoose_skin := 0;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šAri
+procedure Tform_mainform.radiobutton_ariClick(Sender: TObject);
+begin
+  mchoose_skin := 1;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//èƒŒæ™¯è®¾ç½®ï¼šå¯åŠ¨æ¸¸æˆæ—¶é€€å‡ºçª—å£çš„å•é€‰æ¡†
 procedure Tform_mainform.radiobutton_background_launch_exitClick(
   Sender: TObject);
 begin
   mwindow_control := 3;
 end;
-//±³¾°ÉèÖÃ£ºÆô¶¯ÓÎÏ·Ê±Òş²Ø´°¿ÚµÄµ¥Ñ¡¿ò
+//èƒŒæ™¯è®¾ç½®ï¼šå¯åŠ¨æ¸¸æˆæ—¶éšè—çª—å£çš„å•é€‰æ¡†
 procedure Tform_mainform.radiobutton_background_launch_hideClick(
   Sender: TObject);
 begin
   mwindow_control := 1;
 end;
-//±³¾°ÉèÖÃ£ºÆô¶¯ÓÎÏ·Ê±ÏÔÊ¾´°¿ÚµÄµ¥Ñ¡¿ò
+//èƒŒæ™¯è®¾ç½®ï¼šå¯åŠ¨æ¸¸æˆæ—¶æ˜¾ç¤ºçª—å£çš„å•é€‰æ¡†
 procedure Tform_mainform.radiobutton_background_launch_showClick(
   Sender: TObject);
 begin
   mwindow_control := 2;
 end;
-//±³¾°ÉèÖÃ£ºÆô¶¯ÓÎÏ·Ê±²¥·ÅÒôÀÖµÄµ¥Ñ¡¿ò
+//èƒŒæ™¯è®¾ç½®ï¼šå¯åŠ¨æ¸¸æˆæ—¶æ’­æ”¾éŸ³ä¹çš„å•é€‰æ¡†
 procedure Tform_mainform.radiobutton_background_music_launchClick(
   Sender: TObject);
 begin
   mselect_type := 2;
 end;
-//±³¾°ÉèÖÃ£º²»²¥·ÅÒôÀÖµÄµ¥Ñ¡¿ò
+//èƒŒæ™¯è®¾ç½®ï¼šä¸æ’­æ”¾éŸ³ä¹çš„å•é€‰æ¡†
 procedure Tform_mainform.radiobutton_background_music_notClick(Sender: TObject);
 begin
   mselect_type := 3;
 end;
-//±³¾°ÉèÖÃ£º´ò¿ªÆô¶¯Æ÷Ê±²¥·ÅÒôÀÖµÄµ¥Ñ¡¿ò
+//èƒŒæ™¯è®¾ç½®ï¼šæ‰“å¼€å¯åŠ¨å™¨æ—¶æ’­æ”¾éŸ³ä¹çš„å•é€‰æ¡†
 procedure Tform_mainform.radiobutton_background_music_openClick(
   Sender: TObject);
 begin
   mselect_type := 1;
 end;
-//±³¾°ÉèÖÃ£º¿Ø¼şÍ¸Ã÷¶È»¬¶¯Ìõ
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šEfe
+procedure Tform_mainform.radiobutton_efeClick(Sender: TObject);
+begin
+  mchoose_skin := 2;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šKai
+procedure Tform_mainform.radiobutton_kaiClick(Sender: TObject);
+begin
+  mchoose_skin := 3;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šMakena
+procedure Tform_mainform.radiobutton_makenaClick(Sender: TObject);
+begin
+  mchoose_skin := 4;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šNoor
+procedure Tform_mainform.radiobutton_noorClick(Sender: TObject);
+begin
+  mchoose_skin := 5;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šSteve
+procedure Tform_mainform.radiobutton_steveClick(Sender: TObject);
+begin
+  mchoose_skin := 6;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šSunny
+procedure Tform_mainform.radiobutton_sunnyClick(Sender: TObject);
+begin
+  mchoose_skin := 7;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//è´¦å·éƒ¨åˆ†ï¼šç¦»çº¿ç™»å½•ï¼šZuri
+procedure Tform_mainform.radiobutton_zuriClick(Sender: TObject);
+begin
+  mchoose_skin := 8;
+  edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//èƒŒæ™¯è®¾ç½®ï¼šæ§ä»¶é€æ˜åº¦æ»‘åŠ¨æ¡
 procedure Tform_mainform.scrollbar_background_control_alphaChange(
   Sender: TObject);
 begin
   mcontrol_alpha := scrollbar_background_control_alpha.Position;
-  label_background_control_current_alpha.Caption := GetLanguageText('label_background_control_current_alpha.caption').Replace('${control_alpha}', inttostr(mcontrol_alpha));
+  label_background_control_current_alpha.Caption := GetLanguage('label_background_control_current_alpha.caption').Replace('${control_alpha}', inttostr(mcontrol_alpha));
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);
 end;
-//±³¾°ÉèÖÃ£º´°¿Ú½¥±ä²úÉú²½³¤»¬¶¯Ìõ
+//èƒŒæ™¯è®¾ç½®ï¼šçª—å£æ¸å˜äº§ç”Ÿæ­¥é•¿æ»‘åŠ¨æ¡
 procedure Tform_mainform.scrollbar_background_gradient_stepChange(
   Sender: TObject);
 begin
   mgradient_step := scrollbar_background_gradient_step.Position;
-  label_background_gradient_current_step.Caption := GetLanguageText('label_background_gradient_current_step.caption').Replace('${gradient_step}', inttostr(mgradient_step));
+  label_background_gradient_current_step.Caption := GetLanguage('label_background_gradient_current_step.caption').Replace('${gradient_step}', inttostr(mgradient_step));
 end;
-//±³¾°ÉèÖÃ£º´°¿Ú½¥±ä²úÉúÖµ»¬¶¯Ìõ
+//èƒŒæ™¯è®¾ç½®ï¼šçª—å£æ¸å˜äº§ç”Ÿå€¼æ»‘åŠ¨æ¡
 procedure Tform_mainform.scrollbar_background_gradient_valueChange(
   Sender: TObject);
 begin
   mgradient_value := scrollbar_background_gradient_value.Position;
-  label_background_gradient_current_value.Caption := GetLanguageText('label_background_gradient_current_value.caption').Replace('${gradient_value}', inttostr(mgradient_value));
+  label_background_gradient_current_value.Caption := GetLanguage('label_background_gradient_current_value.caption').Replace('${gradient_value}', inttostr(mgradient_value));
 end;
-//±³¾°ÉèÖÃ£º´°¿ÚÍ¸Ã÷¶È»¬¶¯Ìõ
+//èƒŒæ™¯è®¾ç½®ï¼šçª—å£é€æ˜åº¦æ»‘åŠ¨æ¡
 procedure Tform_mainform.scrollbar_background_window_alphaChange(
   Sender: TObject);
 begin
   mwindow_alpha := scrollbar_background_window_alpha.Position;
-  label_background_window_current_alpha.Caption := GetLanguageText('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
+  label_background_window_current_alpha.Caption := GetLanguage('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
   AlphaBlendValue := mwindow_alpha;
 end;
-//Ö÷´°¿Ú£º´°¿Ú½¥±ä²úÉú¼ÆÊ±Æ÷
+//ä¸»çª—å£ï¼šçª—å£æ¸å˜äº§ç”Ÿè®¡æ—¶å™¨
 var mgradient_temp: Integer = 0;
 procedure Tform_mainform.timer_form_gradient_tickTimer(Sender: TObject);
 begin
@@ -895,7 +1020,7 @@ begin
     end else AlphaBlendValue := mgradient_temp;
   end else timer_form_gradient_tick.Enabled := false;
 end;
-//±³¾°ÉèÖÃ£º´°¿Ú½¥±ä²úÉú¿ª¹Ø
+//èƒŒæ™¯è®¾ç½®ï¼šçª—å£æ¸å˜äº§ç”Ÿå¼€å…³
 procedure Tform_mainform.toggleswitch_background_gradientClick(Sender: TObject);
 begin
   if toggleswitch_background_gradient.IsOn then begin
