@@ -1,0 +1,35 @@
+name: "给启动器提出建议"
+description: "你的启动器是否用不顺手？请在此为你的启动器提出建议吧！"
+label: ["提出建议"]
+body:
+- type: checkboxes
+  id: "yml-1"
+  attributes:
+    label: "复选框"
+    description: "请检查，并勾选"
+    options:
+    - label: "我确认我使用的启动器版本是最新的。"
+    - label: "我确认没有人提出过相同的问题。"
+      required: true
+- type: textarea
+  id: "yml-2"
+  attributes:
+    label: "是否有帮助"
+    description: "这个新功能是否对所有人都有帮助？在以下写出你的看法。"
+    placeholder: "示例：【仅对我有帮助/对所有人都有帮助/仅是建议，无帮助】。"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-3"
+  attributes:
+    label: "简述提出的新功能"
+    description: "请简述你要提出的新功能。"
+    placeholder: "示例：【添加从xx到xx的做法，并且使其做到xx，从而xx】。"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-4"
+  attributes:
+    label: "补充"
+    description: "如果你觉得有什么需要补充的，例如latest.log文件，可以补充在这里。"
+    placeholder: "示例：【将latest.log拖入此框中】。"

@@ -1,0 +1,51 @@
+name: "启动器出bug了！"
+description: "启动器出现了恐慌的报错bug？快来此处提出问题吧！"
+label: ["提出bug"]
+body:
+- type: checkboxes
+  id: "yml-1"
+  attributes:
+    label: "复选框"
+    description: "请检查，并勾选"
+    options:
+    - label: "我确认我使用的启动器版本是最新的。"
+    - label: "我确认没有人提出过相同的问题。"
+      required: true
+- type: textarea
+  id: "yml-2"
+  attributes:
+    label: "是否有帮助"
+    description: "这个bug如果被解决，是否对所有人都有帮助？在这里写出你的看法。"
+    placeholder: "示例：【仅对我有帮助/对所有人都有帮助/仅是建议，无帮助】。"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-3"
+  attributes:
+    label: "简述提出的bug"
+    description: "请简述你要提出的bug。"
+    placeholder: "示例：【点击测试按钮，触发恐慌崩溃】。"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-4"
+  attributes:
+    label: "重现步骤"
+    description: "请说出你出现该bug的具体步骤。"
+    placeholder: "示例：【点击测试按钮，触发恐慌崩溃】。"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-5"
+  attributes:
+    label: "如何解决"
+    description: "请说出你觉得该bug应该被如何解决。"
+    placeholder: "示例：【如果不知道，则填入不知道，否则填入你的想法】。"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-6"
+  attributes:
+    label: "补充"
+    description: "如果你觉得有什么需要补充的，例如latest.log文件，可以补充在这里。"
+    placeholder: "示例：【将latest.log拖入此框中】。"
