@@ -1,6 +1,6 @@
 name: "启动器出bug了！"
 description: "启动器出现了恐慌的报错bug？快来此处提出问题吧！"
-label: ["提出bug"]
+labels: ["提出bug"]
 body:
 - type: checkboxes
   id: "yml-1"

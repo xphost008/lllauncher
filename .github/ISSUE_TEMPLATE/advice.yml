@@ -1,6 +1,6 @@
 name: "给启动器提出建议"
 description: "你的启动器是否用不顺手？请在此为你的启动器提出建议吧！"
-label: ["提出建议"]
+labels: ["提出建议"]
 body:
 - type: checkboxes
   id: "yml-1"

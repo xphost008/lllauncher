@@ -1,6 +1,6 @@
 name: "启动器优选化"
 description: "想为启动器增加多国化json？想提出今日人品、答案之书、回声洞？"
-label: ["提出建议"]
+labels: ["提出建议"]
 body:
 - type: checkboxes
   id: "yml-1"
