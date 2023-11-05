@@ -145,8 +145,11 @@
         <DCCReference Include="LanguageMethod.pas"/>
         <DCCReference Include="MyCustomWindow.pas"/>
         <DCCReference Include="AccountMethod.pas"/>
-        <DCCReference Include="DownloadMethod.pas"/>
+        <DCCReference Include="ProgressMethod.pas"/>
         <DCCReference Include="PrivacyMethod.pas"/>
+        <DCCReference Include="PluginMethod.pas"/>
+        <DCCReference Include="PlayingMethod.pas"/>
+        <DCCReference Include="ManageMethod.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

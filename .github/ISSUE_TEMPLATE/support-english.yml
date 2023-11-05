@@ -1,0 +1,37 @@
+name: "启动器优选化"
+description: "想为启动器增加多国化json？想提出今日人品、答案之书、回声洞？"
+labels: ["提出建议"]
+body:
+- type: checkboxes
+  id: "yml-1"
+  attributes:
+    label: "复选框"
+    description: "请检查，并勾选"
+    options:
+    - label: "我确认我提交的任何启动器杂项均未有人提出过。"
+    - label: "我确认没有人与我有同样的想法。"
+      required: true
+- type: textarea
+  id: "yml-2"
+  attributes:
+    label: "今日人品"
+    description: "如果你是要提出今日人品，请在下方写上你对今日人品的点数区间以及描述。"
+    placeholder: "示例：【1-5：哇，你居然有这么低的人品值，快去做点好事赚回来吧！】。"
+- type: textarea
+  id: "yml-3"
+  attributes:
+    label: "答案之书"
+    description: "如果你要提出答案之书，请在下方写上你的答案之书。"
+    placeholder: "示例：【别去想，先做好自己】。"
+- type: textarea
+  id: "yml-4"
+  attributes:
+    label: "回声洞"
+    description: "如果你要提出回声洞，请在下方写上你的回声洞语句。"
+    placeholder: "示例：【我嘞个去，LLL启动速度也太快了】。"
+- type: textarea
+  id: "yml-5"
+  attributes:
+    label: "如果你要提出多国化json，请拖拽你的启动器lang文件夹下的多国化json进此。"
+    placeholder: "示例：【ja_jp.json】。"
+    description: "如果你提出了任意一个多国化语言，我会酌情考虑将你添加到我的贡献传奇人物鸣谢人员里面噢！。"

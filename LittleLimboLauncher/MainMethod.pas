@@ -3,7 +3,7 @@
 interface         
 
 uses
-  Classes, Windows, IOUtils, StrUtils, JSON, Forms, JPEG, PngImage, GIFImg, RegularExpressions, Math, IdHashSHA,
+  Classes, Windows, IOUtils, StrUtils, JSON, Forms, JPEG, PngImage, GIFImg, RegularExpressions, Math, IdHashSHA, ShellAPI,
   System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent, SysUtils, NetEncoding, Generics.Collections;
 
 function GetWebStream(url: String): TStringStream;
@@ -21,15 +21,34 @@ function UUIDToHashCode(UUID: String): Int64;
 function DeleteDirectory(N: String): Boolean;
 function GetFileHash(filename: String): String;
 procedure RunDOSOnlyWait(CommandLine: string);
+procedure Isafdian(IsStart: Boolean; awa: Integer);
 
 var
-  MCRootJSON: TJsonObject;
+  MCRootJSON: TJSONObject;
 
 implementation
 
 uses
   MainForm, Log4Delphi, LanguageMethod, MyCustomWindow, AccountMethod;
 
+//获取是否捐款
+procedure Isafdian(IsStart: Boolean; awa: Integer);
+begin
+  {$IFDEF DEBUG}
+    exit;
+  {$ENDIF}
+  //if LauncherVersion.IndexOf('snapshot') <> -1 then exit; //判断并且是否赞助？此只在正式版才有用。
+  var say := '';
+  var lg := '';
+  if IsStart then begin
+    Log.Write(Concat('已经被你启动了', inttostr(awa), '次了，为什么不赞助？'), LOG_START, LOG_QUESTION);
+    say := GetLanguage('messagebox_mainform.launch_afdian.text').Replace('${launch_number}', inttostr(awa));
+  end else begin
+    Log.Write(Concat('已经为你打开了', inttostr(awa), '次了，为什么不赞助？'), LOG_START, LOG_QUESTION);
+    say := GetLanguage('messagebox_mainform.open_afdian.text').Replace('${open_number}', inttostr(awa));
+  end;
+  if MyMessagebox(GetLanguage('messagebox_mainform.afdian.caption'), say, MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 2 then ShellExecute(Application.Handle, nil, 'https://afdian.net/@Rechalow', nil, nil, SW_SHOWNORMAL);
+end;
 //运行DOS命令，仅等待。
 //应用于插件执行、启动前执行命令、Forge安装Processors（实验性）。
 //参数1：命令行。参数2：等待时间【以毫秒做单位。】

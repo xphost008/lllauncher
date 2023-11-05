@@ -10,8 +10,11 @@ uses
   LanguageMethod in 'LanguageMethod.pas',
   MyCustomWindow in 'MyCustomWindow.pas',
   AccountMethod in 'AccountMethod.pas',
-  DownloadMethod in 'DownloadMethod.pas',
-  PrivacyMethod in 'PrivacyMethod.pas';
+  ProgressMethod in 'ProgressMethod.pas',
+  PrivacyMethod in 'PrivacyMethod.pas',
+  PluginMethod in 'PluginMethod.pas',
+  PlayingMethod in 'PlayingMethod.pas',
+  ManageMethod in 'ManageMethod.pas';
 
 {$R *.res}
 

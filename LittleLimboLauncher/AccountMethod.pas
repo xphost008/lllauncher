@@ -20,6 +20,8 @@ procedure OfflineLogin(offline_name, offline_uuid: String);
 procedure MicrosoftLogin(backcode: String); deprecated;
 procedure OAuthLogin;
 procedure ThirdPartyLogin(server, account, password: String);
+function NameToUUID(name: String): String;
+function UUIDToName(uuid: String): String;
 
 type
   TAccount = class
@@ -48,7 +50,7 @@ var
 implementation
 
 uses
-  Log4Delphi, MainForm, MainMethod, MyCustomWindow, LanguageMethod, DownloadMethod, PrivacyMethod;
+  Log4Delphi, MainForm, MainMethod, MyCustomWindow, LanguageMethod, ProgressMethod, PrivacyMethod;
 
 var
   mauthlib_download: String;
@@ -102,8 +104,8 @@ begin
   var pic := TImage.Create(nil);
   var png := TPngImage.Create;
   var png2 := TPngImage.Create;
-  var s := TStringStream.Create;
-  var c := TStringStream.Create('');
+  var s := TStringStream.Create('', TEncoding.UTF8, False);
+  var c := TStringStream.Create('', TEncoding.UTF8, False);
   try
     var ss := TNetEncoding.Base64.DecodeStringToBytes(ig);
     png.LoadFromStream(TBytesStream.Create(ss));
@@ -275,6 +277,12 @@ begin
       Log.Write('你在登录过程中超时了，请重试……', LOG_ACCOUNT, LOG_ERROR);
       MyMessagebox(GetLanguage('messagebox_account_microsoft_error.login_timeout.caption'), GetLanguage('messagebox_account_microsoft_error.login_timeout.text'), MY_ERROR, [mybutton.myOK]);
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.microsoft_login_timeout');
+      self.accesstoken := 'noneaccount';
+      exit;
+    end else if e1 = 70011 then begin
+      Log.Write('你的RefreshToken同样也过期了，请尝试重新创建一个新的账号……', LOG_ACCOUNT, LOG_ERROR);
+      MyMessagebox(GetLanguage('messagebox_account_microsoft_error.refresh_expire.caption'), GetLanguage('messagebox_account_microsoft_error.refresh_expire.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.microsoft_refresh_expire');
       self.accesstoken := 'noneaccount';
       exit;
     end else raise Exception.Create('Not support script');
@@ -497,6 +505,34 @@ begin
     result := AvatarToUUID(choNumber + 9);
   end;
 end;
+function NameToUUID(name: String): String;
+begin
+  var playerprofile := GetWebText(Concat('https://playerdb.co/api/player/minecraft/', name));
+  var profilejson := TJsonObject.ParseJSONValue(playerprofile) as TJsonObject;
+  if profilejson.GetValue<Boolean>('success') then begin
+    var ud := ((profilejson.GetValue('data') as TJsonObject).GetValue('player') as TJsonObject).GetValue('raw_id').Value;
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.name_to_uuid_success');
+    result := ud;
+  end else begin
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.name_to_uuid_error');
+    MyMessagebox(GetLanguage('messagebox_account.name_to_uuid_error.caption'), GetLanguage('messagebox_account.name_to_uuid_error.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+end;
+function UUIDToName(uuid: String): String;
+begin
+  var playerprofile := GetWebText(Concat('https://playerdb.co/api/player/minecraft/', uuid));
+  var profilejson := TJsonObject.ParseJSONValue(playerprofile) as TJsonObject;
+  if profilejson.GetValue<Boolean>('success') then begin
+    var ud := ((profilejson.GetValue('data') as TJsonObject).GetValue('player') as TJsonObject).GetValue('username').Value;
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.uuid_to_name_success');
+    result := ud;
+  end else begin
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.uuid_to_name_error');
+    MyMessagebox(GetLanguage('messagebox_account.uuid_to_name_error.caption'), GetLanguage('messagebox_account.uuid_to_name_error.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+end;
 //更换皮肤
 procedure JudgeJSONSkin(index: Integer);
 begin
@@ -634,54 +670,51 @@ begin
   CreateGuid(uid);
   var clienttoken := GuidToString(uid).Replace('{', '').Replace('}', '').Replace('-', '');
   form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_login_start');
+  form_mainform.button_add_account.Enabled := false;
+  form_mainform.button_refresh_account.Enabled := false;
+  form_mainform.combobox_all_account.Enabled := false;
   TTask.Run(procedure begin
-    Log.Write('正在添加外置登录。', LOG_ACCOUNT, LOG_INFO);
-    form_mainform.button_add_account.Enabled := false;
-    form_mainform.button_refresh_account.Enabled := false;
-    form_mainform.combobox_all_account.Enabled := false;
-    var taccm: TAccount;
     try
-      taccm := TAccount.InitializeAccount(server, account, password, clienttoken, '', 'post');
-    except
-      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.connect_error.caption'), GetLanguage('messagebox_account_thirdparty_error.connect_error.text'), MY_ERROR, [mybutton.myOK]);
+      Log.Write('正在添加外置登录。', LOG_ACCOUNT, LOG_INFO);
+      var taccm: TAccount;
+      try
+        taccm := TAccount.InitializeAccount(server, account, password, clienttoken, '', 'post');
+      except
+        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.connect_error.caption'), GetLanguage('messagebox_account_thirdparty_error.connect_error.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.connect_error');
+        exit;
+      end;
+      var tat := taccm.GetAccessToken; //线程重启
+      if taccm.accesstoken = 'noneaccount' then begin
+        exit;
+      end;
+      var tct := taccm.GetThirdClientToken;
+      var tun := taccm.GetUserName;
+      var tuu := taccm.GetUUID;
+      var tbs := taccm.GetThirdBase64;
+      var tsk := taccm.GetAvatar;
+      (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
+        .AddPair('type', 'thirdparty')
+        .AddPair('server', server)
+        .AddPair('name', tun)
+        .AddPair('uuid', tuu)
+        .AddPair('access_token', tat)
+        .AddPair('client_token', tct)
+        .AddPair('base_code', tbs)
+        .AddPair('head_skin', tsk)
+      ); //给下拉框添加元素
+      form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(tun, GetLanguage('combobox_all_account.thirdparty_tip')));
+      form_mainform.edit_thirdparty_server.Text := '';
+      form_mainform.edit_thirdparty_account.Text := '';
+      form_mainform.edit_thirdparty_password.Text := '';
+      form_mainform.combobox_all_accountChange(TObject.Create);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_thirdparty_success');
+      MyMessagebox(GetLanguage('messagebox_account_thirdparty.add_account_success.caption'), GetLanguage('messagebox_account_thirdparty.add_account_success.text'), MY_PASS, [mybutton.myOK]);
+    finally
       form_mainform.button_add_account.Enabled := true;
       form_mainform.button_refresh_account.Enabled := true;
       form_mainform.combobox_all_account.Enabled := true;
-      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.connect_error');
-      exit;
     end;
-    var tat := taccm.GetAccessToken; //线程重启
-    if taccm.accesstoken = 'noneaccount' then begin
-      form_mainform.button_add_account.Enabled := true;
-      form_mainform.button_refresh_account.Enabled := true;
-      form_mainform.combobox_all_account.Enabled := true;
-      exit;
-    end;
-    var tct := taccm.GetThirdClientToken;
-    var tun := taccm.GetUserName;
-    var tuu := taccm.GetUUID;
-    var tbs := taccm.GetThirdBase64;
-    var tsk := taccm.GetAvatar;
-    (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
-      .AddPair('type', 'authlib-injector')
-      .AddPair('server', server)
-      .AddPair('name', tun)
-      .AddPair('uuid', tuu)
-      .AddPair('access_token', tat)
-      .AddPair('client_token', tct)
-      .AddPair('base_code', tbs)
-      .AddPair('head_skin', tsk)
-    ); //给下拉框添加元素
-    form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(tun, GetLanguage('combobox_all_account.thirdparty_tip')));
-    form_mainform.edit_thirdparty_server.Text := '';
-    form_mainform.edit_thirdparty_account.Text := '';
-    form_mainform.edit_thirdparty_password.Text := '';
-    form_mainform.button_add_account.Enabled := true;
-    form_mainform.button_refresh_account.Enabled := true;
-    form_mainform.combobox_all_account.Enabled := true;
-    form_mainform.combobox_all_accountChange(TObject.Create);
-    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_thirdparty_success');
-    MyMessagebox(GetLanguage('messagebox_account_thirdparty.add_account_success.caption'), GetLanguage('messagebox_account_thirdparty.add_account_success.text'), MY_PASS, [mybutton.myOK]);
   end);
 end;
 //【已弃用】微软浏览器登录
@@ -699,38 +732,41 @@ begin
   form_mainform.button_refresh_account.Enabled := false;
   form_mainform.combobox_all_account.Enabled := false;
   TTask.Run(procedure begin
-    var accm: TAccount;
     try
-      accm := TAccount.InitializeAccount(backcode, '', 'pose');
-    except
-      MyMessagebox(GetLanguage('连接超时引发的报错'), GetLanguage('你的网络连接超时了，请连接之后再进行网络请求。或者如果你连接了，重试一次即可。'), MY_ERROR, [mybutton.myOK]);
+      var accm: TAccount;
+      try
+        accm := TAccount.InitializeAccount(backcode, '', 'post');
+      except
+        MyMessagebox(GetLanguage('连接超时引发的报错'), GetLanguage('你的网络连接超时了，请连接之后再进行网络请求。或者如果你连接了，重试一次即可。'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('由于网络原因使得微软账号添加失败，请重试……');
+        exit;
+      end;
+      if accm.GetAccessToken = 'noneaccount' then begin
+        exit;
+      end;
+      var un := accm.GetUserName;
+      var ud := accm.GetUUID;
+      var at := accm.GetAccessToken;
+      var rt := accm.GetRefreshToken;
+      var sk := accm.GetAvatar;
+      (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
+        .AddPair('type', 'microsoft')
+        .AddPair('name', un)
+        .AddPair('uuid', ud)
+        .AddPair('access_token', at)
+        .AddPair('refresh_token', rt)
+        .AddPair('head_skin', sk)
+      );
+      form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(un, GetLanguage('（微软）')));
+  //    form_mainform_edit_account_microsoft_back_url.Text := '';
+      form_mainform.label_account_return_value.Caption := GetLanguage('添加成功！');
+      form_mainform.combobox_all_accountChange(TObject.Create);
+      MyMessagebox(GetLanguage('添加成功'), GetLanguage('添加成功！'), MY_PASS, [mybutton.myOK]);
+    finally
       form_mainform.button_add_account.Enabled := true;
       form_mainform.button_refresh_account.Enabled := true;
       form_mainform.combobox_all_account.Enabled := true;
-      form_mainform.label_account_return_value.Caption := GetLanguage('由于网络原因使得微软账号添加失败，请重试……');
-      exit;
     end;
-    var un := accm.GetUserName;
-    var ud := accm.GetUUID;
-    var at := accm.GetAccessToken;
-    var rt := accm.GetRefreshToken;
-    var sk := accm.GetAvatar;
-    (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
-      .AddPair('type', 'microsoft')
-      .AddPair('name', un)
-      .AddPair('uuid', ud)
-      .AddPair('access_token', at)
-      .AddPair('refresh_token', rt)
-      .AddPair('head_skin', sk)
-    );
-    form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(un, GetLanguage('（微软）')));
-//    form_mainform_edit_account_microsoft_back_url.Text := '';
-    form_mainform.label_account_return_value.Caption := GetLanguage('添加成功！');
-    form_mainform.button_add_account.Enabled := true;
-    form_mainform.button_refresh_account.Enabled := true;
-    form_mainform.combobox_all_account.Enabled := true;
-    form_mainform.combobox_all_accountChange(TObject.Create);
-    MyMessagebox(GetLanguage('添加成功'), GetLanguage('添加成功！'), MY_PASS, [mybutton.myOK]);
   end)
 end;
 //微软OAuth登录
@@ -742,62 +778,56 @@ begin
   form_mainform.button_refresh_account.Enabled := false;
   form_mainform.combobox_all_account.Enabled := false;
   TTask.Run(procedure begin
-    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.get_oauth_user_code');
-    Log.Write('正在获取用户代码……', LOG_ACCOUNT, LOG_INFO);
-    var k1 := Concat('client_id=', MS_CLIENT_ID, '&scope=XboxLive.signin%20offline_access');  //此处使用了私有函数中的MS_CLIENT_ID
-    var w1 := TAccount.GetHttpf(k1, dcurl, true);
-    if w1 = '' then begin
-      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.cannot_get_user_code');
-      MyMessagebox(GetLanguage('messagebox_account_microsoft_error.cannot_get_user_code.caption'), GetLanguage('messagebox_account_microsoft_error.cannot_get_user_code.caption'), MY_ERROR, [mybutton.myOK]);
-      form_mainform.button_add_account.Enabled := true;
-      form_mainform.button_refresh_account.Enabled := true;
-      form_mainform.combobox_all_account.Enabled := true;
-      exit;
-    end;
-    var json := TJsonObject.ParseJSONValue(w1) as TJsonObject;
-    var usercode := json.GetValue('user_code').Value;
-    var link := json.GetValue('verification_uri').Value;
-    ClipBoard.SetTextBuf(pchar(usercode));
-    ShellExecute(Application.Handle, nil, pchar(TrimStrm(link)), nil, nil, SW_SHOWNORMAL);
-    MyInputBox(GetLanguage('inputbox_account_microsoft.start_login.caption'), GetLanguage('inputbox_account_microsoft.start_login.text'), MY_INFORMATION, usercode);
-    var devicecode := json.GetValue('device_code').Value; //获取device_code。
-    var accm: TAccount;
     try
-      accm := TAccount.InitializeAccount(devicecode, MS_CLIENT_ID, 'post');
-    except
-      MyMessagebox(GetLanguage('messagebox_account_microsoft_error.connect_error.caption'), GetLanguage('messagebox_account_microsoft_error.connect_error.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.get_oauth_user_code');
+      Log.Write('正在获取用户代码……', LOG_ACCOUNT, LOG_INFO);
+      var k1 := Concat('client_id=', MS_CLIENT_ID, '&scope=XboxLive.signin%20offline_access');  //此处使用了私有函数中的MS_CLIENT_ID
+      var w1 := TAccount.GetHttpf(k1, dcurl, true);
+      if w1 = '' then begin
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.cannot_get_user_code');
+        MyMessagebox(GetLanguage('messagebox_account_microsoft_error.cannot_get_user_code.caption'), GetLanguage('messagebox_account_microsoft_error.cannot_get_user_code.caption'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
+      var json := TJsonObject.ParseJSONValue(w1) as TJsonObject;
+      var usercode := json.GetValue('user_code').Value;
+      var link := json.GetValue('verification_uri').Value;
+      ClipBoard.SetTextBuf(pchar(usercode));
+      ShellExecute(Application.Handle, nil, pchar(TrimStrm(link)), nil, nil, SW_SHOWNORMAL);
+      MyInputBox(GetLanguage('inputbox_account_microsoft.start_login.caption'), GetLanguage('inputbox_account_microsoft.start_login.text'), MY_INFORMATION, usercode);
+      var devicecode := json.GetValue('device_code').Value; //获取device_code。
+      var accm: TAccount;
+      try
+        accm := TAccount.InitializeAccount(devicecode, MS_CLIENT_ID, 'post');
+      except
+        MyMessagebox(GetLanguage('messagebox_account_microsoft_error.connect_error.caption'), GetLanguage('messagebox_account_microsoft_error.connect_error.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.connect_error');
+        exit;
+      end;
+      var at := accm.GetAccessToken;
+      if at = 'noneaccount' then begin
+        exit;
+      end;//如果at没有账号，则为返回方法。
+      var rt := accm.GetRefreshToken;  //获取RefreshToken刷新秘钥
+      var un := accm.GetUserName;   //获取玩家名字
+      var ud := accm.GetUUID;       //获取UUID
+      var sk := accm.GetAvatar;
+      (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
+        .AddPair('type', 'oauth')
+        .AddPair('name', un)
+        .AddPair('uuid', ud)
+        .AddPair('access_token', at)
+        .AddPair('refresh_token', rt)
+        .AddPair('head_skin', sk)
+      );
+      form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(un, GetLanguage('combobox_all_account.microsoft_tip')));
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_microsoft_success');
+      form_mainform.combobox_all_accountChange(TObject.Create);
+      MyMessagebox(GetLanguage('messagebox_account_microsoft.add_account_success.caption'), GetLanguage('messagebox_account_microsoft.add_account_success.text'), MY_PASS, [mybutton.myOK]);
+    finally
       form_mainform.button_add_account.Enabled := true;
       form_mainform.button_refresh_account.Enabled := true;
       form_mainform.combobox_all_account.Enabled := true;
-      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.connect_error');
-      exit;
     end;
-    var at := accm.GetAccessToken;
-    if at = 'noneaccount' then begin
-      form_mainform.button_add_account.Enabled := true;
-      form_mainform.button_refresh_account.Enabled := true;
-      form_mainform.combobox_all_account.Enabled := true;
-      exit;
-    end;//如果at没有账号，则为返回方法。
-    var rt := accm.GetRefreshToken;  //获取RefreshToken刷新秘钥
-    var un := accm.GetUserName;   //获取玩家名字
-    var ud := accm.GetUUID;       //获取UUID
-    var sk := accm.GetAvatar;
-    (AccountJson.GetValue('account') as TJsonArray).Add(TJsonObject.Create
-      .AddPair('type', 'oauth')
-      .AddPair('name', un)
-      .AddPair('uuid', ud)
-      .AddPair('access_token', at)
-      .AddPair('refresh_token', rt)
-      .AddPair('head_skin', sk)
-    );
-    form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(un, GetLanguage('combobox_all_account.microsoft_tip')));
-    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_microsoft_success');
-    form_mainform.button_add_account.Enabled := true;
-    form_mainform.button_refresh_account.Enabled := true;
-    form_mainform.combobox_all_account.Enabled := true;
-    form_mainform.combobox_all_accountChange(TObject.Create);
-    MyMessagebox(GetLanguage('messagebox_account_microsoft.add_account_success.caption'), GetLanguage('messagebox_account_microsoft.add_account_success.text'), MY_PASS, [mybutton.myOK]);
   end);
 end;
 //刷新账号
@@ -808,17 +838,162 @@ begin
     MyMessagebox(GetLanguage('messagebox_account.offline_cannot_refresh.caption'), GetLanguage('messagebox_account.offline_cannot_refresh.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
-  if getType = 'microsoft' then begin
-
-  end;
+  if (getType = 'microsoft') or (getType = 'oauth') then begin
+    var clientID := '';
+    if getType = 'oauth' then clientID := MS_CLIENT_ID; //此处依旧使用了私有函数中的Client ID。
+    Log.Write(Concat('已确认重置的为微软账号，正在开始重置。'), LOG_ACCOUNT, LOG_INFO);
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.refresh_microsoft_start');
+    form_mainform.button_add_account.Enabled := false;
+    form_mainform.button_refresh_account.Enabled := false;
+    form_mainform.combobox_all_account.Enabled := false;
+    TTask.Run(procedure begin
+      try
+        var accm: TAccount;
+        var refreshToken := ((AccountJSON.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('refresh_token').Value;
+        try
+          accm := TAccount.InitializeAccount(refreshToken, clientID, 'refresh');
+        except
+          Log.Write(Concat('重置失败，RefreshToken也已过期，请尝试登录吧。'), LOG_ACCOUNT, LOG_ERROR);
+          MyMessagebox(GetLanguage('messagebox_account.refresh_microsoft_error.caption'), GetLanguage('messagebox_account.refresh_microsoft_error.text'), MY_PASS, [mybutton.myOK]);
+          form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.refresh_microsoft_error');
+          exit;
+        end;
+        var at := accm.GetAccessToken;
+        if at = 'noneaccount' then exit;
+        var rt := accm.GetRefreshToken; //获取RefreshToken
+        var uu := accm.GetUUID; //获取UUID
+        var un := accm.GetUserName;
+        var sk := accm.GetAvatar;
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('name');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('uuid');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('access_token');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('refresh_token');//删除键
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('head_skin');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('name', un);
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('uuid', uu);
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('access_token', at);
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('refresh_token', rt);//增加键
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('head_skin', sk);
+        Log.Write(Concat('重置成功！玩家名称：', un), LOG_ACCOUNT, LOG_INFO);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', un);
+        MyMessagebox(GetLanguage('messagebox_account.refresh_microsoft_success.caption'), GetLanguage('messagebox_account.refresh_microsoft_success.text'), MY_PASS, [mybutton.myOK]);
+      finally
+        form_mainform.button_add_account.Enabled := true;
+        form_mainform.button_refresh_account.Enabled := true;
+        form_mainform.combobox_all_account.Enabled := true;
+      end;
+    end);
+  end else if getType = 'thirdparty' then begin
+    Log.Write(Concat('已确认重置的为第三方外置账号，正在开始重置。'), LOG_ACCOUNT, LOG_INFO);
+    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.refresh_thirdparty_start');
+    form_mainform.button_add_account.Enabled := false;
+    form_mainform.button_refresh_account.Enabled := false;
+    form_mainform.combobox_all_account.Enabled := false;
+    TTask.Run(procedure begin
+      try
+        var accm: TAccount;
+        try
+          accm := TAccount.InitializeAccount(
+          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('server').Value,
+          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('access_token').Value,
+          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('client_token').Value,
+          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('uuid').Value,
+          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('name').Value, 'refresh');
+        except
+          Log.Write(Concat('重置失败，RefreshToken也已过期，请尝试登录吧。'), LOG_ACCOUNT, LOG_ERROR);
+          MyMessagebox(GetLanguage('messagebox_account.refresh_thirdparty_error.caption'), GetLanguage('messagebox_account.refresh_thirdparty_error.text'), MY_PASS, [mybutton.myOK]);
+          form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.refresh_thirdparty_error');
+          exit;
+        end;
+        var at := accm.GetAccessToken;
+        if at = 'noneaccount' then exit;
+        var ct := accm.GetThirdClientToken;
+        var un := accm.GetUserName;
+        var uu := accm.GetUUID;
+        var sk := accm.GetAvatar;
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('name');//删除键
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('uuid');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('access_token');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('client_token');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('head_skin');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('name', un);
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('uuid', uu);
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('access_token', at);
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('client_token', ct);//增加键
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('head_skin', sk);
+        Log.Write(Concat('重置成功！玩家名称：', un), LOG_ACCOUNT, LOG_INFO);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', un);
+        MyMessagebox(GetLanguage('messagebox_account.refresh_thirdparty_success.caption'), GetLanguage('messagebox_account.refresh_thirdparty_success.text'), MY_PASS, [mybutton.myOK]);
+      finally
+        form_mainform.button_add_account.Enabled := true;
+        form_mainform.button_refresh_account.Enabled := true;
+        form_mainform.combobox_all_account.Enabled := true;
+      end;
+    end);
+  end else raise Exception.Create('Not Support Login Type');
 end;
 //初始化第三方登录
-var g: Boolean = false;
 procedure InitAuthlib();
 begin
-  if g then exit;
-  g := true;
-  //需要下载部分……
+  var filepath := Concat(AppData, '\LLLauncher\authlib-injector.jar');
+  form_mainform.button_add_account.Enabled := false;
+  form_mainform.button_refresh_account.Enabled := false;
+  form_mainform.combobox_all_account.Enabled := false;
+  try
+    if not FileExists(filepath) then begin
+      TThread.Synchronize(nil, procedure begin
+        form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
+      end);
+      TTask.Run(procedure begin
+        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.authlib.check_authlib_update'));
+        var t1 := GetWebText(Concat(mauthlib_download, 'artifact/latest.json'));
+        if t1 = '' then begin
+          form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.authlib.check_authlib_error'));
+          exit;
+        end else form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.authlib.authlib_has_update'));
+        var j1 := TJsonObject.ParseJSONValue(t1) as TJsonObject;
+        var fileurl := j1.GetValue('download_url').Value;
+        DownloadStart(fileurl, filepath, '', mbiggest_thread, 0, 1, false);
+        if not FileExists(filepath) then begin
+          form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.authlib.download_authlib_error'));
+          exit;
+        end;
+        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.authlib.downlaod_authlib_success'));
+        var filever := j1.GetValue('version').Value;
+        AccountJson.RemovePair('authlib_version');
+        AccountJson.AddPair('authlib_version', filever);
+        TThread.Sleep(3000);
+        form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_account_part;
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.check_authlib_success');
+      end);
+    end else begin
+      TTask.Run(procedure begin
+        try
+          form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.check_authlib_update');
+          var authlibVersion := AccountJson.GetValue('authlib_version').Value;
+          var t1 := GetWebText(Concat(mauthlib_download, 'artifact/latest.json'));
+          if t1 = '' then begin
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('label_account_return_value.caption.check_authlib_error'));
+            exit;
+          end;
+          var RealVersion := (TJsonObject.ParseJSONValue(t1) as TJsonObject).GetValue('version').Value;
+          if authlibVersion <> RealVersion then begin
+            deletefile(pchar(filepath));
+            InitAuthlib;
+          end else begin
+            form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.check_authlib_success');
+          end;
+        except
+          deletefile(pchar(filepath));
+          InitAuthlib;
+        end;
+      end);
+    end;
+  finally
+    form_mainform.button_add_account.Enabled := true;
+    form_mainform.button_refresh_account.Enabled := true;
+    form_mainform.combobox_all_account.Enabled := true;
+  end;
 end;
 //初始化账号部分
 var f: Boolean = false;
@@ -844,7 +1019,7 @@ begin
       var tpe := I.GetValue<String>('type');
       if tpe = 'offline' then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), GetLanguage('combobox_all_account.offline_tip')))
       else if (tpe = 'microsoft') or (tpe = 'oauth') then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), GetLanguage('combobox_all_account.microsoft_tip')))
-      else if tpe = 'authlib-injector' then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), GetLanguage('combobox_all_account.thirdparty_tip')))
+      else if tpe = 'thirdparty' then form_mainform.combobox_all_account.Items.Add(Concat(I.GetValue<String>('name'), GetLanguage('combobox_all_account.thirdparty_tip')))
       else raise Exception.Create('Format Exception');
     end;
   except
@@ -896,9 +1071,7 @@ begin
     maccount_logintype := 1;
   end;
   form_mainform.combobox_all_accountChange(TObject.Create);
-  TTask.Run(procedure begin
-    InitAuthlib;
-  end);
+  InitAuthlib;
 end;
 //保存账号部分
 procedure SaveAccount;
@@ -912,9 +1085,9 @@ begin
   if form_mainform.combobox_all_account.ItemIndex = -1 then begin
     form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.absence')
   end else begin
-    var player_name := form_mainform.combobox_all_account.Items[form_mainform.combobox_all_account.ItemIndex];
-    player_name := player_name.Replace(GetLanguage('combobox_all_account.microsoft_tip'), '').Replace(GetLanguage('combobox_all_account.thirdparty_tip'), '').Replace(GetLanguage('combobox_all_account.offline_tip'), '');
-    form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', player_name);
+    maccount_view := form_mainform.combobox_all_account.Items[form_mainform.combobox_all_account.ItemIndex];
+    maccount_view := maccount_view.Replace(GetLanguage('combobox_all_account.microsoft_tip'), '').Replace(GetLanguage('combobox_all_account.thirdparty_tip'), '').Replace(GetLanguage('combobox_all_account.offline_tip'), '');
+    form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', maccount_view);
   end;
 end;
 

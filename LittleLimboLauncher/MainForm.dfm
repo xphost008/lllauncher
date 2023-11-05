@@ -170,12 +170,13 @@ object form_mainform: Tform_mainform
     Top = 8
     Width = 838
     Height = 464
-    ActivePage = tabsheet_account_part
+    ActivePage = tabsheet_launch_part
     MultiLine = True
     TabOrder = 0
     OnChange = pagecontrol_mainpageChange
     OnChanging = pagecontrol_mainpageChanging
     object tabsheet_mainpage_part: TTabSheet
+      Cursor = crArrow
       Caption = #20027#30028#38754
       object label_account_view: TLabel
         Left = 3
@@ -558,6 +559,27 @@ object form_mainform: Tform_mainform
         WordWrap = True
         OnClick = button_launch_gameClick
       end
+      object groupbox_message_board: TGroupBox
+        Left = 353
+        Top = 3
+        Width = 474
+        Height = 78
+        Caption = #30041#35328#26495#65288#28857#25105#21487#20197#26356#25442#30041#35328#26495#22114#65281#65289
+        TabOrder = 1
+        object memo_message_board: TMemo
+          Left = 2
+          Top = 17
+          Width = 470
+          Height = 59
+          Cursor = crArrow
+          Align = alClient
+          BorderStyle = bsNone
+          Color = clBtnFace
+          ReadOnly = True
+          ScrollBars = ssVertical
+          TabOrder = 0
+        end
+      end
     end
     object tabsheet_account_part: TTabSheet
       Caption = #36134#21495#37096#20998
@@ -634,7 +656,7 @@ object form_mainform: Tform_mainform
         Top = 390
         Width = 201
         Height = 41
-        Caption = #33719#21462#36134#21495'UUID'
+        Caption = #26597#30475#36134#21495'UUID'
         TabOrder = 4
         WordWrap = True
         OnClick = button_account_get_uuidClick
@@ -643,8 +665,8 @@ object form_mainform: Tform_mainform
         Left = 3
         Top = 94
         Width = 824
-        Height = 134
-        ActivePage = tabsheet_account_microsoft_part
+        Height = 146
+        ActivePage = tabsheet_account_thirdparty_part
         TabOrder = 5
         object tabsheet_account_offline_part: TTabSheet
           Caption = #31163#32447#30331#24405
@@ -783,6 +805,7 @@ object form_mainform: Tform_mainform
             Height = 23
             Caption = #36890#36807#27491#29256#29992#25143#21517#33719#21462#27491#29256'UUID'
             TabOrder = 3
+            OnClick = button_offline_name_to_uuidClick
           end
           object button_offline_uuid_to_name: TButton
             Left = 570
@@ -791,6 +814,7 @@ object form_mainform: Tform_mainform
             Height = 23
             Caption = #36890#36807#27491#29256'UUID'#33719#21462#27491#29256#29992#25143#21517
             TabOrder = 4
+            OnClick = button_offline_uuid_to_nameClick
           end
         end
         object tabsheet_account_microsoft_part: TTabSheet
@@ -800,9 +824,9 @@ object form_mainform: Tform_mainform
             Left = 66
             Top = 24
             Width = 671
-            Height = 57
+            Height = 65
             Hint = #35813#31181#30331#24405#26041#24335#24456#23433#20840#65292#38750#24120#24314#35758#20351#29992#35813#31181#30331#24405#26041#24335#65292#19988#35813#31181#30331#24405#26041#24335#26080#38656#28857#20987#28155#21152#36134#21495#21363#21487#30331#24405#12290
-            Caption = 'OAuth'#39564#35777#27969#30331#24405
+            Caption = 'OAuth'#39564#35777#27969#30331#24405' :)'
             ParentShowHint = False
             ShowHint = True
             TabOrder = 0
@@ -853,7 +877,17 @@ object form_mainform: Tform_mainform
             Top = 61
             Width = 755
             Height = 23
+            PasswordChar = '*'
             TabOrder = 2
+          end
+          object button_thirdparty_check_authlib_update: TButton
+            Left = 59
+            Top = 90
+            Width = 754
+            Height = 23
+            Caption = #26816#27979'Authlib'#26159#21542#26377#26356#26032
+            TabOrder = 3
+            OnClick = button_thirdparty_check_authlib_updateClick
           end
         end
       end
@@ -864,17 +898,18 @@ object form_mainform: Tform_mainform
       object label_playing_tip: TLabel
         Left = 3
         Top = 3
-        Width = 526
+        Width = 760
         Height = 15
-        Caption = #27492#37096#20998#29992#20110#19979#36733'MC'#30340#38468#21152#29609#27861#65292#24314#35758#27599#27425#25628#26032#29609#27861#26102#65292#37117#21491#20987#19968#27425#25628#32034#29256#26412#26694#26597#30475#31616#20171#22114#65281
+        Caption = #27492#37096#20998#29992#20110#19979#36733'MC'#30340#38468#21152#29609#27861#65292#24314#35758#27599#27425#25628#26032#29609#27861#26102#65292#37117#21491#20987#19968#27425#25628#32034#29256#26412#26694#26597#30475#31616#20171#22114#65281#31649#29702#30028#38754#21487#20197#23558#29609#27861#25302#20837#21015#34920#26694#20197#24212#29992#12290
       end
       object pagecontrol_playing_part: TPageControl
         Left = 3
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_playing_download_part
+        ActivePage = tabsheet_playing_manage_part
         TabOrder = 0
+        OnChange = pagecontrol_playing_partChange
         object tabsheet_playing_download_part: TTabSheet
           Caption = #19979#36733#29609#27861
           object label_playing_search_name: TLabel
@@ -885,7 +920,7 @@ object form_mainform: Tform_mainform
             Caption = #25628#32034#65288#21517#31216#65289#12304#31532'1'#39029#12305
           end
           object label_playing_search_version: TLabel
-            Left = 197
+            Left = 211
             Top = 3
             Width = 78
             Height = 15
@@ -900,14 +935,14 @@ object form_mainform: Tform_mainform
           end
           object label_playing_search_category_modrinth_tip: TLabel
             Left = 419
-            Top = 203
+            Top = 253
             Width = 128
             Height = 15
             Caption = #25628#32034#31867#22411#65288'Modrinth'#65289
           end
           object label_playing_search_version_tip: TLabel
             Left = 419
-            Top = 253
+            Top = 203
             Width = 52
             Height = 15
             Caption = #25628#32034#29256#26412
@@ -948,11 +983,14 @@ object form_mainform: Tform_mainform
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
             Font.Height = -16
-            Font.Name = 'Segoe UI Semibold'
-            Font.Style = [fsBold]
+            Font.Name = 'Segoe UI'
+            Font.Style = []
             ItemHeight = 21
             ParentFont = False
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 0
+            OnClick = listbox_playing_search_nameClick
           end
           object listbox_playing_search_version: TListBox
             Left = 211
@@ -962,11 +1000,15 @@ object form_mainform: Tform_mainform
             Font.Charset = ANSI_CHARSET
             Font.Color = clWindowText
             Font.Height = -16
-            Font.Name = 'Segoe UI Semibold'
-            Font.Style = [fsBold]
+            Font.Name = 'Segoe UI'
+            Font.Style = []
             ItemHeight = 21
             ParentFont = False
+            ParentShowHint = False
+            PopupMenu = popupmenu_view_mod_info
+            ShowHint = True
             TabOrder = 1
+            OnClick = listbox_playing_search_versionClick
           end
           object button_playing_name_previous_page: TButton
             Left = 3
@@ -976,6 +1018,7 @@ object form_mainform: Tform_mainform
             Caption = #65288#21517#31216#65289#19978#19968#39029
             TabOrder = 2
             WordWrap = True
+            OnClick = button_playing_name_previous_pageClick
           end
           object button_playing_name_next_page: TButton
             Left = 107
@@ -985,39 +1028,52 @@ object form_mainform: Tform_mainform
             Caption = #65288#21517#31216#65289#19979#19968#39029
             TabOrder = 3
             WordWrap = True
+            OnClick = button_playing_name_next_pageClick
           end
           object button_playing_version_previous_page: TButton
             Left = 211
             Top = 333
             Width = 98
             Height = 41
+            Hint = #20165#36866#29992'CurseForge'
             Caption = #65288#29256#26412#65289#19978#19968#39029
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 4
             WordWrap = True
+            OnClick = button_playing_version_previous_pageClick
           end
           object button_playing_version_next_page: TButton
             Left = 315
             Top = 333
             Width = 98
             Height = 41
-            Caption = #65288#29256#26412#65289#19978#19968#39029
+            Hint = #20165#36866#29992'Curseforge'
+            Caption = #65288#29256#26412#65289#19979#19968#39029
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 5
             WordWrap = True
+            OnClick = button_playing_version_next_pageClick
           end
           object edit_playing_search_name: TEdit
             Left = 419
             Top = 24
-            Width = 201
+            Width = 239
             Height = 23
             TabOrder = 6
-            TextHint = #36755#20837#25628#32034#21517#31216#12304#23613#37327#36755#20837#33521#25991#12305
+            TextHint = #36755#20837#25628#32034#21517#31216#12304#21482#33021#36755#20837#33521#25991#12305
           end
           object combobox_playing_search_source: TComboBox
             Left = 419
             Top = 74
-            Width = 201
+            Width = 239
             Height = 23
+            Style = csDropDownList
+            ItemIndex = 0
             TabOrder = 7
+            Text = 'CurseForge'
+            OnChange = combobox_playing_search_sourceChange
             Items.Strings = (
               'CurseForge'
               'Modrinth')
@@ -1025,27 +1081,31 @@ object form_mainform: Tform_mainform
           object combobox_playing_search_mode: TComboBox
             Left = 419
             Top = 124
-            Width = 201
+            Width = 239
             Height = 23
+            Style = csDropDownList
             TabOrder = 8
+            OnChange = combobox_playing_search_modeChange
           end
           object combobox_playing_search_category_curseforge: TComboBox
             Left = 419
             Top = 174
-            Width = 201
+            Width = 239
             Height = 23
+            Style = csDropDownList
             TabOrder = 9
+            OnChange = combobox_playing_search_category_curseforgeChange
           end
           object combobox_playing_search_version: TComboBox
             Left = 419
             Top = 224
-            Width = 201
+            Width = 239
             Height = 23
-            ItemIndex = 0
             TabOrder = 10
             Text = #20840#37096
             Items.Strings = (
               #20840#37096
+              '1.20.2'
               '1.20.1'
               '1.19.4'
               '1.19.2'
@@ -1062,37 +1122,41 @@ object form_mainform: Tform_mainform
           object checklistbox_playing_search_category_modrinth: TCheckListBox
             Left = 419
             Top = 274
-            Width = 201
+            Width = 239
             Height = 100
             ItemHeight = 17
             TabOrder = 11
+            OnClick = checklistbox_playing_search_category_modrinthClick
           end
           object button_open_download_website: TButton
-            Left = 626
+            Left = 664
             Top = 140
-            Width = 187
+            Width = 149
             Height = 74
             Caption = #25171#24320#19979#36733#28304#23448#32593
             TabOrder = 12
             WordWrap = True
+            OnClick = button_open_download_websiteClick
           end
           object button_playing_start_search: TButton
-            Left = 626
+            Left = 664
             Top = 220
-            Width = 187
+            Width = 149
             Height = 74
             Caption = #24320#22987#25628#32034
             TabOrder = 13
             WordWrap = True
+            OnClick = button_playing_start_searchClick
           end
           object button_playing_start_download: TButton
-            Left = 626
+            Left = 664
             Top = 300
-            Width = 187
+            Width = 149
             Height = 74
             Caption = #24320#22987#19979#36733
             TabOrder = 14
             WordWrap = True
+            OnClick = button_playing_start_downloadClick
           end
         end
         object tabsheet_playing_manage_part: TTabSheet
@@ -1152,7 +1216,10 @@ object form_mainform: Tform_mainform
             Top = 24
             Width = 198
             Height = 350
+            Hint = #23558#25972#21512#21253#25302#20837#27492#21015#34920#26694#20197#20379#28155#21152#65292#20165#25903#25345#12304'zip'#25110'mrpack'#12305#21518#32512#30340#25991#20214#12290
             ItemHeight = 15
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 0
           end
           object listbox_manage_import_mod: TListBox
@@ -1160,88 +1227,132 @@ object form_mainform: Tform_mainform
             Top = 24
             Width = 198
             Height = 145
+            Hint = #23558#27169#32452#25302#20837#27492#21015#34920#26694#20197#20379#28155#21152#65292#20165#25903#25345#12304'jar'#25110'zip'#12305#21518#32512#30340#25991#20214#12290
             ItemHeight = 15
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 1
+            OnClick = listbox_manage_import_modClick
           end
           object listbox_manage_import_map: TListBox
             Left = 411
             Top = 24
             Width = 198
             Height = 145
+            Hint = #23558#22320#22270#25302#20837#27492#21015#34920#26694#20197#20379#28155#21152#65292#20165#25903#25345#12304'zip'#12305#21518#32512#30340#25991#20214#25110#12304#25991#20214#22841#12305#12290
             ItemHeight = 15
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 2
+            OnClick = listbox_manage_import_mapClick
           end
           object listbox_manage_import_resourcepack: TListBox
             Left = 615
             Top = 24
             Width = 198
             Height = 145
+            Hint = #23558#32441#29702#25302#20837#27492#21015#34920#26694#20197#20379#28155#21152#65292#20165#25903#25345#12304'zip'#12305#21518#32512#30340#25991#20214#12290
             ItemHeight = 15
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 3
+            OnClick = listbox_manage_import_resourcepackClick
           end
           object listbox_manage_import_shader: TListBox
             Left = 207
             Top = 196
             Width = 198
             Height = 145
+            Hint = #23558#20809#24433#25302#20837#27492#21015#34920#26694#20197#20379#28155#21152#65292#20165#25903#25345#12304'zip'#12305#21518#32512#30340#25991#20214#12290
             ItemHeight = 15
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 4
+            OnClick = listbox_manage_import_shaderClick
           end
           object listbox_manage_import_datapack: TListBox
             Left = 411
             Top = 196
             Width = 198
             Height = 145
+            Hint = #23558#25968#25454#21253#25302#20837#27492#21015#34920#26694#20197#20379#28155#21152#65292#20165#25903#25345#12304'zip'#12305#21518#32512#30340#25991#20214#12290#21069#25552#26159#38656#35201#36873#20013#20219#19968#22320#22270#25991#20214#12290
             ItemHeight = 15
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 5
+            OnClick = listbox_manage_import_datapackClick
           end
           object listbox_manage_import_plugin: TListBox
             Left = 615
             Top = 196
             Width = 198
             Height = 145
+            Hint = #23558#25554#20214#25302#20837#27492#21015#34920#26694#20197#20379#28155#21152#65292#20165#25903#25345#12304'jar'#25110'zip'#12305#21518#32512#30340#25991#20214#12290
             ItemHeight = 15
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 6
+            OnClick = listbox_manage_import_pluginClick
           end
           object button_disable_choose_playing: TButton
             Left = 207
             Top = 347
             Width = 96
             Height = 27
+            Hint = #20165#33021#31105#29992#27169#32452#21644#25554#20214#65292#24050#34987#31105#29992#30340#29609#27861#23558#26080#27861#34987#20877#27425#31105#29992
             Caption = #31105#29992#36873#20013
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 7
+            OnClick = button_disable_choose_playingClick
           end
           object button_enable_choose_playing: TButton
             Left = 309
             Top = 347
             Width = 96
             Height = 27
+            Hint = #20165#33021#21551#29992#27169#32452#21644#25554#20214#65292#24050#34987#21551#29992#30340#29609#27861#23558#26080#27861#34987#20877#27425#21551#29992
             Caption = #21551#29992#36873#20013
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 8
+            OnClick = button_enable_choose_playingClick
           end
           object button_delete_choose_playing: TButton
             Left = 411
             Top = 347
             Width = 96
             Height = 27
+            Hint = #21024#38500#36873#20013#30340#29609#27861#65292#24403#21516#26102#36873#20013#25968#25454#21253#21644#22320#22270#26102#23558#20250#20248#20808#21024#38500#25968#25454#21253#12290#12304#23558#20250#25918#20837#22238#25910#31449#12305
             Caption = #21024#38500#36873#20013
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 9
+            OnClick = button_delete_choose_playingClick
           end
           object button_rename_choose_playing: TButton
             Left = 513
             Top = 347
             Width = 96
             Height = 27
+            Hint = #37325#21629#21517#36873#20013#30340#29609#27861#65292#24403#22320#22270#19982#25968#25454#21253#21516#26102#36873#20013#26102#23558#20250#20248#20808#37325#21629#21517#25968#25454#21253#12290
             Caption = #37325#21629#21517#36873#20013
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 10
+            OnClick = button_rename_choose_playingClick
           end
           object button_open_choose_playing: TButton
             Left = 615
             Top = 347
             Width = 198
             Height = 27
+            Hint = #29992#36164#28304#31649#29702#22120#25171#24320#20320#25152#36873#25321#30340#29609#27861#12290#24403#22320#22270#19982#25968#25454#21253#21516#26102#36873#20013#26102#23558#20250#20248#20808#25171#24320#22320#22270#25991#20214#22841#20013#30340'datapacks'#25991#20214#22841#12290
             Caption = #25171#24320#36873#20013#30340#25991#20214#22841
+            ParentShowHint = False
+            ShowHint = True
             TabOrder = 11
+            OnClick = button_open_choose_playingClick
           end
         end
       end
@@ -1595,9 +1706,9 @@ object form_mainform: Tform_mainform
       end
       object pagecontrol_online_part: TPageControl
         Left = 3
-        Top = 29
+        Top = 22
         Width = 824
-        Height = 402
+        Height = 409
         ActivePage = tabsheet_online_ipv6_part
         TabOrder = 0
         object tabsheet_online_ipv6_part: TTabSheet
@@ -1628,7 +1739,7 @@ object form_mainform: Tform_mainform
             Left = 3
             Top = 74
             Width = 810
-            Height = 295
+            Height = 302
             ItemHeight = 15
             TabOrder = 1
           end
@@ -1765,7 +1876,7 @@ object form_mainform: Tform_mainform
         OnClick = button_normal_colorClick
       end
       object buttoncolor_custom_color: TButtonColor
-        Left = 6
+        Left = 3
         Top = 198
         Width = 206
         Height = 45
@@ -1906,11 +2017,11 @@ object form_mainform: Tform_mainform
           Caption = #28176#21464#20540
         end
         object label_background_gradient_current_value: TLabel
-          Left = 744
+          Left = 738
           Top = 46
-          Width = 77
+          Width = 83
           Height = 15
-          Caption = #24403#21069#36873#20013#65306'20'
+          Caption = #24403#21069#36873#20013#65306'200'
         end
         object label_background_gradient_step: TLabel
           Left = 3
@@ -1920,7 +2031,7 @@ object form_mainform: Tform_mainform
           Caption = #28176#21464#27493#38271
         end
         object label_background_gradient_current_step: TLabel
-          Left = 744
+          Left = 738
           Top = 75
           Width = 77
           Height = 15
@@ -1939,7 +2050,7 @@ object form_mainform: Tform_mainform
         object scrollbar_background_gradient_value: TScrollBar
           Left = 88
           Top = 42
-          Width = 650
+          Width = 644
           Height = 23
           Min = 1
           PageSize = 0
@@ -1950,7 +2061,7 @@ object form_mainform: Tform_mainform
         object scrollbar_background_gradient_step: TScrollBar
           Left = 88
           Top = 71
-          Width = 650
+          Width = 644
           Height = 23
           Max = 10
           Min = 1
@@ -1985,334 +2096,330 @@ object form_mainform: Tform_mainform
     object tabsheet_launch_part: TTabSheet
       Caption = #21551#21160#35774#32622
       ImageIndex = 6
-      object label_launch_window_size: TLabel
-        Left = 3
-        Top = 7
-        Width = 78
-        Height = 15
-        Caption = #28216#25103#31383#21475#22823#23567
-      end
-      object label_launch_window_default_tip: TLabel
-        Left = 3
-        Top = 36
-        Width = 68
-        Height = 15
-        Caption = #40664#35748'854x480'
-      end
-      object label_launch_java_path: TLabel
-        Left = 3
-        Top = 64
-        Width = 48
-        Height = 15
-        Caption = 'Java'#36335#24452
-      end
-      object label_launch_java_logic: TLabel
-        Left = 3
-        Top = 93
-        Width = 48
-        Height = 15
-        Caption = 'Java'#36923#36753
-      end
-      object label_launch_custom_info: TLabel
-        Left = 3
-        Top = 180
-        Width = 65
-        Height = 15
-        Caption = #33258#23450#20041#20449#24687
-      end
-      object label_launch_custom_info_default: TLabel
-        Left = 727
-        Top = 180
-        Width = 87
-        Height = 15
-        Caption = #40664#35748'LLLauncher'
-      end
-      object label_launch_game_title: TLabel
-        Left = 3
-        Top = 209
-        Width = 52
-        Height = 15
-        Caption = #31383#21475#26631#39064
-      end
-      object label_launch_game_title_default: TLabel
-        Left = 727
-        Top = 209
-        Width = 65
-        Height = 15
-        Caption = #40664#35748#21363#40664#35748
-      end
-      object label_launch_pre_launch_script: TLabel
-        Left = 3
-        Top = 324
-        Width = 78
-        Height = 15
-        Caption = #21069#32622#21551#21160#33050#26412
-      end
-      object label_launch_default_jvm_argument: TLabel
-        Left = 3
-        Top = 353
-        Width = 74
-        Height = 15
-        Caption = #40664#35748'JVM'#21442#25968
-      end
-      object label_launch_additional_jvm_argument: TLabel
-        Left = 3
-        Top = 382
-        Width = 74
-        Height = 15
-        Caption = #39069#22806'JVM'#21442#25968
-      end
-      object label_launch_additional_game_argument: TLabel
-        Left = 3
-        Top = 411
-        Width = 82
-        Height = 15
-        Caption = #39069#22806'game'#21442#25968
-      end
-      object label_launch_game_memory: TLabel
-        Left = 3
-        Top = 152
-        Width = 78
-        Height = 15
-        Caption = #28216#25103#20869#23384#22823#23567
-      end
-      object label_launch_current_memory: TLabel
-        Left = 727
-        Top = 152
-        Width = 101
-        Height = 15
-        Caption = #24403#21069#36873#20013#65306'666666'
-      end
-      object label_launch_window_current_height: TLabel
-        Left = 727
-        Top = 7
-        Width = 101
-        Height = 15
-        Caption = #24403#21069#36873#20013#65306'666666'
-      end
-      object label_launch_window_current_width: TLabel
-        Left = 727
-        Top = 36
-        Width = 101
-        Height = 15
-        Caption = #24403#21069#36873#20013#65306'666666'
-      end
-      object label_launch_download_java: TLabel
-        Left = 3
-        Top = 123
-        Width = 48
-        Height = 15
-        Caption = #19979#36733'Java'
-      end
-      object label_launch_window_height_tip: TLabel
-        Left = 106
-        Top = 36
-        Width = 13
-        Height = 15
-        Caption = #39640
-      end
-      object label_launch_window_width_tip: TLabel
-        Left = 106
-        Top = 7
-        Width = 13
-        Height = 15
-        Caption = #23485
-      end
-      object combobox_launch_select_java_path: TComboBox
-        Left = 106
-        Top = 61
-        Width = 615
-        Height = 23
-        Style = csDropDownList
+      object scrollbox_launch: TScrollBox
+        Left = 0
+        Top = 0
+        Width = 830
+        Height = 434
+        HorzScrollBar.Tracking = True
+        VertScrollBar.Tracking = True
+        Align = alClient
+        Color = clBtnFace
+        Ctl3D = True
+        ParentColor = False
+        ParentCtl3D = False
         TabOrder = 0
-      end
-      object button_launch_full_scan_java: TButton
-        Left = 106
-        Top = 90
-        Width = 99
-        Height = 23
-        Caption = #20840#30424#25195#25551
-        TabOrder = 1
-      end
-      object button_launch_basic_scan_java: TButton
-        Left = 211
-        Top = 90
-        Width = 99
-        Height = 23
-        Caption = #29305#23450#25195#25551
-        TabOrder = 2
-      end
-      object button_launch_manual_import: TButton
-        Left = 316
-        Top = 90
-        Width = 99
-        Height = 23
-        Caption = #25163#21160#23548#20837
-        TabOrder = 3
-      end
-      object button_launch_remove_java: TButton
-        Left = 421
-        Top = 90
-        Width = 99
-        Height = 23
-        Caption = #31227#38500'Java'
-        TabOrder = 4
-      end
-      object button_launch_download_java_8: TButton
-        Left = 106
-        Top = 119
-        Width = 99
-        Height = 23
-        Caption = #19979#36733'Java8'
-        TabOrder = 5
-      end
-      object button_launch_download_java_17: TButton
-        Left = 316
-        Top = 119
-        Width = 99
-        Height = 23
-        Caption = #19979#36733'Java17'
-        TabOrder = 6
-      end
-      object button_launch_download_java_16: TButton
-        Left = 211
-        Top = 119
-        Width = 99
-        Height = 23
-        Caption = #19979#36733'Java16'
-        TabOrder = 7
-      end
-      object button_launch_official_java: TButton
-        Left = 421
-        Top = 119
-        Width = 195
-        Height = 23
-        Caption = #25171#24320'Java'#23448#32593
-        TabOrder = 8
-      end
-      object edit_launch_custom_info: TEdit
-        Left = 106
-        Top = 177
-        Width = 615
-        Height = 23
-        TabOrder = 9
-        TextHint = #38543#20415#22635
-      end
-      object edit_launch_game_title: TEdit
-        Left = 106
-        Top = 206
-        Width = 615
-        Height = 23
-        TabOrder = 10
-        TextHint = #38543#20415#22635
-      end
-      object edit_launch_pre_launch_script: TEdit
-        Left = 106
-        Top = 321
-        Width = 519
-        Height = 23
-        TabOrder = 11
-        TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
-      end
-      object button_launch_pre_launch_script_tip: TButton
-        Left = 631
-        Top = 321
-        Width = 196
-        Height = 23
-        Hint = #28857#25105#26597#30475#22914#20309#22635#20889#21069#32622#21551#21160#33050#26412#21629#20196#30340#23436#25972#25552#31034
-        Caption = #26597#30475#35813#34892#25552#31034
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 12
-      end
-      object edit_launch_default_jvm_argument: TEdit
-        Left = 106
-        Top = 350
-        Width = 519
-        Height = 23
-        ReadOnly = True
-        TabOrder = 13
-        Text = 
-          '-XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFas' +
-          'tThrow -Dfml.ignoreInvalidMinecraftCertificates=True -Dfml.ignor' +
-          'ePatchDiscrepancies=True -Dlog4j2.formatMsgNoLookups=true'
-      end
-      object button_launch_default_jvm_argument_tip: TButton
-        Left = 631
-        Top = 350
-        Width = 196
-        Height = 23
-        Hint = #28857#25105#26597#30475#40664#35748'JVM'#21442#25968#30340#23436#25972#25552#31034
-        Caption = #26597#30475#35813#34892#25552#31034
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 14
-      end
-      object edit_launch_additional_jvm_argument: TEdit
-        Left = 106
-        Top = 379
-        Width = 519
-        Height = 23
-        TabOrder = 15
-        TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
-      end
-      object button_launch_additional_jvm_argument_tip: TButton
-        Left = 631
-        Top = 379
-        Width = 196
-        Height = 23
-        Hint = #28857#25105#26597#30475#22914#20309#22635#20889#39069#22806'JVM'#21442#25968#30340#23436#25972#25552#31034
-        Caption = #26597#30475#35813#34892#25552#31034
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 16
-      end
-      object edit_launch_additional_game_argument: TEdit
-        Left = 106
-        Top = 408
-        Width = 519
-        Height = 23
-        Hint = #28857#25105#26597#30475#22914#20309#22635#20837#21069#32622#21551#21160#33050#26412#21629#20196
-        TabOrder = 17
-        TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
-      end
-      object button_launch_additional_game_argument_tip: TButton
-        Left = 631
-        Top = 408
-        Width = 196
-        Height = 23
-        Hint = #28857#25105#26597#30475#22914#20309#22635#20889#39069#22806'game'#21442#25968#30340#23436#25972#25552#31034
-        Caption = #26597#30475#35813#34892#25552#31034
-        ParentShowHint = False
-        ShowHint = True
-        TabOrder = 18
-      end
-      object scrollbar_launch_game_memory: TScrollBar
-        Left = 106
-        Top = 148
-        Width = 615
-        Height = 23
-        Max = 8192
-        Min = 1024
-        PageSize = 0
-        Position = 4096
-        TabOrder = 19
-      end
-      object scrollbar_launch_window_width: TScrollBar
-        Left = 136
-        Top = 32
-        Width = 585
-        Height = 23
-        PageSize = 0
-        TabOrder = 20
-      end
-      object scrollbar_launch_window_height: TScrollBar
-        Left = 136
-        Top = 3
-        Width = 585
-        Height = 23
-        PageSize = 0
-        TabOrder = 21
+        OnMouseWheel = scrollbox_launchMouseWheel
+        object label_launch_window_size_tips: TLabel
+          Left = 3
+          Top = 3
+          Width = 159
+          Height = 15
+          Caption = #28216#25103#31383#21475#22823#23567#65292#40664#35748'854x480'
+        end
+        object label_launch_window_width_tip: TLabel
+          Left = 3
+          Top = 24
+          Width = 188
+          Height = 15
+          Caption = #23485#24230#65292#24403#21069#36873#20013#65306'99999999999999'
+        end
+        object label_launch_window_height_tip: TLabel
+          Left = 3
+          Top = 74
+          Width = 188
+          Height = 15
+          Caption = #39640#24230#65292#24403#21069#36873#20013#65306'99999999999999'
+        end
+        object label_launch_java_path: TLabel
+          Left = 3
+          Top = 124
+          Width = 48
+          Height = 15
+          Caption = 'Java'#36335#24452
+        end
+        object label_launch_java_logic: TLabel
+          Left = 3
+          Top = 177
+          Width = 48
+          Height = 15
+          Caption = 'Java'#36923#36753
+        end
+        object label_launch_download_java: TLabel
+          Left = 3
+          Top = 227
+          Width = 48
+          Height = 15
+          Caption = #19979#36733'Java'
+        end
+        object label_launch_game_memory: TLabel
+          Left = 3
+          Top = 277
+          Width = 246
+          Height = 15
+          Caption = #28216#25103#20869#23384#22823#23567#65292#24403#21069#36873#20013#65306'999999999999999'
+        end
+        object label_launch_custom_info: TLabel
+          Left = 3
+          Top = 327
+          Width = 165
+          Height = 15
+          Caption = #33258#23450#20041#20449#24687#65292#40664#35748'LLLauncher'
+        end
+        object label_launch_game_title: TLabel
+          Left = 3
+          Top = 377
+          Width = 130
+          Height = 15
+          Caption = #31383#21475#26631#39064#65292#40664#35748#21363#40664#35748
+        end
+        object label_launch_pre_launch_script: TLabel
+          Left = 3
+          Top = 427
+          Width = 78
+          Height = 15
+          Caption = #21069#32622#21551#21160#33050#26412
+        end
+        object label_launch_after_launch_script: TLabel
+          Left = 3
+          Top = 506
+          Width = 78
+          Height = 15
+          Caption = #21518#32622#21551#21160#21442#25968
+        end
+        object label_launch_default_jvm_argument: TLabel
+          Left = 3
+          Top = 585
+          Width = 74
+          Height = 15
+          Caption = #40664#35748'JVM'#21442#25968
+        end
+        object label_launch_additional_jvm_argument: TLabel
+          Left = 3
+          Top = 664
+          Width = 74
+          Height = 15
+          Caption = #39069#22806'JVM'#21442#25968
+        end
+        object label_launch_additional_game_argument: TLabel
+          Left = 3
+          Top = 743
+          Width = 82
+          Height = 15
+          Caption = #39069#22806'game'#21442#25968
+        end
+        object scrollbar_launch_window_height: TScrollBar
+          Left = 3
+          Top = 45
+          Width = 794
+          Height = 23
+          PageSize = 0
+          TabOrder = 0
+        end
+        object scrollbar_launch_window_width: TScrollBar
+          Left = 3
+          Top = 95
+          Width = 794
+          Height = 23
+          PageSize = 0
+          TabOrder = 1
+        end
+        object combobox_launch_select_java_path: TComboBox
+          Left = 3
+          Top = 145
+          Width = 794
+          Height = 23
+          Style = csDropDownList
+          TabOrder = 2
+        end
+        object button_launch_full_scan_java: TButton
+          Left = 3
+          Top = 198
+          Width = 194
+          Height = 23
+          Caption = #20840#30424#25195#25551
+          TabOrder = 3
+        end
+        object button_launch_basic_scan_java: TButton
+          Left = 203
+          Top = 198
+          Width = 194
+          Height = 23
+          Caption = #29305#23450#25195#25551
+          TabOrder = 4
+        end
+        object button_launch_manual_import: TButton
+          Left = 403
+          Top = 198
+          Width = 194
+          Height = 23
+          Caption = #25163#21160#23548#20837
+          TabOrder = 5
+        end
+        object button_launch_remove_java: TButton
+          Left = 603
+          Top = 198
+          Width = 194
+          Height = 23
+          Caption = #31227#38500'Java'
+          TabOrder = 6
+        end
+        object button_launch_download_java_8: TButton
+          Left = 3
+          Top = 248
+          Width = 194
+          Height = 23
+          Caption = #19979#36733'Java8'
+          TabOrder = 7
+        end
+        object button_launch_download_java_16: TButton
+          Left = 203
+          Top = 248
+          Width = 194
+          Height = 23
+          Caption = #19979#36733'Java16'
+          TabOrder = 8
+        end
+        object button_launch_download_java_17: TButton
+          Left = 403
+          Top = 248
+          Width = 194
+          Height = 23
+          Caption = #19979#36733'Java17'
+          TabOrder = 9
+        end
+        object button_launch_official_java: TButton
+          Left = 603
+          Top = 248
+          Width = 194
+          Height = 23
+          Caption = #25171#24320'Java'#23448#32593
+          TabOrder = 10
+        end
+        object scrollbar_launch_game_memory: TScrollBar
+          Left = 3
+          Top = 298
+          Width = 794
+          Height = 23
+          Max = 8192
+          Min = 1024
+          PageSize = 0
+          Position = 4096
+          TabOrder = 11
+        end
+        object edit_launch_custom_info: TEdit
+          Left = 3
+          Top = 348
+          Width = 794
+          Height = 23
+          TabOrder = 12
+          TextHint = #38543#20415#22635
+        end
+        object edit_launch_game_title: TEdit
+          Left = 3
+          Top = 398
+          Width = 794
+          Height = 23
+          TabOrder = 13
+          TextHint = #38543#20415#22635
+        end
+        object edit_launch_pre_launch_script: TEdit
+          Left = 3
+          Top = 448
+          Width = 794
+          Height = 23
+          TabOrder = 14
+          TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
+        end
+        object button_launch_pre_launch_script_tip: TButton
+          Left = 3
+          Top = 477
+          Width = 794
+          Height = 23
+          Hint = #28857#25105#26597#30475#22914#20309#22635#20889#21069#32622#21551#21160#33050#26412#21629#20196#30340#23436#25972#25552#31034
+          Caption = #26597#30475#35813#34892#25552#31034
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 15
+        end
+        object edit_launch_after_launch_script: TEdit
+          Left = 3
+          Top = 527
+          Width = 794
+          Height = 23
+          TabOrder = 16
+          TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
+        end
+        object button_launch_after_launch_script_tip: TButton
+          Left = 3
+          Top = 556
+          Width = 794
+          Height = 23
+          Caption = #26597#30475#35813#34892#25552#31034
+          TabOrder = 17
+        end
+        object edit_launch_default_jvm_argument: TEdit
+          Left = 3
+          Top = 606
+          Width = 794
+          Height = 23
+          ReadOnly = True
+          TabOrder = 18
+          Text = 
+            '-XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFas' +
+            'tThrow -Dfml.ignoreInvalidMinecraftCertificates=True -Dfml.ignor' +
+            'ePatchDiscrepancies=True -Dlog4j2.formatMsgNoLookups=true'
+        end
+        object button_launch_default_jvm_argument_tip: TButton
+          Left = 3
+          Top = 635
+          Width = 794
+          Height = 23
+          Hint = #28857#25105#26597#30475#40664#35748'JVM'#21442#25968#30340#23436#25972#25552#31034
+          Caption = #26597#30475#35813#34892#25552#31034
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 19
+        end
+        object edit_launch_additional_jvm_argument: TEdit
+          Left = 3
+          Top = 685
+          Width = 794
+          Height = 23
+          TabOrder = 20
+          TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
+        end
+        object button_launch_additional_jvm_argument_tip: TButton
+          Left = 3
+          Top = 714
+          Width = 794
+          Height = 23
+          Hint = #28857#25105#26597#30475#22914#20309#22635#20889#39069#22806'JVM'#21442#25968#30340#23436#25972#25552#31034
+          Caption = #26597#30475#35813#34892#25552#31034
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 21
+        end
+        object edit_launch_additional_game_argument: TEdit
+          Left = 3
+          Top = 764
+          Width = 794
+          Height = 23
+          Hint = #28857#25105#26597#30475#22914#20309#22635#20837#21069#32622#21551#21160#33050#26412#21629#20196
+          TabOrder = 22
+          TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
+        end
+        object button_launch_additional_game_argument_tip: TButton
+          Left = 3
+          Top = 793
+          Width = 794
+          Height = 23
+          Hint = #28857#25105#26597#30475#22914#20309#22635#20889#39069#22806'game'#21442#25968#30340#23436#25972#25552#31034
+          Caption = #26597#30475#35813#34892#25552#31034
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 23
+        end
       end
     end
     object tabsheet_version_part: TTabSheet
@@ -2330,706 +2437,691 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_version_export_part
+        ActivePage = tabsheet_version_isolation_part
         TabOrder = 0
         object tabsheet_version_control_part: TTabSheet
           Hint = #23558#36873#20013#30340#25991#20214#21015#34920#19982#21517#31216#65292#28155#21152#36827#21015#34920#20013#20197#20379#38271#26399#36873#25321#12290
           Caption = #29256#26412#25511#21046
-          object label_select_game_version: TLabel
-            Left = 3
-            Top = 6
-            Width = 78
-            Height = 15
-            Caption = #36873#25321#28216#25103#29256#26412
-          end
-          object label_select_file_list: TLabel
-            Left = 3
-            Top = 35
-            Width = 78
-            Height = 15
-            Caption = #36873#25321#25991#20214#21015#34920
-          end
-          object label_version_name: TLabel
-            Left = 3
-            Top = 64
-            Width = 78
-            Height = 15
-            Caption = #28216#25103#21015#34920#21517#31216
-          end
-          object label_version_add_mc_path: TLabel
-            Left = 3
-            Top = 93
-            Width = 71
-            Height = 15
-            Caption = #28155#21152'MC'#36335#24452
-          end
-          object label_version_choose_path: TLabel
-            Left = 3
-            Top = 119
-            Width = 39
-            Height = 15
-            Caption = #26410#36873#20013
-          end
-          object label_version_current_path: TLabel
-            Left = 3
-            Top = 140
-            Width = 109
-            Height = 15
-            Caption = #24403#21069#36873#20013#36335#24452#65306'000'
-          end
-          object combobox_select_game_version: TComboBox
-            Left = 120
-            Top = 3
-            Width = 693
-            Height = 23
-            Style = csDropDownList
+          object scrollbox_version: TScrollBox
+            Left = 0
+            Top = 0
+            Width = 816
+            Height = 377
+            VertScrollBar.Tracking = True
+            Align = alClient
+            Color = clBtnFace
+            ParentColor = False
             TabOrder = 0
-          end
-          object combobox_select_file_list: TComboBox
-            Left = 120
-            Top = 32
-            Width = 693
-            Height = 23
-            Style = csDropDownList
-            TabOrder = 1
-          end
-          object button_version_choose_any_directory: TButton
-            Left = 120
-            Top = 90
-            Width = 227
-            Height = 23
-            Hint = #20808#28857#20987#25105#28155#21152#19968#20010#25991#20214#22841#65292#28982#21518#20877#28857#20987#23558#36873#20013#30446#24405#19982#21517#31216#28155#21152#21040#21015#34920#21734#65281
-            Caption = #35831#36873#25321#20219#19968#25991#20214#22841
-            ParentShowHint = False
-            ShowHint = True
-            TabOrder = 2
-          end
-          object button_version_create_minecraft: TButton
-            Left = 353
-            Top = 90
-            Width = 227
-            Height = 23
-            Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
-            Caption = #26032#24314#12304'.minecraft'#12305
-            ParentShowHint = False
-            ShowHint = True
-            TabOrder = 3
-          end
-          object edit_version_name: TEdit
-            Left = 120
-            Top = 61
-            Width = 693
-            Height = 23
-            TabOrder = 4
-            TextHint = #38543#20415#36755#20837#19968#20010#21517#31216#65292#20294#26159#24314#35758#24471#26377#20123#20195#34920#24615#65292#27604#22914#12304#32852#26426#12305
-          end
-          object radiogroup_partition_version: TRadioGroup
-            Left = 3
-            Top = 161
-            Width = 810
-            Height = 121
-            Caption = #29256#26412#38548#31163
-            Items.Strings = (
-              #19981#20351#29992#29256#26412#38548#31163
-              #38548#31163#12304#27491#24335#29256'/'#24555#29031#29256'/'#36828#21476'Beta'#29256'/'#36828#21476'Alpha'#29256#12305
-              #38548#31163#12304'Forge/Fabric/Quilt/NeoForge'#12305#31561#29256
-              #38548#31163#20840#37096#29256#26412)
-            TabOrder = 5
-          end
-          object button_add_version_to_list: TButton
-            Left = 586
-            Top = 90
-            Width = 227
-            Height = 23
-            Hint = #23558#36873#20013#30340#25991#20214#21015#34920#19982#21517#31216#65292#28155#21152#36827#21015#34920#20013#20197#20379#38271#26399#36873#25321#12290
-            Caption = #23558#36873#20013#36335#24452#19982#21517#31216#28155#21152#21040#21015#34920
-            ParentShowHint = False
-            ShowHint = True
-            TabOrder = 6
-          end
-          object button_version_complete: TButton
-            Left = 3
-            Top = 288
-            Width = 266
-            Height = 40
-            Caption = #25163#21160#34917#20840#35813#29256#26412#30340#31867#24211
-            TabOrder = 7
-            WordWrap = True
-          end
-          object button_clear_version_list: TButton
-            Left = 3
-            Top = 334
-            Width = 266
-            Height = 40
-            Caption = #28165#31354#25991#20214#21015#34920
-            TabOrder = 8
-            WordWrap = True
-          end
-          object button_rename_version_list: TButton
-            Left = 275
-            Top = 288
-            Width = 266
-            Height = 40
-            Caption = #37325#21629#21517#25991#20214#21015#34920
-            TabOrder = 9
-            WordWrap = True
-          end
-          object button_remove_version_list: TButton
-            Left = 275
-            Top = 334
-            Width = 266
-            Height = 40
-            Caption = #31227#38500#25991#20214#21015#34920
-            TabOrder = 10
-            WordWrap = True
-          end
-          object button_rename_game_version: TButton
-            Left = 547
-            Top = 288
-            Width = 266
-            Height = 40
-            Caption = #37325#21629#21517#28216#25103#29256#26412
-            TabOrder = 11
-            WordWrap = True
-          end
-          object button_delete_game_version: TButton
-            Left = 547
-            Top = 334
-            Width = 266
-            Height = 40
-            Caption = #21024#38500#28216#25103#29256#26412
-            TabOrder = 12
-            WordWrap = True
+            object label_select_game_version: TLabel
+              Left = 3
+              Top = 7
+              Width = 78
+              Height = 15
+              Caption = #36873#25321#28216#25103#29256#26412
+            end
+            object label_select_file_list: TLabel
+              Left = 3
+              Top = 57
+              Width = 78
+              Height = 15
+              Caption = #36873#25321#25991#20214#21015#34920
+            end
+            object label_version_name: TLabel
+              Left = 3
+              Top = 107
+              Width = 78
+              Height = 15
+              Caption = #28216#25103#21015#34920#21517#31216
+            end
+            object label_version_add_mc_path: TLabel
+              Left = 3
+              Top = 157
+              Width = 71
+              Height = 15
+              Caption = #28155#21152'MC'#36335#24452
+            end
+            object label_version_choose_path: TLabel
+              Left = 3
+              Top = 224
+              Width = 39
+              Height = 15
+              Caption = #26410#36873#20013
+            end
+            object label_version_current_path: TLabel
+              Left = 3
+              Top = 245
+              Width = 109
+              Height = 15
+              Caption = #24403#21069#36873#20013#36335#24452#65306'000'
+            end
+            object combobox_select_game_version: TComboBox
+              Left = 3
+              Top = 28
+              Width = 780
+              Height = 23
+              Style = csDropDownList
+              TabOrder = 0
+            end
+            object combobox_select_file_list: TComboBox
+              Left = 3
+              Top = 78
+              Width = 780
+              Height = 23
+              Style = csDropDownList
+              TabOrder = 1
+            end
+            object edit_version_name: TEdit
+              Left = 3
+              Top = 128
+              Width = 780
+              Height = 23
+              TabOrder = 2
+              TextHint = #38543#20415#36755#20837#19968#20010#21517#31216#65292#20294#26159#24314#35758#24471#26377#20123#20195#34920#24615#65292#27604#22914#12304#32852#26426#12305
+            end
+            object button_version_choose_any_directory: TButton
+              Left = 3
+              Top = 178
+              Width = 256
+              Height = 40
+              Hint = #20808#28857#20987#25105#28155#21152#19968#20010#25991#20214#22841#65292#28982#21518#20877#28857#20987#23558#36873#20013#30446#24405#19982#21517#31216#28155#21152#21040#21015#34920#21734#65281
+              Caption = #35831#36873#25321#20219#19968#25991#20214#22841
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 3
+            end
+            object button_version_create_minecraft: TButton
+              Left = 265
+              Top = 178
+              Width = 256
+              Height = 40
+              Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
+              Caption = #26032#24314#12304'.minecraft'#12305
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 4
+            end
+            object button_add_version_to_list: TButton
+              Left = 527
+              Top = 178
+              Width = 256
+              Height = 40
+              Hint = #23558#36873#20013#30340#25991#20214#21015#34920#19982#21517#31216#65292#28155#21152#36827#21015#34920#20013#20197#20379#38271#26399#36873#25321#12290
+              Caption = #23558#36873#20013#36335#24452#19982#21517#31216#28155#21152#21040#21015#34920
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 5
+            end
+            object radiogroup_partition_version: TRadioGroup
+              Left = 3
+              Top = 266
+              Width = 780
+              Height = 121
+              Caption = #29256#26412#38548#31163
+              Items.Strings = (
+                #19981#20351#29992#29256#26412#38548#31163
+                #38548#31163#12304#27491#24335#29256'/'#24555#29031#29256'/'#36828#21476'Beta'#29256'/'#36828#21476'Alpha'#29256#12305
+                #38548#31163#12304'Forge/Fabric/Quilt/NeoForge'#12305#31561#29256
+                #38548#31163#20840#37096#29256#26412)
+              TabOrder = 6
+            end
+            object button_version_complete: TButton
+              Left = 3
+              Top = 393
+              Width = 256
+              Height = 40
+              Caption = #25163#21160#34917#20840#35813#29256#26412#30340#31867#24211
+              TabOrder = 7
+              WordWrap = True
+            end
+            object button_clear_version_list: TButton
+              Left = 3
+              Top = 439
+              Width = 256
+              Height = 40
+              Caption = #28165#31354#25991#20214#21015#34920
+              TabOrder = 8
+              WordWrap = True
+            end
+            object button_remove_version_list: TButton
+              Left = 265
+              Top = 439
+              Width = 256
+              Height = 40
+              Caption = #31227#38500#25991#20214#21015#34920
+              TabOrder = 9
+              WordWrap = True
+            end
+            object button_delete_game_version: TButton
+              Left = 527
+              Top = 439
+              Width = 256
+              Height = 40
+              Caption = #21024#38500#28216#25103#29256#26412
+              TabOrder = 10
+              WordWrap = True
+            end
+            object button_rename_version_list: TButton
+              Left = 265
+              Top = 393
+              Width = 256
+              Height = 40
+              Caption = #37325#21629#21517#25991#20214#21015#34920
+              TabOrder = 11
+              WordWrap = True
+            end
+            object button_rename_game_version: TButton
+              Left = 527
+              Top = 393
+              Width = 256
+              Height = 40
+              Caption = #37325#21629#21517#28216#25103#29256#26412
+              TabOrder = 12
+              WordWrap = True
+            end
           end
         end
         object tabsheet_version_isolation_part: TTabSheet
           Caption = #29420#31435#35774#32622
           ImageIndex = 1
-          object label_isolation_current_version: TLabel
-            Left = 3
-            Top = 3
-            Width = 91
-            Height = 15
-            Caption = #24403#21069#36873#20013#29256#26412#65306
-          end
-          object label_is_open_isolation: TLabel
-            Left = 3
-            Top = 29
-            Width = 130
-            Height = 15
-            Caption = #26159#21542#24320#21551#29256#26412#29420#31435#35774#32622
-          end
-          object label_isolation_java_path: TLabel
-            Left = 3
-            Top = 53
-            Width = 48
-            Height = 15
-            Caption = 'Java'#36335#24452
-          end
-          object label_isolation_custom_info: TLabel
-            Left = 3
-            Top = 82
-            Width = 65
-            Height = 15
-            Caption = #33258#23450#20041#20449#24687
-          end
-          object label_isolation_window_title: TLabel
-            Left = 3
-            Top = 111
-            Width = 52
-            Height = 15
-            Caption = #31383#21475#26631#39064
-          end
-          object label_isolation_window_size: TLabel
-            Left = 3
-            Top = 156
-            Width = 52
-            Height = 15
-            Caption = #31383#21475#22823#23567
-          end
-          object label_isolation_game_memory: TLabel
-            Left = 3
-            Top = 199
-            Width = 52
-            Height = 15
-            Caption = #28216#25103#20869#23384
-          end
-          object label_isolation_current_memory: TLabel
-            Left = 718
-            Top = 199
-            Width = 95
-            Height = 15
-            Caption = #24403#21069#36873#20013#65306'66666'
-          end
-          object label_isolation_partition: TLabel
-            Left = 3
-            Top = 228
-            Width = 52
-            Height = 15
-            Caption = #26159#21542#38548#31163
-          end
-          object label_isolation_additional_game: TLabel
-            Left = 3
-            Top = 256
-            Width = 82
-            Height = 15
-            Caption = #39069#22806'game'#21442#25968
-          end
-          object label_isolation_additional_jvm: TLabel
-            Left = 3
-            Top = 286
-            Width = 72
-            Height = 15
-            Caption = #39069#22806'jvm'#21442#25968
-          end
-          object label_isolation_pre_launch_script: TLabel
-            Left = 3
-            Top = 315
-            Width = 78
-            Height = 15
-            Caption = #21069#32622#21551#21160#33050#26412
-          end
-          object label_isolation_tip: TLabel
-            Left = 3
-            Top = 340
-            Width = 585
-            Height = 15
-            Caption = #20197#19978#65292#21482#35201#26159#24320#21551#20102#20840#23616#24212#29992#24320#20851#65292#25110#32773#26159#20462#25913#20102#25991#26412#26694#20869#23481#12304#25351#19981#20026#31354#12305#65292#21017#40664#35748#24212#29992#20840#23616#35774#32622#22114#65281
-          end
-          object label_isolation_window_current_width: TLabel
-            Left = 718
-            Top = 141
-            Width = 95
-            Height = 15
-            Caption = #24403#21069#36873#20013#65306'66666'
-          end
-          object label_isolation_window_current_height: TLabel
-            Left = 718
-            Top = 170
-            Width = 95
-            Height = 15
-            Caption = #24403#21069#36873#20013#65306'66666'
-          end
-          object label_isolation_window_width_tip: TLabel
-            Left = 72
-            Top = 141
-            Width = 13
-            Height = 15
-            Caption = #23485
-          end
-          object label_isolation_window_height_tip: TLabel
-            Left = 72
-            Top = 170
-            Width = 13
-            Height = 15
-            Caption = #39640
-          end
-          object toggleswitch_is_open_isolation: TToggleSwitch
-            Left = 139
-            Top = 24
-            Width = 69
-            Height = 20
-            StateCaptions.CaptionOn = #24320
-            StateCaptions.CaptionOff = #20851
+          object scrollbox_isolation: TScrollBox
+            Left = 0
+            Top = 0
+            Width = 816
+            Height = 377
+            VertScrollBar.Position = 356
+            VertScrollBar.Tracking = True
+            Align = alClient
+            Color = clBtnFace
+            ParentColor = False
             TabOrder = 0
-          end
-          object edit_isolation_java_path: TEdit
-            Left = 226
-            Top = 50
-            Width = 492
-            Height = 23
-            ReadOnly = True
-            TabOrder = 1
-          end
-          object button_isolation_choose_java: TButton
-            Left = 724
-            Top = 50
-            Width = 89
-            Height = 23
-            Caption = #36873#25321#36335#24452
-            TabOrder = 2
-          end
-          object edit_isolation_custom_info: TEdit
-            Left = 112
-            Top = 79
-            Width = 701
-            Height = 23
-            TabOrder = 3
-            TextHint = #36825#37324#22635#20837#33258#23450#20041#20449#24687
-          end
-          object edit_isolation_window_title: TEdit
-            Left = 112
-            Top = 108
-            Width = 701
-            Height = 23
-            TabOrder = 4
-            TextHint = #21551#21160'MC'#21518#30340#31383#21475#26631#39064
-          end
-          object scrollbar_isolation_game_memory: TScrollBar
-            Left = 226
-            Top = 195
-            Width = 486
-            Height = 23
-            Max = 8192
-            Min = 1024
-            PageSize = 0
-            Position = 4096
-            TabOrder = 5
-          end
-          object toggleswitch_isolation_open_memory: TToggleSwitch
-            Left = 112
-            Top = 198
-            Width = 108
-            Height = 20
-            StateCaptions.CaptionOn = #24320#21551#29420#31435
-            StateCaptions.CaptionOff = #20840#23616#24212#29992
-            TabOrder = 6
-          end
-          object toggleswitch_isolation_open_partition: TToggleSwitch
-            Left = 112
-            Top = 227
-            Width = 108
-            Height = 20
-            StateCaptions.CaptionOn = #24320#21551#29420#31435
-            StateCaptions.CaptionOff = #20840#23616#24212#29992
-            TabOrder = 7
-          end
-          object radiobutton_isolation_open_partition: TRadioButton
-            Left = 226
-            Top = 224
-            Width = 240
-            Height = 23
-            Caption = #24320#21551#29256#26412#38548#31163
-            TabOrder = 8
-          end
-          object radiobutton_isolation_close_partition: TRadioButton
-            Left = 472
-            Top = 224
-            Width = 240
-            Height = 23
-            Caption = #20851#38381#29256#26412#38548#31163
-            TabOrder = 9
-          end
-          object toggleswitch_isolation_choose_java: TToggleSwitch
-            Left = 112
-            Top = 53
-            Width = 108
-            Height = 20
-            StateCaptions.CaptionOn = #24320#21551#29420#31435
-            StateCaptions.CaptionOff = #20840#23616#24212#29992
-            TabOrder = 10
-          end
-          object edit_isolation_additional_game: TEdit
-            Left = 112
-            Top = 253
-            Width = 701
-            Height = 23
-            TabOrder = 11
-            TextHint = #36755#20837#39069#22806'game'#21442#25968'-'#38750#19987#19994#20154#22763#35831#21247#20462#25913
-          end
-          object edit_isolation_additional_jvm: TEdit
-            Left = 112
-            Top = 282
-            Width = 701
-            Height = 23
-            TabOrder = 12
-            TextHint = #36755#20837#39069#22806'jvm'#21442#25968'-'#38750#19987#19994#20154#22763#35831#21247#20462#25913
-          end
-          object edit_isolation_pre_launch_script: TEdit
-            Left = 112
-            Top = 311
-            Width = 701
-            Height = 23
-            TabOrder = 13
-            TextHint = #36755#20837#21069#32622#21551#21160#33050#26412'-'#38750#19987#19994#20154#22763#35831#21247#20462#25913
-          end
-          object scrollbar_isolation_window_height: TScrollBar
-            Left = 226
-            Top = 166
-            Width = 486
-            Height = 23
-            PageSize = 0
-            TabOrder = 14
-          end
-          object toggleswitch_isolation_window_height: TToggleSwitch
-            Left = 112
-            Top = 169
-            Width = 108
-            Height = 20
-            StateCaptions.CaptionOn = #24320#21551#29420#31435
-            StateCaptions.CaptionOff = #20840#23616#24212#29992
-            TabOrder = 15
-          end
-          object scrollbar_isolation_window_width: TScrollBar
-            Left = 226
-            Top = 137
-            Width = 486
-            Height = 23
-            PageSize = 0
-            TabOrder = 16
-          end
-          object toggleswitch_isolation_window_width: TToggleSwitch
-            Left = 112
-            Top = 140
-            Width = 108
-            Height = 20
-            StateCaptions.CaptionOn = #24320#21551#29420#31435
-            StateCaptions.CaptionOff = #20840#23616#24212#29992
-            TabOrder = 17
+            object label_isolation_current_version: TLabel
+              Left = 3
+              Top = -353
+              Width = 91
+              Height = 15
+              Caption = #24403#21069#36873#20013#29256#26412#65306
+            end
+            object label_is_open_isolation: TLabel
+              Left = 3
+              Top = -332
+              Width = 130
+              Height = 15
+              Caption = #26159#21542#24320#21551#29256#26412#29420#31435#35774#32622
+            end
+            object label_isolation_java_path: TLabel
+              Left = 3
+              Top = -285
+              Width = 48
+              Height = 15
+              Caption = 'Java'#36335#24452
+            end
+            object label_isolation_custom_info: TLabel
+              Left = 3
+              Top = -235
+              Width = 65
+              Height = 15
+              Caption = #33258#23450#20041#20449#24687
+            end
+            object label_isolation_window_title: TLabel
+              Left = 3
+              Top = -185
+              Width = 52
+              Height = 15
+              Caption = #31383#21475#26631#39064
+            end
+            object label_isolation_window_size: TLabel
+              Left = 3
+              Top = -135
+              Width = 52
+              Height = 15
+              Caption = #31383#21475#22823#23567
+            end
+            object label_isolation_window_width_tip: TLabel
+              Left = 3
+              Top = -88
+              Width = 175
+              Height = 15
+              Caption = #23485#65292#24403#21069#36873#20013#65306'66666666666666'
+            end
+            object label_isolation_window_height_tip: TLabel
+              Left = 3
+              Top = -38
+              Width = 175
+              Height = 15
+              Caption = #39640#65292#24403#21069#36873#20013#65306'66666666666666'
+            end
+            object label_isolation_game_memory: TLabel
+              Left = 3
+              Top = 12
+              Width = 240
+              Height = 15
+              Caption = #28216#25103#20869#23384#22823#23567#65292#24403#21069#36873#20013#65306'66666666666666'
+            end
+            object label_isolation_partition: TLabel
+              Left = 3
+              Top = 88
+              Width = 273
+              Height = 15
+              Caption = #26159#21542#38548#31163#65288#25171#21246#21017#21333#29420#38548#31163#65292#21542#21017#21333#29420#19981#38548#31163#65289
+            end
+            object label_isolation_additional_game: TLabel
+              Left = 3
+              Top = 158
+              Width = 82
+              Height = 15
+              Caption = #39069#22806'game'#21442#25968
+            end
+            object label_isolation_additional_jvm: TLabel
+              Left = 3
+              Top = 208
+              Width = 72
+              Height = 15
+              Caption = #39069#22806'jvm'#21442#25968
+            end
+            object label_isolation_pre_launch_script: TLabel
+              Left = 3
+              Top = 258
+              Width = 78
+              Height = 15
+              Caption = #21069#32622#21551#21160#33050#26412
+            end
+            object label_isolation_after_launch_script: TLabel
+              Left = 3
+              Top = 308
+              Width = 78
+              Height = 15
+              Caption = #21518#32622#21551#21160#33050#26412
+            end
+            object label_isolation_tip: TLabel
+              Left = 3
+              Top = 358
+              Width = 585
+              Height = 15
+              Caption = #20197#19978#65292#21482#35201#26159#24320#21551#20102#20840#23616#24212#29992#24320#20851#65292#25110#32773#26159#20462#25913#20102#25991#26412#26694#20869#23481#12304#25351#19981#20026#31354#12305#65292#21017#40664#35748#24212#29992#20840#23616#35774#32622#22114#65281
+            end
+            object toggleswitch_is_open_isolation: TToggleSwitch
+              Left = 3
+              Top = -311
+              Width = 69
+              Height = 20
+              StateCaptions.CaptionOn = #24320
+              StateCaptions.CaptionOff = #20851
+              TabOrder = 0
+            end
+            object edit_isolation_java_path: TEdit
+              Left = 3
+              Top = -264
+              Width = 594
+              Height = 23
+              TabOrder = 1
+              TextHint = #36825#37324#36755#20837'Java'#36335#24452#12304#30041#31354#21017#20840#23616#24212#29992#12305
+            end
+            object button_isolation_choose_java: TButton
+              Left = 603
+              Top = -264
+              Width = 180
+              Height = 23
+              Caption = #36873#25321#36335#24452
+              TabOrder = 2
+            end
+            object edit_isolation_custom_info: TEdit
+              Left = 3
+              Top = -214
+              Width = 780
+              Height = 23
+              TabOrder = 3
+              TextHint = #36825#37324#22635#20837#33258#23450#20041#20449#24687#12304#30041#31354#21017#20840#23616#24212#29992#12305
+            end
+            object edit_isolation_window_title: TEdit
+              Left = 3
+              Top = -164
+              Width = 780
+              Height = 23
+              TabOrder = 4
+              TextHint = #21551#21160'MC'#21518#30340#31383#21475#26631#39064#12304#30041#31354#21017#20840#23616#24212#29992#12305
+            end
+            object toggleswitch_isolation_window_size: TToggleSwitch
+              Left = 3
+              Top = -114
+              Width = 108
+              Height = 20
+              StateCaptions.CaptionOn = #24320#21551#29420#31435
+              StateCaptions.CaptionOff = #20840#23616#24212#29992
+              TabOrder = 5
+            end
+            object scrollbar_isolation_window_width: TScrollBar
+              Left = 3
+              Top = -67
+              Width = 780
+              Height = 23
+              PageSize = 0
+              TabOrder = 6
+            end
+            object scrollbar_isolation_window_height: TScrollBar
+              Left = 3
+              Top = -17
+              Width = 780
+              Height = 23
+              PageSize = 0
+              TabOrder = 7
+            end
+            object toggleswitch_isolation_open_memory: TToggleSwitch
+              Left = 3
+              Top = 33
+              Width = 108
+              Height = 20
+              StateCaptions.CaptionOn = #24320#21551#29420#31435
+              StateCaptions.CaptionOff = #20840#23616#24212#29992
+              TabOrder = 8
+            end
+            object scrollbar_isolation_game_memory: TScrollBar
+              Left = 3
+              Top = 59
+              Width = 780
+              Height = 23
+              Max = 8192
+              Min = 1024
+              PageSize = 0
+              Position = 4096
+              TabOrder = 9
+            end
+            object toggleswitch_isolation_open_partition: TToggleSwitch
+              Left = 3
+              Top = 109
+              Width = 108
+              Height = 20
+              StateCaptions.CaptionOn = #24320#21551#29420#31435
+              StateCaptions.CaptionOff = #20840#23616#24212#29992
+              TabOrder = 10
+            end
+            object checkbox_isolation_is_partition: TCheckBox
+              Left = 3
+              Top = 135
+              Width = 780
+              Height = 17
+              Caption = #24320#21551#29420#31435#29256#26412#38548#31163
+              TabOrder = 11
+            end
+            object edit_isolation_additional_game: TEdit
+              Left = 3
+              Top = 179
+              Width = 780
+              Height = 23
+              TabOrder = 12
+              TextHint = #36755#20837#39069#22806'game'#21442#25968'-'#38750#19987#19994#20154#22763#35831#21247#20462#25913#12304#30041#31354#21017#20840#23616#24212#29992#12305
+            end
+            object edit_isolation_additional_jvm: TEdit
+              Left = 3
+              Top = 229
+              Width = 780
+              Height = 23
+              TabOrder = 13
+              TextHint = #36755#20837#39069#22806'jvm'#21442#25968'-'#38750#19987#19994#20154#22763#35831#21247#20462#25913#12304#30041#31354#21017#20840#23616#24212#29992#12305
+            end
+            object edit_isolation_pre_launch_script: TEdit
+              Left = 3
+              Top = 279
+              Width = 780
+              Height = 23
+              TabOrder = 14
+              TextHint = #36755#20837#21069#32622#21551#21160#33050#26412'-'#38750#19987#19994#20154#22763#35831#21247#20462#25913#12304#30041#31354#21017#20840#23616#24212#29992#12305
+            end
+            object edit_isolation_after_launch_script: TEdit
+              Left = 3
+              Top = 329
+              Width = 780
+              Height = 23
+              TabOrder = 15
+              TextHint = #36755#20837#21069#32622#21551#21160#33050#26412'-'#38750#19987#19994#20154#22763#35831#21247#20462#25913#12304#30041#31354#21017#20840#23616#24212#29992#12305
+            end
           end
         end
         object tabsheet_version_export_part: TTabSheet
           Caption = #23548#20986#25972#21512#21253
           ImageIndex = 2
-          object label_export_current_version: TLabel
-            Left = 3
-            Top = 3
-            Width = 439
-            Height = 15
-            Caption = 
-              #24403#21069#36873#20013#29256#26412#65306'666666666666666666666666666666666666666666666666666666666' +
-              '6'
-          end
-          object label_export_mode: TLabel
-            Left = 3
-            Top = 27
-            Width = 52
-            Height = 15
-            Caption = #23548#20986#26041#24335
-          end
-          object label_export_mode_more: TLabel
-            Left = 225
-            Top = 27
-            Width = 156
-            Height = 15
-            Caption = #26356#22810#23548#20986#26041#24335#25964#35831#26399#24453#22114#65281
-          end
-          object label_export_modpack_name: TLabel
-            Left = 3
-            Top = 56
-            Width = 65
-            Height = 15
-            Caption = #25972#21512#21253#21517#31216
-          end
-          object label_export_modpack_author: TLabel
-            Left = 3
-            Top = 85
-            Width = 65
-            Height = 15
-            Caption = #25972#21512#21253#20316#32773
-          end
-          object label_export_modpack_version: TLabel
-            Left = 3
-            Top = 114
-            Width = 65
-            Height = 15
-            Caption = #25972#21512#21253#29256#26412
-          end
-          object label_export_update_link: TLabel
-            Left = 3
-            Top = 143
-            Width = 52
-            Height = 15
-            Caption = #26356#26032#38142#25509
-          end
-          object label_export_official_website: TLabel
-            Left = 3
-            Top = 172
-            Width = 52
-            Height = 15
-            Caption = #23448#26041#32593#31449
-          end
-          object label_export_mcbbs_tid: TLabel
-            Left = 3
-            Top = 201
-            Width = 56
-            Height = 15
-            Caption = 'MCBBSTID'
-          end
-          object label_export_authentication_server: TLabel
-            Left = 3
-            Top = 230
-            Width = 65
-            Height = 15
-            Caption = #35748#35777#26381#21153#22120
-          end
-          object label_export_additional_game: TLabel
-            Left = 3
-            Top = 259
-            Width = 56
-            Height = 15
-            Caption = #39069#22806'game'
-          end
-          object label_export_additional_jvm: TLabel
-            Left = 3
-            Top = 289
-            Width = 46
-            Height = 15
-            Caption = #39069#22806'jvm'
-          end
-          object label_export_memory: TLabel
-            Left = 3
-            Top = 318
-            Width = 52
-            Height = 15
-            Caption = #26368#22823#20869#23384
-          end
-          object label_export_modpack_profile: TLabel
-            Left = 387
-            Top = 27
-            Width = 65
-            Height = 15
-            Caption = #25972#21512#21253#31616#20171
-          end
-          object label_export_keep_file: TLabel
-            Left = 603
-            Top = 27
-            Width = 91
-            Height = 15
-            Caption = #38656#35201#20445#30041#30340#25991#20214
-          end
-          object label_export_current_memory: TLabel
-            Left = 496
-            Top = 318
-            Width = 101
-            Height = 15
-            Caption = #24403#21069#36873#20013#65306'666666'
-          end
-          object radiobutton_export_mcbbs: TRadioButton
-            Left = 61
-            Top = 24
-            Width = 76
-            Height = 23
-            Caption = 'MCBBS'
+          object scrollbox_export: TScrollBox
+            Left = 0
+            Top = 0
+            Width = 816
+            Height = 377
+            VertScrollBar.Position = 562
+            VertScrollBar.Tracking = True
+            Align = alClient
+            Color = clBtnFace
+            ParentColor = False
             TabOrder = 0
-          end
-          object edit_export_modpack_name: TEdit
-            Left = 88
-            Top = 53
-            Width = 293
-            Height = 23
-            TabOrder = 1
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#21517#31216#12304#24517#22635#12305
-          end
-          object radiobutton_export_multimc: TRadioButton
-            Left = 143
-            Top = 24
-            Width = 76
-            Height = 23
-            Caption = 'MultiMC'
-            TabOrder = 2
-          end
-          object edit_export_modpack_author: TEdit
-            Left = 88
-            Top = 82
-            Width = 293
-            Height = 23
-            TabOrder = 3
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#20316#32773#12304#24517#22635#12305
-          end
-          object edit_export_modpack_version: TEdit
-            Left = 88
-            Top = 111
-            Width = 293
-            Height = 23
-            TabOrder = 4
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#29256#26412#12304#24517#22635#12305
-          end
-          object edit_export_update_link: TEdit
-            Left = 88
-            Top = 140
-            Width = 293
-            Height = 23
-            Hint = 
-              #20363#22914#12304'https://example.com/manifact.json'#12305#65292#21482#38656#36755#20837#12304'https://example.com'#12305#21363 +
-              #21487#12290
-            ParentShowHint = False
-            ShowHint = True
-            TabOrder = 5
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#26356#26032#38142#25509#12304#36873#22635#12305
-          end
-          object edit_export_official_website: TEdit
-            Left = 88
-            Top = 169
-            Width = 293
-            Height = 23
-            TabOrder = 6
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#23448#26041#19979#36733#28304#12304#36873#22635#12305
-          end
-          object edit_export_mcbbs_tid: TEdit
-            Left = 88
-            Top = 198
-            Width = 293
-            Height = 23
-            Hint = 
-              #22914#26524#24050#23558#25972#21512#21253#21457#24067#22312'MCBBS'#19978#65292#21017#36825#20010#22320#26041#22635#20837#20320#30340#24086#23376'MCBBS-TID'#12290#22914#21457#24067#36148#20026#12304'https://www.mcbbs.co' +
-              'm/thread-114514-1-1.html'#12305#65292#21017#36825#20010#22320#26041#21482#38656#22635#20837'114514'#21363#21487#12290
-            ParentShowHint = False
-            ShowHint = True
-            TabOrder = 7
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253'MCBBS-TID'#12304#36873#22635#12305
-          end
-          object edit_export_authentication_server: TEdit
-            Left = 88
-            Top = 227
-            Width = 293
-            Height = 23
-            Hint = #27492#22788#20165#38480#22806#32622#30331#24405#65292#22914#26524#20320#19981#30830#23450#65292#35831#30041#31354#12290#35813#22788#21482#33021#22635#20837#31867#20284#20110#12304'littleskin.cn'#12305#36825#31181#22806#32622#30331#24405#30382#32932#31449#26681#30446#24405
-            ParentShowHint = False
-            ShowHint = True
-            TabOrder = 8
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#35748#35777#26381#21153#22120#12304#36873#22635#12305
-          end
-          object edit_export_additional_game: TEdit
-            Left = 88
-            Top = 256
-            Width = 293
-            Height = 23
-            TabOrder = 9
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#39069#22806'game'#21442#25968#12304#36873#22635#12305
-          end
-          object edit_export_additional_jvm: TEdit
-            Left = 88
-            Top = 285
-            Width = 293
-            Height = 23
-            TabOrder = 10
-            TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#39069#22806'jvm'#21442#25968#12304#36873#22635#12305
-          end
-          object scrollbar_export_max_memory: TScrollBar
-            Left = 88
-            Top = 314
-            Width = 402
-            Height = 23
-            Max = 8192
-            Min = 1024
-            PageSize = 0
-            Position = 4096
-            TabOrder = 11
-          end
-          object memo_export_modpack_profile: TMemo
-            Left = 387
-            Top = 53
-            Width = 210
-            Height = 255
-            ScrollBars = ssBoth
-            TabOrder = 12
-          end
-          object treeview_export_keep_file: TTreeView
-            Left = 603
-            Top = 53
-            Width = 210
-            Height = 284
-            Indent = 19
-            TabOrder = 13
-          end
-          object button_export_start: TButton
-            Left = 3
-            Top = 343
-            Width = 810
-            Height = 31
-            Caption = #24320#22987#23548#20986' :)'
-            TabOrder = 14
+            object label_export_current_version: TLabel
+              Left = 3
+              Top = -559
+              Width = 439
+              Height = 15
+              Caption = 
+                #24403#21069#36873#20013#29256#26412#65306'666666666666666666666666666666666666666666666666666666666' +
+                '6'
+            end
+            object label_export_mode_more: TLabel
+              Left = 3
+              Top = -491
+              Width = 156
+              Height = 15
+              Caption = #26356#22810#23548#20986#26041#24335#25964#35831#26399#24453#22114#65281
+            end
+            object label_export_modpack_name: TLabel
+              Left = 3
+              Top = -470
+              Width = 65
+              Height = 15
+              Caption = #25972#21512#21253#21517#31216
+            end
+            object label_export_modpack_author: TLabel
+              Left = 3
+              Top = -420
+              Width = 65
+              Height = 15
+              Caption = #25972#21512#21253#20316#32773
+            end
+            object label_export_modpack_version: TLabel
+              Left = 3
+              Top = -370
+              Width = 65
+              Height = 15
+              Caption = #25972#21512#21253#29256#26412
+            end
+            object label_export_update_link: TLabel
+              Left = 3
+              Top = -320
+              Width = 52
+              Height = 15
+              Caption = #26356#26032#38142#25509
+            end
+            object label_export_official_website: TLabel
+              Left = 3
+              Top = -270
+              Width = 52
+              Height = 15
+              Caption = #23448#26041#32593#31449
+            end
+            object label_export_mcbbs_tid: TLabel
+              Left = 3
+              Top = -220
+              Width = 56
+              Height = 15
+              Caption = 'MCBBSTID'
+            end
+            object label_export_authentication_server: TLabel
+              Left = 3
+              Top = -170
+              Width = 65
+              Height = 15
+              Caption = #35748#35777#26381#21153#22120
+            end
+            object label_export_additional_game: TLabel
+              Left = 3
+              Top = -120
+              Width = 56
+              Height = 15
+              Caption = #39069#22806'game'
+            end
+            object label_export_additional_jvm: TLabel
+              Left = 3
+              Top = -70
+              Width = 46
+              Height = 15
+              Caption = #39069#22806'jvm'
+            end
+            object label_export_memory: TLabel
+              Left = 3
+              Top = -20
+              Width = 214
+              Height = 15
+              Caption = #26368#22823#20869#23384#65292#24403#21069#36873#20013#65306'99999999999999'
+            end
+            object label_export_modpack_profile: TLabel
+              Left = 3
+              Top = 30
+              Width = 65
+              Height = 15
+              Caption = #25972#21512#21253#31616#20171
+            end
+            object label_export_keep_file: TLabel
+              Left = 3
+              Top = 333
+              Width = 91
+              Height = 15
+              Caption = #38656#35201#20445#30041#30340#25991#20214
+            end
+            object radiogroup_export_mode: TRadioGroup
+              Left = 3
+              Top = -538
+              Width = 780
+              Height = 41
+              Caption = #23548#20986#26041#24335
+              Columns = 2
+              Items.Strings = (
+                'MCBBS'
+                'MultiMC')
+              TabOrder = 0
+            end
+            object edit_export_modpack_name: TEdit
+              Left = 3
+              Top = -449
+              Width = 780
+              Height = 23
+              TabOrder = 1
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#21517#31216#12304#24517#22635#39033#12305
+            end
+            object edit_export_modpack_author: TEdit
+              Left = 3
+              Top = -399
+              Width = 780
+              Height = 23
+              TabOrder = 2
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#20316#32773#12304#24517#22635#39033#12305
+            end
+            object edit_export_modpack_version: TEdit
+              Left = 3
+              Top = -349
+              Width = 780
+              Height = 23
+              TabOrder = 3
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#29256#26412#12304#24517#22635#39033#12305
+            end
+            object edit_export_update_link: TEdit
+              Left = 3
+              Top = -299
+              Width = 780
+              Height = 23
+              Hint = 
+                #20363#22914#12304'https://example.com/manifact.json'#12305#65292#21482#38656#36755#20837#12304'https://example.com'#12305#21363 +
+                #21487#12290
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 4
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#26356#26032#38142#25509#12304#36873#22635#39033#12305
+            end
+            object edit_export_official_website: TEdit
+              Left = 3
+              Top = -249
+              Width = 780
+              Height = 23
+              TabOrder = 5
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#23448#26041#19979#36733#28304#12304#36873#22635#39033#12305
+            end
+            object edit_export_mcbbs_tid: TEdit
+              Left = 3
+              Top = -199
+              Width = 780
+              Height = 23
+              Hint = 
+                #22914#26524#24050#23558#25972#21512#21253#21457#24067#22312'MCBBS'#19978#65292#21017#36825#20010#22320#26041#22635#20837#20320#30340#24086#23376'MCBBS-TID'#12290#22914#21457#24067#36148#20026#12304'https://www.mcbbs.co' +
+                'm/thread-114514-1-1.html'#12305#65292#21017#36825#20010#22320#26041#21482#38656#22635#20837'114514'#21363#21487#12290
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 6
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253'MCBBS-TID'#12304#36873#22635#39033#12305
+            end
+            object edit_export_authentication_server: TEdit
+              Left = 3
+              Top = -149
+              Width = 780
+              Height = 23
+              Hint = #27492#22788#20165#38480#22806#32622#30331#24405#65292#22914#26524#20320#19981#30830#23450#65292#35831#30041#31354#12290#35813#22788#21482#33021#22635#20837#31867#20284#20110#12304'littleskin.cn'#12305#36825#31181#22806#32622#30331#24405#30382#32932#31449#26681#30446#24405
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 7
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#35748#35777#26381#21153#22120#12304#36873#22635#39033#12305
+            end
+            object edit_export_additional_game: TEdit
+              Left = 3
+              Top = -99
+              Width = 780
+              Height = 23
+              TabOrder = 8
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#39069#22806'game'#21442#25968#12304#36873#22635#39033#12305
+            end
+            object edit_export_additional_jvm: TEdit
+              Left = 3
+              Top = -49
+              Width = 780
+              Height = 23
+              TabOrder = 9
+              TextHint = #27492#22788#36755#20837#20320#30340#25972#21512#21253#39069#22806'jvm'#21442#25968#12304#36873#22635#39033#12305
+            end
+            object scrollbar_export_max_memory: TScrollBar
+              Left = 3
+              Top = 1
+              Width = 780
+              Height = 23
+              Max = 8192
+              Min = 1024
+              PageSize = 0
+              Position = 4096
+              TabOrder = 10
+            end
+            object memo_export_modpack_profile: TMemo
+              Left = 3
+              Top = 51
+              Width = 780
+              Height = 276
+              ScrollBars = ssBoth
+              TabOrder = 11
+            end
+            object treeview_export_keep_file: TTreeView
+              Left = 3
+              Top = 354
+              Width = 780
+              Height = 414
+              Indent = 19
+              TabOrder = 12
+            end
+            object button_export_start: TButton
+              Left = 3
+              Top = 774
+              Width = 780
+              Height = 31
+              Caption = #24320#22987#23548#20986' :)'
+              TabOrder = 13
+            end
           end
         end
       end
@@ -3046,7 +3138,7 @@ object form_mainform: Tform_mainform
         Caption = #19979#36733#36827#24230#65306'0% | 6666666666666666666666666666666666666'
       end
       object label_progress_tips: TLabel
-        Left = 671
+        Left = 431
         Top = 75
         Width = 156
         Height = 15
@@ -3064,7 +3156,7 @@ object form_mainform: Tform_mainform
       object button_progress_hide_show_details: TButton
         Left = 3
         Top = 71
-        Width = 662
+        Width = 422
         Height = 25
         Caption = #38544#34255#35814#24773#12304'Hide Details'#12305
         TabOrder = 1
@@ -3081,33 +3173,19 @@ object form_mainform: Tform_mainform
       object button_progress_clean_download_list: TButton
         Left = 3
         Top = 401
-        Width = 479
+        Width = 824
         Height = 30
         Caption = #28165#31354#19979#36733#20449#24687#21015#34920#26694
         TabOrder = 3
         OnClick = button_progress_clean_download_listClick
       end
-      object button_progress_cancel_download: TButton
-        Left = 488
-        Top = 401
-        Width = 339
-        Height = 30
-        Caption = #21462#28040#19979#36733
-        ParentShowHint = False
-        ShowHint = False
-        TabOrder = 4
-        OnClick = button_progress_cancel_downloadClick
-      end
     end
   end
   object mainmenu_mainpage: TMainMenu
-    Left = 752
-    Top = 104
+    Left = 624
+    Top = 16
     object n_misc: TMenuItem
       Caption = #26434#39033
-      object n_message_board: TMenuItem
-        Caption = #30041#35328#26495
-      end
       object n_answer_book: TMenuItem
         Caption = #31572#26696#20043#20070
       end
@@ -3154,9 +3232,15 @@ object form_mainform: Tform_mainform
         Caption = #26816#26597#26356#26032
         ShortCut = 49237
       end
+      object n_memory_optimize: TMenuItem
+        Caption = #20869#23384#28165#29702
+        ShortCut = 49229
+        OnClick = n_memory_optimizeClick
+      end
       object n_test_button: TMenuItem
         Caption = #27979#35797#25353#38062
         ShortCut = 49236
+        OnClick = n_test_buttonClick
       end
     end
     object n_languages: TMenuItem
@@ -3167,32 +3251,32 @@ object form_mainform: Tform_mainform
     end
   end
   object popupmenu_view_minecraft_info: TPopupMenu
-    Left = 771
-    Top = 52
+    Left = 563
+    Top = 4
     object n_view_minecraft_info: TMenuItem
       Caption = #26597#30475'Minecraft'#29256#26412#20449#24687
     end
   end
   object popupmenu_view_mod_info: TPopupMenu
-    Left = 716
-    Top = 130
-    object n_view_mod_website: TMenuItem
-      Caption = #25171#24320#35813#27169#32452#30340#23448#32593
-    end
+    Left = 748
+    Top = 10
     object n_view_mod_profile: TMenuItem
       Caption = #25171#24320#35813#27169#32452#30340#31616#20171
+      OnClick = n_view_mod_profileClick
     end
-    object n_view_mod_mcmod: TMenuItem
-      Caption = #25171#24320#35813#27169#32452#30340'MCMOD'
+    object n_view_mod_website: TMenuItem
+      Caption = #25171#24320#35813#27169#32452#30340#23448#32593
+      OnClick = n_view_mod_websiteClick
     end
   end
   object timer_all_ticks: TTimer
-    Left = 620
-    Top = 58
+    OnTimer = timer_all_ticksTimer
+    Left = 812
+    Top = 65514
   end
   object timer_form_gradient_tick: TTimer
     OnTimer = timer_form_gradient_tickTimer
-    Left = 668
-    Top = 58
+    Left = 700
+    Top = 10
   end
 end

@@ -3,16 +3,15 @@
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs,
-  StdCtrls, pngimage, WinXCtrls, ComCtrls, VCLTee.TeCanvas, CheckLst, JSON, ShellAPI,
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
+  StdCtrls, pngimage, WinXCtrls, ComCtrls, VCLTee.TeCanvas, CheckLst, JSON, ShellAPI, Math,
   IniFiles, Menus, ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections,
-  Vcl.Buttons, Vcl.ControlList, Threading, ClipBrd;
+  Vcl.Buttons, Vcl.ControlList, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils;
 
 type
   Tform_mainform = class(TForm)
     mainmenu_mainpage: TMainMenu;
     n_misc: TMenuItem;
-    n_message_board: TMenuItem;
     n_answer_book: TMenuItem;
     n_intro_self: TMenuItem;
     n_lucky_today: TMenuItem;
@@ -22,7 +21,6 @@ type
     popupmenu_view_mod_info: TPopupMenu;
     n_view_mod_website: TMenuItem;
     n_view_mod_profile: TMenuItem;
-    n_view_mod_mcmod: TMenuItem;
     pagecontrol_mainpage: TPageControl;
     tabsheet_mainpage_part: TTabSheet;
     label_account_view: TLabel;
@@ -217,8 +215,40 @@ type
     scrollbar_background_control_alpha: TScrollBar;
     label_background_control_current_alpha: TLabel;
     tabsheet_launch_part: TTabSheet;
-    label_launch_window_size: TLabel;
-    label_launch_window_default_tip: TLabel;
+    tabsheet_version_part: TTabSheet;
+    pagecontrol_version_part: TPageControl;
+    label_version_tip: TLabel;
+    tabsheet_version_control_part: TTabSheet;
+    tabsheet_version_isolation_part: TTabSheet;
+    tabsheet_version_export_part: TTabSheet;
+    timer_all_ticks: TTimer;
+    timer_form_gradient_tick: TTimer;
+    scrollbar_background_gradient_value: TScrollBar;
+    label_background_gradient_value: TLabel;
+    label_background_gradient_current_value: TLabel;
+    scrollbar_background_gradient_step: TScrollBar;
+    label_background_gradient_step: TLabel;
+    label_background_gradient_current_step: TLabel;
+    n_reset_launcher: TMenuItem;
+    label_custom_download_sha1: TLabel;
+    edit_custom_download_sha1: TEdit;
+    tabsheet_download_progress_part: TTabSheet;
+    progressbar_progress_download_bar: TProgressBar;
+    label_progress_download_progress: TLabel;
+    button_progress_hide_show_details: TButton;
+    label_progress_tips: TLabel;
+    listbox_progress_download_list: TListBox;
+    button_progress_clean_download_list: TButton;
+    button_thirdparty_check_authlib_update: TButton;
+    groupbox_message_board: TGroupBox;
+    memo_message_board: TMemo;
+    n_memory_optimize: TMenuItem;
+    scrollbox_launch: TScrollBox;
+    label_launch_window_size_tips: TLabel;
+    label_launch_window_width_tip: TLabel;
+    label_launch_window_height_tip: TLabel;
+    scrollbar_launch_window_height: TScrollBar;
+    scrollbar_launch_window_width: TScrollBar;
     label_launch_java_path: TLabel;
     combobox_launch_select_java_path: TComboBox;
     label_launch_java_logic: TLabel;
@@ -226,96 +256,96 @@ type
     button_launch_basic_scan_java: TButton;
     button_launch_manual_import: TButton;
     button_launch_remove_java: TButton;
+    label_launch_download_java: TLabel;
     button_launch_download_java_8: TButton;
-    button_launch_download_java_17: TButton;
     button_launch_download_java_16: TButton;
+    button_launch_download_java_17: TButton;
     button_launch_official_java: TButton;
+    label_launch_game_memory: TLabel;
+    scrollbar_launch_game_memory: TScrollBar;
     label_launch_custom_info: TLabel;
     edit_launch_custom_info: TEdit;
-    label_launch_custom_info_default: TLabel;
     label_launch_game_title: TLabel;
     edit_launch_game_title: TEdit;
-    label_launch_game_title_default: TLabel;
     label_launch_pre_launch_script: TLabel;
     edit_launch_pre_launch_script: TEdit;
     button_launch_pre_launch_script_tip: TButton;
+    label_launch_after_launch_script: TLabel;
+    edit_launch_after_launch_script: TEdit;
+    button_launch_after_launch_script_tip: TButton;
     label_launch_default_jvm_argument: TLabel;
     edit_launch_default_jvm_argument: TEdit;
     button_launch_default_jvm_argument_tip: TButton;
     label_launch_additional_jvm_argument: TLabel;
     edit_launch_additional_jvm_argument: TEdit;
     button_launch_additional_jvm_argument_tip: TButton;
-    label_launch_additional_game_argument: TLabel;
     edit_launch_additional_game_argument: TEdit;
+    label_launch_additional_game_argument: TLabel;
     button_launch_additional_game_argument_tip: TButton;
-    tabsheet_version_part: TTabSheet;
-    pagecontrol_version_part: TPageControl;
-    label_version_tip: TLabel;
-    tabsheet_version_control_part: TTabSheet;
-    tabsheet_version_isolation_part: TTabSheet;
+    scrollbox_version: TScrollBox;
     label_select_game_version: TLabel;
-    label_select_file_list: TLabel;
     combobox_select_game_version: TComboBox;
+    label_select_file_list: TLabel;
     combobox_select_file_list: TComboBox;
     label_version_name: TLabel;
+    edit_version_name: TEdit;
+    label_version_add_mc_path: TLabel;
     button_version_choose_any_directory: TButton;
     button_version_create_minecraft: TButton;
-    label_version_add_mc_path: TLabel;
-    label_version_choose_path: TLabel;
-    edit_version_name: TEdit;
-    label_version_current_path: TLabel;
-    tabsheet_version_export_part: TTabSheet;
-    radiogroup_partition_version: TRadioGroup;
     button_add_version_to_list: TButton;
+    label_version_choose_path: TLabel;
+    label_version_current_path: TLabel;
+    radiogroup_partition_version: TRadioGroup;
     button_version_complete: TButton;
     button_clear_version_list: TButton;
-    button_rename_version_list: TButton;
     button_remove_version_list: TButton;
-    button_rename_game_version: TButton;
     button_delete_game_version: TButton;
+    button_rename_version_list: TButton;
+    button_rename_game_version: TButton;
+    scrollbox_isolation: TScrollBox;
     label_isolation_current_version: TLabel;
     label_is_open_isolation: TLabel;
-    toggleswitch_is_open_isolation: TToggleSwitch;
     label_isolation_java_path: TLabel;
-    edit_isolation_java_path: TEdit;
-    button_isolation_choose_java: TButton;
     label_isolation_custom_info: TLabel;
-    edit_isolation_custom_info: TEdit;
-    edit_isolation_window_title: TEdit;
     label_isolation_window_title: TLabel;
     label_isolation_window_size: TLabel;
-    label_launch_game_memory: TLabel;
-    scrollbar_launch_game_memory: TScrollBar;
-    label_launch_current_memory: TLabel;
+    label_isolation_window_width_tip: TLabel;
+    label_isolation_window_height_tip: TLabel;
     label_isolation_game_memory: TLabel;
-    scrollbar_isolation_game_memory: TScrollBar;
-    label_isolation_current_memory: TLabel;
-    toggleswitch_isolation_open_memory: TToggleSwitch;
     label_isolation_partition: TLabel;
+    toggleswitch_is_open_isolation: TToggleSwitch;
+    edit_isolation_java_path: TEdit;
+    button_isolation_choose_java: TButton;
+    edit_isolation_custom_info: TEdit;
+    edit_isolation_window_title: TEdit;
+    toggleswitch_isolation_window_size: TToggleSwitch;
+    scrollbar_isolation_window_width: TScrollBar;
+    scrollbar_isolation_window_height: TScrollBar;
+    toggleswitch_isolation_open_memory: TToggleSwitch;
+    scrollbar_isolation_game_memory: TScrollBar;
     toggleswitch_isolation_open_partition: TToggleSwitch;
-    radiobutton_isolation_open_partition: TRadioButton;
-    radiobutton_isolation_close_partition: TRadioButton;
-    toggleswitch_isolation_choose_java: TToggleSwitch;
+    checkbox_isolation_is_partition: TCheckBox;
     label_isolation_additional_game: TLabel;
     edit_isolation_additional_game: TEdit;
     label_isolation_additional_jvm: TLabel;
     edit_isolation_additional_jvm: TEdit;
     label_isolation_pre_launch_script: TLabel;
     edit_isolation_pre_launch_script: TEdit;
+    label_isolation_after_launch_script: TLabel;
+    edit_isolation_after_launch_script: TEdit;
     label_isolation_tip: TLabel;
+    scrollbox_export: TScrollBox;
     label_export_current_version: TLabel;
-    label_export_mode: TLabel;
-    radiobutton_export_mcbbs: TRadioButton;
-    edit_export_modpack_name: TEdit;
-    radiobutton_export_multimc: TRadioButton;
+    radiogroup_export_mode: TRadioGroup;
     label_export_mode_more: TLabel;
     label_export_modpack_name: TLabel;
-    edit_export_modpack_author: TEdit;
+    edit_export_modpack_name: TEdit;
     label_export_modpack_author: TLabel;
+    edit_export_modpack_author: TEdit;
     label_export_modpack_version: TLabel;
     edit_export_modpack_version: TEdit;
-    edit_export_update_link: TEdit;
     label_export_update_link: TLabel;
+    edit_export_update_link: TEdit;
     label_export_official_website: TLabel;
     edit_export_official_website: TEdit;
     label_export_mcbbs_tid: TLabel;
@@ -328,46 +358,11 @@ type
     edit_export_additional_jvm: TEdit;
     label_export_memory: TLabel;
     scrollbar_export_max_memory: TScrollBar;
-    memo_export_modpack_profile: TMemo;
     label_export_modpack_profile: TLabel;
-    treeview_export_keep_file: TTreeView;
+    memo_export_modpack_profile: TMemo;
     label_export_keep_file: TLabel;
+    treeview_export_keep_file: TTreeView;
     button_export_start: TButton;
-    label_export_current_memory: TLabel;
-    timer_all_ticks: TTimer;
-    timer_form_gradient_tick: TTimer;
-    scrollbar_background_gradient_value: TScrollBar;
-    label_background_gradient_value: TLabel;
-    label_background_gradient_current_value: TLabel;
-    scrollbar_background_gradient_step: TScrollBar;
-    label_background_gradient_step: TLabel;
-    label_background_gradient_current_step: TLabel;
-    scrollbar_launch_window_width: TScrollBar;
-    scrollbar_launch_window_height: TScrollBar;
-    label_launch_window_current_height: TLabel;
-    label_launch_window_current_width: TLabel;
-    label_launch_download_java: TLabel;
-    label_launch_window_height_tip: TLabel;
-    label_launch_window_width_tip: TLabel;
-    scrollbar_isolation_window_height: TScrollBar;
-    toggleswitch_isolation_window_height: TToggleSwitch;
-    scrollbar_isolation_window_width: TScrollBar;
-    toggleswitch_isolation_window_width: TToggleSwitch;
-    label_isolation_window_current_width: TLabel;
-    label_isolation_window_current_height: TLabel;
-    label_isolation_window_width_tip: TLabel;
-    label_isolation_window_height_tip: TLabel;
-    n_reset_launcher: TMenuItem;
-    label_custom_download_sha1: TLabel;
-    edit_custom_download_sha1: TEdit;
-    tabsheet_download_progress_part: TTabSheet;
-    progressbar_progress_download_bar: TProgressBar;
-    label_progress_download_progress: TLabel;
-    button_progress_hide_show_details: TButton;
-    label_progress_tips: TLabel;
-    listbox_progress_download_list: TListBox;
-    button_progress_clean_download_list: TButton;
-    button_progress_cancel_download: TButton;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -419,9 +414,48 @@ type
     procedure button_refresh_accountClick(Sender: TObject);
     procedure button_progress_hide_show_detailsClick(Sender: TObject);
     procedure button_progress_clean_download_listClick(Sender: TObject);
-    procedure button_progress_cancel_downloadClick(Sender: TObject);
+    procedure button_thirdparty_check_authlib_updateClick(Sender: TObject);
+    procedure button_offline_name_to_uuidClick(Sender: TObject);
+    procedure button_offline_uuid_to_nameClick(Sender: TObject);
+    procedure timer_all_ticksTimer(Sender: TObject);
+    procedure n_test_buttonClick(Sender: TObject);
+    procedure n_memory_optimizeClick(Sender: TObject);
+    procedure combobox_playing_search_sourceChange(Sender: TObject);
+    procedure combobox_playing_search_modeChange(Sender: TObject);
+    procedure button_playing_start_searchClick(Sender: TObject);
+    procedure combobox_playing_search_category_curseforgeChange(
+      Sender: TObject);
+    procedure checklistbox_playing_search_category_modrinthClick(
+      Sender: TObject);
+    procedure button_open_download_websiteClick(Sender: TObject);
+    procedure button_playing_name_previous_pageClick(Sender: TObject);
+    procedure button_playing_name_next_pageClick(Sender: TObject);
+    procedure button_playing_version_previous_pageClick(Sender: TObject);
+    procedure button_playing_version_next_pageClick(Sender: TObject);
+    procedure listbox_playing_search_nameClick(Sender: TObject);
+    procedure n_view_mod_profileClick(Sender: TObject);
+    procedure n_view_mod_websiteClick(Sender: TObject);
+    procedure listbox_playing_search_versionClick(Sender: TObject);
+    procedure button_playing_start_downloadClick(Sender: TObject);
+    procedure scrollbox_launchMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure pagecontrol_playing_partChange(Sender: TObject);
+    procedure WmDropFiles(var Msg: TMessage); message WM_DROPFILES;
+    procedure listbox_manage_import_mapClick(Sender: TObject);
+    procedure listbox_manage_import_modClick(Sender: TObject);
+    procedure listbox_manage_import_resourcepackClick(Sender: TObject);
+    procedure listbox_manage_import_shaderClick(Sender: TObject);
+    procedure listbox_manage_import_pluginClick(Sender: TObject);
+    procedure listbox_manage_import_datapackClick(Sender: TObject);
+    procedure button_disable_choose_playingClick(Sender: TObject);
+    procedure button_enable_choose_playingClick(Sender: TObject);
+    procedure button_delete_choose_playingClick(Sender: TObject);
+    procedure button_rename_choose_playingClick(Sender: TObject);
+    procedure button_open_choose_playingClick(Sender: TObject);
   private
     { Private declarations }
+    procedure PluginMenuClick(Sender: TObject);
+    procedure LanguageMenuClick(Sender: TObject);
   public
     { Public declarations }
   end;
@@ -436,8 +470,6 @@ var
   Log: Log4D;
   crash_count: Integer = 0;
   mcpid: Integer = 0;
-  Cave, Answer, Lucky: TStringList;
-  Intro: array of array of String;
   v: TMediaPlayer;
 var
   mopen_time, maccount_view: String;
@@ -445,14 +477,259 @@ var
   mred, mgreen, mblue, mwindow_alpha, mcontrol_alpha: Integer;
   mgradient_value, mgradient_step: Integer;
   mis_gradient: Boolean;
-  mchoose_skin: Integer;
+  mchoose_skin, mbiggest_thread: Integer;
 
 implementation
 
 uses
-  MainMethod, LaunchMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow;
+  MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow,
+  PluginMethod, PlayingMethod, ManageMethod, LaunchMethod;
+
+var
+  Cave, Answer, Lucky: TStringList;
+  Intro: array of array of String;
 
 {$R *.dfm}
+//任意插件菜单栏点击的事件
+procedure Tform_mainform.PluginMenuClick(Sender: TObject);
+begin
+  //
+end;
+//任意语言菜单栏点击的事件
+procedure Tform_mainform.LanguageMenuClick(Sender: TObject);
+begin
+  var mi := Sender as TMenuItem;
+  Log.Write(Concat('你点击了', mi.Caption, '语言文件，开始加载！'), LOG_START, LOG_INFO);
+  var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\lang');
+  if SysUtils.DirectoryExists(ld) then begin
+    var Files := TDirectory.GetFiles(ld);
+    for var I in Files do begin
+      if RightStr(I, 5) = '.json' then begin //如果文件后缀为.json，则执行。
+        var lj := TJSONObject.ParseJSONValue(GetFile(I)) as TJsonObject;
+        try
+          var title := lj.GetValue('file_language_title').Value;
+          if mi.Caption.IndexOf(title) <> -1 then begin
+            LLLini.WriteString('Language', 'SelectLanguageFile', ChangeFileExt(ExtractFileName(I), ''));
+            SetLanguage(ChangeFileExt(ExtractFileName(I), ''));
+            MyMessagebox(GetLanguage('messagebox_mainform.change_language.caption'), GetLanguage('messagebox_mainform.change_language.text'), MY_INFORMATION, [mybutton.myOK]);
+            exit;
+          end else abort;
+        except continue; end;
+      end;
+    end;
+  end;
+end;
+//管理部分：数据包列表框点击
+procedure Tform_mainform.listbox_manage_import_datapackClick(Sender: TObject);
+begin
+  listbox_manage_import_mod.ItemIndex := -1;
+  listbox_manage_import_shader.ItemIndex := -1;
+  listbox_manage_import_resourcepack.ItemIndex := -1;
+  listbox_manage_import_plugin.ItemIndex := -1;
+end;
+//管理部分：地图列表框点击
+procedure Tform_mainform.listbox_manage_import_mapClick(Sender: TObject);
+begin
+  listbox_manage_import_mod.ItemIndex := -1;
+  listbox_manage_import_shader.ItemIndex := -1;
+  listbox_manage_import_resourcepack.ItemIndex := -1;
+  listbox_manage_import_plugin.ItemIndex := -1;
+  listbox_manage_import_datapack.ItemIndex := -1;
+  listbox_manage_import_datapack.Items.Clear;
+  ClearDatSelect;
+  ManageChangeMap;
+end;
+//管理部分：模组列表框点击
+procedure Tform_mainform.listbox_manage_import_modClick(Sender: TObject);
+begin
+  listbox_manage_import_map.ItemIndex := -1;
+  listbox_manage_import_shader.ItemIndex := -1;
+  listbox_manage_import_resourcepack.ItemIndex := -1;
+  listbox_manage_import_plugin.ItemIndex := -1;
+  listbox_manage_import_datapack.ItemIndex := -1;
+  listbox_manage_import_datapack.Items.Clear;
+  ClearDatSelect;
+end;
+//管理部分：插件列表框点击
+procedure Tform_mainform.listbox_manage_import_pluginClick(Sender: TObject);
+begin
+  listbox_manage_import_map.ItemIndex := -1;
+  listbox_manage_import_shader.ItemIndex := -1;
+  listbox_manage_import_mod.ItemIndex := -1;
+  listbox_manage_import_resourcepack.ItemIndex := -1;
+  listbox_manage_import_datapack.ItemIndex := -1;
+  listbox_manage_import_datapack.Items.Clear;
+  ClearDatSelect;
+end;
+//管理部分：纹理列表框点击
+procedure Tform_mainform.listbox_manage_import_resourcepackClick(
+  Sender: TObject);
+begin
+  listbox_manage_import_map.ItemIndex := -1;
+  listbox_manage_import_shader.ItemIndex := -1;
+  listbox_manage_import_mod.ItemIndex := -1;
+  listbox_manage_import_plugin.ItemIndex := -1;
+  listbox_manage_import_datapack.ItemIndex := -1;
+  listbox_manage_import_datapack.Items.Clear;
+  ClearDatSelect;
+end;
+//管理部分：光影列表框点击
+procedure Tform_mainform.listbox_manage_import_shaderClick(Sender: TObject);
+begin
+  listbox_manage_import_map.ItemIndex := -1;
+  listbox_manage_import_resourcepack.ItemIndex := -1;
+  listbox_manage_import_mod.ItemIndex := -1;
+  listbox_manage_import_plugin.ItemIndex := -1;
+  listbox_manage_import_datapack.ItemIndex := -1;
+  listbox_manage_import_datapack.Items.Clear;
+  ClearDatSelect;
+end;
+
+//玩法部分：名称列表框点击
+procedure Tform_mainform.listbox_playing_search_nameClick(Sender: TObject);
+begin
+  PlayingSelNameList;
+end;
+//玩法部分：版本列表框点击
+procedure Tform_mainform.listbox_playing_search_versionClick(Sender: TObject);
+begin
+  PlayingSelVerList;
+end;
+
+//高危系统库ntdll.dll
+function NtSetSystemInformation(SystemInformationClass: DWORD; SystemInformation: Pointer; SystemInformationLength: ULONG): NTSTATUS; stdcall; external 'ntdll.dll';
+//提取权限
+function TiQuan(uzp: pansichar): Bool;
+var
+  hToken: THandle;
+  ld: TLargeInteger;
+  tkp: TOKEN_PRIVILEGES;
+  Pre: DWORD;
+begin
+  result := false;
+  if OpenProcessToken(GetCurrentProcess, TOKEN_QUERY or TOKEN_ADJUST_PRIVILEGES, hToken) then begin
+    if LookupPrivilegeValueA(nil, uzp, &ld) then begin
+      tkp.PrivilegeCount := 1;
+      tkp.Privileges[0].Luid := ld;
+      tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
+      if AdjustTokenPrivileges(hToken, false, &tkp, 16, nil, pre) then begin
+        if GetLastError = ERROR_SUCCESS then result := true;
+      end;
+    end;
+  end;
+end;
+//内存清理按钮
+procedure Tform_mainform.n_memory_optimizeClick(Sender: TObject);
+type
+  s1 = record
+    CurrentSize: ULONG_PTR;
+    PeakSize: ULONG_PTR;
+    PageFaultCount: ULONG;
+    MinimunWorkingSet: ULONG_PTR;
+    MaximunWorkingSet: ULONG_PTR;
+    CurrentSizeIncludingTransitionInPages: ULONG_PTR;
+    PeakSizeIncludingTransitionInPages: ULONG_PTR;
+    TransitionRePurposeCount: ULONG;
+    Flags: ULONG;
+  end;
+var
+  status: TMemoryStatus;
+begin
+  if MyMessagebox(GetLanguage('messagebox_mainform.release_memory_optimize_warning.caption'), GetLanguage('messagebox_mainform.release_memory_optimize_warning.text'), MY_ERROR, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+  if TiQuan(SE_PROF_SINGLE_PROCESS_NAME) then begin
+    if TiQuan(SE_INCREASE_QUOTA_NAME) then begin
+      GlobalMemoryStatus(status);
+      var cm := status.dwAvailPhys;
+      var i2 := 2;
+      var i3 := 3;
+      var i4 := 4;
+      var i5 := 5;
+      var i1: s1;
+      i1.MinimunWorkingSet := (Integer.MaxValue) - 1;
+      i1.MaximunWorkingSet := (Integer.MaxValue) - 1;
+      var re1 := NtSetSystemInformation(21, @i1, sizeof(i1));
+      if re1 <> 0 then begin
+        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_first_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_first_memory.text'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
+      var re2 := NtSetSystemInformation(80, @i2, sizeof(i2));
+      if re2 <> 0 then begin
+        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_second_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_second_memory.text'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
+      var re3 := NtSetSystemInformation(80, @i3, sizeof(i3));
+      if re3 <> 0 then begin
+        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_third_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_third_memory.text'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
+      var re4 := NtSetSystemInformation(80, @i4, sizeof(i4));
+      if re4 <> 0 then begin
+        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_forth_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_forth_memory.text'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
+      var re5 := NtSetSystemInformation(80, @i5, sizeof(i5));
+      if re5 <> 0 then begin
+        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_fifth_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_fifth_memory.text'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
+      GlobalMemoryStatus(status);
+      MyMessagebox(GetLanguage('messagebox_mainform.release_memory_success.caption'), GetLanguage('messagebox_mainform.release_memory_success.text').Replace('${release_memory_value}', floattostr(SimpleRoundTo((status.dwAvailPhys - cm) / 1024 / 1024))), MY_INFORMATION, [mybutton.myOK]);
+    end else begin
+      MyMessagebox(GetLanguage('messagebox_mainform.cannot_root_seIncreaseQuotaPrivilege.caption'), GetLanguage('messagebox_mainform.cannot_root_seIncreaseQuotaPrivilege.text'), MY_ERROR, [mybutton.myOK]);
+    end;
+  end else begin
+    MyMessagebox(GetLanguage('messagebox_mainform.cannot_root_seProfileSingleProcessPrivilege.caption'), GetLanguage('messagebox_mainform.cannot_root_seProfileSingleProcessPrivilege.text'), MY_ERROR, [mybutton.myOK]);
+  end;
+end;
+//测试按钮
+procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
+//type
+//  TTT = record
+//    CurrentSize: Currency;
+//    PeakSize: Currency;
+//    PageFaultCount: ULong;
+//    MinimumWorkingSet: Currency;
+//    MaximumWorkingSet: Currency;
+//  end;
+begin
+//  showmessage(inttostr(MyMessagebox('', '', MY_ERROR, [mybutton.myYes, mybutton.myNo])));
+//      var s: TPoint;
+//      s.X := 0;
+//      s.Y := 0;
+//      s := button_launch_game.ClientToScreen(s);
+//      s := form_mainform.ScreenToClient(s);
+//      showmessage(inttostr(button_launch_game.Left) + #13#10 + inttostr(button_launch_game.Top) + #13#10 + inttostr(s.X) + #13#10 + inttostr(s.Y));
+//  var info1 := 2;
+//  var info2 := 3;
+//  var info3 := 4;
+//  var info4 := 5;
+//  var abc: TTT;
+//  abc.MinimumWorkingSet := 1.844674407371e+019;
+//  abc.MaximumWorkingSet := 1.844674407371e+019;
+//  var cd := ULong(GetProcAddress(
+//    GetModuleHandleW('ntdll.dll'),
+//    'NtSetSystemInformation'));
+//  var re0 := NtSetSystemInformation(cd, @abc, sizeof(abc));
+//  var re1 := NtSetSystemInformation(80, @info1, sizeof(info1));
+//  var re2 := NtSetSystemInformation(80, @info2, sizeof(info2));
+//  var re3 := NtSetSystemInformation(80, @info3, sizeof(info3));
+//  var re4 := NtSetSystemInformation(80, @info4, sizeof(info4));
+//  if re0 <> 0 then showmessage('not 0');
+//  if re1 <> 0 then showmessage('not 1');
+//  if re2 <> 0 then showmessage('not 2');
+//  if re3 <> 0 then showmessage('not 3');
+//  if re4 <> 0 then showmessage('not 4');
+end;
+//玩法部分：打开该模组的简介
+procedure Tform_mainform.n_view_mod_profileClick(Sender: TObject);
+begin
+  PlayingOpenIntro;
+end;
+//玩法部分：打开该模组的官网。
+procedure Tform_mainform.n_view_mod_websiteClick(Sender: TObject);
+begin
+  PlayingOpenVerWeb;
+end;
 //背景设置：自定义配色按钮
 procedure Tform_mainform.buttoncolor_custom_colorClick(Sender: TObject);
 begin
@@ -524,10 +801,25 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
-//删除账号
+//账号部分：删除账号
 procedure Tform_mainform.button_delete_accountClick(Sender: TObject);
 begin
   combobox_all_account.ItemIndex := DeleteAccount(combobox_all_account.ItemIndex);
+end;
+//玩法管理界面：删除选中
+procedure Tform_mainform.button_delete_choose_playingClick(Sender: TObject);
+begin
+  ManageDeletePlaying;
+end;
+//玩法管理界面：禁用选中
+procedure Tform_mainform.button_disable_choose_playingClick(Sender: TObject);
+begin
+  ManageDisablePlaying;
+end;
+//玩法管理界面：启用选中
+procedure Tform_mainform.button_enable_choose_playingClick(Sender: TObject);
+begin
+  ManageEnablePlaying;
 end;
 //背景设置：小草绿
 procedure Tform_mainform.button_grass_colorClick(Sender: TObject);
@@ -541,20 +833,7 @@ end;
 //主界面：启动游戏按钮
 procedure Tform_mainform.button_launch_gameClick(Sender: TObject);
 begin
-//  var MainHandle := OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessID);
-//  if SetProcessWorkingSetSize(GetCurrentProcess, 1024 * 1024, 1024 * 4096) then begin
-//    showmessage('OK')
-//  end else showmessage('NO');
-//  CloseHandle(MainHandle);
-//  try
-//    var MainHandle := OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessID);
-//    if SetProcessWorkingSetSize(GetCurrentProcess, $FFFFFFFF, $FFFFFFFF) then showmessage('OK1');
-//    CloseHandle(MainHandle);
-//    showmessage('OK2');
-//  except
-//    // 处理异常
-//    showmessage('NO');
-//  end;
+//
 end;
 //微软OAuth登录
 procedure Tform_mainform.button_microsoft_oauth_loginClick(Sender: TObject);
@@ -570,12 +849,75 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
-//下载进度界面：取消下载
-procedure Tform_mainform.button_progress_cancel_downloadClick(Sender: TObject);
+//账号部分：通过正版用户名获取正版UUID
+procedure Tform_mainform.button_offline_name_to_uuidClick(Sender: TObject);
 begin
-  messagebox(Handle, '暂未完成，请稍后！', '暂未完成', MB_ICONWARNING);
+  var e: String := edit_offline_name.Text;
+  if (e = '') or (not TRegex.IsMatch(e, '^[a-zA-Z0-9_]+$')) or (e.Length < 3) or (e.Length > 16) then begin
+    MyMessagebox(GetLanguage('messagebox_account.name_not_true.caption'), GetLanguage('messagebox_account.name_not_true.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.name_to_uuid_start');
+  TTask.Run(procedure begin
+    edit_offline_uuid.Text := NameToUUID(e);
+  end);
+end;
+//账号部分：通过正版UUID获取正版用户名
+procedure Tform_mainform.button_offline_uuid_to_nameClick(Sender: TObject);
+begin
+  var e: String := edit_offline_uuid.Text;
+  if not TRegex.IsMatch(e, '^[a-f0-9]{32}') then begin
+    MyMessagebox(GetLanguage('messagebox_account.uuid_not_true.caption'), GetLanguage('messagebox_account.uuid_not_true.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.uuid_to_name_start');
+  TTask.Run(procedure begin
+    edit_offline_name.Text := UUIDToName(e);
+  end);
+end;
+//玩法管理界面：打开选中的文件夹
+procedure Tform_mainform.button_open_choose_playingClick(Sender: TObject);
+begin
+  ManageOpenPlaying;
+end;
+//打开下载源官网
+procedure Tform_mainform.button_open_download_websiteClick(Sender: TObject);
+begin
+  PlayingOpenOciWeb();
+end;
+//玩法界面：名称下一页
+procedure Tform_mainform.button_playing_name_next_pageClick(Sender: TObject);
+begin
+  PlayingPageDownName();
+end;
+//玩法界面：名称上一页
+procedure Tform_mainform.button_playing_name_previous_pageClick(
+  Sender: TObject);
+begin
+  PlayingPageUpName();
+end;
+//玩法界面：开始下载
+procedure Tform_mainform.button_playing_start_downloadClick(Sender: TObject);
+begin
+  PlayingDownload;
 end;
 //下载进度界面：清空列表框
+procedure Tform_mainform.button_playing_start_searchClick(Sender: TObject);
+begin
+  PlayingStartSearch;
+end;
+//玩法界面：版本下一页
+procedure Tform_mainform.button_playing_version_next_pageClick(Sender: TObject);
+begin
+  PlayingPageDownVer();
+end;
+//玩法界面：版本上一页
+procedure Tform_mainform.button_playing_version_previous_pageClick(
+  Sender: TObject);
+begin
+  PlayingPageUpVer();
+end;
+//下载窗口：清除列表框
 procedure Tform_mainform.button_progress_clean_download_listClick(
   Sender: TObject);
 begin
@@ -583,15 +925,15 @@ begin
   listbox_progress_download_list.Items.Clear;
   label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', '0');
 end;
-//下载进度界面：隐藏详情
+//下载进度界面：显示/隐藏详情
 procedure Tform_mainform.button_progress_hide_show_detailsClick(
   Sender: TObject);
 begin
   if listbox_progress_download_list.Visible then begin
-    button_progress_hide_show_details.Caption := '显示详情【Show Details】';
+    button_progress_hide_show_details.Caption := GetLanguage('button_progress_hide_show_details.caption.show');
     listbox_progress_download_list.Visible := false;
   end else begin
-    button_progress_hide_show_details.Caption := '隐藏详情【Hide Details】';
+    button_progress_hide_show_details.Caption := GetLanguage('button_progress_hide_show_details.caption.hide');
     listbox_progress_download_list.Visible := true;
   end;
 end;
@@ -603,6 +945,11 @@ begin
     exit;
   end;
   RefreshAccount(combobox_all_account.ItemIndex);
+end;
+//玩法管理界面：重命名选中
+procedure Tform_mainform.button_rename_choose_playingClick(Sender: TObject);
+begin
+  ManageRenamePlaying;
 end;
 //背景设置：天空蓝
 procedure Tform_mainform.button_sky_colorClick(Sender: TObject);
@@ -631,19 +978,47 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
+//账号部分：检测Authlib是否有更新
+procedure Tform_mainform.button_thirdparty_check_authlib_updateClick(
+  Sender: TObject);
+begin
+  InitAuthlib;
+end;
 //账号部分：离线登录：Slim
 procedure Tform_mainform.checkbox_slimClick(Sender: TObject);
 begin
   edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//搜索类型改变复选组（Modrinth）
+procedure Tform_mainform.checklistbox_playing_search_category_modrinthClick(
+  Sender: TObject);
+begin
+  PlayingSelCateModrinth;
 end;
 //账号部分：所有账号下拉框改变事件
 procedure Tform_mainform.combobox_all_accountChange(Sender: TObject);
 begin
   if combobox_all_account.ItemIndex = -1 then exit;
   var pla := ((AccountJson.Values['account'] as TJsonArray)[combobox_all_account.ItemIndex] as TJsonObject);
-  var pln := pla.GetValue('name').Value;
+  maccount_view := pla.GetValue('name').Value;
   JudgeJSONSkin(combobox_all_account.ItemIndex);
-  label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', pln);;
+  label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', maccount_view);
+end;
+//搜索类型改变下拉框（Curseforge）
+procedure Tform_mainform.combobox_playing_search_category_curseforgeChange(
+  Sender: TObject);
+begin
+  PlayingSelCateCurseforge;
+end;
+//搜索方式修改的下拉框
+procedure Tform_mainform.combobox_playing_search_modeChange(Sender: TObject);
+begin
+  PlayingSelMode;
+end;
+//搜索源修改的下拉框
+procedure Tform_mainform.combobox_playing_search_sourceChange(Sender: TObject);
+begin
+  PlayingSelSource;
 end;
 //背景设置：窗口标题
 procedure Tform_mainform.edit_background_mainform_titleChange(Sender: TObject);
@@ -655,7 +1030,18 @@ procedure Tform_mainform.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   SaveBackground;
   SaveAccount;
+  SavePlaying;
+  SaveLaunch;
   ShellExecute(Application.Handle, 'open', 'taskkill.exe', '/F /IM LittleLimboLauncher.exe', nil, SW_HIDE);
+end;
+procedure Tform_mainform.WmDropFiles(var Msg: TMessage);
+begin
+  if pagecontrol_mainpage.ActivePage = tabsheet_playing_part then begin
+    if pagecontrol_playing_part.ActivePage = tabsheet_playing_manage_part then begin
+      DragFileInWindow(Msg);
+    end;
+  end;
+  DragFinish(msg.WParam);
 end;
 //主界面：窗口创建事件
 procedure Tform_mainform.FormCreate(Sender: TObject);
@@ -682,9 +1068,8 @@ begin
     SysUtils.ForceDirectories(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs'));
   if not SysUtils.DirectoryExists(Concat(AppData, '\LLLauncher\')) then
     SysUtils.ForceDirectories(Concat(AppData, '\LLLauncher\'));
-  if not SysUtils.FileExists(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'LittleLimboLauncher.ini')) then
-  begin
-    LLLini.WriteString('Version', 'CustomInfo', 'LLL');
+  if not SysUtils.FileExists(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'LittleLimboLauncher.ini')) then begin
+    LLLini.WriteString('Version', 'CustomInfo', 'LLLauncher');
     LLLini.WriteBool('Version', 'ShowRelease', True);
     LLLini.WriteBool('Version', 'ShowSnapshot', False);
     LLLini.WriteBool('Version', 'ShowOldBeta', False);
@@ -720,6 +1105,11 @@ begin
   end;
   Log.Write('初始化变量2完毕。', LOG_INFO, LOG_START); //输出Log
   Log.Write('判断完成窗口创建事件！', LOG_INFO, LOG_START);
+  ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+  ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
+  ChangeWindowMessageFilter(WM_COPYGLOBALDATA, MSGFLT_ADD);
+//  DragAcceptFiles(tabsheet_playing_manage_part.Handle, true);
+  DragAcceptFiles(self.Handle, true);
   InitLanguage;
 end;
 //主界面：窗口展示事件
@@ -855,6 +1245,14 @@ begin
     mgradient_step := 10;
     LLLini.WriteInteger('Misc', 'GradientStep', mgradient_step);
   end;
+  try
+    mbiggest_thread := LLLini.ReadInteger('Version', 'ThreadBiggest', -1);
+    if (mbiggest_thread < 1) or (mbiggest_thread > 256) then raise Exception.Create('Format Exception');
+  except
+    Log.Write(Concat('最大线程有误，位置：Ini文件的ThreadBiggest位置。'), LOG_ERROR, LOG_START);
+    mbiggest_thread := 32;
+    LLLini.WriteInteger('Misc', 'ControlAlpha', mbiggest_thread);
+  end;
   timer_form_gradient_tick.Interval := mgradient_value;
   SetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE, GetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE) or WS_EX_LAYERED);
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);
@@ -883,7 +1281,11 @@ begin
   if pagecontrol_mainpage.ActivePage = tabsheet_background_part then
     InitBackground
   else if pagecontrol_mainpage.ActivePage = tabsheet_account_part then
-    InitAccount;
+    InitAccount
+  else if pagecontrol_mainpage.ActivePage = tabsheet_playing_part then
+    InitPlaying
+  else if pagecontrol_mainpage.ActivePage = tabsheet_launch_part then
+    InitLaunch
 end;
 //主界面：切换该页前
 procedure Tform_mainform.pagecontrol_mainpageChanging(Sender: TObject;
@@ -892,7 +1294,22 @@ begin
   if pagecontrol_mainpage.ActivePage = tabsheet_background_part then
     SaveBackground
   else if pagecontrol_mainpage.ActivePage = tabsheet_account_part then
-    SaveAccount;
+    SaveAccount
+  else if pagecontrol_mainpage.ActivePage = tabsheet_playing_part then
+    SavePlaying
+  else if pagecontrol_mainpage.ActivePage = tabsheet_launch_part then
+    SaveLaunch
+end;
+//玩法部分：玩法管理界面/下载玩法切换。
+procedure Tform_mainform.pagecontrol_playing_partChange(Sender: TObject);
+begin
+  if pagecontrol_playing_part.ActivePage = tabsheet_playing_manage_part then begin
+    if not InitManage then begin
+      MyMessagebox(GetLanguage('messagebox_playing.open_manage_error.caption'), GetLanguage('messagebox_playing.open_manage_error.text'), MY_ERROR, [mybutton.myOK]);
+      pagecontrol_playing_part.ActivePage := tabsheet_playing_download_part;
+      exit;
+    end;
+  end;
 end;
 //账号部分：离线登录：Alex
 procedure Tform_mainform.radiobutton_alexClick(Sender: TObject);
@@ -1012,6 +1429,90 @@ begin
   mwindow_alpha := scrollbar_background_window_alpha.Position;
   label_background_window_current_alpha.Caption := GetLanguage('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
   AlphaBlendValue := mwindow_alpha;
+end;
+//启动设置：滑动条框
+procedure Tform_mainform.scrollbox_launchMouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
+var
+  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
+  LPoint: TPoint;
+  ScrollBox: TScrollBox;
+begin
+  ScrollBox := TScrollBox(Sender);
+  LPoint := ScrollBox.ClientToScreen(Point(0,0));
+  LTopLeft := LPoint.X;
+  LTopRight := LTopLeft + ScrollBox.ClientWidth;
+  LBottomLeft := LPoint.Y;
+  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
+  if (MousePos.X >= LTopLeft) and
+    (MousePos.X <= LTopRight) and
+    (MousePos.Y >= LBottomLeft) and
+    (MousePos.Y <= LBottomRight) then
+  begin
+    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
+    Handled := True;
+  end;
+end;
+//主窗口：总体计时器
+var open_form: Boolean = true;
+procedure Tform_mainform.timer_all_ticksTimer(Sender: TObject);
+begin
+  if open_form then begin
+    open_form := false;
+    try
+      Log.Write('开始判断是否播放音乐。', LOG_START, LOG_INFO);
+      var p := LLLini.ReadInteger('Misc', 'SelectType', -1);
+      if (p < 1) or (p > 3) then raise Exception.Create('Format Exception');
+      if p = 1 then PlayMusic;
+    except
+      Log.Write('是否打开启动器时播放音乐的ini配置文件不符。', LOG_START, LOG_ERROR);
+      LLLini.WriteInteger('Misc', 'SelectType', 3);
+    end;
+    Log.Write('开始判断是否需要捐款。', LOG_START, LOG_INFO);
+    case mopen_number of
+      100: Isafdian(false, mopen_number);
+      200: Isafdian(false, mopen_number);
+      300: Isafdian(false, mopen_number);
+      500: Isafdian(false, mopen_number);
+      700: Isafdian(false, mopen_number);
+      1000: Isafdian(false, mopen_number);
+      1300: Isafdian(false, mopen_number);
+      1800: Isafdian(false, mopen_number);
+      2400: Isafdian(false, mopen_number);
+      3000: Isafdian(false, mopen_number);
+    end;
+    Log.Write('开始判断插件是否存在于文件夹中，并且后缀为Json或dll。', LOG_START, LOG_INFO);
+    var pdir := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
+    if SysUtils.DirectoryExists(pdir) then begin
+      var Files := TDirectory.GetFiles(pdir);
+      for var I in Files do begin //遍历plugins文件夹
+        if (RightStr(I, 5) = '.json') or (RightStr(I, 4) = '.dll') then begin //如果文件后缀为.json或者dll，则执行。
+          var TM := TMenuItem.Create(mainmenu_mainpage); //设置一个菜单栏
+          TM.OnClick := PluginMenuClick; //给菜单栏设置点击事件。
+          TM.Caption := ExtractFileName(I); //给菜单栏设置标题，为Json的名字。
+          mainmenu_mainpage.Items[4].Add(TM); //给主菜单栏添加这个菜单。
+          Log.Write(Concat('判定成功，插件文件名为：', I), LOG_START, LOG_INFO);
+        end else continue; //如果不为json或dll，则继续。
+      end;
+    end;
+    Log.Write('开始判断语言是否存在于文件夹中，并且后缀为Json。', LOG_START, LOG_INFO);
+    var ldir := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\lang');
+    if SysUtils.DirectoryExists(ldir) then begin
+      var Files := TDirectory.GetFiles(ldir);
+      for var I in Files do begin //遍历plugins文件夹
+        if (RightStr(I, 5) = '.json') then begin //如果文件后缀为.json或者dll，则执行。
+          var json := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
+          var title := json.GetValue('file_language_title').Value;
+          var TM := TMenuItem.Create(mainmenu_mainpage); //设置一个菜单栏
+          TM.OnClick := LanguageMenuClick; //给菜单栏设置点击事件。
+          TM.Caption := title; //给菜单栏设置标题，为Json的名字。
+          mainmenu_mainpage.Items[3].Add(TM); //给主菜单栏添加这个菜单。
+          Log.Write(Concat('判定成功，语言文件名为：', I), LOG_START, LOG_INFO);
+        end else continue; //如果不为json或dll，则继续。
+      end;
+    end;
+  end;
 end;
 //主窗口：窗口渐变产生计时器
 var mgradient_temp: Integer = 0;

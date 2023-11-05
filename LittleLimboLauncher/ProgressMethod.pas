@@ -1,17 +1,17 @@
-﻿unit DownloadMethod;
+﻿unit ProgressMethod;
 
 interface
 
 uses
   System.Net.HttpClient, System.Net.HttpClientComponent, System.Generics.Collections, JSON,
-  SysUtils, Classes, Math, Windows, Threading, StrUtils, Forms;
+  SysUtils, Classes, Math, Windows, Threading, StrUtils, Forms, Dialogs;
 
 procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMode, LoadSource: Integer; isShowList: Boolean = true; isShowProgress: Boolean = true);
 
 implementation
 
 uses
-  MainMethod, MainForm, LanguageMethod, LaunchMethod;
+  MainMethod, MainForm, LanguageMethod, LauncherMethod;
 
 type
   TDownloadMethod = class
@@ -30,6 +30,7 @@ type
     function ExtractMainClass(jarpath: String): String;
     procedure SimpleForge(profile: String);
     function JudgeMCRule(rl: TJsonObject): Boolean;
+    procedure ShowCurrentProgress(current, mmax: Integer);
     procedure RunProcessors(profile: String);
     procedure DownloadCustomFile;
     procedure DownloadMinecraft;
@@ -149,6 +150,12 @@ begin
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.download_success').Replace('${file_success_name}', ViewName));
   srr.SaveToFile(SavePath);
 end;
+procedure TDownloadMethod.ShowCurrentProgress(current, mmax: Integer);
+begin
+  form_mainform.progressbar_progress_download_bar.Position := current;
+  var jd: Currency := 100 * current / mmax;
+  form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(current)).Replace('${download_all_count}', inttostr(mmax));
+end;
 //在单线程下载的时候，这里会显示下载进度。
 procedure TDownloadMethod.ReceiveData(const Sender: TObject;
   AContentLength, AReadCount: Int64; var AAbort: Boolean);
@@ -219,7 +226,6 @@ end;
 function TDownloadMethod.GetFileSize(aurl: String): Integer;
 begin
   var http := TNetHTTPClient.Create(nil); //建立并且初始化一个TNetHTTPClient。
-  result := 0; //设定初始返回值为0
   try
     with http do begin
       AcceptCharSet := 'utf-8'; //设置传输编码为utf-8
@@ -374,9 +380,7 @@ begin
     try
       var side := (J.GetValue('sides') as TJsonArray)[0].Value;
       if side = 'server' then begin
-        form_mainform.progressbar_progress_download_bar.Position := TDPCount;
-        var jd: Currency := 100 * TDPCount / processors.Count;
-        form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(TDPCount)).Replace('${download_all_count}', inttostr(processors.Count));
+        ShowCurrentProgress(TDPCount, processors.Count);
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.skip_processors').Replace('${processors_count}', inttostr(TDPCount)));
         continue;
       end;
@@ -397,9 +401,7 @@ begin
       run := run.Replace(K.Key, K.Value);
     end;
     RunDOSOnlyWait(run);
-    form_mainform.progressbar_progress_download_bar.Position := TDPCount;
-    var jd: Currency := 100 * TDPCount / processors.Count;
-    form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(TDPCount)).Replace('${download_all_count}', inttostr(processors.Count));
+    ShowCurrentProgress(TDPCount, processors.Count);
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.run_processors_success').Replace('${processors_count}', inttostr(TDPCount)));
   end;
 end;
@@ -476,9 +478,7 @@ begin
         RealURL := Concat(lul, ConvertNameToPath(RealJSON.GetValue('name').Value).Replace('\', '/'));
       except end;
       try DownloadAsWindow(RealPath, RealURL, '', ExtractFileName(RealPath), true, SelectMode); except end;
-      form_mainform.progressbar_progress_download_bar.Position := TDFCount;
-      var jd: Currency := 100 * TDFCount / ForgeProfileRoot.Count;
-      form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(TDFCount)).Replace('${download_all_count}', inttostr(ForgeProfileRoot.Count));
+      ShowCurrentProgress(TDFCount, ForgeProfileRoot.Count);
     end;
   end;
   for var I := 0 to BiggestThread - 1 do begin
@@ -620,13 +620,12 @@ begin
         abort;
       end;
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.get_version_json_success'));
-      VanillaPath := Concat(ExtractFileDir(savepath), '\', yid, '.json');
-      SetFile(VanillaPath, (TJSONObject.ParseJSONValue(VersionJSON) as TJsonObject)
+      VanillaPath := Concat(ExtractFilePath(SavePath), '\', yid);
+      SetFile(Concat(VanillaPath, '\', yid, '.json'), (TJSONObject.ParseJSONValue(VersionJSON) as TJsonObject)
         .AddPair('clientVersion', yid).Format.Replace('\', ''));
     end;
   except end;
-  if VanillaPath = '' then VanillaPath := SavePath;
-  var tmp1 := GetMCInheritsFrom(VanillaPath, 'inheritsFrom');
+  var tmp1 := GetMCInheritsFrom(SavePath, 'inheritsFrom');
   var tmp2 := GetMCRealPath(tmp1, '.json');
   var tmp3 := GetFile(tmp2);
   url := ReplaceMCInheritsFrom(url, tmp3);
@@ -736,8 +735,8 @@ begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.mc_vanilla_id_not_found'));
     abort;
   end;
-  var ClientPath := Concat(SavePath, '\', ClientVersion, '.jar');
-  var JARURL := ((SourceJSON.GetValue('download') as TJsonObject).GetValue('client') as TJsonObject).GetValue('url').Value;
+  var ClientPath := Concat(VanillaPath, '\', ClientVersion, '.jar');
+  var JARURL := ((SourceJSON.GetValue('downloads') as TJsonObject).GetValue('client') as TJsonObject).GetValue('url').Value;
   var AssetURL := (SourceJSON.GetValue('assetIndex') as TJsonObject).GetValue('url').Value;
   if not FileExists(ClientPath) then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_main_version_jar'));
@@ -771,7 +770,7 @@ begin
     while TDLCount < LibrariesJSONRoot.Count do begin
       var RealJSON := LibrariesJSONRoot[TDLCount] as TJSONObject;
       inc(TDLCount);
-      if not JudgeMCRule(RealJSON) then continue;
+      if not JudgeMCRule(RealJSON) then begin continue; end;
       try
         var dn := RealJSON.GetValue('downloads') as TJsonObject;
         var da := dn.GetValue('artifact') as TJsonObject;
@@ -819,9 +818,7 @@ begin
         RealURL := Concat(lul, ConvertNameToPath(RealJSON.GetValue('name').Value).Replace('\', '/'));
       except end;
       try DownloadAsWindow(RealSave, RealURL, '', ExtractFileName(RealSave), true, SelectMode); except end;
-      form_mainform.progressbar_progress_download_bar.Position := TDLCount;
-      var jd: Currency := 100 * TDLCount / LibrariesJSONRoot.Count;
-      form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(TDLCount)).Replace('${download_all_count}', inttostr(LibrariesJSONRoot.Count));
+      ShowCurrentProgress(TDLCount, LibrariesJSONRoot.Count);
     end;
   end;
   for var I := 0 to BiggestThread - 1 do DownloadLibraries[I] := TTask.Run(DownloadLibrariesTask);
@@ -841,13 +838,11 @@ begin
       var hs := ne.GetValue('hash').Value;
       var lsr := LeftStr(hs, 2);
       var lu := Concat(ResourceRoot, '/', lsr, '/', hs);
-      var svp := Concat(savepath, '\assets\objects\', lsr, '\', hs);
-      var bfs := Concat(savepath, '\assets\virtual\legacy\', er.Replace('/', '\'));
+      var svp := Concat(RootPath, '\assets\objects\', lsr, '\', hs);
+      var bfs := Concat(RootPath, '\assets\virtual\legacy\', er.Replace('/', '\'));
       try DownloadAsWindow(svp, lu, hs, er, false, SelectMode); except end;
       BackupFile(svp, bfs);
-      form_mainform.progressbar_progress_download_bar.Position := TDACount;
-      var jd: Currency := 100 * TDACount / AssetsJSONRoot.Count;
-      form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(TDACount)).Replace('${download_all_count}', inttostr(LibrariesJSONRoot.Count));
+      ShowCurrentProgress(TDACount, AssetsJSONRoot.Count);
     end;
   end;
   for var I := 0 to BiggestThread - 1 do DownloadResource[I] := TTask.Run(DownloadAssetsTask);
@@ -905,9 +900,7 @@ begin
           DownloadAsWindow(svp, rurl, rsha, er, false, SelectMode);
         except end;
       end;
-      form_mainform.progressbar_progress_download_bar.Position := TDJCount;
-      var jd: Currency := 100 * TDJCount / JavaFileJSON.Count;
-      form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(TDJCount)).Replace('${download_all_count}', inttostr(JavaFileJSON.Count));
+      ShowCurrentProgress(TDJCount, JavaFileJSON.Count);
     end;
   end;
   for var I := 0 to BiggestThread - 1 do DownloadJavaTask[I] := TTask.Run(DownloadJava);
@@ -992,8 +985,8 @@ begin
 end;
 //调用函数
 //第一个url是下载链接，如果LoadSource是2、3、4的话，则需要为对应的json。
-//第二个SavePath是保存路径。当LoadSource为2、3的时候，需要为该Minecraft的version文件夹。
-//第三个RootPath是根路径，只有LoadSource为2、3的时候，则需要指定对应的.minecraft文件夹。
+//第二个SavePath是保存路径。当LoadSource为2、4的时候，需要为该Minecraft的version文件夹。
+//第三个RootPath是根路径，只有LoadSource为2、4的时候，则需要指定对应的.minecraft文件夹。
 //第四个BiggestThread是最大线程。
 //第五个SelectMode是下载源，只有1、2、3，如果为1，则是官方下载源，2为bmclapi，3为MCBBS。如果是国外则默认全部都是1，无法使用2、3，如果是下载自定义文件，则指定0即可！
 //第六个LoadSource是加载顺序，1为下载自定义文件，2为下载Minecraft，3为下载Java，4为下载Forge。

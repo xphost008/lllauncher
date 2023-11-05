@@ -1,0 +1,51 @@
+name: "Launcher has bug!"
+description: "some panic exception make your launcher crash? come here to report it!"
+labels: ["report bugs"]
+body:
+- type: checkboxes
+  id: "yml-1"
+  attributes:
+    label: "checkbox"
+    description: "please check"
+    options:
+    - label: "I'm sure this launcher is the latest version."
+    - label: "I'm sure this bug no one report it before me."
+      required: true
+- type: textarea
+  id: "yml-2"
+  attributes:
+    label: "it has help"
+    description: "if this bug resolve, it will helpful for everyone? write your opinion here."
+    placeholder: "example: [it helpful for everyone/it helpful just for me/only advice, it not has any help.]"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-3"
+  attributes:
+    label: "briefly describe your bugs."
+    description: "please describe your bugs in here."
+    placeholder: "example: [click test button, and bug raised.]"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-4"
+  attributes:
+    label: "reproduce step"
+    description: "please say your specific step when your bug raise."
+    placeholder: "example: [click test button, and bug raised.]"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-5"
+  attributes:
+    label: "how to solve."
+    description: "please say if you know the bug how to solve."
+    placeholder: "example1: [if you don't know, just entry I don't know, else entry you opinion.]"
+  validations: 
+    required: true
+- type: textarea
+  id: "yml-6"
+  attributes:
+    label: "add some other"
+    description: "if you has some other opinion, such as latest.log, just send it here."
+    placeholder: "example: [drag the latest.log here]"
