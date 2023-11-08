@@ -854,7 +854,7 @@ begin
           accm := TAccount.InitializeAccount(refreshToken, clientID, 'refresh');
         except
           Log.Write(Concat('重置失败，RefreshToken也已过期，请尝试登录吧。'), LOG_ACCOUNT, LOG_ERROR);
-          MyMessagebox(GetLanguage('messagebox_account.refresh_microsoft_error.caption'), GetLanguage('messagebox_account.refresh_microsoft_error.text'), MY_PASS, [mybutton.myOK]);
+          MyMessagebox(GetLanguage('messagebox_account.refresh_microsoft_error.caption'), GetLanguage('messagebox_account.refresh_microsoft_error.text'), MY_ERROR, [mybutton.myOK]);
           form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.refresh_microsoft_error');
           exit;
         end;
@@ -901,7 +901,7 @@ begin
           ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('name').Value, 'refresh');
         except
           Log.Write(Concat('重置失败，RefreshToken也已过期，请尝试登录吧。'), LOG_ACCOUNT, LOG_ERROR);
-          MyMessagebox(GetLanguage('messagebox_account.refresh_thirdparty_error.caption'), GetLanguage('messagebox_account.refresh_thirdparty_error.text'), MY_PASS, [mybutton.myOK]);
+          MyMessagebox(GetLanguage('messagebox_account.refresh_thirdparty_error.caption'), GetLanguage('messagebox_account.refresh_thirdparty_error.text'), MY_ERROR, [mybutton.myOK]);
           form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.refresh_thirdparty_error');
           exit;
         end;
@@ -1076,9 +1076,7 @@ end;
 //保存账号部分
 procedure SaveAccount;
 begin
-  if AccountJson = nil then begin
-    exit;
-  end;
+  if AccountJson = nil then exit;
   SetFile(Concat(AppData, '\LLLauncher\AccountJson.json'), AccountJson.Format);
   Otherini.WriteString('Account', 'SelectAccount', inttostr(form_mainform.combobox_all_account.ItemIndex + 1));
   LLLini.WriteString('Account', 'SelectLoginMode', inttostr(maccount_logintype));

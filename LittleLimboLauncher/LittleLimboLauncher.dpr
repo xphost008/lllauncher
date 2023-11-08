@@ -14,7 +14,8 @@ uses
   PrivacyMethod in 'PrivacyMethod.pas',
   PluginMethod in 'PluginMethod.pas',
   PlayingMethod in 'PlayingMethod.pas',
-  ManageMethod in 'ManageMethod.pas';
+  ManageMethod in 'ManageMethod.pas',
+  LauncherMethod in 'LauncherMethod.pas';
 
 {$R *.res}
 

@@ -244,9 +244,9 @@ type
     memo_message_board: TMemo;
     n_memory_optimize: TMenuItem;
     scrollbox_launch: TScrollBox;
-    label_launch_window_size_tips: TLabel;
-    label_launch_window_width_tip: TLabel;
-    label_launch_window_height_tip: TLabel;
+    label_launch_window_size: TLabel;
+    label_launch_window_width: TLabel;
+    label_launch_window_height: TLabel;
     scrollbar_launch_window_height: TScrollBar;
     scrollbar_launch_window_width: TScrollBar;
     label_launch_java_path: TLabel;
@@ -261,27 +261,27 @@ type
     button_launch_download_java_16: TButton;
     button_launch_download_java_17: TButton;
     button_launch_official_java: TButton;
-    label_launch_game_memory: TLabel;
-    scrollbar_launch_game_memory: TScrollBar;
+    label_launch_max_memory: TLabel;
+    scrollbar_launch_max_memory: TScrollBar;
     label_launch_custom_info: TLabel;
     edit_launch_custom_info: TEdit;
-    label_launch_game_title: TLabel;
-    edit_launch_game_title: TEdit;
+    label_launch_window_title: TLabel;
+    edit_launch_window_title: TEdit;
     label_launch_pre_launch_script: TLabel;
     edit_launch_pre_launch_script: TEdit;
-    button_launch_pre_launch_script_tip: TButton;
+    button_launch_pre_launch_script: TButton;
     label_launch_after_launch_script: TLabel;
     edit_launch_after_launch_script: TEdit;
-    button_launch_after_launch_script_tip: TButton;
-    label_launch_default_jvm_argument: TLabel;
-    edit_launch_default_jvm_argument: TEdit;
-    button_launch_default_jvm_argument_tip: TButton;
-    label_launch_additional_jvm_argument: TLabel;
-    edit_launch_additional_jvm_argument: TEdit;
-    button_launch_additional_jvm_argument_tip: TButton;
-    edit_launch_additional_game_argument: TEdit;
-    label_launch_additional_game_argument: TLabel;
-    button_launch_additional_game_argument_tip: TButton;
+    button_launch_after_launch_script: TButton;
+    label_launch_default_jvm: TLabel;
+    edit_launch_default_jvm: TEdit;
+    button_launch_default_jvm: TButton;
+    label_launch_additional_jvm: TLabel;
+    edit_launch_additional_jvm: TEdit;
+    button_launch_additional_jvm: TButton;
+    edit_launch_additional_game: TEdit;
+    label_launch_additional_game: TLabel;
+    button_launch_additional_game: TButton;
     scrollbox_version: TScrollBox;
     label_select_game_version: TLabel;
     combobox_select_game_version: TComboBox;
@@ -452,6 +452,35 @@ type
     procedure button_delete_choose_playingClick(Sender: TObject);
     procedure button_rename_choose_playingClick(Sender: TObject);
     procedure button_open_choose_playingClick(Sender: TObject);
+    procedure scrollbar_launch_window_heightChange(Sender: TObject);
+    procedure scrollbar_launch_window_widthChange(Sender: TObject);
+    procedure combobox_launch_select_java_pathChange(Sender: TObject);
+    procedure scrollbar_launch_max_memoryChange(Sender: TObject);
+    procedure edit_launch_custom_infoChange(Sender: TObject);
+    procedure edit_launch_window_titleChange(Sender: TObject);
+    procedure edit_launch_pre_launch_scriptChange(Sender: TObject);
+    procedure edit_launch_after_launch_scriptChange(Sender: TObject);
+    procedure edit_launch_additional_jvmChange(Sender: TObject);
+    procedure edit_launch_additional_gameChange(Sender: TObject);
+    procedure scrollbox_versionMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure scrollbox_isolationMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure scrollbox_exportMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure button_launch_pre_launch_scriptClick(Sender: TObject);
+    procedure button_launch_after_launch_scriptClick(Sender: TObject);
+    procedure button_launch_default_jvmClick(Sender: TObject);
+    procedure button_launch_additional_jvmClick(Sender: TObject);
+    procedure button_launch_additional_gameClick(Sender: TObject);
+    procedure button_launch_full_scan_javaClick(Sender: TObject);
+    procedure button_launch_basic_scan_javaClick(Sender: TObject);
+    procedure button_launch_manual_importClick(Sender: TObject);
+    procedure button_launch_remove_javaClick(Sender: TObject);
+    procedure button_launch_download_java_8Click(Sender: TObject);
+    procedure button_launch_download_java_16Click(Sender: TObject);
+    procedure button_launch_download_java_17Click(Sender: TObject);
+    procedure button_launch_official_javaClick(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -477,7 +506,7 @@ var
   mred, mgreen, mblue, mwindow_alpha, mcontrol_alpha: Integer;
   mgradient_value, mgradient_step: Integer;
   mis_gradient: Boolean;
-  mchoose_skin, mbiggest_thread: Integer;
+  mchoose_skin, mbiggest_thread, mdownload_source: Integer;
 
 implementation
 
@@ -584,7 +613,6 @@ begin
   listbox_manage_import_datapack.Items.Clear;
   ClearDatSelect;
 end;
-
 //玩法部分：名称列表框点击
 procedure Tform_mainform.listbox_playing_search_nameClick(Sender: TObject);
 begin
@@ -595,7 +623,6 @@ procedure Tform_mainform.listbox_playing_search_versionClick(Sender: TObject);
 begin
   PlayingSelVerList;
 end;
-
 //高危系统库ntdll.dll
 function NtSetSystemInformation(SystemInformationClass: DWORD; SystemInformation: Pointer; SystemInformationLength: ULONG): NTSTATUS; stdcall; external 'ntdll.dll';
 //提取权限
@@ -683,6 +710,8 @@ begin
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
+var
+  status: TMemoryStatus;
 //type
 //  TTT = record
 //    CurrentSize: Currency;
@@ -692,6 +721,10 @@ procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 //    MaximumWorkingSet: Currency;
 //  end;
 begin
+//  GlobalMemoryStatus(status);
+//  showmessage(inttostr(status.dwLength)+#13#10+inttostr(status.dwMemoryLoad)+#13#10+inttostr(status.dwTotalPhys)+#13#10+inttostr(status.dwAvailPhys)+#13#10+inttostr(status.dwTotalPageFile)+#13#10+inttostr(status.dwAvailPageFile)+#13#10+inttostr(status.dwTotalVirtual)+#13#10+inttostr(status.dwAvailVirtual));
+//  var s := TDirectory.GetLogicalDrives;
+//  for var I in S do showmessage(I);
 //  showmessage(inttostr(MyMessagebox('', '', MY_ERROR, [mybutton.myYes, mybutton.myNo])));
 //      var s: TPoint;
 //      s.X := 0;
@@ -830,10 +863,133 @@ begin
   Color := rgb(mred, mgreen, mblue);
   buttoncolor_custom_color.SymbolColor := Color;
 end;
+//启动设置；额外Game参数
+procedure Tform_mainform.button_launch_additional_gameClick(Sender: TObject);
+begin
+  MyMessagebox(GetLanguage('messagebox_launch.additional_game_tip.caption'), GetLanguage('messagebox_launch.additional_game_tip.text'), MY_INFORMATION, [mybutton.myYes]);
+end;
+//启动设置：额外JVM参数
+procedure Tform_mainform.button_launch_additional_jvmClick(Sender: TObject);
+begin
+  MyMessagebox(GetLanguage('messagebox_launch.additional_jvm_tip.caption'), GetLanguage('messagebox_launch.additional_jvm_tip.text'), MY_INFORMATION, [mybutton.myYes]);
+end;
+//启动设置：后置启动脚本
+procedure Tform_mainform.button_launch_after_launch_scriptClick(
+  Sender: TObject);
+begin
+  MyMessagebox(GetLanguage('messagebox_launch.after_launch_script_tip.caption'), GetLanguage('messagebox_launch.after_launch_script_tip.text'), MY_INFORMATION, [mybutton.myYes]);
+end;
+//特定扫描Java
+procedure Tform_mainform.button_launch_basic_scan_javaClick(Sender: TObject);
+begin
+  BasicScanJava();
+end;
+//启动设置：默认JVM参数
+procedure Tform_mainform.button_launch_default_jvmClick(Sender: TObject);
+begin
+  MyMessagebox(GetLanguage('messagebox_launch.default_jvm_tip.caption'), GetLanguage('messagebox_launch.default_jvm_tip.text'), MY_INFORMATION, [mybutton.myYes]);
+end;
+//下载Java16
+procedure Tform_mainform.button_launch_download_java_16Click(Sender: TObject);
+begin
+  DownloadJava('java-runtime-alpha');
+end;
+//下载Java17
+procedure Tform_mainform.button_launch_download_java_17Click(Sender: TObject);
+begin
+  DownloadJava('java-runtime-gamma');
+end;
+//下载Java8
+procedure Tform_mainform.button_launch_download_java_8Click(Sender: TObject);
+begin
+  DownloadJava('jre-legacy');
+end;
+//全盘扫描Java
+procedure Tform_mainform.button_launch_full_scan_javaClick(Sender: TObject);
+begin
+  FullScanJava();
+end;
 //主界面：启动游戏按钮
 procedure Tform_mainform.button_launch_gameClick(Sender: TObject);
 begin
 //
+end;
+//启动设置：手动导入Java
+procedure Tform_mainform.button_launch_manual_importClick(Sender: TObject);
+begin
+  ManualImportJava();
+end;
+//打开Java官网
+procedure Tform_mainform.button_launch_official_javaClick(Sender: TObject);
+var
+  offname: array of String;
+  offurl: array of String;
+  ul: String;
+begin
+  offname := [
+            '(Oracle)',
+            '(Microsoft)',
+            '(Eclipse Temurin)',
+            '(Bell Soft)',
+            '(Azul Zulu)',
+            '(Open Logic)',
+            '(Red Hat)',
+            '(Amazon Corretto)',
+            '(jdk)'];
+  offurl := [
+            'https://www.oracle.com/java/technologies/downloads/',
+            'https://learn.microsoft.com/zh-cn/java/openjdk/download',
+            'https://adoptium.net/temurin/releases/',
+            'https://bell-sw.com/pages/downloads/',
+            'https://www.azul.com/downloads/?package=jdk',
+            'https://www.openlogic.com/openjdk-downloads',
+            'https://developers.redhat.com/products/openjdk/download',
+            'https://aws.amazon.com/cn/corretto/',
+            'https://jdk.java.net'
+  ];
+  var ask := GetLanguage('inputbox_launch.select_java_web.text');
+  for var i := 0 to Length(offname) - 1 do begin
+    ask := Concat(ask, #13#10, inttostr(i + 1), '. ', offname[i]);
+  end;
+  var i := MyInputBox(GetLanguage('inputbox_launch.select_java_web.caption'), ask, MY_INFORMATION);
+  try
+    if i = '' then exit;
+    var s := strtoint(i);
+    ul := offurl[s - 1];
+  except
+    MyMessagebox(GetLanguage('messagebox_launch.open_java_web_error.caption'), GetLanguage('messagebox_launch.open_java_web_error.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  ShellExecute(Application.Handle, nil, pchar(ul), nil, nil, SW_SHOWNORMAL);
+//  try
+//    if i = '' then exit;
+//    var s := strtoint(i);
+//    case s of
+//      1: ul := 'https://www.oracle.com/java/technologies/downloads/';
+//      2: ul := 'https://learn.microsoft.com/zh-cn/java/openjdk/download';
+//      3: ul := 'https://adoptium.net/temurin/releases/';
+//      4: ul := 'https://bell-sw.com/pages/downloads/';
+//      5: ul := 'https://www.azul.com/downloads/?package=jdk';
+//      6: ul := 'https://www.openlogic.com/openjdk-downloads';
+//      7: ul := 'https://developers.redhat.com/products/openjdk/download';
+//      8: ul := 'https://aws.amazon.com/cn/corretto/';
+//      9: ul := 'https://jdk.java.net';
+//      else raise Exception.Create('Not support Number');
+//    end;
+//  except
+//    MyMessagebox(GetLanguage('messagebox_launch.open_java_web_error.caption'), GetLanguage('messagebox_launch.open_java_web_error.text'), MY_ERROR, [mybutton.myOK]);
+//  end;
+end;
+
+//启动设置：前置启动脚本
+procedure Tform_mainform.button_launch_pre_launch_scriptClick(Sender: TObject);
+begin
+  MyMessagebox(GetLanguage('messagebox_launch.pre_launch_script_tip.caption'), GetLanguage('messagebox_launch.pre_launch_script_tip.text'), MY_INFORMATION, [mybutton.myYes]);
+end;
+//启动设置：移除Java
+procedure Tform_mainform.button_launch_remove_javaClick(Sender: TObject);
+begin
+  RemoveJava;
 end;
 //微软OAuth登录
 procedure Tform_mainform.button_microsoft_oauth_loginClick(Sender: TObject);
@@ -1004,6 +1160,12 @@ begin
   JudgeJSONSkin(combobox_all_account.ItemIndex);
   label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', maccount_view);
 end;
+//启动设置：Java下拉框修改
+procedure Tform_mainform.combobox_launch_select_java_pathChange(
+  Sender: TObject);
+begin
+  mcurrent_java := combobox_launch_select_java_path.ItemIndex;
+end;
 //搜索类型改变下拉框（Curseforge）
 procedure Tform_mainform.combobox_playing_search_category_curseforgeChange(
   Sender: TObject);
@@ -1024,6 +1186,36 @@ end;
 procedure Tform_mainform.edit_background_mainform_titleChange(Sender: TObject);
 begin
   Caption := edit_background_mainform_title.Text;
+end;          
+//启动设置：额外game参数
+procedure Tform_mainform.edit_launch_additional_gameChange(Sender: TObject);
+begin
+  madd_game := edit_launch_additional_game.Text;
+end;
+//启动设置：额外JVM参数
+procedure Tform_mainform.edit_launch_additional_jvmChange(Sender: TObject);
+begin
+  madd_jvm := edit_launch_additional_jvm.Text;
+end;
+//启动设置：后置启动脚本
+procedure Tform_mainform.edit_launch_after_launch_scriptChange(Sender: TObject);
+begin
+  mafter_script := edit_launch_after_launch_script.Text;
+end;
+//启动设置：自定义信息
+procedure Tform_mainform.edit_launch_custom_infoChange(Sender: TObject);
+begin
+  mcustom_info := edit_launch_custom_info.Text;
+end;
+//启动设置：前置启动脚本
+procedure Tform_mainform.edit_launch_pre_launch_scriptChange(Sender: TObject);
+begin
+  mpre_script := edit_launch_pre_launch_script.Text;
+end;
+//启动设置：窗口标题
+procedure Tform_mainform.edit_launch_window_titleChange(Sender: TObject);
+begin
+  mwindow_title := edit_launch_window_title.Text;
 end;
 //主界面：窗口关闭事件
 procedure Tform_mainform.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -1253,6 +1445,13 @@ begin
     mbiggest_thread := 32;
     LLLini.WriteInteger('Misc', 'ControlAlpha', mbiggest_thread);
   end;
+  try
+    mdownload_source := LLLini.ReadInteger('Version', 'SelectDownloadSource', -1);
+    if (mdownload_source < 1) or (mdownload_source > 3) then raise Exception.Create('Format Exception');
+  except
+    mdownload_source := 1;
+    LLLini.WriteInteger('Version', 'SelectDownloadSource', 1);
+  end;
   timer_form_gradient_tick.Interval := mgradient_value;
   SetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE, GetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE) or WS_EX_LAYERED);
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);
@@ -1429,6 +1628,72 @@ begin
   mwindow_alpha := scrollbar_background_window_alpha.Position;
   label_background_window_current_alpha.Caption := GetLanguage('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
   AlphaBlendValue := mwindow_alpha;
+end;                 
+//启动设置：游戏内存大小
+procedure Tform_mainform.scrollbar_launch_max_memoryChange(Sender: TObject);
+begin
+  mmax_memory := scrollbar_launch_max_memory.Position;        
+  label_launch_max_memory.Caption := GetLanguage('label_launch_max_memory.caption').Replace('${max_memory}', inttostr(mmax_memory));
+end;
+//启动设置：游戏窗口大小：高度
+procedure Tform_mainform.scrollbar_launch_window_heightChange(Sender: TObject);
+begin
+  mwindow_height := scrollbar_launch_window_height.Position;
+  label_launch_window_height.Caption := GetLanguage('label_launch_window_height.caption').Replace('${window_height}', inttostr(mwindow_height));
+end;
+//启动设置：游戏窗口大小：宽度
+procedure Tform_mainform.scrollbar_launch_window_widthChange(Sender: TObject);
+begin
+  mwindow_width := scrollbar_launch_window_width.Position;      
+  label_launch_window_width.Caption := GetLanguage('label_launch_window_width.caption').Replace('${window_width}', inttostr(mwindow_width));
+end;     
+//版本设置-导出整合包：滑动条框
+procedure Tform_mainform.scrollbox_exportMouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
+var
+  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
+  LPoint: TPoint;
+  ScrollBox: TScrollBox;
+begin
+  ScrollBox := TScrollBox(Sender);
+  LPoint := ScrollBox.ClientToScreen(Point(0,0));
+  LTopLeft := LPoint.X;
+  LTopRight := LTopLeft + ScrollBox.ClientWidth;
+  LBottomLeft := LPoint.Y;
+  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
+  if (MousePos.X >= LTopLeft) and
+    (MousePos.X <= LTopRight) and
+    (MousePos.Y >= LBottomLeft) and
+    (MousePos.Y <= LBottomRight) then
+  begin
+    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
+    Handled := True;
+  end;
+end;
+//版本设置-独立设置：滑动条框
+procedure Tform_mainform.scrollbox_isolationMouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
+var
+  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
+  LPoint: TPoint;
+  ScrollBox: TScrollBox;
+begin
+  ScrollBox := TScrollBox(Sender);
+  LPoint := ScrollBox.ClientToScreen(Point(0,0));
+  LTopLeft := LPoint.X;
+  LTopRight := LTopLeft + ScrollBox.ClientWidth;
+  LBottomLeft := LPoint.Y;
+  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
+  if (MousePos.X >= LTopLeft) and
+    (MousePos.X <= LTopRight) and
+    (MousePos.Y >= LBottomLeft) and
+    (MousePos.Y <= LBottomRight) then
+  begin
+    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
+    Handled := True;
+  end;
 end;
 //启动设置：滑动条框
 procedure Tform_mainform.scrollbox_launchMouseWheel(Sender: TObject;
@@ -1454,6 +1719,31 @@ begin
     Handled := True;
   end;
 end;
+//版本设置-版本控制：滑动条框
+procedure Tform_mainform.scrollbox_versionMouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
+var
+  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
+  LPoint: TPoint;
+  ScrollBox: TScrollBox;
+begin
+  ScrollBox := TScrollBox(Sender);
+  LPoint := ScrollBox.ClientToScreen(Point(0,0));
+  LTopLeft := LPoint.X;
+  LTopRight := LTopLeft + ScrollBox.ClientWidth;
+  LBottomLeft := LPoint.Y;
+  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
+  if (MousePos.X >= LTopLeft) and
+    (MousePos.X <= LTopRight) and
+    (MousePos.Y >= LBottomLeft) and
+    (MousePos.Y <= LBottomRight) then
+  begin
+    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
+    Handled := True;
+  end;
+end;
+
 //主窗口：总体计时器
 var open_form: Boolean = true;
 procedure Tform_mainform.timer_all_ticksTimer(Sender: TObject);

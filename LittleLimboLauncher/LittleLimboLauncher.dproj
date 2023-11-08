@@ -150,6 +150,7 @@
         <DCCReference Include="PluginMethod.pas"/>
         <DCCReference Include="PlayingMethod.pas"/>
         <DCCReference Include="ManageMethod.pas"/>
+        <DCCReference Include="LauncherMethod.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

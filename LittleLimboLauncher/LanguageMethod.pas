@@ -163,6 +163,37 @@ begin
   form_mainform.button_delete_choose_playing.Hint := GetLanguage('button_delete_choose_playing.hint');
   form_mainform.button_rename_choose_playing.Hint := GetLanguage('button_rename_choose_playing.hint');
   form_mainform.button_open_choose_playing.Hint := GetLanguage('button_open_choose_playing.hint');
+  //以下是启动设置界面
+  form_mainform.label_launch_window_size.Caption := GetLanguage('label_launch_window_size.caption');
+  form_mainform.label_launch_java_path.Caption := GetLanguage('label_launch_java_path.caption');
+  form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_logic.caption');
+  form_mainform.button_launch_full_scan_java.Caption := GetLanguage('button_launch_full_scan_java.caption');
+  form_mainform.button_launch_basic_scan_java.Caption := GetLanguage('button_launch_basic_scan_java.caption');
+  form_mainform.button_launch_manual_import.Caption := GetLanguage('button_launch_manual_import.caption');
+  form_mainform.button_launch_remove_java.Caption := GetLanguage('button_launch_remove_java.caption');
+  form_mainform.label_launch_download_java.Caption := GetLanguage('label_launch_download_java.caption');
+  form_mainform.button_launch_download_java_8.Caption := GetLanguage('button_launch_download_java_8.caption');
+  form_mainform.button_launch_download_java_16.Caption := GetLanguage('button_launch_download_java_16.caption');
+  form_mainform.button_launch_download_java_17.Caption := GetLanguage('button_launch_download_java_17.caption');
+  form_mainform.button_launch_official_java.Caption := GetLanguage('button_launch_official_java.caption');
+  form_mainform.label_launch_custom_info.Caption := GetLanguage('label_launch_custom_info.caption');
+  form_mainform.edit_launch_custom_info.TextHint := GetLanguage('edit_launch_custom_info.texthint');
+  form_mainform.label_launch_window_title.Caption := GetLanguage('label_launch_window_title.caption');
+  form_mainform.edit_launch_window_title.TextHint := GetLanguage('edit_launch_window_title.texthint');
+  form_mainform.label_launch_pre_launch_script.Caption := GetLanguage('label_launch_pre_launch_script.caption');
+  form_mainform.edit_launch_pre_launch_script.TextHint := GetLanguage('edit_launch_pre_launch_script.texthint');
+  form_mainform.button_launch_pre_launch_script.Caption := GetLanguage('button_launch_pre_launch_script.caption');
+  form_mainform.label_launch_after_launch_script.Caption := GetLanguage('label_launch_after_launch_script.caption');
+  form_mainform.edit_launch_after_launch_script.TextHint := GetLanguage('edit_launch_after_launch_script.texthint');
+  form_mainform.button_launch_after_launch_script.Caption := GetLanguage('button_launch_after_launch_script.caption');
+  form_mainform.label_launch_default_jvm.Caption := GetLanguage('label_launch_default_jvm.caption');
+  form_mainform.button_launch_default_jvm.Caption := GetLanguage('button_launch_default_jvm.caption');
+  form_mainform.label_launch_additional_jvm.Caption := GetLanguage('label_launch_additional_jvm.caption');
+  form_mainform.edit_launch_additional_jvm.TextHint := GetLanguage('edit_launch_additional_jvm.texthint');
+  form_mainform.button_launch_additional_jvm.Caption := GetLanguage('button_launch_additional_jvm.caption');
+  form_mainform.label_launch_additional_game.Caption := GetLanguage('label_launch_additional_game.caption');
+  form_mainform.edit_launch_additional_game.TextHint := GetLanguage('edit_launch_additional_game.texthint');
+  form_mainform.button_launch_additional_game.Caption := GetLanguage('button_launch_additional_game.caption');
 end;
 
 procedure InitLanguage();
@@ -472,6 +503,58 @@ begin
       .AddPair('inputbox_manage.rename_new_name.text', '在下方输入命名的新名称，如果留空或者按取消则保持原名。')
       .AddPair('messagebox_manage.open_no_choose_playing.caption', '无法打开文件夹')
       .AddPair('messagebox_manage.open_no_choose_playing.text', '你还暂未选择任一玩法，无法通过资源管理器打开')
+      .AddPair('messagebox_launch.pre_launch_script_tip.caption', '前置启动脚本命令提示')
+      .AddPair('messagebox_launch.pre_launch_script_tip.text', Concat('在书写该参数的时候，你需要注意一点，你当然可以选择书写shutdown -s -t 0，也可以选择调出你默认的服务端代码，甚至可以打开vscode。', #13#10,
+              '但是请注意，此处命令只是会在启动游戏之前先默认执行一遍哦！而不是在启动游戏之后忽然给你执行一次，如果填入错误的话，本启动器将不会给出任何的错误提示哦！', #13#10,
+              '顺带提一句，请使用【<空格>&<空格>】来分隔，如果你需要执行多行命令的话。目前暂未实现使用快捷键来指定目录，例如【使用{minecraft}指定mc当前目录】等功能哦！', #13#10,
+              '当执行指令的时候，如果你愿意的话，你可以用C语言写一个无限循环，然后让启动器执行这个exe，但是该启动器会卡死，因为启动器会一直等待执行命令完毕才会启动MC。'))
+      .AddPair('messagebox_launch.after_launch_script_tip.caption', '后置启动脚本命令提示')
+      .AddPair('messagebox_launch.after_launch_script_tip.text', Concat('在书写该参数的时候，倒是可以写shutdown -s -t 0了，因为有可能你玩完游戏之后就会关机。', #13#10,
+              '本参数的意思是当你结束MC运行的时候，开始执行该指令。如果在此期间，你手动关闭了本启动器，则不会执行该指令语句。', #13#10,
+              '填入错误也不会有任何提示，并且也请使用【<空格>&<空格>】来分割多条指令，目前暂未实现快捷键指定目录。例如【使用{minecraft}指定mc当前目录】等功能。', #13#10,
+              '如果该处有无限循环指令，则启动器将会一直等待下去【也就是卡死】，直到该指令执行完毕，才会松开句柄使得启动器恢复成可操作模式。'))
+      .AddPair('messagebox_launch.default_jvm_tip.caption', '默认JVM参数提示')
+      .AddPair('messagebox_launch.default_jvm_tip.text', Concat('默认JVM参数：这个是默认会在游戏启动中添加的参数，已设置ReadOnly。不要试图修改它，如果必要的话，请在以下的额外JVM参数下修改。'))
+      .AddPair('messagebox_launch.additional_jvm_tip.caption', '额外JVM参数提示')
+      .AddPair('messagebox_launch.additional_jvm_tip.text', Concat('额外JVM参数：这个会将你输入的参数名当做启动脚本的jvm参数最后一个新增上去。顺带一提，请用空格分隔你的参数，还有，非专业人士请勿修改。'))
+      .AddPair('messagebox_launch.additional_game_tip.caption', '额外Game参数提示')
+      .AddPair('messagebox_launch.additional_game_tip.text', Concat('额外game参数，又称额外游戏参数：这个会将你输入的参数名当作启动脚本的最后一个新增上去，顺带一提，请用空格分隔你的参数，还有，非专业人士请勿修改。', #13#10,
+              '关于额外game参数的提示：不仅可以输入以下Hint中的参数，你还可以输入quickPlayMultiplayer然后附带<服务器地址>:<服务器端口>来进入服务器，其中如果服务器没有端口，则默认为25565。甚至可以适用quickPlayRealms，后面附带你的Realms代号。', #13#10,
+              '自然，除了这些，你还可以指定quickPlayPath，该值接受一个log【输出】路径，你可以填入这个log，它将会记录你进入的世界的所有类型，你可以根据这些类型来填写quickPlay啥啥的参数。其实以上所有参数仅适用于23w14a以上，若你在其以下，你依旧需要在此指定--server和--port，如果一个服务器没有端口，则默认是25565。', #13#10,
+              '不仅如此，你还可以在此输入--demo进入试玩模式或--fullScreen进入全屏，具体内容请参见：https://www.mcbbs.net/thread-1447730-1-1.html，切记，如果你的MC版本低于23w14a，你将无法使用以上quick等参数，只能使用--server、--port。'))
+      .AddPair('messagebox_launch.is_full_scan_java.caption', '全盘扫描Java')
+      .AddPair('messagebox_launch.is_full_scan_java.text', '你选择的是全盘扫描Java，可能会卡很久很久，耗时非常长，在此期间请勿关闭启动器哦！是否继续？')
+      .AddPair('messagebox_launch.full_scan_java_error.caption', '扫描Java失败')
+      .AddPair('messagebox_launch.full_scan_java_error.text', '扫描${drive}盘时出错，你是否给予了足够的权限？请尝试使用管理员启动程序后再试。')
+      .AddPair('messagebox_launch.full_scan_java_success.caption', '扫描Java成功')
+      .AddPair('messagebox_launch.full_scan_java_success.text', '所有磁盘全部扫描完毕，所有Java已添加至下拉框！')
+      .AddPair('messagebox_launch.is_basic_scan_java.caption', '特定扫描Java')
+      .AddPair('messagebox_launch.is_basic_scan_java.text', '你选择的是特定扫描Java，用时应该不会很久，在此期间请勿关闭启动器哦！是否继续？')
+      .AddPair('messagebox_launch.basic_scan_java_search_regedit_error.caption', '特定扫描Java失败')
+      .AddPair('messagebox_launch.basic_scan_java_search_regedit_error.text', '扫描注册表时出错，你是否给予了足够的权限？请尝试使用管理员启动程序后再试。')
+      .AddPair('messagebox_launch.basic_scan_java_success.caption', '特定扫描Java成功')
+      .AddPair('messagebox_launch.basic_scan_java_success.text', '所有特定目录全部扫描完毕，所有Java已添加至下拉框！')
+      .AddPair('opendialog_launch.menual_import_java_dialog_title', '请选择Javaw文件')
+      .AddPair('messagebox_launch.not_support_java_bit.caption', '不支持的Java位数')
+      .AddPair('messagebox_launch.not_support_java_bit.text', '这个Java文件是32位Java，或者位数不支持显示，请重试。')
+      .AddPair('messagebox_launch.menual_import_java_success.caption', '添加成功')
+      .AddPair('messagebox_launch.menual_import_java_success.text', '手动添加Java成功！')
+      .AddPair('messagebox_launch.not_choose_java.caption', '暂未选中Java')
+      .AddPair('messagebox_launch.not_choose_java.text', '你目前还暂未选中任意Java，无法直接移除Java，请重试！')
+      .AddPair('messagebox_launch.is_remove_java.caption', '是否移除Java')
+      .AddPair('messagebox_launch.is_remove_java.text', '是否要移除当前选中的Java？')
+      .AddPair('messagebox_launch.remove_java_success.caption', '移除Java成功')
+      .AddPair('messagebox_launch.remove_java_success.text', '移除Java成功，但是你可以重新使用手动导入或者特定导入来导入这个Java。')
+      .AddPair('messagebox_launch.get_java_metadata_error.caption', '获取Java元数据失败')
+      .AddPair('messagebox_launch.get_java_metadata_error.text', '获取Java的元数据失败，你似乎并没有联网，或者该下载源不支持下载Java，请联网后再尝试。')
+      .AddPair('messagebox_launch.get_java_manifest_error.caption', '获取Java版本元数据失败')
+      .AddPair('messagebox_launch.get_java_manifest_error.text', '由于未知原因，获取Java(${java_version})(64)的版本元数据失败，请重试！')
+      .AddPair('messagebox_launch.download_java_success.caption', '下载Java成功')
+      .AddPair('messagebox_launch.download_java_success.text', '下载Java成功了，现在你可以通过特定扫描来导入Java了！')
+      .AddPair('inputbox_launch.select_java_web.caption', '请选择你要下载的Java官网')
+      .AddPair('inputbox_launch.select_java_web.text', '如果你不信任LLL下载的Java，你可以自行在此处输入你想进入的Java官网（这里给几个官网，推荐指数从上往下。），LLL会通过你电脑的默认浏览器打开官网。输入前面的序号即可：')
+      .AddPair('messagebox_launch.open_java_web_error.caption', '输入的数字有误')
+      .AddPair('messagebox_launch.open_java_web_error.text', '你输入了不支持的序号，请重新输入！')
       //以下为下载进度列表框
       .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
@@ -520,7 +603,7 @@ begin
       .AddPair('downloadlist.window.download_success', '下载成功：${file_success_name}')
       .AddPair('downloadlist.backup.backup_success', '已备份：${backup_file_name}')
       .AddPair('downloadlist.backup.backup_error', '备份失败：${backup_file_name}')
-      .AddPair('downloadlist.java.download_java_success', '下载Java已完成，耗时${download_finish_time}秒。')
+      .AddPair('downloadlist.java.download_java_finish', '下载Java已完成，耗时${download_finish_time}秒。')
       .AddPair('downloadlist.forge.forge_version_not_allow_install', '该版本的forge不允许自动安装，请重试……')
       .AddPair('downloadlist.forge.download_forge_installer_start', '正在下载Forge安装器jar中。')
       .AddPair('downloadlist.forge.download_forge_installer_success', '下载Forge安装器jar成功。')
@@ -541,8 +624,14 @@ begin
       .AddPair('downloadlist.authlib.authlib_has_update', '已检测出Authlib更新，正在下载')
       .AddPair('downloadlist.authlib.download_authlib_error', 'Authlib-Injector下载失败，请重试！')
       .AddPair('downloadlist.authlib.downlaod_authlib_success', 'Authlib-Injector下载成功！')
-      .AddPair('downloadlist_playing.start_download', '正在下载该玩法……')
-      .AddPair('downloadlist_playing.download_success', '玩法下载已完成')
+      .AddPair('downloadlist.playing.start_download', '正在下载该玩法……')
+      .AddPair('downloadlist.playing.download_success', '玩法下载已完成')
+      .AddPair('downloadlist.java.get_java_metadata', '正在获取Java总元数据中……')
+      .AddPair('downloadlist.java.get_java_metadata_error', '获取Java元数据失败！你似乎没有联网。请重试。')
+      .AddPair('downloadlist.java.get_java_manifest', '正在获取Java(${java_version})(64)版本元数据中……')
+      .AddPair('downloadlist.java.get_java_manifest_error', '由于未知原因，获取Java(${java_version})(64)版本元数据失败！')
+      .AddPair('downloadlist.java.get_java_success', '获取Java所有的元数据成功！现在开始下载！')
+      .AddPair('downloadlist.java.download_java_success', '下载Java成功！现在你可以通过特定扫描来找到Java了。')
       //以下为下载进度窗口
       .AddPair('__progress_comment', '（注解）以下是下载进度窗口语言')
       .AddPair('button_progress_hide_show_details.caption.show', '显示详情')
@@ -977,6 +1066,49 @@ begin
       .AddPair('button_delete_choose_playing.hint', '删除选中的玩法，当同时选中数据包和地图时将会优先删除数据包。【将会放入回收站】')
       .AddPair('button_rename_choose_playing.hint', '重命名选中的玩法，当地图与数据包同时选中时将会优先重命名数据包。')
       .AddPair('button_open_choose_playing.hint', '用资源管理器打开你所选择的玩法。当地图与数据包同时选中时将会优先打开地图文件夹中的datapacks文件夹。')
+      //启动设置界面
+      .AddPair('label_launch_window_height.caption', '高度，当前选中：${window_height}')
+      .AddPair('label_launch_window_width.caption', '宽度，当前选中：${window_width}')
+      .AddPair('label_launch_max_memory.caption', '游戏内存大小，当前选中：${max_memory}')
+      .AddPair('label_launch_window_size.caption', '游戏窗口大小，默认854x480')
+      .AddPair('label_launch_java_path.caption', 'Java路径')
+      .AddPair('label_launch_java_logic.caption', 'Java逻辑')
+      .AddPair('button_launch_full_scan_java.caption', '全盘扫描')
+      .AddPair('button_launch_basic_scan_java.caption', '特定扫描')
+      .AddPair('button_launch_manual_import.caption', '手动导入')
+      .AddPair('button_launch_remove_java.caption', '移除Java')
+      .AddPair('label_launch_download_java.caption', '下载Java')
+      .AddPair('button_launch_download_java_8.caption', '下载Java8')
+      .AddPair('button_launch_download_java_16.caption', '下载Java16')
+      .AddPair('button_launch_download_java_17.caption', '下载Java17')
+      .AddPair('button_launch_official_java.caption', '打开Java官网')
+      .AddPair('label_launch_custom_info.caption', '自定义信息（默认LLLauncher）')
+      .AddPair('edit_launch_custom_info.texthint', '随便填')
+      .AddPair('label_launch_window_title.caption', '窗口标题（默认即默认）')
+      .AddPair('edit_launch_window_title.texthint', '随便填')
+      .AddPair('label_launch_pre_launch_script.caption', '前置启动脚本')
+      .AddPair('edit_launch_pre_launch_script.texthint', '非专业人士请勿修改本行')
+      .AddPair('button_launch_pre_launch_script.caption', '查看该行提示')
+      .AddPair('label_launch_after_launch_script.caption', '后置启动脚本')
+      .AddPair('edit_launch_after_launch_script.texthint', '非专业人士请勿修改本行')
+      .AddPair('button_launch_after_launch_script.caption', '查看该行提示')
+      .AddPair('label_launch_default_jvm.caption', '默认JVM参数')
+      .AddPair('button_launch_default_jvm.caption', '查看该行提示')
+      .AddPair('label_launch_additional_jvm.caption', '额外JVM参数')
+      .AddPair('edit_launch_additional_jvm.texthint', '非专业人士请勿修改本行')
+      .AddPair('button_launch_additional_jvm.caption', '查看该行提示')
+      .AddPair('label_launch_additional_game.caption', '额外Game参数')
+      .AddPair('edit_launch_additional_game.texthint', '非专业人士请勿修改本行')
+      .AddPair('button_launch_additional_game.caption', '查看该行提示')
+      .AddPair('label_launch_java_login.caption.full_scan_java', 'Java逻辑，正在扫描${drive}盘……')
+      .AddPair('label_launch_java_login.caption.full_scan_java_error', 'Java逻辑，全盘扫描Java失败')
+      .AddPair('label_launch_java_login.caption.full_scan_java_success', 'Java逻辑，全盘扫描Java成功')
+      .AddPair('label_launch_java_logic.caption.search_regedit', 'Java逻辑，正在扫描注册表')
+      .AddPair('label_launch_java_login.caption.basic_scan_java_search_regedit_error', 'Java逻辑，全盘扫描Java失败')
+      .AddPair('label_launch_java_logic.caption.search_env_path', 'Java逻辑，正在扫描环境变量')
+      .AddPair('label_launch_java_logic.caption.search_program', 'Java逻辑，正在扫描C:\Program File\Java')
+      .AddPair('label_launch_java.logic.caption.search_lllpath', 'Java逻辑，正在扫描LLL特定目录')
+      .AddPair('label_launch_java_logic.caption.basic_scan_java_success', 'Java逻辑，特定扫描Java成功')
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
   end;

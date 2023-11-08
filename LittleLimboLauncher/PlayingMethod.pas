@@ -494,6 +494,7 @@ begin
     end;
   end);
 end;
+//下载玩法
 procedure PlayingDownload;
 begin
   if form_mainform.listbox_playing_search_version.ItemIndex <> -1 then begin
@@ -518,9 +519,9 @@ begin
       end;
       form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
       TTask.Run(procedure begin
-        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist_playing.start_download'));
+        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.playing.start_download'));
         DownloadStart(furl, od.FileName, '', mbiggest_thread, 0, 1);
-        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist_playing.download_success'));
+        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.playing.download_success'));
         MyMessagebox(GetLanguage('messagebox_playing.download_playing_success.caption'), GetLanguage('messagebox_playing.download_playing_success.text'), MY_PASS, [mybutton.myYes]);
       end);
     end;

@@ -37,8 +37,8 @@ begin
     else ret := false;
   end else ret := false;
   var IltIni := TIniFile.Create(Concat(msph, '\LLLauncher.ini'));
-  if IltIni.ReadString('Isolation', 'IsIsolation', '').ToLower = 'true' then
-    if IltIni.ReadString('Isolation', 'Partition', '').ToLower = 'true' then
+  if IltIni.ReadBool('Isolation', 'IsIsolation', false) then
+    if IltIni.ReadBool('Isolation', 'Partition', false) then
       ret := true;
   if ret then result := msph else result := mccp;
 end;

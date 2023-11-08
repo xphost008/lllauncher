@@ -2110,21 +2110,21 @@ object form_mainform: Tform_mainform
         ParentCtl3D = False
         TabOrder = 0
         OnMouseWheel = scrollbox_launchMouseWheel
-        object label_launch_window_size_tips: TLabel
+        object label_launch_window_size: TLabel
           Left = 3
           Top = 3
           Width = 159
           Height = 15
           Caption = #28216#25103#31383#21475#22823#23567#65292#40664#35748'854x480'
         end
-        object label_launch_window_width_tip: TLabel
+        object label_launch_window_width: TLabel
           Left = 3
           Top = 24
           Width = 188
           Height = 15
           Caption = #23485#24230#65292#24403#21069#36873#20013#65306'99999999999999'
         end
-        object label_launch_window_height_tip: TLabel
+        object label_launch_window_height: TLabel
           Left = 3
           Top = 74
           Width = 188
@@ -2152,7 +2152,7 @@ object form_mainform: Tform_mainform
           Height = 15
           Caption = #19979#36733'Java'
         end
-        object label_launch_game_memory: TLabel
+        object label_launch_max_memory: TLabel
           Left = 3
           Top = 277
           Width = 246
@@ -2166,7 +2166,7 @@ object form_mainform: Tform_mainform
           Height = 15
           Caption = #33258#23450#20041#20449#24687#65292#40664#35748'LLLauncher'
         end
-        object label_launch_game_title: TLabel
+        object label_launch_window_title: TLabel
           Left = 3
           Top = 377
           Width = 130
@@ -2187,21 +2187,21 @@ object form_mainform: Tform_mainform
           Height = 15
           Caption = #21518#32622#21551#21160#21442#25968
         end
-        object label_launch_default_jvm_argument: TLabel
+        object label_launch_default_jvm: TLabel
           Left = 3
           Top = 585
           Width = 74
           Height = 15
           Caption = #40664#35748'JVM'#21442#25968
         end
-        object label_launch_additional_jvm_argument: TLabel
+        object label_launch_additional_jvm: TLabel
           Left = 3
           Top = 664
           Width = 74
           Height = 15
           Caption = #39069#22806'JVM'#21442#25968
         end
-        object label_launch_additional_game_argument: TLabel
+        object label_launch_additional_game: TLabel
           Left = 3
           Top = 743
           Width = 82
@@ -2210,19 +2210,27 @@ object form_mainform: Tform_mainform
         end
         object scrollbar_launch_window_height: TScrollBar
           Left = 3
-          Top = 45
-          Width = 794
-          Height = 23
-          PageSize = 0
-          TabOrder = 0
-        end
-        object scrollbar_launch_window_width: TScrollBar
-          Left = 3
           Top = 95
           Width = 794
           Height = 23
+          Max = 1000
+          Min = 480
           PageSize = 0
+          Position = 854
+          TabOrder = 0
+          OnChange = scrollbar_launch_window_heightChange
+        end
+        object scrollbar_launch_window_width: TScrollBar
+          Left = 3
+          Top = 45
+          Width = 794
+          Height = 23
+          Max = 1000
+          Min = 854
+          PageSize = 0
+          Position = 854
           TabOrder = 1
+          OnChange = scrollbar_launch_window_widthChange
         end
         object combobox_launch_select_java_path: TComboBox
           Left = 3
@@ -2231,6 +2239,7 @@ object form_mainform: Tform_mainform
           Height = 23
           Style = csDropDownList
           TabOrder = 2
+          OnChange = combobox_launch_select_java_pathChange
         end
         object button_launch_full_scan_java: TButton
           Left = 3
@@ -2239,6 +2248,7 @@ object form_mainform: Tform_mainform
           Height = 23
           Caption = #20840#30424#25195#25551
           TabOrder = 3
+          OnClick = button_launch_full_scan_javaClick
         end
         object button_launch_basic_scan_java: TButton
           Left = 203
@@ -2247,6 +2257,7 @@ object form_mainform: Tform_mainform
           Height = 23
           Caption = #29305#23450#25195#25551
           TabOrder = 4
+          OnClick = button_launch_basic_scan_javaClick
         end
         object button_launch_manual_import: TButton
           Left = 403
@@ -2255,6 +2266,7 @@ object form_mainform: Tform_mainform
           Height = 23
           Caption = #25163#21160#23548#20837
           TabOrder = 5
+          OnClick = button_launch_manual_importClick
         end
         object button_launch_remove_java: TButton
           Left = 603
@@ -2263,6 +2275,7 @@ object form_mainform: Tform_mainform
           Height = 23
           Caption = #31227#38500'Java'
           TabOrder = 6
+          OnClick = button_launch_remove_javaClick
         end
         object button_launch_download_java_8: TButton
           Left = 3
@@ -2271,6 +2284,7 @@ object form_mainform: Tform_mainform
           Height = 23
           Caption = #19979#36733'Java8'
           TabOrder = 7
+          OnClick = button_launch_download_java_8Click
         end
         object button_launch_download_java_16: TButton
           Left = 203
@@ -2279,6 +2293,7 @@ object form_mainform: Tform_mainform
           Height = 23
           Caption = #19979#36733'Java16'
           TabOrder = 8
+          OnClick = button_launch_download_java_16Click
         end
         object button_launch_download_java_17: TButton
           Left = 403
@@ -2287,6 +2302,7 @@ object form_mainform: Tform_mainform
           Height = 23
           Caption = #19979#36733'Java17'
           TabOrder = 9
+          OnClick = button_launch_download_java_17Click
         end
         object button_launch_official_java: TButton
           Left = 603
@@ -2295,8 +2311,9 @@ object form_mainform: Tform_mainform
           Height = 23
           Caption = #25171#24320'Java'#23448#32593
           TabOrder = 10
+          OnClick = button_launch_official_javaClick
         end
-        object scrollbar_launch_game_memory: TScrollBar
+        object scrollbar_launch_max_memory: TScrollBar
           Left = 3
           Top = 298
           Width = 794
@@ -2306,6 +2323,7 @@ object form_mainform: Tform_mainform
           PageSize = 0
           Position = 4096
           TabOrder = 11
+          OnChange = scrollbar_launch_max_memoryChange
         end
         object edit_launch_custom_info: TEdit
           Left = 3
@@ -2314,14 +2332,16 @@ object form_mainform: Tform_mainform
           Height = 23
           TabOrder = 12
           TextHint = #38543#20415#22635
+          OnChange = edit_launch_custom_infoChange
         end
-        object edit_launch_game_title: TEdit
+        object edit_launch_window_title: TEdit
           Left = 3
           Top = 398
           Width = 794
           Height = 23
           TabOrder = 13
           TextHint = #38543#20415#22635
+          OnChange = edit_launch_window_titleChange
         end
         object edit_launch_pre_launch_script: TEdit
           Left = 3
@@ -2330,8 +2350,9 @@ object form_mainform: Tform_mainform
           Height = 23
           TabOrder = 14
           TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
+          OnChange = edit_launch_pre_launch_scriptChange
         end
-        object button_launch_pre_launch_script_tip: TButton
+        object button_launch_pre_launch_script: TButton
           Left = 3
           Top = 477
           Width = 794
@@ -2341,6 +2362,7 @@ object form_mainform: Tform_mainform
           ParentShowHint = False
           ShowHint = True
           TabOrder = 15
+          OnClick = button_launch_pre_launch_scriptClick
         end
         object edit_launch_after_launch_script: TEdit
           Left = 3
@@ -2349,16 +2371,18 @@ object form_mainform: Tform_mainform
           Height = 23
           TabOrder = 16
           TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
+          OnChange = edit_launch_after_launch_scriptChange
         end
-        object button_launch_after_launch_script_tip: TButton
+        object button_launch_after_launch_script: TButton
           Left = 3
           Top = 556
           Width = 794
           Height = 23
           Caption = #26597#30475#35813#34892#25552#31034
           TabOrder = 17
+          OnClick = button_launch_after_launch_scriptClick
         end
-        object edit_launch_default_jvm_argument: TEdit
+        object edit_launch_default_jvm: TEdit
           Left = 3
           Top = 606
           Width = 794
@@ -2370,7 +2394,7 @@ object form_mainform: Tform_mainform
             'tThrow -Dfml.ignoreInvalidMinecraftCertificates=True -Dfml.ignor' +
             'ePatchDiscrepancies=True -Dlog4j2.formatMsgNoLookups=true'
         end
-        object button_launch_default_jvm_argument_tip: TButton
+        object button_launch_default_jvm: TButton
           Left = 3
           Top = 635
           Width = 794
@@ -2380,16 +2404,18 @@ object form_mainform: Tform_mainform
           ParentShowHint = False
           ShowHint = True
           TabOrder = 19
+          OnClick = button_launch_default_jvmClick
         end
-        object edit_launch_additional_jvm_argument: TEdit
+        object edit_launch_additional_jvm: TEdit
           Left = 3
           Top = 685
           Width = 794
           Height = 23
           TabOrder = 20
           TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
+          OnChange = edit_launch_additional_jvmChange
         end
-        object button_launch_additional_jvm_argument_tip: TButton
+        object button_launch_additional_jvm: TButton
           Left = 3
           Top = 714
           Width = 794
@@ -2399,8 +2425,9 @@ object form_mainform: Tform_mainform
           ParentShowHint = False
           ShowHint = True
           TabOrder = 21
+          OnClick = button_launch_additional_jvmClick
         end
-        object edit_launch_additional_game_argument: TEdit
+        object edit_launch_additional_game: TEdit
           Left = 3
           Top = 764
           Width = 794
@@ -2408,8 +2435,9 @@ object form_mainform: Tform_mainform
           Hint = #28857#25105#26597#30475#22914#20309#22635#20837#21069#32622#21551#21160#33050#26412#21629#20196
           TabOrder = 22
           TextHint = #38750#19987#19994#20154#22763#35831#21247#20462#25913#26412#34892
+          OnChange = edit_launch_additional_gameChange
         end
-        object button_launch_additional_game_argument_tip: TButton
+        object button_launch_additional_game: TButton
           Left = 3
           Top = 793
           Width = 794
@@ -2419,6 +2447,7 @@ object form_mainform: Tform_mainform
           ParentShowHint = False
           ShowHint = True
           TabOrder = 23
+          OnClick = button_launch_additional_gameClick
         end
       end
     end
@@ -2437,7 +2466,7 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_version_isolation_part
+        ActivePage = tabsheet_version_export_part
         TabOrder = 0
         object tabsheet_version_control_part: TTabSheet
           Hint = #23558#36873#20013#30340#25991#20214#21015#34920#19982#21517#31216#65292#28155#21152#36827#21015#34920#20013#20197#20379#38271#26399#36873#25321#12290
@@ -2452,6 +2481,7 @@ object form_mainform: Tform_mainform
             Color = clBtnFace
             ParentColor = False
             TabOrder = 0
+            OnMouseWheel = scrollbox_versionMouseWheel
             object label_select_game_version: TLabel
               Left = 3
               Top = 7
@@ -2634,6 +2664,7 @@ object form_mainform: Tform_mainform
             Color = clBtnFace
             ParentColor = False
             TabOrder = 0
+            OnMouseWheel = scrollbox_isolationMouseWheel
             object label_isolation_current_version: TLabel
               Left = 3
               Top = -353
@@ -2890,6 +2921,7 @@ object form_mainform: Tform_mainform
             Color = clBtnFace
             ParentColor = False
             TabOrder = 0
+            OnMouseWheel = scrollbox_exportMouseWheel
             object label_export_current_version: TLabel
               Left = 3
               Top = -559
