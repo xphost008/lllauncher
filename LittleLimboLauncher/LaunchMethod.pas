@@ -162,7 +162,7 @@ begin
           end;
         end;
         result := true;
-      end else result := false;
+      end;
     end;
   finally
     Reg.Free;

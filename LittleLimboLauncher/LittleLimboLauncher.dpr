@@ -15,7 +15,9 @@ uses
   PluginMethod in 'PluginMethod.pas',
   PlayingMethod in 'PlayingMethod.pas',
   ManageMethod in 'ManageMethod.pas',
-  LauncherMethod in 'LauncherMethod.pas';
+  LauncherMethod in 'LauncherMethod.pas',
+  DownloadMethod in 'DownloadMethod.pas',
+  CustomDlMethod in 'CustomDlMethod.pas';
 
 {$R *.res}
 

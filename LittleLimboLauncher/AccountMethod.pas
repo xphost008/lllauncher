@@ -953,7 +953,7 @@ begin
         end else form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.authlib.authlib_has_update'));
         var j1 := TJsonObject.ParseJSONValue(t1) as TJsonObject;
         var fileurl := j1.GetValue('download_url').Value;
-        DownloadStart(fileurl, filepath, '', mbiggest_thread, 0, 1, false);
+        DownloadStart(fileurl, filepath, '', mbiggest_thread, 0, 1, '', '', false);
         if not FileExists(filepath) then begin
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.authlib.download_authlib_error'));
           exit;

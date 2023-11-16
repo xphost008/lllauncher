@@ -4,9 +4,10 @@ interface
 
 uses
   System.Net.HttpClient, System.Net.HttpClientComponent, System.Generics.Collections, JSON,
-  SysUtils, Classes, Math, Windows, Threading, StrUtils, Forms, Dialogs;
+  SysUtils, Classes, Math, Windows, Threading, StrUtils, Forms, Dialogs, ClipBrd;
 
-procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMode, LoadSource: Integer; isShowList: Boolean = true; isShowProgress: Boolean = true);
+procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMode, LoadSource: Integer; javapath: String = ''; VanillaVersion: String = ''; isShowList: Boolean = false; isShowProgress: Boolean = true);
+function GetURLFileName(aURL: String): String;
 
 implementation
 
@@ -20,6 +21,7 @@ type
       url, SavePath, RootPath, TempPath: String;
       BiggestThread, SelectMode: Integer;
       isShowList, isShowProgress: Boolean;
+      javapath, VanillaVersion: String;
     function GetFileSize(aurl: String): Integer;
     function GetHTTPNormal(url: String): TStringStream;
     procedure ReceiveData(const Sender: TObject;
@@ -36,10 +38,17 @@ type
     procedure DownloadMinecraft;
     procedure DownloadJava;
     procedure DownloadForge;
-    constructor InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; isShowList: Boolean; isShowProgress: Boolean);
+    constructor InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);
     procedure StartDownload(LoadSource: Integer);
     procedure DownloadAsWindow(SavePath, DownloadURL, FileHash, ViewName: String; isLibraries: Boolean; SelectMode: Integer);
   end;
+//获取网址后缀名
+function GetURLFileName(aURL: String): String;
+begin
+  if aurl.LastIndexOf('?') = -1 then aurl := Concat(aurl, '?');
+  result := aURL.Substring(aurl.LastIndexOf('/') + 1, aurl.Length - aurl.LastIndexOf('/') - 1 - (aurl.Length - aurl.LastIndexOf('?')));
+  if result = '' then result := 'XXX';
+end;
 //提取主类
 function TDownloadMethod.ExtractMainClass(jarpath: String): String;
 begin
@@ -314,15 +323,6 @@ begin
     exit;
   end;
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.start_run_processors'));
-  var javapath := '';
-  try
-    var jnv := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'JavaJson.json'));
-    var jan := strtoint(LLLini.ReadString('Java', 'SelectJava', '')) - 1;
-    javapath := ((TJsonObject.ParseJSONValue(jnv) as TJsonObject).GetValue('java') as TJsonArray)[jan].Value;
-  except
-    form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.not_choose_any_java'));
-    abort;
-  end;
   var dic := TDictionary<string, string>.Create;
   for var K in data do begin
     var L := K.JsonString.Value;
@@ -344,30 +344,48 @@ begin
       end;
     end;
   end;
+  if FileExists(GetMCRealPath(SavePath, '.jar')) then begin
+    try
+      dic['{MINECRAFT_JAR}'] := Concat(GetMCRealPath(SavePath, '.jar'));
+    except
+      dic.Add('{MINECRAFT_JAR}', Concat(GetMCRealPath(SavePath, '.jar')));
+    end;
+  end else begin
+    if FileExists(GetMCRealPath(GetMCInheritsFrom(SavePath, 'inheritsFrom'), '.jar')) then begin
+      try
+        dic['{MINECRAFT_JAR}'] := Concat(GetMCRealPath(GetMCInheritsFrom(SavePath, 'inheritsFrom'), '.jar'));
+      except
+        dic.Add('{MINECRAFT_JAR}', Concat(GetMCRealPath(GetMCInheritsFrom(SavePath, 'inheritsFrom'), '.jar')));
+      end;
+    end else begin
+      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.cannot_extra_miencraft_jar'));
+      abort;
+    end;
+  end;
   try
     dic['{INSTALLER}'] := Concat('"', TempPath, 'LLLauncher\tmp.jar"');
   except
     dic.Add('{INSTALLER}', Concat('"', TempPath, 'LLLauncher\tmp.jar"'));
   end;
-  try
-    dic['{BINPATCH}'] := Concat('"', TempPath, 'LLLauncher\forgetmp\data\client.lzma"');
-  except
-    dic.Add('{BINPATCH}', Concat(TempPath, 'LLLauncher\forgetmp\data\client.lzma'));
+  if FileExists(Concat(TempPath, 'LLLauncher\forgetmp\data\client.lzma')) then begin
+    try
+      dic['{BINPATCH}'] := Concat('"', TempPath, 'LLLauncher\forgetmp\data\client.lzma"');
+    except
+      dic.Add('{BINPATCH}', Concat('"', TempPath, 'LLLauncher\forgetmp\data\client.lzma"'));
+    end;
+  end else begin
+    form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.cannot_extra_lzma'));
+    exit;
   end;
   try
-    dic['{ROOT}'] := Concat('"', TempPath, 'LLLauncher\', inttostr(random(99999)), '"');
+    dic['{ROOT}'] := Concat('"', TempPath, 'LLLauncher\', inttostr(random(100000)), '"');
   except
-    dic.Add('{ROOT}', Concat('"', TempPath, 'LLLauncher\', inttostr(random(99999)), '"'));
+    dic.Add('{ROOT}', Concat('"', TempPath, 'LLLauncher\', inttostr(random(100000)), '"'));
   end;
   try
     dic['{SIDE}'] := 'client';
   except
     dic.Add('{SIDE}', 'client');
-  end;
-  try
-    dic['{MINECRAFT_JAR}'] := Concat(GetMCRealPath(SavePath, '.jar'));
-  except
-    dic.Add('{MINECRAFT_JAR}', Concat(GetMCRealPath(SavePath, '.jar')));
   end;
   form_mainform.progressbar_progress_download_bar.Max := processors.Count;
   form_mainform.progressbar_progress_download_bar.Position := 0;
@@ -376,7 +394,8 @@ begin
   for var I in processors do begin
     inc(TDPCount);
     var J := I as TJsonObject;
-    var run := Concat('"', javapath, '" -cp "');
+    var run := TStringBuilder.Create;
+    run.Append('"').Append(javapath).Append('" -cp "');
     try
       var side := (J.GetValue('sides') as TJsonArray)[0].Value;
       if side = 'server' then begin
@@ -386,21 +405,23 @@ begin
       end;
     except end;
     for var K in J.GetValue('classpath') as TJsonArray do begin
-      run := Concat(run, RootPath, '\libraries\', ConvertNameToPath(K.Value), ';');
+      run.Append(RootPath).Append('\libraries\').Append(ConvertNameToPath(K.Value)).Append(';');
     end;
     var mj := Concat(RootPath, '\libraries\', ConvertNameToPath(J.GetValue('jar').Value));
-    run := Concat(run, mj, '" ', ExtractMainClass(mj), ' ');
+    run.Append(mj).Append('" ').Append(ExtractMainClass(mj)).Append(' ');
     for var K in J.GetValue('args') as TJsonArray do begin
       if (LeftStr(K.Value, 1) = '[') and (RightStr(K.Value, 1) = ']') then begin
-        run := Concat('"', RootPath, '\libraries\', ConvertNameToPath(K.Value.Replace('[', '').Replace(']', '')), '" ');
+        run.Append('"').Append(RootPath).Append('\libraries\').Append(ConvertNameToPath(K.Value.Replace('[', '').Replace(']', ''))).Append('" ');
       end else begin
-        run := Concat(K.Value, ' ');
+        run.Append(K.Value).Append(' ');
       end;
     end;
+    var eil := run.ToString;
     for var K in dic do begin
-      run := run.Replace(K.Key, K.Value);
+      eil := eil.Replace(K.Key, K.Value);
     end;
-    RunDOSOnlyWait(run);
+//    messagebox(0, pchar(eil), '', 0);
+    RunDOSOnlyWait(eil);
     ShowCurrentProgress(TDPCount, processors.Count);
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.run_processors_success').Replace('${processors_count}', inttostr(TDPCount)));
   end;
@@ -673,58 +694,63 @@ begin
   SetLength(DownloadLibraries, BiggestThread);
   SetLength(DownloadResource, BiggestThread);
   SourceJSON := TJsonObject.ParseJSONValue(url) as TJsonObject;
+//    ClipBoard.SetTextBuf(pchar(url));
+//    messagebox(0, pchar(url), '', 0);
+  if VanillaPath = '' then VanillaPath := SavePath;
   var AssetPath := Concat(RootPath, '\assets\indexes\', (SourceJSON.GetValue('assetIndex') as TJsonObject).GetValue('id').Value, '.json');
-  var ClientVersion := '';
-  try
-    ClientVersion := SourceJSON.GetValue('inheritsFrom').Value;
-    if ClientVersion = '' then raise Exception.Create('inheritsFrom key is empty');
-  except
+  var ClientVersion := VanillaVersion;
+  if ClientVersion = '' then begin
     try
-      ClientVersion := SourceJSON.GetValue('clientVersion').Value;
-      if ClientVersion = '' then raise Exception.Create('clientVersion key is empty');
+      ClientVersion := SourceJSON.GetValue('inheritsFrom').Value;
+      if ClientVersion = '' then raise Exception.Create('inheritsFrom key is empty');
     except
       try
-        var patch := SourceJSON.GetValue('patches') as TJsonArray;
-        for var I in patch do begin
-          var id := I.GetValue<String>('id').ToLower;
-          if id = 'game' then begin
-            ClientVersion := I.GetValue<String>('version');
-          end;
-        end;
+        ClientVersion := SourceJSON.GetValue('clientVersion').Value;
+        if ClientVersion = '' then raise Exception.Create('clientVersion key is empty');
       except
         try
-          var game := (SourceJSON.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
-          for var I := 0 to game.Count - 1 do begin
-            if game[I].Value = '--fml.mcversion'.ToLower then begin
-              ClientVersion := game[I + 1].Value;
+          var patch := SourceJSON.GetValue('patches') as TJsonArray;
+          for var I in patch do begin
+            var id := I.GetValue<String>('id').ToLower;
+            if id = 'game' then begin
+              ClientVersion := I.GetValue<String>('version');
             end;
           end;
         except
           try
-            var releaseTime := SourceJSON.GetValue('releaseTime').Value;
-            var VanillaVersion := '';
-            case SelectMode of
-              1: VanillaVersion := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
-              2: VanillaVersion := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
-              3: VanillaVersion := 'https://download.mcbbs.net/mc/game/version_manifest.json';
-              else abort;
-            end;
-            if MCRootJSON = nil then begin
-              MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(VanillaVersion)) as TJSONObject;
-            end;
-            for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
-              var J := I as TJsonObject;
-              var release := J.GetValue('releaseTime').Value;
-              if release = releaseTime then begin
-                ClientVersion := J.GetValue('id').Value;
+            var game := (SourceJSON.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
+            for var I := 0 to game.Count - 1 do begin
+              if game[I].Value = '--fml.mcversion'.ToLower then begin
+                ClientVersion := game[I + 1].Value;
               end;
             end;
           except
             try
-              ClientVersion := SourceJSON.GetValue('id').Value;
+              var releaseTime := SourceJSON.GetValue('releaseTime').Value;
+              var VanillaVersion := '';
+              case SelectMode of
+                1: VanillaVersion := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
+                2: VanillaVersion := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
+                3: VanillaVersion := 'https://download.mcbbs.net/mc/game/version_manifest.json';
+                else abort;
+              end;
+              if MCRootJSON = nil then begin
+                MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(VanillaVersion)) as TJSONObject;
+              end;
+              for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
+                var J := I as TJsonObject;
+                var release := J.GetValue('releaseTime').Value;
+                if release = releaseTime then begin
+                  ClientVersion := J.GetValue('id').Value;
+                end;
+              end;
             except
-              form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.mc_vanilla_id_not_found'));
-              abort;
+              try
+                ClientVersion := SourceJSON.GetValue('id').Value;
+              except
+                form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.mc_vanilla_id_not_found'));
+                abort;
+              end;
             end;
           end;
         end;
@@ -740,7 +766,7 @@ begin
   var AssetURL := (SourceJSON.GetValue('assetIndex') as TJsonObject).GetValue('url').Value;
   if not FileExists(ClientPath) then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_main_version_jar'));
-    DownloadStart(JARURL, ClientPath, '', BiggestThread, 0, 1, false);
+    DownloadStart(JARURL, ClientPath, '', BiggestThread, 0, 1, '', '', false);
     form_mainform.button_progress_clean_download_list.Enabled := false;
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.download_main_version_jar_finish'));
   end else begin
@@ -759,7 +785,6 @@ begin
   end else begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.asset_index_json_exists'));
   end;
-  var arch := IfThen(isX64, '64', '32');
   var LibrariesJSONRoot := SourceJSON.GetValue('libraries') as TJsonArray;
   form_mainform.progressbar_progress_download_bar.Max := LibrariesJSONRoot.Count;
   form_mainform.progressbar_progress_download_bar.Position := 0;
@@ -794,7 +819,7 @@ begin
       try
         var dn := RealJSON.GetValue('downloads') as TJsonObject;
         var da := dn.GetValue('classifiers') as TJsonObject;
-        var soo := da.GetValue(Concat('natives-windows-', arch)) as TJsonObject;
+        var soo := da.GetValue(Concat('natives-windows-64')) as TJsonObject;
         var sap := soo.GetValue('path').Value;
         var sha := soo.GetValue('sha1').Value;
         var usl := soo.GetValue('url').Value;
@@ -807,7 +832,7 @@ begin
       if (RealURL.IndexOf('linux') <> -1) or (RealURL.IndexOf('macos') <> -1) or (RealURL.IndexOf('osx') <> -1) then continue;
       try
         var JSONNative := RealJSON.GetValue('natives') as TJsonObject;
-        var JSONArch := JSONNative.GetValue('windows').Value.Replace('${arch}', arch);
+        var JSONArch := JSONNative.GetValue('windows').Value.Replace('${arch}', '64');
         RealURL := Concat(RealURL, ':', JSONArch);
       except end;
       var RealSave := Concat(RootPath, '\libraries\', ConvertNameToPath(RealURL));
@@ -913,8 +938,8 @@ begin
   var ttime := GetTickCount;
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_installer_start'));
   try
-    DownloadStart(url, Concat(TempPath, 'LLLauncher\tmp.jar'), '', BiggestThread, 0, 1, false);
-    form_mainform.button_progress_clean_download_list.Enabled := false;
+    DownloadStart(url, Concat(TempPath, 'LLLauncher\tmp.jar'), '', BiggestThread, 0, 1);
+//    form_mainform.button_progress_clean_download_list.Enabled := false;
   except
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.forge_version_not_allow_install'));
     abort;
@@ -952,13 +977,14 @@ begin
   end;
   CopyFile(pchar(ProfilePath), pchar(Concat(savepath, '\install_profile.json')), false);
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.copy_installprofile_success_setup_mc'));
-  DownloadStart(output, SavePath, RootPath, BiggestThread, SelectMode, 2);
-  form_mainform.button_progress_clean_download_list.Enabled := false;
+//  url := output;
+//  DownloadMinecraft();
+  DownloadStart(output, SavePath, RootPath, BiggestThread, SelectMode, 2, javapath, VanillaVersion, isShowList, isShowProgress);
   DeleteDirectory(Concat(TempPath, 'LLLauncher'));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_success').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000)));
 end;
 //设置所有参数。
-constructor TDownloadMethod.InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; isShowList: Boolean; isShowProgress: Boolean);
+constructor TDownloadMethod.InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);
 var
   TempPath: array [0..255] of char;
 begin
@@ -967,6 +993,8 @@ begin
   self.RootPath := RootPath;
   self.BiggestThread := BiggestThread;
   self.SelectMode := SelectMode;
+  self.javapath := javapath;
+  self.VanillaVersion := VanillaVersion;
   self.isShowList := isShowList;
   self.isShowProgress := isShowProgress;
   GetTempPath(255, @TempPath);
@@ -986,18 +1014,20 @@ end;
 //调用函数
 //第一个url是下载链接，如果LoadSource是2、3、4的话，则需要为对应的json。
 //第二个SavePath是保存路径。当LoadSource为2、4的时候，需要为该Minecraft的version文件夹。
-//第三个RootPath是根路径，只有LoadSource为2、4的时候，则需要指定对应的.minecraft文件夹。
+//第三个RootPath是根路径，只有LoadSource为2、4的时候，则需要指定对应的.minecraft文件夹。否则为空。
 //第四个BiggestThread是最大线程。
 //第五个SelectMode是下载源，只有1、2、3，如果为1，则是官方下载源，2为bmclapi，3为MCBBS。如果是国外则默认全部都是1，无法使用2、3，如果是下载自定义文件，则指定0即可！
 //第六个LoadSource是加载顺序，1为下载自定义文件，2为下载Minecraft，3为下载Java，4为下载Forge。
-//第七个isShowList为是否展示下载列表框
-//第八个isShowProgress为是否展示下载进度框
-procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMode, LoadSource: Integer; isShowList: Boolean = true; isShowProgress: Boolean = true);
+//第七个javapath是本地Java路径，只有LoadSource为4时才需要。
+//第八个VanillaVersion是将要下载的MC原版名称，只有LoaderSource为2或4时才需要，否则为空。当补全文件时可以为空。
+//第九个isShowList为是否展示下载列表框（一般都是False）
+//第十个isShowProgress为是否展示下载进度框（一般都是True）
+procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMode, LoadSource: Integer; javapath: String = ''; VanillaVersion: String = ''; isShowList: Boolean = false; isShowProgress: Boolean = true);
 begin
   try
-    form_mainform.button_progress_clean_download_list.Enabled := false;
-    TDownloadMethod.InitDownload(url, SavePath, RootPath, BiggestThread, SelectMode, isShowList, isShowProgress).StartDownload(LoadSource);
-    form_mainform.button_progress_clean_download_list.Enabled := true;
+//    form_mainform.button_progress_clean_download_list.Enabled := false;
+    TDownloadMethod.InitDownload(url, SavePath, RootPath, BiggestThread, SelectMode, javapath, VanillaVersion, isShowList, isShowProgress).StartDownload(LoadSource);
+//    form_mainform.button_progress_clean_download_list.Enabled := true;
   except
     form_mainform.button_progress_clean_download_list.Enabled := true;
     abort;

@@ -4,7 +4,7 @@ interface
 
 uses
   JSON, Classes, SysUtils, System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent,
-  Threading, ShellAPI, Forms, Windows, ClipBrd, Dialogs;
+  Threading, ShellAPI, Forms, Windows, ClipBrd, Dialogs, StrUtils;
 
 procedure InitPlaying;
 procedure SavePlaying;
@@ -929,6 +929,7 @@ begin
   else exit;
   ShellExecute(Application.Handle, nil, pchar(web), nil, nil, SW_SHOWNORMAL)
 end;
+//选择版本列表
 procedure PlayingSelVerList;
 begin
   if (form_mainform.listbox_playing_search_version.ItemIndex <> -1) then begin
@@ -936,6 +937,7 @@ begin
     ChooseRoot := VersionRoot[form_mainform.listbox_playing_search_version.ItemIndex] as TJsonObject;
   end;
 end;
+//判断错误
 function JudgeException(index: Integer; key: String): String;
 begin
   try
@@ -983,6 +985,7 @@ begin
     result := '暂无数据';
   end;
 end;
+//打开简介
 procedure PlayingOpenIntro;
 begin
   if form_mainform.listbox_playing_search_version.ItemIndex <> -1 then begin
@@ -1220,13 +1223,11 @@ begin
       SelBox(2);
       try
         cate := LLLini.ReadString('Mod', 'SelectModCategory', '');
-        var sl := TStringList.Create;
-        ExtractStrings([','], [], pchar(cate), sl);
+        var sl := SplitString(cate, ',');
         for var I in sl do begin
           if (strtoint(I) > form_mainform.checklistbox_playing_search_category_modrinth.Items.Count) or (strtoint(I) < 1) then raise Exception.Create('Select Mod Mode Error')
           else form_mainform.checklistbox_playing_search_category_modrinth.Checked[strtoint(I) - 1] := true;
         end;
-        sl.Free;
       except
         for var I := 0 to form_mainform.checklistbox_playing_search_category_modrinth.Items.Count - 1 do form_mainform.checklistbox_playing_search_category_modrinth.Checked[I] := false;
         cate := '';

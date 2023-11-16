@@ -10,8 +10,7 @@ function GetWebStream(url: String): TStringStream;
 function GetWebText(url: String): String;
 function TrimStrM(str: String): String;  
 function GetFile(path: String): String;
-procedure SetFile(path, content: String);     
-function isX64: Boolean;                           
+procedure SetFile(path, content: String);
 function GetDirectoryFileCount(Dir: String; suffix: String): TStringList;
 function IsVersionError(path: String): Boolean;
 procedure ResetBackImage(resume: Boolean);
@@ -249,6 +248,10 @@ begin
   result := false;
   if (N = '') then exit;
   if N.IndexOf('\') = -1 then N := Concat(N, '\/"*}{:D:D:DCC:');
+  if not DirectoryExists(N) then begin
+    result := true;
+    exit;
+  end;
   if FindFirst(Concat(N, '\*.*'), faAnyFile, F) = 0 then begin  //查找文件并赋值
     try
       repeat  //此处调用了API函数。
@@ -425,19 +428,7 @@ begin
   finally
     ss.Free;
   end;
-end;        
-//获取电脑系统是否为64位。   
-function isX64: Boolean;
-var
-  si: SYSTEM_INFO;
-begin
-  GetNativeSystemInfo(&si); // = 9 表示的是 AMD64
-  if(si.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_AMD64 {9}) or
-    (si.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_IA64) then
-    Result := True
-  else
-    Result := False;
-end;          
+end;
 //获取文件内总数量【第一个参数为文件夹，第二个参数为该文件的特征，返回值是该文件的文件列表。】。
 function GetDirectoryFileCount(Dir: String; suffix: String): TStringList;
 var

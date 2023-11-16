@@ -11,6 +11,7 @@ LittleLimboLauncher/*.vlb
 LittleLimboLauncher/*.local
 LittleLimboLauncher/*.identcache
 LittleLimboLauncher/*.res
+LittleLimboLauncher/*.bat
 
 # ignore my custom component
 # Because It is my experimental function

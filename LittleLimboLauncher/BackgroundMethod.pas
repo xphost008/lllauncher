@@ -22,7 +22,7 @@ procedure InitBackground;
 begin
   if f then exit;
   f := true;
-  form_mainform.buttoncolor_custom_color.SymbolColor := rgb(mred, mgreen, mblue);
+//  form_mainform.buttoncolor_custom_color.SymbolColor := rgb(mred, mgreen, mblue);
   form_mainform.label_background_window_current_alpha.Caption := GetLanguage('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
   form_mainform.label_background_control_current_alpha.Caption := GetLanguage('label_background_control_current_alpha.caption').Replace('${control_alpha}', inttostr(mcontrol_alpha));
   form_mainform.scrollbar_background_window_alpha.Position := mwindow_alpha;

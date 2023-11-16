@@ -4,8 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
-  StdCtrls, pngimage, WinXCtrls, ComCtrls, VCLTee.TeCanvas, CheckLst, JSON, ShellAPI, Math,
-  IniFiles, Menus, ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections,
+  StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
+  ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections, FileCtrl,
   Vcl.Buttons, Vcl.ControlList, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils;
 
 type
@@ -124,7 +124,6 @@ type
     label_custom_download_url: TLabel;
     label_custom_download_name: TLabel;
     label_custom_download_path: TLabel;
-    label_custom_download_path_enter: TLabel;
     edit_custom_download_url: TEdit;
     edit_custom_download_name: TEdit;
     button_custom_download_choose_path: TButton;
@@ -192,7 +191,6 @@ type
     button_sky_color: TButton;
     button_cute_color: TButton;
     button_normal_color: TButton;
-    buttoncolor_custom_color: TButtonColor;
     scrollbar_background_window_alpha: TScrollBar;
     label_background_window_alpha: TLabel;
     label_background_window_current_alpha: TLabel;
@@ -363,6 +361,9 @@ type
     label_export_keep_file: TLabel;
     treeview_export_keep_file: TTreeView;
     button_export_start: TButton;
+    button_custom_color: TButton;
+    tabsheet_online_octo_part: TTabSheet;
+    edit_custom_download_path: TEdit;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -383,7 +384,6 @@ type
     procedure toggleswitch_background_gradientClick(Sender: TObject);
     procedure scrollbar_background_gradient_valueChange(Sender: TObject);
     procedure scrollbar_background_gradient_stepChange(Sender: TObject);
-    procedure buttoncolor_custom_colorClick(Sender: TObject);
     procedure button_grass_colorClick(Sender: TObject);
     procedure button_sun_colorClick(Sender: TObject);
     procedure button_sultan_colorClick(Sender: TObject);
@@ -481,6 +481,30 @@ type
     procedure button_launch_download_java_16Click(Sender: TObject);
     procedure button_launch_download_java_17Click(Sender: TObject);
     procedure button_launch_official_javaClick(Sender: TObject);
+    procedure checklistbox_choose_view_modeClick(Sender: TObject);
+    procedure radiogroup_choose_download_sourceClick(Sender: TObject);
+    procedure radiogroup_choose_mod_loaderClick(Sender: TObject);
+    procedure scrollbar_download_biggest_threadChange(Sender: TObject);
+    procedure button_reset_download_partClick(Sender: TObject);
+    procedure listbox_select_minecraftClick(Sender: TObject);
+    procedure button_load_modloaderClick(Sender: TObject);
+    procedure n_view_minecraft_infoClick(Sender: TObject);
+    procedure button_custom_colorClick(Sender: TObject);
+    procedure button_download_start_download_minecraftClick(Sender: TObject);
+    procedure listbox_select_modloaderClick(Sender: TObject);
+    procedure pagecontrol_download_partChange(Sender: TObject);
+    procedure pagecontrol_download_partChanging(Sender: TObject;
+      var AllowChange: Boolean);
+    procedure button_custom_download_choose_pathClick(Sender: TObject);
+    procedure button_custom_download_open_pathClick(Sender: TObject);
+    procedure edit_custom_download_pathChange(Sender: TObject);
+    procedure button_custom_download_startClick(Sender: TObject);
+    procedure button_download_modloader_refreshClick(Sender: TObject);
+    procedure button_download_modloader_downloadClick(Sender: TObject);
+    procedure listbox_download_modloader_forgeClick(Sender: TObject);
+    procedure listbox_download_modloader_fabricClick(Sender: TObject);
+    procedure listbox_download_modloader_quiltClick(Sender: TObject);
+    procedure listbox_download_modloader_neoforgeClick(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -512,7 +536,7 @@ implementation
 
 uses
   MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow,
-  PluginMethod, PlayingMethod, ManageMethod, LaunchMethod;
+  PluginMethod, PlayingMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod;
 
 var
   Cave, Answer, Lucky: TStringList;
@@ -547,6 +571,36 @@ begin
       end;
     end;
   end;
+end;
+//下载部分：模组加载器手动安装包：Fabric下载
+procedure Tform_mainform.listbox_download_modloader_fabricClick(
+  Sender: TObject);
+begin
+  listbox_download_modloader_forge.ItemIndex := -1;
+  listbox_download_modloader_quilt.ItemIndex := -1;
+  listbox_download_modloader_neoforge.ItemIndex := -1;
+end;
+//下载部分：模组加载器手动安装包：Forge下载
+procedure Tform_mainform.listbox_download_modloader_forgeClick(Sender: TObject);
+begin
+  listbox_download_modloader_fabric.ItemIndex := -1;
+  listbox_download_modloader_quilt.ItemIndex := -1;
+  listbox_download_modloader_neoforge.ItemIndex := -1;
+end;
+//下载部分：模组加载器手动安装包：NeoForge下载
+procedure Tform_mainform.listbox_download_modloader_neoforgeClick(
+  Sender: TObject);
+begin
+  listbox_download_modloader_fabric.ItemIndex := -1;
+  listbox_download_modloader_quilt.ItemIndex := -1;
+  listbox_download_modloader_forge.ItemIndex := -1;
+end;
+//下载部分：模组加载器手动安装包：Quilt下载
+procedure Tform_mainform.listbox_download_modloader_quiltClick(Sender: TObject);
+begin
+  listbox_download_modloader_fabric.ItemIndex := -1;
+  listbox_download_modloader_forge.ItemIndex := -1;
+  listbox_download_modloader_neoforge.ItemIndex := -1;
 end;
 //管理部分：数据包列表框点击
 procedure Tform_mainform.listbox_manage_import_datapackClick(Sender: TObject);
@@ -623,6 +677,18 @@ procedure Tform_mainform.listbox_playing_search_versionClick(Sender: TObject);
 begin
   PlayingSelVerList;
 end;
+//下载部分：Minecraft版本选择
+procedure Tform_mainform.listbox_select_minecraftClick(Sender: TObject);
+begin
+  listbox_select_modloader.ItemIndex := -1;
+  listbox_select_modloader.Items.Clear;
+  form_mainform.edit_minecraft_version_name.Text := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
+end;
+//下载部分：模组加载器列表框
+procedure Tform_mainform.listbox_select_modloaderClick(Sender: TObject);
+begin
+  form_mainform.edit_minecraft_version_name.Text := Concat(form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex], '-', form_mainform.listbox_select_modloader.Items[form_mainform.listbox_select_modloader.ItemIndex]);
+end;
 //高危系统库ntdll.dll
 function NtSetSystemInformation(SystemInformationClass: DWORD; SystemInformation: Pointer; SystemInformationLength: ULONG): NTSTATUS; stdcall; external 'ntdll.dll';
 //提取权限
@@ -662,7 +728,7 @@ type
 var
   status: TMemoryStatus;
 begin
-  if MyMessagebox(GetLanguage('messagebox_mainform.release_memory_optimize_warning.caption'), GetLanguage('messagebox_mainform.release_memory_optimize_warning.text'), MY_ERROR, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+  if MyMessagebox(GetLanguage('messagebox_mainform.release_memory_optimize_warning.caption'), GetLanguage('messagebox_mainform.release_memory_optimize_warning.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
   if TiQuan(SE_PROF_SINGLE_PROCESS_NAME) then begin
     if TiQuan(SE_INCREASE_QUOTA_NAME) then begin
       GlobalMemoryStatus(status);
@@ -677,27 +743,27 @@ begin
       var re1 := NtSetSystemInformation(21, @i1, sizeof(i1));
       if re1 <> 0 then begin
         MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_first_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_first_memory.text'), MY_ERROR, [mybutton.myOK]);
-        exit;
+//        exit;
       end;
       var re2 := NtSetSystemInformation(80, @i2, sizeof(i2));
       if re2 <> 0 then begin
         MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_second_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_second_memory.text'), MY_ERROR, [mybutton.myOK]);
-        exit;
+//        exit;
       end;
       var re3 := NtSetSystemInformation(80, @i3, sizeof(i3));
       if re3 <> 0 then begin
         MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_third_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_third_memory.text'), MY_ERROR, [mybutton.myOK]);
-        exit;
+//        exit;
       end;
       var re4 := NtSetSystemInformation(80, @i4, sizeof(i4));
       if re4 <> 0 then begin
         MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_forth_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_forth_memory.text'), MY_ERROR, [mybutton.myOK]);
-        exit;
+//        exit;
       end;
       var re5 := NtSetSystemInformation(80, @i5, sizeof(i5));
       if re5 <> 0 then begin
         MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_fifth_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_fifth_memory.text'), MY_ERROR, [mybutton.myOK]);
-        exit;
+//        exit;
       end;
       GlobalMemoryStatus(status);
       MyMessagebox(GetLanguage('messagebox_mainform.release_memory_success.caption'), GetLanguage('messagebox_mainform.release_memory_success.text').Replace('${release_memory_value}', floattostr(SimpleRoundTo((status.dwAvailPhys - cm) / 1024 / 1024))), MY_INFORMATION, [mybutton.myOK]);
@@ -710,8 +776,8 @@ begin
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
-var
-  status: TMemoryStatus;
+//var
+//  status: TMemoryStatus;
 //type
 //  TTT = record
 //    CurrentSize: Currency;
@@ -721,6 +787,17 @@ var
 //    MaximumWorkingSet: Currency;
 //  end;
 begin
+//  var js := '{"name":"Hello"}';
+//  var json := TJSONObject.ParseJSONValue(js) as TJSONObject;
+//  showmessage(json.ToString);
+//  json.Free;
+//  json := TJSONObject.ParseJSONValue('{"name":"JOSI"}') as TJSONObject;
+//  showmessage(json.ToString);
+//  var tt := TOpenDialog.Create(nil);
+//  tt.Execute();
+//  var ss := 'sassss8sassssss';
+//  var j := TStringList.Create;
+//  showmessage(inttostr(j.Count) + ' ' + j[0]);
 //  GlobalMemoryStatus(status);
 //  showmessage(inttostr(status.dwLength)+#13#10+inttostr(status.dwMemoryLoad)+#13#10+inttostr(status.dwTotalPhys)+#13#10+inttostr(status.dwAvailPhys)+#13#10+inttostr(status.dwTotalPageFile)+#13#10+inttostr(status.dwAvailPageFile)+#13#10+inttostr(status.dwTotalVirtual)+#13#10+inttostr(status.dwAvailVirtual));
 //  var s := TDirectory.GetLogicalDrives;
@@ -753,6 +830,11 @@ begin
 //  if re3 <> 0 then showmessage('not 3');
 //  if re4 <> 0 then showmessage('not 4');
 end;
+//下载部分：查看MC版本信息
+procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
+begin
+  ViewMinecraftInfo;
+end;
 //玩法部分：打开该模组的简介
 procedure Tform_mainform.n_view_mod_profileClick(Sender: TObject);
 begin
@@ -764,12 +846,32 @@ begin
   PlayingOpenVerWeb;
 end;
 //背景设置：自定义配色按钮
-procedure Tform_mainform.buttoncolor_custom_colorClick(Sender: TObject);
+procedure Tform_mainform.button_custom_colorClick(Sender: TObject);
 begin
-  Color := buttoncolor_custom_color.SymbolColor;
-  mred := Color and $FF;
-  mgreen := (Color and $FF00) shr 8;
-  mblue := (Color and $FF0000) shr 16;
+  var CD := TColorDialog.Create(nil);
+  if CD.Execute() then begin
+    var cor := CD.Color;
+    mred := cor and $FF;
+    mgreen := (cor and $FF00) shr 8;
+    mblue := (cor and $FF0000) shr 16;
+    self.Color := rgb(mred, mgreen, mblue);
+  end;
+end;
+//自定义下载：选择路径
+procedure Tform_mainform.button_custom_download_choose_pathClick(
+  Sender: TObject);
+begin
+  ChangeSavePath;
+end;
+//自定义下载：打开路径
+procedure Tform_mainform.button_custom_download_open_pathClick(Sender: TObject);
+begin
+  OpenSavePath;
+end;
+//开始下载自定义文件下载
+procedure Tform_mainform.button_custom_download_startClick(Sender: TObject);
+begin
+  StartDownloadCustomDl;
 end;
 //账号部分：获取账号UUID
 procedure Tform_mainform.button_account_get_uuidClick(Sender: TObject);
@@ -831,8 +933,7 @@ begin
   mred := 255;
   mgreen := 110;
   mblue := 180;
-  Color := rgb(mred, mgreen, mblue);
-  buttoncolor_custom_color.SymbolColor := Color;
+  self.Color := rgb(mred, mgreen, mblue);
 end;
 //账号部分：删除账号
 procedure Tform_mainform.button_delete_accountClick(Sender: TObject);
@@ -849,6 +950,24 @@ procedure Tform_mainform.button_disable_choose_playingClick(Sender: TObject);
 begin
   ManageDisablePlaying;
 end;
+//下载部分：模组加载器手动安装包：开始下载
+procedure Tform_mainform.button_download_modloader_downloadClick(
+  Sender: TObject);
+begin
+  StartDownloadModLoader;
+end;
+//下载部分：模组加载器手动安装包：刷新版本
+procedure Tform_mainform.button_download_modloader_refreshClick(
+  Sender: TObject);
+begin
+  RefreshModLoader;
+end;
+//开始自动安装Minecraft
+procedure Tform_mainform.button_download_start_download_minecraftClick(
+  Sender: TObject);
+begin
+  DownloadMinecraft;
+end;
 //玩法管理界面：启用选中
 procedure Tform_mainform.button_enable_choose_playingClick(Sender: TObject);
 begin
@@ -860,8 +979,7 @@ begin
   mred := 50;
   mgreen := 205;
   mblue := 50;
-  Color := rgb(mred, mgreen, mblue);
-  buttoncolor_custom_color.SymbolColor := Color;
+  self.Color := rgb(mred, mgreen, mblue);
 end;
 //启动设置；额外Game参数
 procedure Tform_mainform.button_launch_additional_gameClick(Sender: TObject);
@@ -935,7 +1053,8 @@ begin
             '(Open Logic)',
             '(Red Hat)',
             '(Amazon Corretto)',
-            '(jdk)'];
+            '(jdk)'
+  ];
   offurl := [
             'https://www.oracle.com/java/technologies/downloads/',
             'https://learn.microsoft.com/zh-cn/java/openjdk/download',
@@ -961,24 +1080,6 @@ begin
     exit;
   end;
   ShellExecute(Application.Handle, nil, pchar(ul), nil, nil, SW_SHOWNORMAL);
-//  try
-//    if i = '' then exit;
-//    var s := strtoint(i);
-//    case s of
-//      1: ul := 'https://www.oracle.com/java/technologies/downloads/';
-//      2: ul := 'https://learn.microsoft.com/zh-cn/java/openjdk/download';
-//      3: ul := 'https://adoptium.net/temurin/releases/';
-//      4: ul := 'https://bell-sw.com/pages/downloads/';
-//      5: ul := 'https://www.azul.com/downloads/?package=jdk';
-//      6: ul := 'https://www.openlogic.com/openjdk-downloads';
-//      7: ul := 'https://developers.redhat.com/products/openjdk/download';
-//      8: ul := 'https://aws.amazon.com/cn/corretto/';
-//      9: ul := 'https://jdk.java.net';
-//      else raise Exception.Create('Not support Number');
-//    end;
-//  except
-//    MyMessagebox(GetLanguage('messagebox_launch.open_java_web_error.caption'), GetLanguage('messagebox_launch.open_java_web_error.text'), MY_ERROR, [mybutton.myOK]);
-//  end;
 end;
 
 //启动设置：前置启动脚本
@@ -991,6 +1092,11 @@ procedure Tform_mainform.button_launch_remove_javaClick(Sender: TObject);
 begin
   RemoveJava;
 end;
+//下载部分：加载模组加载器
+procedure Tform_mainform.button_load_modloaderClick(Sender: TObject);
+begin
+  LoadModLoader;
+end;
 //微软OAuth登录
 procedure Tform_mainform.button_microsoft_oauth_loginClick(Sender: TObject);
 begin
@@ -1002,8 +1108,7 @@ begin
   mred := 240;
   mgreen := 240;
   mblue := 240;
-  Color := rgb(mred, mgreen, mblue);
-  buttoncolor_custom_color.SymbolColor := Color;
+  self.Color := rgb(mred, mgreen, mblue);
 end;
 //账号部分：通过正版用户名获取正版UUID
 procedure Tform_mainform.button_offline_name_to_uuidClick(Sender: TObject);
@@ -1107,14 +1212,18 @@ procedure Tform_mainform.button_rename_choose_playingClick(Sender: TObject);
 begin
   ManageRenamePlaying;
 end;
+//下载部分：重置下载界面
+procedure Tform_mainform.button_reset_download_partClick(Sender: TObject);
+begin
+  ResetDownload;
+end;
 //背景设置：天空蓝
 procedure Tform_mainform.button_sky_colorClick(Sender: TObject);
 begin
   mred := 0;
   mgreen := 191;
   mblue := 255;
-  Color := rgb(mred, mgreen, mblue);
-  buttoncolor_custom_color.SymbolColor := Color;
+  self.Color := rgb(mred, mgreen, mblue);
 end;
 //背景设置：苏丹红
 procedure Tform_mainform.button_sultan_colorClick(Sender: TObject);
@@ -1122,8 +1231,7 @@ begin
   mred := 189;
   mgreen := 0;
   mblue := 0;
-  Color := rgb(mred, mgreen, mblue);
-  buttoncolor_custom_color.SymbolColor := Color;
+  self.Color := rgb(mred, mgreen, mblue);
 end;
 //背景设置：日落黄
 procedure Tform_mainform.button_sun_colorClick(Sender: TObject);
@@ -1131,8 +1239,7 @@ begin
   mred := 255;
   mgreen := 215;
   mblue := 0;
-  Color := rgb(mred, mgreen, mblue);
-  buttoncolor_custom_color.SymbolColor := Color;
+  self.Color := rgb(mred, mgreen, mblue);
 end;
 //账号部分：检测Authlib是否有更新
 procedure Tform_mainform.button_thirdparty_check_authlib_updateClick(
@@ -1144,6 +1251,11 @@ end;
 procedure Tform_mainform.checkbox_slimClick(Sender: TObject);
 begin
   edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
+end;
+//下载部分：选择显示方式
+procedure Tform_mainform.checklistbox_choose_view_modeClick(Sender: TObject);
+begin
+  CheckMode;
 end;
 //搜索类型改变复选组（Modrinth）
 procedure Tform_mainform.checklistbox_playing_search_category_modrinthClick(
@@ -1186,7 +1298,12 @@ end;
 procedure Tform_mainform.edit_background_mainform_titleChange(Sender: TObject);
 begin
   Caption := edit_background_mainform_title.Text;
-end;          
+end;
+//自定义下载：路径输入
+procedure Tform_mainform.edit_custom_download_pathChange(Sender: TObject);
+begin
+  ChangeSaveEdit;
+end;
 //启动设置：额外game参数
 procedure Tform_mainform.edit_launch_additional_gameChange(Sender: TObject);
 begin
@@ -1224,6 +1341,8 @@ begin
   SaveAccount;
   SavePlaying;
   SaveLaunch;
+  SaveDownload;
+  SaveCustomDl;
   ShellExecute(Application.Handle, 'open', 'taskkill.exe', '/F /IM LittleLimboLauncher.exe', nil, SW_HIDE);
 end;
 procedure Tform_mainform.WmDropFiles(var Msg: TMessage);
@@ -1266,7 +1385,9 @@ begin
     LLLini.WriteBool('Version', 'ShowSnapshot', False);
     LLLini.WriteBool('Version', 'ShowOldBeta', False);
     LLLini.WriteBool('Version', 'ShowOldAlpha', False);
+    LLLini.WriteBool('Version', 'ShowLLLSpecial', False);
     LLLini.WriteInteger('Version', 'SelectDownloadSource', 1);
+    LLLini.WriteInteger('Version', 'SelectModLoader', 1);
     LLLini.WriteInteger('Version', 'SelectIsolation', 4);
     LLLini.WriteInteger('Version', 'ThreadBiggest', 32);
     LLLini.WriteInteger('Mod', 'SelectModSource', 1);
@@ -1474,6 +1595,23 @@ procedure Tform_mainform.image_refresh_background_musicClick(Sender: TObject);
 begin
   ResetBackMusic(true);
 end;
+//下载部分：初次切换页
+procedure Tform_mainform.pagecontrol_download_partChange(Sender: TObject);
+begin
+  if pagecontrol_download_part.ActivePage = tabsheet_download_custom_part then
+    InitCustomDl
+  else if pagecontrol_download_part.ActivePage = tabsheet_download_modloader_part then begin
+    InitCustomDl;
+    RefreshModLoader;
+  end;
+end;
+//下载部分：切换页面前
+procedure Tform_mainform.pagecontrol_download_partChanging(Sender: TObject;
+  var AllowChange: Boolean);
+begin
+  if pagecontrol_download_part.ActivePage = tabsheet_download_custom_part then
+    SaveCustomDl;
+end;
 //主界面：初次切换页
 procedure Tform_mainform.pagecontrol_mainpageChange(Sender: TObject);
 begin
@@ -1485,6 +1623,8 @@ begin
     InitPlaying
   else if pagecontrol_mainpage.ActivePage = tabsheet_launch_part then
     InitLaunch
+  else if pagecontrol_mainpage.ActivePage = tabsheet_download_part then
+    InitDownload   
 end;
 //主界面：切换该页前
 procedure Tform_mainform.pagecontrol_mainpageChanging(Sender: TObject;
@@ -1498,6 +1638,10 @@ begin
     SavePlaying
   else if pagecontrol_mainpage.ActivePage = tabsheet_launch_part then
     SaveLaunch
+  else if pagecontrol_mainpage.ActivePage = tabsheet_download_part then begin
+    SaveDownload;
+    SaveCustomDl;
+  end
 end;
 //玩法部分：玩法管理界面/下载玩法切换。
 procedure Tform_mainform.pagecontrol_playing_partChange(Sender: TObject);
@@ -1599,6 +1743,17 @@ begin
   mchoose_skin := 8;
   edit_offline_uuid.Text := JudgeOfflineSkin(mchoose_skin, checkbox_slim.Checked);
 end;
+//下载部分：选择下载源
+procedure Tform_mainform.radiogroup_choose_download_sourceClick(
+  Sender: TObject);
+begin
+  ChangeDlSource;
+end;
+//下载部分：选择模组加载器
+procedure Tform_mainform.radiogroup_choose_mod_loaderClick(Sender: TObject);
+begin
+  ChangeModLoader;
+end;
 //背景设置：控件透明度滑动条
 procedure Tform_mainform.scrollbar_background_control_alphaChange(
   Sender: TObject);
@@ -1628,7 +1783,14 @@ begin
   mwindow_alpha := scrollbar_background_window_alpha.Position;
   label_background_window_current_alpha.Caption := GetLanguage('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
   AlphaBlendValue := mwindow_alpha;
-end;                 
+end;
+//下载部分：最大线程修改
+procedure Tform_mainform.scrollbar_download_biggest_threadChange(
+  Sender: TObject);
+begin
+  mbiggest_thread := scrollbar_download_biggest_thread.Position;
+  label_download_biggest_thread.Caption := GetLanguage('label_download_biggest_thread.caption').Replace('${biggest_thread}', inttostr(mbiggest_thread));
+end;
 //启动设置：游戏内存大小
 procedure Tform_mainform.scrollbar_launch_max_memoryChange(Sender: TObject);
 begin

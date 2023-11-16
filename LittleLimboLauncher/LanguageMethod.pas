@@ -16,7 +16,7 @@ uses
 
 var
   langjson: TJSONObject;
-
+//设置语言
 procedure SetLanguage(lang: String);
 begin                                                                                          
   if lang = '' then lang := 'zh_cn';
@@ -36,6 +36,7 @@ begin
   form_mainform.tabsheet_account_thirdparty_part.Caption := GetLanguage('tabsheet_account_thirdparty_part.caption');
   form_mainform.tabsheet_playing_download_part.Caption := GetLanguage('tabsheet_playing_download_part.caption');
   form_mainform.tabsheet_playing_manage_part.Caption := GetLanguage('tabsheet_playing_manage_part.caption');
+  form_mainform.tabsheet_download_minecraft_part.Caption := GetLanguage('tabsheet_download_minecraft_part.caption');
   form_mainform.tabsheet_download_custom_part.Caption := GetLanguage('tabsheet_download_custom_part.caption');
   form_mainform.tabsheet_download_modloader_part.Caption := GetLanguage('tabsheet_download_modloader_part.caption');
   form_mainform.tabsheet_online_ipv6_part.Caption := GetLanguage('tabsheet_online_ipv6_part.caption');
@@ -80,7 +81,7 @@ begin
   form_mainform.button_sky_color.caption := GetLanguage('button_sky_color.caption');   
   form_mainform.button_cute_color.caption := GetLanguage('button_cute_color.caption');   
   form_mainform.button_normal_color.caption := GetLanguage('button_normal_color.caption');   
-  form_mainform.buttoncolor_custom_color.caption := GetLanguage('buttoncolor_custom_color.caption');    
+  form_mainform.button_custom_color.caption := GetLanguage('button_custom_color.caption');
   form_mainform.label_background_window_alpha.caption := GetLanguage('label_background_window_alpha.caption');  
   form_mainform.label_background_control_alpha.caption := GetLanguage('label_background_control_alpha.caption');  
   form_mainform.groupbox_background_music_setting.caption := GetLanguage('groupbox_background_music_setting.caption');  
@@ -194,8 +195,51 @@ begin
   form_mainform.label_launch_additional_game.Caption := GetLanguage('label_launch_additional_game.caption');
   form_mainform.edit_launch_additional_game.TextHint := GetLanguage('edit_launch_additional_game.texthint');
   form_mainform.button_launch_additional_game.Caption := GetLanguage('button_launch_additional_game.caption');
+  //以下是下载Minecraft部分
+  form_mainform.label_download_tip.Caption := GetLanguage('label_download_tip.caption');
+  form_mainform.label_choose_view_mode.Caption := GetLanguage('label_choose_view_mode.caption');
+  form_mainform.label_select_minecraft.Caption := GetLanguage('label_select_minecraft.caption');
+  form_mainform.label_select_modloader.Caption := GetLanguage('label_select_modloader.caption');
+  form_mainform.checklistbox_choose_view_mode.Items[0] := GetLanguage('checklistbox_choose_view_mode.release.caption');
+  form_mainform.checklistbox_choose_view_mode.Items[1] := GetLanguage('checklistbox_choose_view_mode.snapshot.caption');
+  form_mainform.checklistbox_choose_view_mode.Items[2] := GetLanguage('checklistbox_choose_view_mode.beta.caption');
+  form_mainform.checklistbox_choose_view_mode.Items[3] := GetLanguage('checklistbox_choose_view_mode.alpha.caption');
+  form_mainform.checklistbox_choose_view_mode.Items[4] := GetLanguage('checklistbox_choose_view_mode.special.caption');
+  form_mainform.radiogroup_choose_download_source.Caption := GetLanguage('radiogroup_choose_download_source.caption');
+  form_mainform.radiogroup_choose_download_source.Items[0] := GetLanguage('radiogroup_choose_download_source.official.caption');
+  form_mainform.radiogroup_choose_download_source.Items[1] := GetLanguage('radiogroup_choose_download_source.bmclapi.caption');
+  form_mainform.radiogroup_choose_download_source.Items[2] := GetLanguage('radiogroup_choose_download_source.mcbbs.caption');
+  form_mainform.radiogroup_choose_mod_loader.Caption := GetLanguage('radiogroup_choose_mod_loader.caption');
+  form_mainform.radiogroup_choose_mod_loader.Items[0] := GetLanguage('radiogroup_choose_mod_loader.forge.caption');
+  form_mainform.radiogroup_choose_mod_loader.Items[1] := GetLanguage('radiogroup_choose_mod_loader.fabric.caption');
+  form_mainform.radiogroup_choose_mod_loader.Items[2] := GetLanguage('radiogroup_choose_mod_loader.quilt.caption');
+  form_mainform.radiogroup_choose_mod_loader.Items[3] := GetLanguage('radiogroup_choose_mod_loader.neoforge.caption');
+  form_mainform.button_reset_download_part.Caption := GetLanguage('button_reset_download_part.caption');
+  form_mainform.button_load_modloader.Caption := GetLanguage('button_load_modloader.caption');
+  form_mainform.label_minecraft_version_name.Caption := GetLanguage('label_minecraft_version_name.caption');
+  form_mainform.edit_minecraft_version_name.TextHint := GetLanguage('edit_minecraft_version_name.texthint');
+  form_mainform.button_download_start_download_minecraft.Caption := GetLanguage('button_download_start_download_minecraft.caption');
+  //以下是自定义下载部分
+  form_mainform.label_custom_download_url.Caption := GetLanguage('label_custom_download_url.caption');
+  form_mainform.edit_custom_download_url.TextHint := GetLanguage('edit_custom_download_url.texthint');
+  form_mainform.label_custom_download_name.Caption := GetLanguage('label_custom_download_name.caption');
+  form_mainform.edit_custom_download_name.TextHint := GetLanguage('edit_custom_download_name.texthint');
+  form_mainform.label_custom_download_sha1.Caption := GetLanguage('label_custom_download_sha1.caption');
+  form_mainform.edit_custom_download_sha1.TextHint := GetLanguage('edit_custom_download_sha1.texthint');
+  form_mainform.label_custom_download_path.Caption := GetLanguage('label_custom_download_path.caption');
+  form_mainform.edit_custom_download_path.TextHint := GetLanguage('edit_custom_download_path.texthint');
+  form_mainform.button_custom_download_choose_path.Caption := GetLanguage('button_custom_download_choose_path.caption');
+  form_mainform.button_custom_download_open_path.Caption := GetLanguage('button_custom_download_open_path.caption');
+  form_mainform.button_custom_download_start.Caption := GetLanguage('button_custom_download_start.caption');
+  //以下是模组加载器手动安装包
+  form_mainform.label_download_modloader_forge.Caption := GetLanguage('label_download_modloader_forge.caption');
+  form_mainform.label_download_modloader_fabric.Caption := GetLanguage('label_download_modloader_fabric.caption');
+  form_mainform.label_download_modloader_quilt.Caption := GetLanguage('label_download_modloader_quilt.caption');
+  form_mainform.label_download_modloader_neoforge.Caption := GetLanguage('label_download_modloader_neoforge.caption');
+  form_mainform.button_download_modloader_download.Caption := GetLanguage('button_download_modloader_download.caption');
+  form_mainform.button_download_modloader_refresh.Caption := GetLanguage('button_download_modloader_refresh.caption');
 end;
-
+//初始化语言
 procedure InitLanguage();
 begin
   if not FileExists(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json')) then begin
@@ -555,6 +599,64 @@ begin
       .AddPair('inputbox_launch.select_java_web.text', '如果你不信任LLL下载的Java，你可以自行在此处输入你想进入的Java官网（这里给几个官网，推荐指数从上往下。），LLL会通过你电脑的默认浏览器打开官网。输入前面的序号即可：')
       .AddPair('messagebox_launch.open_java_web_error.caption', '输入的数字有误')
       .AddPair('messagebox_launch.open_java_web_error.text', '你输入了不支持的序号，请重新输入！')
+      .AddPair('messagebox_download.not_choose_minecraft_versino.caption', '暂未选择Minecraft版本')
+      .AddPair('messagebox_download.not_choose_minecraft_versino.text', '你还暂未选择任意Minecraft版本，无法加载模组加载器。')
+      .AddPair('messagebox_download.view_mc_info_error.caption', '暂未选择Minecraft版本')
+      .AddPair('messagebox_download.view_mc_info_error.text', '你还暂未选择任意Minecraft版本，无法查看信息。')
+      .AddPair('messagebox_download.is_open_wiki.text', Concat('发布时间：${year}年${month}月${day}日${time}', #13#10, '是否打开Wiki查看更详情信息？'))
+      .AddPair('messagebox_download.import_mc_info_error.caption', '无法读取MC信息')
+      .AddPair('messagebox_download.import_mc_info_error.text', '查看MC信息时，无法读取该MC版本信息，请联系作者修复！')
+      .AddPair('messagebox_download.not_choose_download.caption', '暂未选择Minecraft版本')
+      .AddPair('messagebox_download.not_choose_download.text', '你还暂未选择任意Minecraft版本，无法下载MC。')
+      .AddPair('messagebox_download.name_is_empty.caption', '名称为空')
+      .AddPair('messagebox_download.name_is_empty.text', '你为此下载的Minecraft命的名称为空，请试着输入一个名称后再来。')
+      .AddPair('messagebox_download.get_mc_dir_error.caption', '读取文件错误')
+      .AddPair('messagebox_download.get_mc_dir_error.text', '你还暂未选中任意MC文件夹，请去版本设置里选中一个后再来！')
+      .AddPair('messagebox_download.is_download_mc.caption', '将会被替换，是否继续')
+      .AddPair('messagebox_download.is_download_mc.text', '如果你需要下载一个新版本的话，该版本会替换掉你原有的{minecraft}\versions\{version_name}文件夹下的所有内容，如果你开了版本隔离，请务必确保已经备份了版本。请点击是继续……')
+      .AddPair('messagebox_download.install_forge_not_choose_java.caption', '暂未选中Java')
+      .AddPair('messagebox_download.install_forge_not_choose_java.text', '你在安装Forge的时候，暂未选中任意Java文件，在安装Forge时必须要选中任一Java文件才能继续。')
+      .AddPair('messagebox_download.download_no_data.caption', '暂无数据')
+      .AddPair('messagebox_download.download_no_data.text', '你选择的模组加载器列表框元素是暂无数据，请重新选择一次模组加载器版本！')
+      .AddPair('messagebox_download.is_install_forge.caption', '很大的不稳定性，是否继续')
+      .AddPair('messagebox_download.is_install_forge.text', '特别提示：目前Forge自动安装极其不稳定，请慎重考虑是否需要使用LLL启动器自动安装。【如果在此处遇到了bug，请暂时不要反馈，作者已经在修了。。bug包括但不限于跑处理器的时候线程卡死等问题】，一旦点击是则视你默认遵守自动安装模组加载器所承担的一切后果【哪怕是启动器出现的下载问题。】如有疑惑，请与作者进行沟通。')
+      .AddPair('messagebox_download.is_install_neoforge.caption', '是否跳转到安装NeoForged')
+      .AddPair('messagebox_download.is_install_neoforge.text', '特别提示：如果你需要安装1.20.1或者以上版本的Forge，您可以考虑安装NeoForged，它是由cpw掌管的Forge，尽管如此，NeoForged也支持当今的几乎所有的原Forge版本的模组，您可以试试看。是否立刻跳转到NeoForged下载？【按否则立即以该版本安装。】')
+      .AddPair('messagebox_download.not_support_forge_version.caption', '不受支持的Forge版本')
+      .AddPair('messagebox_download.not_support_forge_version.text', '该Forge版本暂不受支持，因为里面没有installer，请重新选择一个受支持的Forge版本吧！')
+      .AddPair('messagebox_download.download_forge_success.caption', '下载Forge成功')
+      .AddPair('messagebox_download.download_forge_success.text', '下载Forge成功！现在你可以进入版本选择选择该版本进行游玩了！')
+      .AddPair('messagebox_download.download_fabric_success.caption', '下载Fabric成功')
+      .AddPair('messagebox_download.download_fabric_success.text', '下载Fabric成功！现在你可以进入版本选择选择该版本进行游玩了！')
+      .AddPair('messagebox_download.download_quilt_success.caption', '下载Quilt成功')
+      .AddPair('messagebox_download.download_quilt_success.text', '下载Quilt成功！现在你可以进入版本选择选择该版本进行游玩了！')
+      .AddPair('messagebox_download.install_neoforge_not_choose_java.caption', '暂未选中Java')
+      .AddPair('messagebox_download.install_neoforge_not_choose_java.text', '你在安装NeoForge的时候，暂未选中任意Java文件，在安装NeoForge时必须要选中任一Java文件才能继续。')
+      .AddPair('messagebox_download.download_neoforge_success.caption', '下载NeoForge成功')
+      .AddPair('messagebox_download.download_neoforge_success.text', '下载NeoForge成功！现在你可以进入版本选择选择该版本进行游玩了！')
+      .AddPair('messagebox_download.download_mc_success.caption', '下载MC原版成功')
+      .AddPair('messagebox_download.download_mc_success.text', '下载MC原版成功！现在你可以进入版本选择选择该版本进行游玩了！')
+      .AddPair('selectdialog_customdl.select_save_path', '请选择自定义下载保存路径')
+      .AddPair('messagebox_customdl.open_save_path_error.caption', '打开保存路径失败')
+      .AddPair('messagebox_customdl.open_save_path_error.text', '你的保存路径输入得不正确，文件夹不存在或者路径有误，请重试！')
+      .AddPair('messagebox_customdl.not_enter_url.caption', '暂未输入网址')
+      .AddPair('messagebox_customdl.not_enter_url.text', '暂未输入网址，无法下载！')
+      .AddPair('messagebox_customdl.path_not_exist.caption', '路径不存在')
+      .AddPair('messagebox_customdl.path_not_exist.text', '路径不存在，无法下载！')
+      .AddPair('messagebox_customdl.file_is_exists.caption', '已存在同名文件')
+      .AddPair('messagebox_customdl.file_is_exists.text', '已存在同名的文件在你的路径下，是否直接替换？')
+      .AddPair('messagebox_customdl.check_hash_success.caption', '检查文件Hash成功')
+      .AddPair('messagebox_customdl.check_hash_success.text', '自定义下载完成！并且检查文件sha1成功！现在你可以去看下载的文件了！')
+      .AddPair('messagebox_customdl.check_hash_error.caption', '检查文件Hash失败')
+      .AddPair('messagebox_customdl.check_hash_error.text', '自定义下载完成！但是检查文件sha1失败了，你似乎输入了错误的文件sha1值，又或者是LLL启动器拼接文件时出错了……谁懂呢！请重试吧！')
+      .AddPair('messagebox_customdl.custom_download_success.caption', '自定义下载完成')
+      .AddPair('messagebox_customdl.custom_download_success.text', '自定义下载完成！未采取检查文件sha1方式，请去路径下查看吧！')
+      .AddPair('messagebox_customdl.custom_download_error.caption', '自定义下载失败。')
+      .AddPair('messagebox_customdl.custom_download_error.text', '自定义下载失败，可能原因应该是LLL启动器未能为你的文件拆分进行合并处理，又或者是有某单个文件下载失败导致未能拼接，请重试，请重试！')
+      .AddPair('messagebod_modloader.not_choose_modloader.caption', '暂未选择任意版本')
+      .AddPair('messagebod_modloader.not_choose_modloader.text', '你还暂未选择任意模组加载器版本进行手动安装包下载呢！请重试！【Forge和NeoForge需要去《下载Minecraft》中选择任一Minecraft版本才能下载噢！】')
+      .AddPair('messagebox_modloader.download_modloader_success.caption', '下载成功')
+      .AddPair('messagebox_modloader.download_modloader_success.text', '下载模组加载器手动安装包成功！现在你可以去文件夹中查看了！')
       //以下为下载进度列表框
       .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
@@ -564,7 +666,7 @@ begin
       .AddPair('downloadlist.custom.url_statucode_is_not_206_and_try_to_cut', '该网站请求代码不为206，正在对其进行分段……')
       .AddPair('downloadlist.custom.not_allow_cut_use_single_thread_download', '该网站不允许分段下载，已用单线程将该文件下载下来。')
       .AddPair('downloadlist.custom.url_allow_multi_thread_download', '该网站支持多线程下载！')
-      .AddPair('downloadlist.custom.url_file_size', '文件长度：${download_progress}')
+      .AddPair('downloadlist.custom.url_file_size', '文件长度：${url_file_size}')
       .AddPair('downloadlist.custom.thread_one_to_single_thread_download', '由于你选择的线程是单线程，现在将直接采取单线程的下载方式。')
       .AddPair('downloadlist.custom.single_thread_download_error', '单线程下载失败，请重试。')
       .AddPair('downloadlist.custom.cut_download_error', '分段下载已下载失败，请重试！')
@@ -591,7 +693,7 @@ begin
       .AddPair('downloadlist.mc.download_library_success', '下载MC库文件成功，现在开始下载资源文件。')
       .AddPair('downloadlist.mc.download_assets_success', '下载MC资源文件成功，现在开始判断下载的是否为forge。')
       .AddPair('downloadlist.mc.judge_download_forge', '已在version文件夹中找到install_profile.json，判断你下载的是Forge。')
-      .AddPair('downloadlist.mc.download_mc_success', '下载MC已完成，耗时${download_finish_time}秒。')
+      .AddPair('downloadlist.mc.download_mc_finish', '下载MC已完成，耗时：${download_finish_time}秒。')
       .AddPair('downloadlist.window.file_is_exists', '已存在：${file_exists_name}')
       .AddPair('downloadlist.window.download_error_retry', '下载失败，正在重试：${file_error_name}')
       .AddPair('downloadlist.window.switch_download_source_official', '正在切换下载源：OFFICIAL')
@@ -615,10 +717,13 @@ begin
       .AddPair('downloadlist.forge.current_download_library', '正在下载Forge必要库文件。')
       .AddPair('downloadlist.forge.copy_installprofile_success_setup_mc', '已在安装包中找到install_profile，现在开始下载！')
       .AddPair('downloadlist.forge.installer_version_lower', '由于你安装的forge版本过低，因此无需跑forge处理器。')
+      .AddPair('downloadlist.forge.cannot_extra_lzma', '无法提取出lzma文件，也许是因为你要下载的Forge版本过低了。')
       .AddPair('downloadlist.forge.start_run_processors', '现在正在开始用单线程跑Forge处理器中……')
       .AddPair('downloadlist.forge.not_choose_any_java', '你暂未选中任何一个Java，无法跑Forge处理器，请重试！')
       .AddPair('downloadlist.forge.skip_processors', '已跳过：${processors_count}')
       .AddPair('downloadlist.forge.run_processors_success', '已完成：${processors_count}')
+      .AddPair('downloadlist.forge.download_forge_success', '下载Forge已完成，耗时：${download_finish_time}秒')
+      .AddPair('downloadlist.forge.cannot_extra_miencraft_jar', '无法检测出Minecraft原版Jar包，请将此错误反馈给作者！')
       .AddPair('downloadlist.authlib.check_authlib_update', '正在检查Authlib-Injector是否有更新')
       .AddPair('downloadlist.authlib.check_authlib_error', '检测Authlib失败，请重试。')
       .AddPair('downloadlist.authlib.authlib_has_update', '已检测出Authlib更新，正在下载')
@@ -632,6 +737,16 @@ begin
       .AddPair('downloadlist.java.get_java_manifest_error', '由于未知原因，获取Java(${java_version})(64)版本元数据失败！')
       .AddPair('downloadlist.java.get_java_success', '获取Java所有的元数据成功！现在开始下载！')
       .AddPair('downloadlist.java.download_java_success', '下载Java成功！现在你可以通过特定扫描来找到Java了。')
+      .AddPair('downloadlist.download.start_download', '已检测出你想要的下载是：${version}，下载源：${source}')
+      .AddPair('downloadlist.download.get_fabric_metadata_error', '在读取Fabric的元数据时出现错误，你似乎没有联网，请重试！')
+      .AddPair('downloadlist.download.fabric_metadata_download_success', '下载Fabric元数据成功！现在开始下载MC')
+      .AddPair('downloadlist.download.get_quilt_metadata_error', '在读取Quilt的元数据时出现错误，你似乎没有联网，请重试！')
+      .AddPair('downloadlist.download.quilt_metadata_download_success', '下载Quilt元数据成功！现在开始下载MC')
+      .AddPair('downloadlist.download.get_mc_metadata', '正在开始下载MC元数据')
+      .AddPair('downloadlist.download.get_mc_metadata_error', '获取MC元数据失败，请重试！')
+      .AddPair('downloadlist.download.mc_metadata_download_success', '获取MC元数据成功，开始下载MC！')
+      .AddPair('downloadlist.customdl.start_custom_download', '正在下载自定义文件……')
+      .AddPair('downloadlist.modloader.download_success', '下载模组加载器手动安装包完成！现在可以去文件夹中查看了！')
       //以下为下载进度窗口
       .AddPair('__progress_comment', '（注解）以下是下载进度窗口语言')
       .AddPair('button_progress_hide_show_details.caption.show', '显示详情')
@@ -666,7 +781,7 @@ begin
       .AddPair('button_sky_color.caption', '天空蓝')
       .AddPair('button_cute_color.caption', '可爱粉')
       .AddPair('button_normal_color.caption', '默认白')
-      .AddPair('buttoncolor_custom_color.caption', '自定义配色')
+      .AddPair('button_custom_color.caption', '自定义配色')
       .AddPair('label_background_window_alpha.caption', '设置窗口透明度【只允许127~255，因为过低会导致启动器不见】')
       .AddPair('label_background_window_current_alpha.caption', '当前选中：${window_alpha}')
       .AddPair('label_background_control_alpha.caption', '设置控件透明度【只允许63~191，因为过高会导致背景图片不见，过低会导致控件不见】')
@@ -1109,6 +1224,58 @@ begin
       .AddPair('label_launch_java_logic.caption.search_program', 'Java逻辑，正在扫描C:\Program File\Java')
       .AddPair('label_launch_java.logic.caption.search_lllpath', 'Java逻辑，正在扫描LLL特定目录')
       .AddPair('label_launch_java_logic.caption.basic_scan_java_success', 'Java逻辑，特定扫描Java成功')
+      //以下是下载部分
+      .AddPair('label_download_return_value.caption.get_mc_web', '正在获取MC元数据……')
+      .AddPair('label_downlaod_return_value.caption.get_mc_web_success', '初步导入MC元数据成功！')
+      .AddPair('listbox_select_minecraft.item.get_mc_error', 'MC导入失败，请重试。')
+      .AddPair('label_download_biggest_thread.caption', '最大线程：${biggest_thread}')
+      .AddPair('label_download_return_value.caption.reset_mc_web', '正在重置MC元数据……')
+      .AddPair('label_downlaod_return_value.caption.reset_mc_web_success', '重置导入MC元数据成功！')
+      .AddPair('listbox_select_modloader.item.has_no_data', '暂无数据！')
+      .AddPair('label_download_return_value.caption.get_modloader', '正在获取模组加载器……')
+      .AddPair('label_download_return_value.caption.get_modloader_success', '获取模组加载器成功！')
+      .AddPair('label_download_tip.caption', '这里是下载部分，你可以体验到自定义文件下载，还有Minecraft下载！这也是为数不多的支持NeoForge的启动器哦！')
+      .AddPair('label_choose_view_mode.caption', '选择显示方式')
+      .AddPair('label_select_minecraft.caption', 'Minecraft版本选择')
+      .AddPair('label_select_modloader.caption', '模组加载器选择')
+      .AddPair('checklistbox_choose_view_mode.release.caption', '显示正式')
+      .AddPair('checklistbox_choose_view_mode.snapshot.caption', '显示快照')
+      .AddPair('checklistbox_choose_view_mode.beta.caption', '显示Beta')
+      .AddPair('checklistbox_choose_view_mode.alpha.caption', '显示Alpha')
+      .AddPair('checklistbox_choose_view_mode.special.caption', '显示LLL特供')
+      .AddPair('radiogroup_choose_download_source.caption', '选择下载源')
+      .AddPair('radiogroup_choose_download_source.official.caption', '官方下载源')
+      .AddPair('radiogroup_choose_download_source.bmclapi.caption', 'BMCLAPI')
+      .AddPair('radiogroup_choose_download_source.mcbbs.caption', 'MCBBS')
+      .AddPair('radiogroup_choose_mod_loader.caption', '选择模组加载器')
+      .AddPair('radiogroup_choose_mod_loader.forge.caption', 'Forge')
+      .AddPair('radiogroup_choose_mod_loader.fabric.caption', 'Fabric')
+      .AddPair('radiogroup_choose_mod_loader.quilt.caption', 'Quilt')
+      .AddPair('radiogroup_choose_mod_loader.neoforge.caption', 'NeoForge')
+      .AddPair('button_reset_download_part.caption', '重置下载界面')
+      .AddPair('button_load_modloader.caption', '加载模组加载器')
+      .AddPair('label_minecraft_version_name.caption', '下载版本名称')
+      .AddPair('edit_minecraft_version_name.texthint', '请输入版本名称')
+      .AddPair('button_download_start_download_minecraft.caption', '开始自动安装Minecraft❤点我自动安装❤')
+      //以下是自定义下载部分
+      .AddPair('label_custom_download_url.caption', '下载网址输入（不支持百度网盘等）')
+      .AddPair('edit_custom_download_url.texthint', '这里输入下载网址')
+      .AddPair('label_custom_download_name.caption', '文件名称输入（可空，留空则默认为网址后缀名）')
+      .AddPair('edit_custom_download_name.texthint', '这里输入文件名称')
+      .AddPair('label_custom_download_sha1.caption', '文件sha1输入（可空）')
+      .AddPair('edit_custom_download_sha1.texthint', '这里输入文件sha1，主要用于下载完成后校验文件是否完整，如果不知道可以留空。')
+      .AddPair('label_custom_download_path.caption', '保存路径（可空，留空则为本exe路径下）')
+      .AddPair('edit_custom_download_path.texthint', '这里输入文件下载路径，可以手动填，也可以点击下方选择路径填写。')
+      .AddPair('button_custom_download_choose_path.caption', '选择路径')
+      .AddPair('button_custom_download_open_path.caption', '打开路径')
+      .AddPair('button_custom_download_start.caption', '开始下载')
+      //以下是模组加载器手动安装包
+      .AddPair('label_download_modloader_forge.caption', 'Forge版本选择')
+      .AddPair('label_download_modloader_fabric.caption', 'Fabric版本选择')
+      .AddPair('label_download_modloader_quilt.caption', 'Quilt版本选择')
+      .AddPair('label_download_modloader_neoforge.caption', 'NeoForge版本选择')
+      .AddPair('button_download_modloader_download.caption', '开始下载')
+      .AddPair('button_download_modloader_refresh.caption', '刷新版本')
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
   end;
