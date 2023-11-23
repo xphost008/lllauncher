@@ -48,7 +48,7 @@ When I have some snapshot version, I will release it in my group that not in my 
 - When your launcher version is more than 0.0.17, you dont need Two dll, but if you are less than 0.0.16, I think you must need two dll files.
 - In the latest version, that truth you dont need two dll file. If I updated 0.1.2 version, I will deleting it!
 
-3. (Release version): [lanzou click me](https://wwc.lanzouq.com/b020zvisf) password: eupj
+3. (Release version): [lanzou click me](https://wwc.lanzouq.com/b020zvisf) password: 90y9
 
 - from now on, there are no private snapshot version and snapshot version in here, I will release all version in public version, thanks!
 - at the same time, I will archive my all private version for everyone to read. if you want to download old version, please check Chinese Readme!
