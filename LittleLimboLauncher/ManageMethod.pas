@@ -59,20 +59,6 @@ begin
   end;
   Result := SHFileOperation(sop) = 0;
 end;
-//重命名文件夹
-function RenameDire(source, target: String): Boolean;
-var
-  sop: TSHFileOpStruct;
-begin
-  with sop do begin
-    Wnd := 0;
-    wFunc := FO_RENAME;
-    pFrom := pchar(source);
-    pTo := pchar(target);
-    fFlags := FOF_ALLOWUNDO;
-  end;
-  Result := SHFileOperation(sop) = 0;
-end;
 //查询玩法文件夹，然后添加到列表框。
 procedure SelectPlayingDir();
 var
@@ -235,7 +221,7 @@ begin
   if rs = '' then exit;
   if (form_mainform.listbox_manage_import_map.ItemIndex <> -1) and (form_mainform.listbox_manage_import_datapack.ItemIndex = -1) then begin
     var C := Concat(ExtractFilePath(S), rs);
-    RenameDire(S, C);
+    RenDirectory(S, C);
   end else begin
     if RightStr(S, 9) = '.disabled' then begin
       var nod := ChangeFileExt(S, '');

@@ -24,55 +24,6 @@ implementation
 
 uses
   MainForm, MainMethod, LanguageMethod, MyCustomWindow, ProgressMethod;
-//此处可以用获取exe的版本信息。
-function GetFileVersion(AFileName: string): string;
-var
-  n, Len: DWORD;
-  Buf : PChar;
-  Value: Pointer;
-  szName: array [0..255] of Char;
-  Transstring: string;
-begin
-  Len := GetFileVersionInfoSize(PChar(AFileName), n);
-  if Len > 0 then
-  begin
-    Buf := AllocMem(Len);
-    if GetFileVersionInfo(Pchar(AFileName), n, Len, Buf) then
-    begin
-      Value := nil;
-      VerQueryValue(Buf, '\VarFileInfo\Translation', Value, Len);
-      if Value <> nil then
-        Transstring := IntToHex(MakeLong(HiWord(LongInt(Value^)),
-          LoWord(LongInt(Value^))), 8);
-      StrPCopy(szName, '\stringFileInfo\' + Transstring + '\FileVersion');
-      if VerQueryValue(Buf, szName, Value, Len) then
-        Result := StrPas(Pchar(Value));
-    end;
-    FreeMem(Buf, n);
-  end;
-end;
-//此处用于判断exe的位数，是32位还是64位程序。
-function GetFileBits(FileName: String): String;
-var
-  b: Byte;
-  res: String;
-begin
-  res := '';
-  result := '';
-  if not FileExists(FileName) then Exit;
-  with TMemoryStream.Create do begin
-    LoadFromFile(FileName);
-    Position := 0;
-    while Position < Size do
-    begin
-      ReadBuffer(b, 1);
-      res := res + Format('%0.2x ', [b]);
-      if Position = 800 then break;
-    end;
-    Free;
-  end;
-  if res.ToLower.IndexOf('50 45 00 00 4c') <> -1 then Result := '32' else if res.IndexOf('50 45 00 00 64 86') <> -1 then Result := '64' else Result := '';
-end;
 //搜索Java
 function SearchJava(path: String): Boolean;
 var

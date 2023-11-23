@@ -102,7 +102,7 @@ begin
       if isLibraries then begin
         case SelectMode of
           1: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source_bmclapi'));
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'BMCLAPI'));
             DownloadURL := DownloadURL.Replace('https://libraries.minecraft.net', 'https://bmclapi2.bangbang93.com/maven');
             DownloadURL := DownloadURL.Replace('https://maven.minecraftforge.net', 'https://bmclapi2.bangbang93.com/maven');
             DownloadURL := DownloadURL.Replace('https://files.minecraftforge.net/maven', 'https://bmclapi2.bangbang93.com/maven');
@@ -111,22 +111,22 @@ begin
             SelectMode := 2;
           end;
           2: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source_mcbbs'));
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'MCBBS'));
             DownloadURL := DownloadURL.Replace('https://bmclapi2.bangbang93.com/maven', 'https://download.mcbbs.net/assets');
             SelectMode := 3;
           end;
           3: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source_official'));
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'OFFICIAL'));
             DownloadURL := DownloadURL.Replace('https://download.mcbbs.net/maven', 'https://libraries.minecraft.net');
             SelectMode := 4;
           end;
           4: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source_forge'));
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'FORGE'));
             DownloadURL := DownloadURL.Replace('https://libraries.minecraft.net', 'https://maven.minecraftforge.net');
             SelectMode := 5;
           end;
           5: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source_fabric'));
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'FABRIC'));
             DownloadURL := DownloadURL.Replace('https://maven.minecraftforge.net', 'https://maven.fabricmc.net');
             SelectMode := 1;
           end;
@@ -134,17 +134,17 @@ begin
       end else begin
         case SelectMode of
           1: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source_bmclapi'));
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'BMCLAPI'));
             DownloadURL := DownloadURL.Replace('https://resources.download.minecraft.net', 'https://bmclapi2.bangbang93.com/assets');
             SelectMode := 2;
           end;
           2: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source_mcbbs'));
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'MCBBS'));
             DownloadURL := DownloadURL.Replace('https://bmclapi2.bangbang93.com/assets', 'https://download.mcbbs.net/assets');
             SelectMode := 3;
           end;
           3: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source_official'));
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'OFFICIAL'));
             DownloadURL := DownloadURL.Replace('https://download.mcbbs.net/assets', 'https://resources.download.minecraft.net');
             SelectMode := 1;
           end;

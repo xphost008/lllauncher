@@ -100,7 +100,7 @@ begin
   form_mainform.radiobutton_background_launch_exit.caption := GetLanguage('radiobutton_background_launch_exit.caption'); 
   form_mainform.label_background_mainform_title.caption := GetLanguage('label_background_mainform_title.caption'); 
   form_mainform.groupbox_background_gradient.caption := GetLanguage('groupbox_background_gradient.caption'); 
-  form_mainform.toggleswitch_background_gradient.StateCaptions.CaptionOn := GetLanguage('toggleswitch_background_gradient.on.caption'); 
+  form_mainform.toggleswitch_background_gradient.StateCaptions.CaptionOn := GetLanguage('toggleswitch_background_gradient.on.caption');
   form_mainform.toggleswitch_background_gradient.StateCaptions.CaptionOff := GetLanguage('toggleswitch_background_gradient.off.caption'); 
   form_mainform.label_background_gradient_value.caption := GetLanguage('label_background_gradient_value.caption'); 
   form_mainform.label_background_gradient_step.caption := GetLanguage('label_background_gradient_step.caption');
@@ -238,6 +238,50 @@ begin
   form_mainform.label_download_modloader_neoforge.Caption := GetLanguage('label_download_modloader_neoforge.caption');
   form_mainform.button_download_modloader_download.Caption := GetLanguage('button_download_modloader_download.caption');
   form_mainform.button_download_modloader_refresh.Caption := GetLanguage('button_download_modloader_refresh.caption');
+  //以下是版本设置部分
+  form_mainform.label_select_game_version.Caption := GetLanguage('label_select_game_version.caption');
+  form_mainform.label_select_file_list.Caption := GetLanguage('label_select_file_list.caption');
+  form_mainform.label_version_add_mc_path.Caption := GetLanguage('label_version_add_mc_path.caption');
+  form_mainform.button_version_choose_any_directory.Caption := GetLanguage('button_version_choose_any_directory.caption');
+  form_mainform.button_version_create_minecraft.Caption := GetLanguage('button_version_create_minecraft.caption');
+  form_mainform.radiogroup_partition_version.Caption := GetLanguage('radiogroup_partition_version.caption');
+  form_mainform.radiogroup_partition_version.Items[0] := GetLanguage('radiogroup_partition_version.not_isolation.caption');
+  form_mainform.radiogroup_partition_version.Items[1] := GetLanguage('radiogroup_partition_version.isolate_version.caption');
+  form_mainform.radiogroup_partition_version.Items[2] := GetLanguage('radiogroup_partition_version.isolate_modloader.caption');
+  form_mainform.radiogroup_partition_version.Items[3] := GetLanguage('radiogroup_partition_version.isolate_all.caption');
+  form_mainform.button_version_complete.Caption := GetLanguage('button_version_complete.caption');
+  form_mainform.button_rename_version_list.Caption := GetLanguage('button_rename_version_list.caption');
+  form_mainform.button_remove_version_list.Caption := GetLanguage('button_remove_version_list.caption');
+  form_mainform.button_rename_game_version.Caption := GetLanguage('button_rename_game_version.caption');
+  form_mainform.button_delete_game_version.Caption := GetLanguage('button_delete_game_version.caption');
+  //以下是独立设置部分
+  form_mainform.toggleswitch_is_open_isolation.StateCaptions.CaptionOn := GetLanguage('toggleswitch_is_open_isolation.on.caption');
+  form_mainform.toggleswitch_is_open_isolation.StateCaptions.CaptionOff := GetLanguage('toggleswitch_is_open_isolation.off.caption');
+  form_mainform.label_isolation_java_path.Caption := GetLanguage('label_isolation_java_path.caption');
+  form_mainform.edit_isolation_java_path.TextHint := GetLanguage('edit_isolation_java_path.texthint');
+  form_mainform.button_isolation_choose_java.Caption := GetLanguage('button_isolation_choose_java.caption');
+  form_mainform.label_isolation_custom_info.Caption := GetLanguage('label_isolation_custom_info.caption');
+  form_mainform.edit_isolation_custom_info.TextHint := GetLanguage('edit_isolation_custom_info.texthint');
+  form_mainform.label_isolation_window_title.Caption := GetLanguage('label_isolation_window_title.caption');
+  form_mainform.edit_isolation_window_title.TextHint := GetLanguage('edit_isolation_window_title.texthint');
+  form_mainform.label_isolation_window_size.Caption := GetLanguage('label_isolation_window_size.caption');
+  form_mainform.toggleswitch_isolation_window_size.StateCaptions.CaptionOn := GetLanguage('toggleswitch_isolation_window_size.on.caption');
+  form_mainform.toggleswitch_isolation_window_size.StateCaptions.CaptionOff := GetLanguage('toggleswitch_isolation_window_size.off.caption');
+  form_mainform.toggleswitch_isolation_open_memory.StateCaptions.CaptionOn := GetLanguage('toggleswitch_isolation_open_memory.on.caption');
+  form_mainform.toggleswitch_isolation_open_memory.StateCaptions.CaptionOff := GetLanguage('toggleswitch_isolation_open_memory.off.caption');
+  form_mainform.label_isolation_partition.Caption := GetLanguage('label_isolation_partition.caption');
+  form_mainform.toggleswitch_isolation_open_partition.StateCaptions.CaptionOn := GetLanguage('toggleswitch_isolation_open_partition.on.caption');
+  form_mainform.toggleswitch_isolation_open_partition.StateCaptions.CaptionOff := GetLanguage('toggleswitch_isolation_open_partition.off.caption');
+  form_mainform.checkbox_isolation_is_partition.Caption := GetLanguage('checkbox_isolation_is_partition.caption');
+  form_mainform.label_isolation_additional_game.Caption := GetLanguage('label_isolation_additional_game.caption');
+  form_mainform.edit_isolation_additional_game.TextHint := GetLanguage('edit_isolation_additional_game.texthint');
+  form_mainform.label_isolation_additional_jvm.Caption := GetLanguage('label_isolation_additional_jvm.caption');
+  form_mainform.edit_isolation_additional_jvm.TextHint := GetLanguage('edit_isolation_additional_jvm.texthint');
+  form_mainform.label_isolation_pre_launch_script.Caption := GetLanguage('label_isolation_pre_launch_script.caption');
+  form_mainform.edit_isolation_pre_launch_script.TextHint := GetLanguage('edit_isolation_pre_launch_script.texthint');
+  form_mainform.label_isolation_after_launch_script.Caption := GetLanguage('label_isolation_after_launch_script.caption');
+  form_mainform.edit_isolation_after_launch_script.TextHint := GetLanguage('edit_isolation_after_launch_script.texthint');
+  form_mainform.label_isolation_tip.Caption := GetLanguage('label_isolation_tip.caption');
 end;
 //初始化语言
 procedure InitLanguage();
@@ -613,7 +657,7 @@ begin
       .AddPair('messagebox_download.get_mc_dir_error.caption', '读取文件错误')
       .AddPair('messagebox_download.get_mc_dir_error.text', '你还暂未选中任意MC文件夹，请去版本设置里选中一个后再来！')
       .AddPair('messagebox_download.is_download_mc.caption', '将会被替换，是否继续')
-      .AddPair('messagebox_download.is_download_mc.text', '如果你需要下载一个新版本的话，该版本会替换掉你原有的{minecraft}\versions\{version_name}文件夹下的所有内容，如果你开了版本隔离，请务必确保已经备份了版本。请点击是继续……')
+      .AddPair('messagebox_download.is_download_mc.text', '如果你需要下载一个新版本的话，该版本会替换掉你原有的{minecraft}\versions\{version_name}文件夹下的所有内容，如果你开了版本隔离，请务必确保已经备份了版本。并且由LLL启动器下载的MC版本将很有可能不会被PCL2、HMCL、BakaXL等启动器识别并启动，请酌情选择。请点击是继续……')
       .AddPair('messagebox_download.install_forge_not_choose_java.caption', '暂未选中Java')
       .AddPair('messagebox_download.install_forge_not_choose_java.text', '你在安装Forge的时候，暂未选中任意Java文件，在安装Forge时必须要选中任一Java文件才能继续。')
       .AddPair('messagebox_download.download_no_data.caption', '暂无数据')
@@ -657,6 +701,41 @@ begin
       .AddPair('messagebod_modloader.not_choose_modloader.text', '你还暂未选择任意模组加载器版本进行手动安装包下载呢！请重试！【Forge和NeoForge需要去《下载Minecraft》中选择任一Minecraft版本才能下载噢！】')
       .AddPair('messagebox_modloader.download_modloader_success.caption', '下载成功')
       .AddPair('messagebox_modloader.download_modloader_success.text', '下载模组加载器手动安装包成功！现在你可以去文件夹中查看了！')
+      .AddPair('messagebox_version.select_mc_success.caption', '选择成功')
+      .AddPair('messagebox_version.select_mc_success.text', '选择MC文件夹成功！')
+      .AddPair('selectdialog_version.select_mc_path', '请选择MC文件夹')
+      .AddPair('inputbox_version.select_mc_name.caption', '请输入MC文件名')
+      .AddPair('inputbox_version.select_mc_name.text', '请输入你要为这个文件夹命的名称，这里建议输入类似于【联机】等的这些有标识性的名字。')
+      .AddPair('inputbox_version.select_new_mc_name.caption', '请输入MC文件名')
+      .AddPair('inputbox_version.select_new_mc_name.text', '请输入你要为这个文件夹命的名称，，这里你选择的是此exe文件夹下的【.minecraft】文件夹，这里建议输入类似于【联机】等的这些有标识性的名字。')
+      .AddPair('messagebox_version.path_is_exists.caption', '路径有重复')
+      .AddPair('messagebox_version.path_is_exists.text', '你的文件夹路径有重复的，请重新再选择一个或者给此文件夹改名吧！')
+      .AddPair('messagebox_version.create_minecraft_dir.caption', '创建成功')
+      .AddPair('messagebox_version.create_minecraft_dir.text', '已为此exe路径下创建了一个名为.minecraft文件名的文件夹了！')
+      .AddPair('messagebox_version.no_mc_dir.caption', '暂未选择MC文件夹')
+      .AddPair('messagebox_version.no_mc_dir.text', '你还未选择任意一个文件夹呢，请去选择一个后重试！')
+      .AddPair('inputbox_version.enter_mc_rename.caption', '请输入更改的名称')
+      .AddPair('inputbox_version.enter_mc_rename.text', '请输入你需要更改的名称，留空或点击取消则退出。')
+      .AddPair('messagebox_version.rename_mc_success.caption', '修改名称成功')
+      .AddPair('messagebox_version.rename_mc_success.text', '修改名称成功了！现在你可以进行选择了！')
+      .AddPair('messagebox_version.is_remove_mc_dir.caption', '是否移除文件列表')
+      .AddPair('messagebox_version.is_remove_mc_dir.text', '是否移除文件列表？移除之后不会对文件有所修改。')
+      .AddPair('messagebox_version.remove_mc_dir_success.caption', '移除成功')
+      .AddPair('messagebox_version.remove_mc_dir_success.text', '移除文件列表成功！')
+      .AddPair('messagebox_version.no_ver_dir.caption', '暂未选择MC版本')
+      .AddPair('messagebox_version.no_ver_dir.text', '你还未选择任意一个MC的版本呢，请先点击添加一个MC文件夹，再选择一个MC版本，然后再重试！')
+      .AddPair('inputbox_version.enter_ver_rename.caption', '请输入更改的名称')
+      .AddPair('inputbox_version.enter_ver_rename.text', '请输入你需要更改的名称，留空或点击取消则退出。【在这里更改名称后可能导致PCL2、HMCL、BakaXL等主流启动器无法启动，请酌情修改！】')
+      .AddPair('messagebox_version.rename_ver_success.caption', '重命名成功')
+      .AddPair('messagebox_version.rename_ver_success.text', '重命名成功！')
+      .AddPair('messagebox_version.rename_ver_error.caption', '重命名失败')
+      .AddPair('messagebox_version.rename_ver_error.text', '重命名失败了，可能是LLL权限不足的原因，也有可能是该文件受保护，请取消后再试！')
+      .AddPair('messagebox_version.is_delete_ver.caption', '是否删除该MC版本')
+      .AddPair('messagebox_version.is_delete_ver.text', '由于该操作会直接删除{minecraft}\versions\{versionname}下的所有文件，且该操作不可逆。如果你开启了版本隔离，请确保你已经备份了该版本。该版本将会被彻底删除！是否继续？')
+      .AddPair('messagebox_version.delete_ver_success.caption', '删除成功')
+      .AddPair('messagebox_version.delete_ver_success.text', '删除成功！现在你必须重新从下载部分中下载该版本才能恢复了！')
+      .AddPair('messagebox_version.delete_ver_error.caption', '删除失败')
+      .AddPair('messagebox_version.delete_ver_error.text', '删除版本失败了，可能是LLL权限不足的原因，也有可能是该文件受保护，请取消后再试！')
       //以下为下载进度列表框
       .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
@@ -696,11 +775,7 @@ begin
       .AddPair('downloadlist.mc.download_mc_finish', '下载MC已完成，耗时：${download_finish_time}秒。')
       .AddPair('downloadlist.window.file_is_exists', '已存在：${file_exists_name}')
       .AddPair('downloadlist.window.download_error_retry', '下载失败，正在重试：${file_error_name}')
-      .AddPair('downloadlist.window.switch_download_source_official', '正在切换下载源：OFFICIAL')
-      .AddPair('downloadlist.window.switch_download_source_bmclapi', '正在切换下载源：BMCLAPI')
-      .AddPair('downloadlist.window.switch_download_source_mcbbs', '正在切换下载源：MCBBS')
-      .AddPair('downloadlist.window.switch_download_source_forge', '正在切换下载源：FORGE')
-      .AddPair('downloadlist.window.switch_download_source_fabric', '正在切换下载源：FABRIC')
+      .AddPair('downloadlist.window.switch_download_source', '正在切换下载源：${source_name}')
       .AddPair('downloadlist.window.retry_threetime_error', '重试3次后依旧失败，下载失败！')
       .AddPair('downloadlist.window.download_success', '下载成功：${file_success_name}')
       .AddPair('downloadlist.backup.backup_success', '已备份：${backup_file_name}')
@@ -1182,6 +1257,7 @@ begin
       .AddPair('button_rename_choose_playing.hint', '重命名选中的玩法，当地图与数据包同时选中时将会优先重命名数据包。')
       .AddPair('button_open_choose_playing.hint', '用资源管理器打开你所选择的玩法。当地图与数据包同时选中时将会优先打开地图文件夹中的datapacks文件夹。')
       //启动设置界面
+      .AddPair('__launch_comment', '（注解）以下是启动设置部分语言')
       .AddPair('label_launch_window_height.caption', '高度，当前选中：${window_height}')
       .AddPair('label_launch_window_width.caption', '宽度，当前选中：${window_width}')
       .AddPair('label_launch_max_memory.caption', '游戏内存大小，当前选中：${max_memory}')
@@ -1225,6 +1301,7 @@ begin
       .AddPair('label_launch_java.logic.caption.search_lllpath', 'Java逻辑，正在扫描LLL特定目录')
       .AddPair('label_launch_java_logic.caption.basic_scan_java_success', 'Java逻辑，特定扫描Java成功')
       //以下是下载部分
+      .AddPair('__download_comment', '（注解）以下是下载部分语言')
       .AddPair('label_download_return_value.caption.get_mc_web', '正在获取MC元数据……')
       .AddPair('label_downlaod_return_value.caption.get_mc_web_success', '初步导入MC元数据成功！')
       .AddPair('listbox_select_minecraft.item.get_mc_error', 'MC导入失败，请重试。')
@@ -1258,6 +1335,7 @@ begin
       .AddPair('edit_minecraft_version_name.texthint', '请输入版本名称')
       .AddPair('button_download_start_download_minecraft.caption', '开始自动安装Minecraft❤点我自动安装❤')
       //以下是自定义下载部分
+      .AddPair('__customdl_comment', '（注解）以下是自定义下载部分语言')
       .AddPair('label_custom_download_url.caption', '下载网址输入（不支持百度网盘等）')
       .AddPair('edit_custom_download_url.texthint', '这里输入下载网址')
       .AddPair('label_custom_download_name.caption', '文件名称输入（可空，留空则默认为网址后缀名）')
@@ -1270,12 +1348,64 @@ begin
       .AddPair('button_custom_download_open_path.caption', '打开路径')
       .AddPair('button_custom_download_start.caption', '开始下载')
       //以下是模组加载器手动安装包
+      .AddPair('__modloader_comment', '（注解）以下是模组加载器手动安装包部分语言')
       .AddPair('label_download_modloader_forge.caption', 'Forge版本选择')
       .AddPair('label_download_modloader_fabric.caption', 'Fabric版本选择')
       .AddPair('label_download_modloader_quilt.caption', 'Quilt版本选择')
       .AddPair('label_download_modloader_neoforge.caption', 'NeoForge版本选择')
       .AddPair('button_download_modloader_download.caption', '开始下载')
       .AddPair('button_download_modloader_refresh.caption', '刷新版本')
+      //以下是版本设置部分
+      .AddPair('__version_comment', '（注解）以下是版本设置部分语言')
+      .AddPair('label_version_current_path.caption', '当前选中版本：${current_path}')
+      .AddPair('label_select_game_version.caption', '选择游戏版本')
+      .AddPair('label_select_file_list.caption', '选择文件列表')
+      .AddPair('label_version_add_mc_path.caption', '添加MC路径')
+      .AddPair('button_version_choose_any_directory.caption', '请选择任一文件夹')
+      .AddPair('button_version_create_minecraft.caption', '新建【.minecraft】')
+      .AddPair('radiogroup_partition_version.caption', '版本隔离')
+      .AddPair('radiogroup_partition_version.not_isolation.caption', '不使用版本隔离')
+      .AddPair('radiogroup_partition_version.isolate_version.caption', '隔离【正式版/快照版/远古Beta版/远古Alpha版】')
+      .AddPair('radiogroup_partition_version.isolate_modloader.caption', '隔离【Forge/Fabric/Quilt/NeoForge】等版')
+      .AddPair('radiogroup_partition_version.isolate_all.caption', '隔离全部版本')
+      .AddPair('button_version_complete.caption', '手动补全该版本的类库')
+      .AddPair('button_rename_version_list.caption', '重命名文件列表')
+      .AddPair('button_remove_version_list.caption', '移除文件列表')
+      .AddPair('button_rename_game_version.caption', '重命名游戏版本')
+      .AddPair('button_delete_game_version.caption', '删除游戏版本')
+      //以下是独立设置部分
+      .AddPair('__isolation_comment', '（注解）以下是独立设置部分语言')
+      .AddPair('label_isolation_current_version.caption', '当前选中版本：${current_version}')
+      .AddPair('label_isolation_window_width.caption', '宽，当前选中：${current_width}')
+      .AddPair('label_isolation_window_height.caption', '高，当前选中：${current_height}')
+      .AddPair('label_isolation_game_memory.caption', '游戏内存，当前选中：${current_memory}')
+      .AddPair('toggleswitch_is_open_isolation.on.caption', '开')
+      .AddPair('toggleswitch_is_open_isolation.off.caption', '关')
+      .AddPair('label_isolation_java_path.caption', 'Java路径')
+      .AddPair('edit_isolation_java_path.texthint', '这里输入Java路径【留空则全局应用】')
+      .AddPair('button_isolation_choose_java.caption', '选择路径')
+      .AddPair('label_isolation_custom_info.caption', '自定义信息')
+      .AddPair('edit_isolation_custom_info.texthint', '这里填入自定义信息【留空则全局应用】')
+      .AddPair('label_isolation_window_title.caption', '窗口标题')
+      .AddPair('edit_isolation_window_title.texthint', '启动MC后的窗口标题【留空则全局应用】')
+      .AddPair('label_isolation_window_size.caption', '窗口大小')
+      .AddPair('toggleswitch_isolation_window_size.on.caption', '开启独立')
+      .AddPair('toggleswitch_isolation_window_size.off.caption', '全局应用')
+      .AddPair('toggleswitch_isolation_open_memory.on.caption', '开启独立')
+      .AddPair('toggleswitch_isolation_open_memory.off.caption', '全局应用')
+      .AddPair('label_isolation_partition.caption', '是否隔离（打勾则单独隔离，否则单独不隔离）')
+      .AddPair('toggleswitch_isolation_open_partition.on.caption', '开启独立')
+      .AddPair('toggleswitch_isolation_open_partition.off.caption', '全局应用')
+      .AddPair('checkbox_isolation_is_partition.caption', '开启独立版本隔离')
+      .AddPair('label_isolation_additional_game.caption', '额外Game参数')
+      .AddPair('edit_isolation_additional_game.texthint', '输入额外game参数-非专业人士请勿修改【留空则全局应用】')
+      .AddPair('label_isolation_additional_jvm.caption', '额外JVM参数')
+      .AddPair('edit_isolation_additional_jvm.texthint', '输入额外jvm参数-非专业人士请勿修改【留空则全局应用】')
+      .AddPair('label_isolation_pre_launch_script.caption', '前置启动脚本')
+      .AddPair('edit_isolation_pre_launch_script.texthint', '输入前置启动脚本-非专业人士请勿修改【留空则全局应用】')
+      .AddPair('label_isolation_after_launch_script.caption', '后置启动脚本')
+      .AddPair('edit_isolation_after_launch_script.texthint', '输入后置启动脚本-非专业人士请勿修改【留空则全局应用】')
+      .AddPair('label_isolation_tip.caption', '以上，只要是开启了全局应用开关，或者是修改了文本框内容【指不为空】，则默认应用全局设置噢！')
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
   end;

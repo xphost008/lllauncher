@@ -1083,9 +1083,9 @@ begin
   if form_mainform.combobox_all_account.ItemIndex = -1 then begin
     form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.absence')
   end else begin
-    maccount_view := form_mainform.combobox_all_account.Items[form_mainform.combobox_all_account.ItemIndex];
-    maccount_view := maccount_view.Replace(GetLanguage('combobox_all_account.microsoft_tip'), '').Replace(GetLanguage('combobox_all_account.thirdparty_tip'), '').Replace(GetLanguage('combobox_all_account.offline_tip'), '');
-    form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', maccount_view);
+    var acv := form_mainform.combobox_all_account.Items[form_mainform.combobox_all_account.ItemIndex];
+    acv := acv.Replace(GetLanguage('combobox_all_account.microsoft_tip'), '').Replace(GetLanguage('combobox_all_account.thirdparty_tip'), '').Replace(GetLanguage('combobox_all_account.offline_tip'), '');
+    form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', acv);
   end;
 end;
 

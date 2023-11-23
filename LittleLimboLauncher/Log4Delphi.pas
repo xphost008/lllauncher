@@ -26,6 +26,7 @@ const // Log内部输出
   LOG_LOAD = 2;
   LOG_START = 3;
   LOG_ACCOUNT = 4;
+  LOG_PLUGIN = 5;
 var
   FileStr: String;
   filesize: Integer;
@@ -52,6 +53,7 @@ begin
     2: tdt := 'Load';
     3: tdt := 'Start';
     4: tdt := 'Account';
+    5: tdt := 'Plugin';
   end;
   var FileStr := Concat('[', Now.Format('yyyy/mm/dd HH:nn:ss'), ']', '[', tdt, '/', tdd, '] ', text);
   try

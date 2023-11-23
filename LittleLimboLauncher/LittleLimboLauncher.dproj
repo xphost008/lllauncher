@@ -4,7 +4,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -153,6 +153,8 @@
         <DCCReference Include="LauncherMethod.pas"/>
         <DCCReference Include="DownloadMethod.pas"/>
         <DCCReference Include="CustomDlMethod.pas"/>
+        <DCCReference Include="VersionMethod.pas"/>
+        <DCCReference Include="ExportMethod.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

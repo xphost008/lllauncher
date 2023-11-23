@@ -51,8 +51,11 @@ When I have some snapshot version, I will release it in my group that not in my 
 1. (Two dll for x86): [lanzou click me]() password: 【link already expired】
 2. (Two dll for x64): [lanzou click me]() password: 【link already expired】
 3. (Release version): [lanzou click me](https://wwc.lanzouq.com/b020zvisf) password: eupj
-3. (Publish Snapshot version): [lanzou click me](https://wwdy.lanzouf.com/b022lz4wh) password: 5duw
-4. (Private Snapshot version): [lanzou click me](https://wwc.lanzouq.com/b021889pe) password: go to my QQ Group.
+4. (Publish Snapshot version): [lanzou click me](https://wwdy.lanzouf.com/b022lz4wh) password: 5duw
+5. (Private Snapshot version archive)：[lanzou click me](https://wwc.lanzouq.com/b021889pe) password: a3we
+
+- from now on, there are no private snapshot version in here, I will release all version in public snapshot version, thanks!
+- at the same time, I will archive my all private version for everyone to read. if you want to download old version, please check it!
 
 #### Chinese Readme
 

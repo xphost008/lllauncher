@@ -17,7 +17,9 @@ uses
   ManageMethod in 'ManageMethod.pas',
   LauncherMethod in 'LauncherMethod.pas',
   DownloadMethod in 'DownloadMethod.pas',
-  CustomDlMethod in 'CustomDlMethod.pas';
+  CustomDlMethod in 'CustomDlMethod.pas',
+  VersionMethod in 'VersionMethod.pas',
+  ExportMethod in 'ExportMethod.pas';
 
 {$R *.res}
 

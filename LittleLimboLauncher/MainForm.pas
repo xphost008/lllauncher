@@ -285,17 +285,12 @@ type
     combobox_select_game_version: TComboBox;
     label_select_file_list: TLabel;
     combobox_select_file_list: TComboBox;
-    label_version_name: TLabel;
-    edit_version_name: TEdit;
     label_version_add_mc_path: TLabel;
     button_version_choose_any_directory: TButton;
     button_version_create_minecraft: TButton;
-    button_add_version_to_list: TButton;
-    label_version_choose_path: TLabel;
     label_version_current_path: TLabel;
     radiogroup_partition_version: TRadioGroup;
     button_version_complete: TButton;
-    button_clear_version_list: TButton;
     button_remove_version_list: TButton;
     button_delete_game_version: TButton;
     button_rename_version_list: TButton;
@@ -307,8 +302,8 @@ type
     label_isolation_custom_info: TLabel;
     label_isolation_window_title: TLabel;
     label_isolation_window_size: TLabel;
-    label_isolation_window_width_tip: TLabel;
-    label_isolation_window_height_tip: TLabel;
+    label_isolation_window_width: TLabel;
+    label_isolation_window_height: TLabel;
     label_isolation_game_memory: TLabel;
     label_isolation_partition: TLabel;
     toggleswitch_is_open_isolation: TToggleSwitch;
@@ -505,6 +500,33 @@ type
     procedure listbox_download_modloader_fabricClick(Sender: TObject);
     procedure listbox_download_modloader_quiltClick(Sender: TObject);
     procedure listbox_download_modloader_neoforgeClick(Sender: TObject);
+    procedure radiogroup_partition_versionClick(Sender: TObject);
+    procedure button_version_choose_any_directoryClick(Sender: TObject);
+    procedure button_version_create_minecraftClick(Sender: TObject);
+    procedure combobox_select_file_listChange(Sender: TObject);
+    procedure combobox_select_game_versionChange(Sender: TObject);
+    procedure button_rename_version_listClick(Sender: TObject);
+    procedure button_remove_version_listClick(Sender: TObject);
+    procedure button_rename_game_versionClick(Sender: TObject);
+    procedure button_delete_game_versionClick(Sender: TObject);
+    procedure pagecontrol_version_partChange(Sender: TObject);
+    procedure button_version_completeClick(Sender: TObject);
+    procedure toggleswitch_is_open_isolationClick(Sender: TObject);
+    procedure edit_isolation_java_pathChange(Sender: TObject);
+    procedure button_isolation_choose_javaClick(Sender: TObject);
+    procedure edit_isolation_custom_infoChange(Sender: TObject);
+    procedure edit_isolation_window_titleChange(Sender: TObject);
+    procedure toggleswitch_isolation_window_sizeClick(Sender: TObject);
+    procedure scrollbar_isolation_window_widthChange(Sender: TObject);
+    procedure scrollbar_isolation_window_heightChange(Sender: TObject);
+    procedure toggleswitch_isolation_open_memoryClick(Sender: TObject);
+    procedure scrollbar_isolation_game_memoryChange(Sender: TObject);
+    procedure toggleswitch_isolation_open_partitionClick(Sender: TObject);
+    procedure checkbox_isolation_is_partitionClick(Sender: TObject);
+    procedure edit_isolation_additional_gameChange(Sender: TObject);
+    procedure edit_isolation_additional_jvmChange(Sender: TObject);
+    procedure edit_isolation_pre_launch_scriptChange(Sender: TObject);
+    procedure edit_isolation_after_launch_scriptChange(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -525,7 +547,7 @@ var
   mcpid: Integer = 0;
   v: TMediaPlayer;
 var
-  mopen_time, maccount_view: String;
+  mopen_time: String;
   mopen_number, mlaunch_number: Integer;
   mred, mgreen, mblue, mwindow_alpha, mcontrol_alpha: Integer;
   mgradient_value, mgradient_step: Integer;
@@ -535,8 +557,8 @@ var
 implementation
 
 uses
-  MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow,
-  PluginMethod, PlayingMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod;
+  MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow, ExportMethod,
+  PluginMethod, PlayingMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod;
 
 var
   Cave, Answer, Lucky: TStringList;
@@ -945,6 +967,22 @@ procedure Tform_mainform.button_delete_choose_playingClick(Sender: TObject);
 begin
   ManageDeletePlaying;
 end;
+//版本设置：删除游戏版本
+procedure Tform_mainform.button_delete_game_versionClick(Sender: TObject);
+begin
+  if mselect_ver < 0 then begin
+    MyMessagebox(GetLanguage('messagebox_version.no_ver_dir.caption'), GetLanguage('messagebox_version.no_ver_dir.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  if MyMessagebox(GetLanguage('messagebox_version.is_delete_ver.caption'), GetLanguage('messagebox_version.is_delete_ver.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+  if DeleteDirectory(MCVersionSelect[mselect_ver]) then begin
+    mselect_ver := -1;
+    SelVer;
+    MyMessagebox(GetLanguage('messagebox_version.delete_ver_success.caption'), GetLanguage('messagebox_version.delete_ver_success.text'), MY_PASS, [mybutton.myOK]);
+  end else begin
+    MyMessagebox(GetLanguage('messagebox_version.delete_ver_error.caption'), GetLanguage('messagebox_version.delete_ver_error.text'), MY_ERROR, [mybutton.myOK]);
+  end;
+end;
 //玩法管理界面：禁用选中
 procedure Tform_mainform.button_disable_choose_playingClick(Sender: TObject);
 begin
@@ -980,6 +1018,28 @@ begin
   mgreen := 205;
   mblue := 50;
   self.Color := rgb(mred, mgreen, mblue);
+end;
+//独立设置：Java路径选择按钮
+procedure Tform_mainform.button_isolation_choose_javaClick(Sender: TObject);
+begin
+  var CB := TOpenDialog.Create(nil);
+  CB.Title := GetLanguage('opendialog_launch.menual_import_java_dialog_title');
+  CB.Filter := 'javaw(javaw.exe)|javaw.exe';
+  if CB.Execute() then begin
+    var jpath := CB.FileName;
+//    var bit := GetFileBits(jpath);
+//    if (bit = '32') or (bit = '') then begin
+//      MyMessagebox(GetLanguage('messagebox_launch.not_support_java_bit.caption'), GetLanguage('messagebox_launch.not_support_java_bit.text'), MY_ERROR, [mybutton.myOK]);
+//      exit;
+//    end;
+//    var ver := GetFileVersion(jpath);
+//    form_mainform.combobox_launch_select_java_path.ItemIndex := form_mainform.combobox_launch_select_java_path.Items.Add(Concat('Java(', ver, ')(', bit, ')', jpath));
+//    (JavaJson.GetValue('java') as TJsonArray).Add(jpath);
+//    mcurrent_java := form_mainform.combobox_launch_select_java_path.ItemIndex;
+//    MyMessagebox(GetLanguage('messagebox_launch.menual_import_java_success.caption'), GetLanguage('messagebox_launch.menual_import_java_success.text'), MY_PASS, [mybutton.myOK]);
+    edit_isolation_java_path.Text := jpath;
+    edit_isolation_java_pathChange(Sender);
+  end;
 end;
 //启动设置；额外Game参数
 procedure Tform_mainform.button_launch_additional_gameClick(Sender: TObject);
@@ -1207,10 +1267,67 @@ begin
   end;
   RefreshAccount(combobox_all_account.ItemIndex);
 end;
+//版本设置：移除文件列表
+procedure Tform_mainform.button_remove_version_listClick(Sender: TObject);
+begin
+  if mselect_mc < 0 then begin
+    MyMessagebox(GetLanguage('messagebox_version.no_mc_dir.caption'), GetLanguage('messagebox_version.no_mc_dir.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  if MyMessagebox(GetLanguage('messagebox_version.is_remove_mc_dir.caption'), GetLanguage('messagebox_version.is_remove_mc_dir.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+  (MCJson.GetValue('mc') as TJsonArray).Remove(combobox_select_file_list.ItemIndex); //移除Json
+  combobox_select_game_version.Clear;
+  MCVersionList.Delete(combobox_select_file_list.ItemIndex);
+  MCVersionName.Delete(combobox_select_file_list.ItemIndex);
+  combobox_select_file_list.Items.Delete(combobox_select_file_list.ItemIndex);
+  mselect_mc := -1;
+  mselect_ver := -1;
+  combobox_select_file_list.ItemIndex := -1;
+  label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', '');
+  MyMessagebox(GetLanguage('messagebox_version.remove_mc_dir_success.caption'), GetLanguage('messagebox_version.remove_mc_dir_success.text'), MY_PASS, [mybutton.myOK]);
+end;
 //玩法管理界面：重命名选中
 procedure Tform_mainform.button_rename_choose_playingClick(Sender: TObject);
 begin
   ManageRenamePlaying;
+end;
+//版本设置：重命名游戏版本
+procedure Tform_mainform.button_rename_game_versionClick(Sender: TObject);
+begin
+  if mselect_ver < 0 then begin
+    MyMessagebox(GetLanguage('messagebox_version.no_ver_dir.caption'), GetLanguage('messagebox_version.no_ver_dir.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var CB := MyInputBox(GetLanguage('inputbox_version.enter_ver_rename.caption'), GetLanguage('inputbox_version.enter_ver_rename.text'), MY_INFORMATION);
+  if CB = '' then exit;
+  var tpv := mselect_ver; //将原始记录添加一个至本目标。至一个临时变量。
+  var mcp := MCVersionSelect[mselect_ver];  //获取MC查询版本后的文件目录
+  var tmp := ExtractFileDir(mcp);   //消除最后一个文件夹目录
+  var newmcp := Concat(tmp, '\', cb); //将cb目录添加
+  var bo := RenDirectory(mcp, newmcp);  //调用重命名文件夹的指令。
+  SelVer; //添加最后一个
+  mselect_ver := tpv; //给目标赋值
+  combobox_select_game_version.ItemIndex := mselect_ver;
+  if bo then MyMessagebox(GetLanguage('messagebox_version.rename_ver_success.caption'), GetLanguage('messagebox_version.rename_ver_success.text'), MY_PASS, [mybutton.myOK])
+  else MyMessagebox(GetLanguage('messagebox_version.rename_ver_error.caption'), GetLanguage('messagebox_version.rename_ver_error.caption'), MY_ERROR, [mybutton.myOK]);
+end;
+//版本设置：重命名文件列表
+procedure Tform_mainform.button_rename_version_listClick(Sender: TObject);
+begin
+  if mselect_mc < 0 then begin
+    MyMessagebox(GetLanguage('messagebox_version.no_mc_dir.caption'), GetLanguage('messagebox_version.no_mc_dir.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var CB := MyInputBox(GetLanguage('inputbox_version.enter_mc_rename.caption'), GetLanguage('inputbox_version.enter_mc_rename.text'), MY_INFORMATION);
+  if CB = '' then exit;
+  ((MCJson.GetValue('mc') as TJsonArray)[form_mainform.combobox_select_file_list.ItemIndex] as TJsonObject).RemovePair('name');
+  ((MCJson.GetValue('mc') as TJsonArray)[form_mainform.combobox_select_file_list.ItemIndex] as TJsonObject).AddPair('name', cb);
+  MCVersionName.Delete(mselect_mc); //删除原元素并添加新元素。
+  MCVersionName.Insert(mselect_mc, cb);
+  combobox_select_file_list.Items.Delete(mselect_mc);
+  combobox_select_file_list.Items.Insert(mselect_mc, cb);
+  combobox_select_file_list.ItemIndex := mselect_mc;
+  MyMessagebox(GetLanguage('messagebox_version.rename_mc_success.caption'), GetLanguage('messagebox_version.rename_mc_success.text'), MY_PASS, [mybutton.myOK]);
 end;
 //下载部分：重置下载界面
 procedure Tform_mainform.button_reset_download_partClick(Sender: TObject);
@@ -1247,6 +1364,52 @@ procedure Tform_mainform.button_thirdparty_check_authlib_updateClick(
 begin
   InitAuthlib;
 end;
+//选择任意文件夹按钮
+procedure Tform_mainform.button_version_choose_any_directoryClick(
+  Sender: TObject);
+var
+  path: String;
+  name: String;
+begin
+  if SelectDirectory(GetLanguage('selectdialog_version.select_mc_path'), '', path) then begin
+    if MCVersionList.Contains(path) then begin
+      MyMessagebox(GetLanguage('messagebox_version.path_is_exists.caption'), GetLanguage('messagebox_version.path_is_exists.text'), MY_ERROR, [mybutton.myOK]);
+      exit;
+    end;
+    name := MyInputBox(GetLanguage('inputbox_version.select_mc_name.caption'), GetLanguage('inputbox_version.select_mc_name.text'), MY_INFORMATION);
+    if name = '' then exit;
+    ChooseVersionDir(name, path);
+  end;
+end;
+//版本设置：手动补全版本类库
+procedure Tform_mainform.button_version_completeClick(Sender: TObject);
+begin
+  CompleteVersion;
+end;
+//新建.minecraft文件夹按钮
+procedure Tform_mainform.button_version_create_minecraftClick(Sender: TObject);
+var
+  path: String;
+  name: String;
+begin
+  path := Concat(ExtractFileDir(Application.ExeName), '\.minecraft');
+  if MCVersionList.Contains(path) then begin
+    MyMessagebox(GetLanguage('messagebox_version.path_is_exists.caption'), GetLanguage('messagebox_version.path_is_exists.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  name := MyInputBox(GetLanguage('inputbox_version.select_new_mc_name.caption'), GetLanguage('inputbox_version.select_new_mc_name.text'), MY_INFORMATION);
+  if name = '' then exit;
+  if not DirectoryExists(path) then begin
+    MyMessagebox(GetLanguage('messagebox_version.create_minecraft_dir.caption'), GetLanguage('messagebox_version.create_minecraft_dir.text'), MY_INFORMATION, [mybutton.myOK]);
+    ForceDirectories(path);
+  end;
+  ChooseVersionDir(name, path);
+end;
+//独立设置：开启单独隔离
+procedure Tform_mainform.checkbox_isolation_is_partitionClick(Sender: TObject);
+begin
+  IsoMethod(11, booltostr(checkbox_isolation_is_partition.Checked));
+end;
 //账号部分：离线登录：Slim
 procedure Tform_mainform.checkbox_slimClick(Sender: TObject);
 begin
@@ -1268,9 +1431,8 @@ procedure Tform_mainform.combobox_all_accountChange(Sender: TObject);
 begin
   if combobox_all_account.ItemIndex = -1 then exit;
   var pla := ((AccountJson.Values['account'] as TJsonArray)[combobox_all_account.ItemIndex] as TJsonObject);
-  maccount_view := pla.GetValue('name').Value;
   JudgeJSONSkin(combobox_all_account.ItemIndex);
-  label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', maccount_view);
+  label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', pla.GetValue('name').Value);
 end;
 //启动设置：Java下拉框修改
 procedure Tform_mainform.combobox_launch_select_java_pathChange(
@@ -1294,6 +1456,18 @@ procedure Tform_mainform.combobox_playing_search_sourceChange(Sender: TObject);
 begin
   PlayingSelSource;
 end;
+//版本设置：文件列表下拉框改变
+procedure Tform_mainform.combobox_select_file_listChange(Sender: TObject);
+begin
+  mselect_mc := combobox_select_file_list.ItemIndex;
+  mselect_ver := -1;
+  SelVer;
+end;
+//版本设置：游戏版本下拉框改变
+procedure Tform_mainform.combobox_select_game_versionChange(Sender: TObject);
+begin
+  mselect_ver := combobox_select_game_version.ItemIndex;
+end;
 //背景设置：窗口标题
 procedure Tform_mainform.edit_background_mainform_titleChange(Sender: TObject);
 begin
@@ -1303,6 +1477,43 @@ end;
 procedure Tform_mainform.edit_custom_download_pathChange(Sender: TObject);
 begin
   ChangeSaveEdit;
+end;
+//独立设置：额外Game参数输入框
+procedure Tform_mainform.edit_isolation_additional_gameChange(Sender: TObject);
+begin
+  IsoMethod(12, edit_isolation_additional_game.Text);
+end;
+//独立设置：额外JVM参数输入框
+procedure Tform_mainform.edit_isolation_additional_jvmChange(Sender: TObject);
+begin
+  IsoMethod(13, edit_isolation_additional_jvm.Text);
+end;
+//独立设置：后置启动脚本
+procedure Tform_mainform.edit_isolation_after_launch_scriptChange(
+  Sender: TObject);
+begin
+  IsoMethod(15, edit_isolation_after_launch_script.Text);
+end;
+//独立设置：自定义信息输入框
+procedure Tform_mainform.edit_isolation_custom_infoChange(Sender: TObject);
+begin
+  IsoMethod(3, form_mainform.edit_isolation_custom_info.Text);
+end;
+//独立设置：Java路径输入框
+procedure Tform_mainform.edit_isolation_java_pathChange(Sender: TObject);
+begin
+  IsoMethod(2, form_mainform.edit_isolation_java_path.Text);
+end;
+//独立设置：前置启动脚本
+procedure Tform_mainform.edit_isolation_pre_launch_scriptChange(
+  Sender: TObject);
+begin
+  IsoMethod(14, edit_isolation_pre_launch_script.Text);
+end;
+//独立设置：窗口标题输入框
+procedure Tform_mainform.edit_isolation_window_titleChange(Sender: TObject);
+begin
+  IsoMethod(4, form_mainform.edit_isolation_window_title.Text);
 end;
 //启动设置：额外game参数
 procedure Tform_mainform.edit_launch_additional_gameChange(Sender: TObject);
@@ -1343,6 +1554,7 @@ begin
   SaveLaunch;
   SaveDownload;
   SaveCustomDl;
+  SaveVersion;
   ShellExecute(Application.Handle, 'open', 'taskkill.exe', '/F /IM LittleLimboLauncher.exe', nil, SW_HIDE);
 end;
 procedure Tform_mainform.WmDropFiles(var Msg: TMessage);
@@ -1470,19 +1682,19 @@ begin
     var json := GetFile(Concat(AppData, '\LLLauncher\AccountJson.json'));
     var s := strtoint(OtherIni.ReadString('Account', 'SelectAccount', '')) - 1;
     if s <= -1 then raise Exception.Create('Format Exception');
-    maccount_view := (((TJsonObject.ParseJSONValue(json) as TJsonObject).GetValue('account') as TJsonArray)[s] as TJsonObject).GetValue('name').Value;
-    Log.Write(Concat('账号判断完毕，欢迎', maccount_view, '。'), LOG_INFO, LOG_START);
-    label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', maccount_view);
+    var acv := (((TJsonObject.ParseJSONValue(json) as TJsonObject).GetValue('account') as TJsonArray)[s] as TJsonObject).GetValue('name').Value;
+    Log.Write(Concat('账号判断完毕，欢迎', acv, '。'), LOG_INFO, LOG_START);
+    label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', acv);
   except
-    maccount_view := '';
     Log.Write(Concat('账号判断失败，宁还暂未登录一个账号。'), LOG_ERROR, LOG_START);
     label_account_view.Caption := GetLanguage('label_account_view.caption.absence');
   end;
   try  //查询版本是否有误，如果找不到，则暂未选择版本。
     Log.Write('开始判断游戏版本。', LOG_INFO, LOG_START);
-    var ssj := strtoint(LLLini.ReadString('MC', 'SelectVer', ''));
+    mselect_ver := LLLini.ReadInteger('MC', 'SelectVer', -1);
+    mselect_mc := LLLini.ReadInteger('MC', 'SelectMC', -1);
     var sjn := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
-    var svr := ((TJsonObject.ParseJSONValue(sjn) as TJsonObject).GetValue('mcsel') as TJsonArray)[ssj - 1] as TJsonObject;
+    var svr := ((TJsonObject.ParseJSONValue(sjn) as TJsonObject).GetValue('mcsel') as TJsonArray)[mselect_ver - 1] as TJsonObject;
     var svv := svr.GetValue('name').Value;
     var svp := svr.GetValue('path').Value;
     if IsVersionError(svp) then begin
@@ -1624,7 +1836,9 @@ begin
   else if pagecontrol_mainpage.ActivePage = tabsheet_launch_part then
     InitLaunch
   else if pagecontrol_mainpage.ActivePage = tabsheet_download_part then
-    InitDownload   
+    InitDownload
+  else if pagecontrol_mainpage.ActivePage = tabsheet_version_part then
+    InitVersion
 end;
 //主界面：切换该页前
 procedure Tform_mainform.pagecontrol_mainpageChanging(Sender: TObject;
@@ -1641,7 +1855,9 @@ begin
   else if pagecontrol_mainpage.ActivePage = tabsheet_download_part then begin
     SaveDownload;
     SaveCustomDl;
-  end
+  end else if pagecontrol_mainpage.ActivePage = tabsheet_version_part then
+    SaveVersion;
+
 end;
 //玩法部分：玩法管理界面/下载玩法切换。
 procedure Tform_mainform.pagecontrol_playing_partChange(Sender: TObject);
@@ -1653,6 +1869,16 @@ begin
       exit;
     end;
   end;
+end;
+//版本部分：切换页
+procedure Tform_mainform.pagecontrol_version_partChange(Sender: TObject);
+begin
+  if pagecontrol_version_part.ActivePage = tabsheet_version_isolation_part then
+    InitIsolation
+  else if pagecontrol_version_part.ActivePage = tabsheet_version_export_part then
+    InitExport
+  else if pagecontrol_version_part.ActivePage = tabsheet_version_control_part then
+    SelVer;
 end;
 //账号部分：离线登录：Alex
 procedure Tform_mainform.radiobutton_alexClick(Sender: TObject);
@@ -1754,6 +1980,11 @@ procedure Tform_mainform.radiogroup_choose_mod_loaderClick(Sender: TObject);
 begin
   ChangeModLoader;
 end;
+//版本设置：版本隔离选项卡
+procedure Tform_mainform.radiogroup_partition_versionClick(Sender: TObject);
+begin
+  misolation_mode := radiogroup_partition_version.ItemIndex + 1;
+end;
 //背景设置：控件透明度滑动条
 procedure Tform_mainform.scrollbar_background_control_alphaChange(
   Sender: TObject);
@@ -1790,6 +2021,26 @@ procedure Tform_mainform.scrollbar_download_biggest_threadChange(
 begin
   mbiggest_thread := scrollbar_download_biggest_thread.Position;
   label_download_biggest_thread.Caption := GetLanguage('label_download_biggest_thread.caption').Replace('${biggest_thread}', inttostr(mbiggest_thread));
+end;
+//独立设置：最大内存滑动条。
+procedure Tform_mainform.scrollbar_isolation_game_memoryChange(Sender: TObject);
+begin
+  label_isolation_game_memory.Caption := GetLanguage('label_isolation_game_memory.caption').Replace('${current_memory}', inttostr(scrollbar_isolation_game_memory.Position));
+  IsoMethod(9, inttostr(scrollbar_isolation_game_memory.Position));
+end;
+//独立设置：窗口高度滑动条。
+procedure Tform_mainform.scrollbar_isolation_window_heightChange(
+  Sender: TObject);
+begin
+  label_isolation_window_height.Caption := GetLanguage('label_isolation_window_height.caption').Replace('${current_height}', inttostr(scrollbar_isolation_window_height.Position));
+  IsoMethod(7, inttostr(scrollbar_isolation_window_height.Position));
+end;
+//独立设置：窗口宽度滑动条。
+procedure Tform_mainform.scrollbar_isolation_window_widthChange(
+  Sender: TObject);
+begin
+  label_isolation_window_width.Caption := GetLanguage('label_isolation_window_width.caption').Replace('${current_width}', inttostr(scrollbar_isolation_window_width.Position));
+  IsoMethod(6, inttostr(scrollbar_isolation_window_width.Position));
 end;
 //启动设置：游戏内存大小
 procedure Tform_mainform.scrollbar_launch_max_memoryChange(Sender: TObject);
@@ -1905,7 +2156,6 @@ begin
     Handled := True;
   end;
 end;
-
 //主窗口：总体计时器
 var open_form: Boolean = true;
 procedure Tform_mainform.timer_all_ticksTimer(Sender: TObject);
@@ -1988,6 +2238,99 @@ begin
   end;
   scrollbar_background_gradient_step.Enabled := scrollbar_background_gradient_value.Enabled;
   mis_gradient := scrollbar_background_gradient_value.Enabled;
+end;
+//独立设置：开启/关闭游戏内存大小
+procedure Tform_mainform.toggleswitch_isolation_open_memoryClick(
+  Sender: TObject);
+begin
+  if toggleswitch_isolation_open_memory.State = tsson then begin
+    scrollbar_isolation_game_memory.Enabled := true;
+    IsoMethod(8, booltostr(true));
+  end else begin
+    scrollbar_isolation_game_memory.Enabled := false;
+    IsoMethod(8, booltostr(false));
+  end;
+end;
+//独立设置：开启/关闭单独隔离
+procedure Tform_mainform.toggleswitch_isolation_open_partitionClick(
+  Sender: TObject);
+begin
+  if toggleswitch_isolation_open_partition.State = tsson then begin
+    checkbox_isolation_is_partition.Enabled := true;
+    IsoMethod(10, booltostr(true));
+  end else begin
+    checkbox_isolation_is_partition.Enabled := false;
+    IsoMethod(10, booltostr(false));
+  end;
+end;
+//独立设置：开启/关闭窗口大小
+procedure Tform_mainform.toggleswitch_isolation_window_sizeClick(
+  Sender: TObject);
+begin
+  if toggleswitch_isolation_window_size.State = tsson then begin
+    scrollbar_isolation_window_width.Enabled := true;
+    scrollbar_isolation_window_height.Enabled := true;
+    IsoMethod(5, booltostr(true));
+  end else begin
+    scrollbar_isolation_window_width.Enabled := false;
+    scrollbar_isolation_window_height.Enabled := false;
+    IsoMethod(5, booltostr(false));
+  end;
+end;
+//独立设置：开启/关闭独立版本设置
+procedure Tform_mainform.toggleswitch_is_open_isolationClick(Sender: TObject);
+begin
+  if toggleswitch_is_open_isolation.State = tsson then begin
+    edit_isolation_java_path.Enabled := true;
+    button_isolation_choose_java.Enabled := true;
+    edit_isolation_custom_info.Enabled := true;
+    edit_isolation_window_title.Enabled := true;
+    toggleswitch_isolation_window_size.Enabled := true;
+    scrollbar_isolation_window_width.Enabled := true;
+    scrollbar_isolation_window_height.Enabled := true;
+    toggleswitch_isolation_open_memory.Enabled := true;
+    scrollbar_isolation_game_memory.Enabled := true;
+    toggleswitch_isolation_open_partition.Enabled := true;
+    checkbox_isolation_is_partition.Enabled := true;
+    edit_isolation_additional_game.Enabled := true;
+    edit_isolation_additional_jvm.Enabled := true;
+    edit_isolation_pre_launch_script.Enabled := true;
+    edit_isolation_after_launch_script.Enabled := true;
+    if toggleswitch_isolation_window_size.State = tsson then begin
+      scrollbar_isolation_window_width.Enabled := true;
+      scrollbar_isolation_window_height.Enabled := true;
+    end else begin
+      scrollbar_isolation_window_width.Enabled := false;
+      scrollbar_isolation_window_height.Enabled := false;
+    end;
+    if toggleswitch_isolation_open_memory.State = tsson then begin
+      scrollbar_isolation_game_memory.Enabled := true;
+    end else begin
+      scrollbar_isolation_game_memory.Enabled := false;
+    end;
+    if toggleswitch_isolation_open_partition.State = tsson then begin
+      checkbox_isolation_is_partition.Enabled := true;
+    end else begin
+      checkbox_isolation_is_partition.Enabled := false;
+    end;
+  end else begin
+    edit_isolation_java_path.Enabled := false;
+    button_isolation_choose_java.Enabled := false;
+    edit_isolation_custom_info.Enabled := false;
+    edit_isolation_window_title.Enabled := false;
+    toggleswitch_isolation_window_size.Enabled := false;
+    scrollbar_isolation_window_width.Enabled := false;
+    scrollbar_isolation_window_height.Enabled := false;
+    toggleswitch_isolation_open_memory.Enabled := false;
+    scrollbar_isolation_game_memory.Enabled := false;
+    toggleswitch_isolation_open_partition.Enabled := false;
+    checkbox_isolation_is_partition.Enabled := false;
+    edit_isolation_additional_game.Enabled := false;
+    edit_isolation_additional_jvm.Enabled := false;
+    edit_isolation_pre_launch_script.Enabled := false;
+    edit_isolation_after_launch_script.Enabled := false;
+  end;
+  IsoMethod(1, booltostr(toggleswitch_is_open_isolation.State = tsson));
 end;
 
 end.
