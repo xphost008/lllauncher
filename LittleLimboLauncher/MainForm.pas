@@ -1641,7 +1641,7 @@ end;
 procedure Tform_mainform.FormShow(Sender: TObject);
 begin
   pagecontrol_mainpage.ActivePage := tabsheet_mainpage_part;
-  pagecontrol_account_part.ActivePage := tabsheet_account_offline_part;
+  pagecontrol_account_part.ActivePage := tabsheet_account_microsoft_part;
   pagecontrol_playing_part.ActivePage := tabsheet_playing_download_part;
   pagecontrol_download_part.ActivePage := tabsheet_download_minecraft_part;
   pagecontrol_online_part.ActivePage := tabsheet_online_ipv6_part;
