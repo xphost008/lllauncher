@@ -41,24 +41,20 @@ When I have some snapshot version, I will release it in my group that not in my 
 
 #### Contributor
 
-[Click me](https://gitcode.net/rechalow/lllauncher/-/blob/master/credits/Credits.md)
+[Click me](./Credits.md)
 
 #### Download link
 
 - When your launcher version is more than 0.0.17, you dont need Two dll, but if you are less than 0.0.16, I think you must need two dll files.
 - In the latest version, that truth you dont need two dll file. If I updated 0.1.2 version, I will deleting it!
 
-1. (Two dll for x86): [lanzou click me]() password: 【link already expired】
-2. (Two dll for x64): [lanzou click me]() password: 【link already expired】
 3. (Release version): [lanzou click me](https://wwc.lanzouq.com/b020zvisf) password: eupj
-4. (Publish Snapshot version): [lanzou click me](https://wwdy.lanzouf.com/b022lz4wh) password: 5duw
-5. (Private Snapshot version archive)：[lanzou click me](https://wwc.lanzouq.com/b021889pe) password: a3we
 
-- from now on, there are no private snapshot version in here, I will release all version in public snapshot version, thanks!
-- at the same time, I will archive my all private version for everyone to read. if you want to download old version, please check it!
+- from now on, there are no private snapshot version and snapshot version in here, I will release all version in public version, thanks!
+- at the same time, I will archive my all private version for everyone to read. if you want to download old version, please check Chinese Readme!
 
 #### Chinese Readme
 
 Whatever you're a foreigners for China, I don't think you need to use this launcher, but it's entirely up to you. Very pleasant experience!
 
-Go to Chinese Readme, You neer To [Click me](https://gitcode.net/rechalow/lllauncher/-/blob/master/README_CN.md)
+Go to Chinese Readme, You neer To [Click me](./README_CN.md)
