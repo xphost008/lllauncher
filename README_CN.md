@@ -44,15 +44,15 @@
 
 ### 贡献名单
 
-[点我](./Credits.md)
+[点我](./CONTRIBUTING.md)
 
 ### 食用教程
 
-[点我](./Document.md)
+[点我](./credits/Document.md)
 
 ### 插件教程
 
-[点我](./Plugins.md)
+[点我](./credits/Plugins.md)
 
 ### 下载链接
 
