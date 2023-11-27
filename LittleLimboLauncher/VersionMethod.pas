@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Windows, Forms, Classes, JSON, IOUtils, IniFiles, ShellAPI;
+  SysUtils, Windows, Forms, Classes, JSON, IOUtils, IniFiles, ShellAPI, Threading;
 
 procedure InitVersion;
 procedure SaveVersion;
@@ -19,7 +19,7 @@ var
 implementation
 
 uses
-  MainMethod, MainForm, LanguageMethod, LauncherMethod, MyCustomWindow;
+  MainMethod, MainForm, LanguageMethod, LauncherMethod, MyCustomWindow, ProgressMethod;
 
 //选择版本
 procedure SelVer();
@@ -33,7 +33,6 @@ begin
   try
     var path := MCVersionList[mselect_mc];
     form_mainform.label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', path);
-//    form_mainform.label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', path);
     var ver := Concat(path, '\versions');
     if DirectoryExists(ver) then begin
       Dir := TDirectory.GetDirectories(ver);
@@ -69,7 +68,6 @@ begin
         (MCSelJSON.GetValue('mcsel') as TJSONArray).Add(TJSONObject.Create.AddPair('name', ExtractFileName(T)).AddPair('path', T));
         form_mainform.combobox_select_game_version.Items.Add(ccf);
       end;
-//      var te := MCVersionSelect[mselect_ver];
       form_mainform.combobox_select_game_version.ItemIndex := mselect_ver;
       LLLini.WriteString('MC', 'SelectMC', inttostr(mselect_mc + 1));
       LLLini.WriteString('MC', 'SelectVer', inttostr(mselect_ver + 1));
@@ -79,7 +77,25 @@ end;
 //手动补全类库
 procedure CompleteVersion;
 begin
-  //TODO: 补全类库
+  if mselect_ver < 0 then begin
+    MyMessagebox(GetLanguage('messagebox_version.no_ver_dir.caption'), GetLanguage('messagebox_version.no_ver_dir.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var selpath := MCVersionSelect[mselect_ver];
+  var mcpath := MCVersionList[mselect_mc];
+  if IsJSONError(MCVersionSelect[mselect_ver]) then begin
+    MyMessagebox(GetLanguage('messagebox_version.complete_no_json_found.caption'), GetLanguage('messagebox_version.complete_no_json_found.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var yjson := GetFile(GetMCRealPath(selpath, '.json'));
+  form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
+  TTask.Run(procedure begin
+    form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.version.get_complete_version'));
+    form_mainform.button_progress_clean_download_list.Enabled := false;
+    DownloadStart(yjson, selpath, mcpath, mbiggest_thread, mdownload_source, 2);
+    form_mainform.button_progress_clean_download_list.Enabled := true;
+    form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.version.complete_version_success'));
+  end);
 end;
 //选择版本文件夹方法
 procedure ChooseVersionDir(name, path: String);
@@ -145,20 +161,6 @@ begin
     mselect_mc := -1;
   end;
   try //添加版本选择，并判断游戏Version文件的规范性，如果规范，则正常输出。
-//    for var I in (MCSelJson.GetValue('mcsel') as TJsonArray) do //遍历Json数组
-//    begin//直接添加所有name
-//      var C := I.GetValue<String>('name');
-//      var T := I.GetValue<String>('path');
-//      if IsVersionError(T) then begin //判断版本是否错误，如果错误，则添加为错误版本。
-//        C := Concat(C, '（错误，未找到Json）');
-//      end else if lch.GetMCInheritsFrom(T, 'inheritsFrom') = '' then begin //判断inheritsForm键，如果有误，则出现无法找到前置版本。
-//        C := Concat(C, '（错误，缺少前置版本）');
-//      end;
-//      var IlnIni := TIniFile.Create(Concat(T, '\LLLauncher.ini'));
-//      if IlnIni.ReadString('Isolation', 'IsIsolation', '') = 'True' then C := Concat(C, '（独立）');
-//      ComboBox1.Items.Add(C);
-//      MCVersionSelect.Add(I.GetValue<String>('path'));
-//    end;
     mselect_ver := LLLini.ReadInteger('MC', 'SelectVer', -1) - 1;
     if (mselect_ver < 0) and not (mselect_ver >= (MCSelJson.GetValue('mcsel') as TJsonArray).Count) then  //如果账号不为空，
       raise Exception.Create('Format Exception');

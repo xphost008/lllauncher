@@ -54,6 +54,7 @@ begin
             var bit := GetFileBits(fpth);
             if (bit = '32') or (bit.IsEmpty) then continue;
             var vers := GetFileVersion(fpth);
+            if vers = '' then continue;
             form_mainform.combobox_launch_select_java_path.Items.Add(Concat('Java(', vers, ')(', bit, ')', fpth));
             (JavaJson.GetValue('java') as TJsonArray).Add(fpth);
           end;
@@ -75,11 +76,13 @@ begin
   TTask.Run(procedure begin
     for var I in pan do begin
       form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_login.caption.full_scan_java').Replace('${drive}', LeftStr(I, 1));
-      if not SearchJava(LeftStr(I, 2)) then begin
-        form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_login.caption.full_scan_java_error');
-        MyMessagebox(GetLanguage('messagebox_launch.full_scan_java_error.caption'), GetLanguage('messagebox_launch.full_scan_java_error.text').Replace('${drive}', LeftStr(I, 1)), MY_ERROR, [mybutton.myOK]);
-        exit;
-      end;
+      try
+        SearchJava(LeftStr(I, 2));
+//          form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_login.caption.full_scan_java_error');
+  //        MyMessagebox(GetLanguage('messagebox_launch.full_scan_java_error.caption'), GetLanguage('messagebox_launch.full_scan_java_error.text').Replace('${drive}', LeftStr(I, 1)), MY_ERROR, [mybutton.myOK]);
+  //        exit;
+//        end;
+      except end;
     end;
     form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_login.caption.full_scan_java_success');
     MyMessagebox(GetLanguage('messagebox_launch.full_scan_java_success.caption'), GetLanguage('messagebox_launch.full_scan_java_success.text'), MY_PASS, [mybutton.myOK]);

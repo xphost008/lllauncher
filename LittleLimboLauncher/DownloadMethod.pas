@@ -193,15 +193,14 @@ begin
     exit;
   end;
   mcs := LLLini.ReadInteger('MC', 'SelectMC', -1);
-//  try
-//    mcsp := (((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\configs\MCJson.json'))) as TJsonObject).GetValue('mc') as TJsonArray)[mcs] as TJsonObject);
-//    mcsp.ToString;
-//  except
-//    MyMessagebox(GetLanguage('messagebox_download.get_mc_dir_error.caption'), GetLanguage('messagebox_download.get_mc_dir_error.text'), MY_ERROR, [mybutton.myOK]);
-//    exit;
-//  end;
-  var mcpath := 'D:\testdir';
-//  var mcpath := mcsp.GetValue('path').Value;
+  try
+    mcsp := (((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\configs\MCJson.json'))) as TJsonObject).GetValue('mc') as TJsonArray)[mcs] as TJsonObject);
+    mcsp.ToString;
+  except
+    MyMessagebox(GetLanguage('messagebox_download.get_mc_dir_error.caption'), GetLanguage('messagebox_download.get_mc_dir_error.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var mcpath := mcsp.GetValue('path').Value;
   var mcspath := Concat(mcpath, '\versions\', mcname);
   var mcvpath := Concat(mcspath, '\', mcname, '.json');
   if form_mainform.listbox_select_modloader.ItemIndex <> -1 then begin //modloader

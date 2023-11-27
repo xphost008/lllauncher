@@ -420,7 +420,6 @@ begin
     for var K in dic do begin
       eil := eil.Replace(K.Key, K.Value);
     end;
-//    messagebox(0, pchar(eil), '', 0);
     RunDOSOnlyWait(eil);
     ShowCurrentProgress(TDPCount, processors.Count);
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.run_processors_success').Replace('${processors_count}', inttostr(TDPCount)));
@@ -694,75 +693,20 @@ begin
   SetLength(DownloadLibraries, BiggestThread);
   SetLength(DownloadResource, BiggestThread);
   SourceJSON := TJsonObject.ParseJSONValue(url) as TJsonObject;
-//    ClipBoard.SetTextBuf(pchar(url));
-//    messagebox(0, pchar(url), '', 0);
   if VanillaPath = '' then VanillaPath := SavePath;
   var AssetPath := Concat(RootPath, '\assets\indexes\', (SourceJSON.GetValue('assetIndex') as TJsonObject).GetValue('id').Value, '.json');
   var ClientVersion := VanillaVersion;
   if ClientVersion = '' then begin
-    try
-      ClientVersion := SourceJSON.GetValue('inheritsFrom').Value;
-      if ClientVersion = '' then raise Exception.Create('inheritsFrom key is empty');
-    except
-      try
-        ClientVersion := SourceJSON.GetValue('clientVersion').Value;
-        if ClientVersion = '' then raise Exception.Create('clientVersion key is empty');
-      except
-        try
-          var patch := SourceJSON.GetValue('patches') as TJsonArray;
-          for var I in patch do begin
-            var id := I.GetValue<String>('id').ToLower;
-            if id = 'game' then begin
-              ClientVersion := I.GetValue<String>('version');
-            end;
-          end;
-        except
-          try
-            var game := (SourceJSON.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
-            for var I := 0 to game.Count - 1 do begin
-              if game[I].Value = '--fml.mcversion'.ToLower then begin
-                ClientVersion := game[I + 1].Value;
-              end;
-            end;
-          except
-            try
-              var releaseTime := SourceJSON.GetValue('releaseTime').Value;
-              var VanillaVersion := '';
-              case SelectMode of
-                1: VanillaVersion := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
-                2: VanillaVersion := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
-                3: VanillaVersion := 'https://download.mcbbs.net/mc/game/version_manifest.json';
-                else abort;
-              end;
-              if MCRootJSON = nil then begin
-                MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(VanillaVersion)) as TJSONObject;
-              end;
-              for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
-                var J := I as TJsonObject;
-                var release := J.GetValue('releaseTime').Value;
-                if release = releaseTime then begin
-                  ClientVersion := J.GetValue('id').Value;
-                end;
-              end;
-            except
-              try
-                ClientVersion := SourceJSON.GetValue('id').Value;
-              except
-                form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.mc_vanilla_id_not_found'));
-                abort;
-              end;
-            end;
-          end;
-        end;
-      end;
-    end;
+    ClientVersion := GetVanillaVersion(url);
   end;
   if ClientVersion = '' then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.mc_vanilla_id_not_found'));
     abort;
   end;
   var ClientPath := Concat(VanillaPath, '\', ClientVersion, '.jar');
-  var JARURL := ((SourceJSON.GetValue('downloads') as TJsonObject).GetValue('client') as TJsonObject).GetValue('url').Value;
+  var ClientJSON := (SourceJSON.GetValue('downloads') as TJsonObject).GetValue('client') as TJsonObject;
+  var JARURL := ClientJSON.GetValue('url').Value;
+  var SHA := ClientJSON.GetValue('sha1').Value;
   var AssetURL := (SourceJSON.GetValue('assetIndex') as TJsonObject).GetValue('url').Value;
   if not FileExists(ClientPath) then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_main_version_jar'));
@@ -770,7 +714,14 @@ begin
     form_mainform.button_progress_clean_download_list.Enabled := false;
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.download_main_version_jar_finish'));
   end else begin
-    form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.main_version_jar_exists'));
+    if GetFileHash(ClientPath).Equals(sha) then begin
+      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.main_version_jar_exists'));
+    end else begin
+      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_main_version_jar'));
+      DownloadStart(JARURL, ClientPath, '', BiggestThread, 0, 1, '', '', false);
+      form_mainform.button_progress_clean_download_list.Enabled := false;
+      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.download_main_version_jar_finish'));
+    end;
   end;
   if not FileExists(AssetPath) then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_asset_index_json'));

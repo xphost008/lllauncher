@@ -11,6 +11,7 @@ function ReplaceMCInheritsFrom(yuanjson, gaijson: String): String;
 function ConvertNameToPath(name: String): String;
 function Unzip(zippath, extpath: String): Boolean;
 function JudgeIsolation: String;
+function IsJSONError(path: String): Boolean;
 
 implementation
 
@@ -19,20 +20,20 @@ uses
 function JudgeIsolation: String;
 begin
   var ret: Boolean;
-  var mcsc := strtoint(LLLini.ReadString('MC', 'SelectMC', '')) - 1;
+  var mcsc := LLLini.ReadInteger('MC', 'SelectMC', -1) - 1;
   var mcct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'MCJson.json'));
   { 此为MC未隔路径 }var mccp := (((TJsonObject.ParseJSONValue(mcct) as TJsonObject).GetValue('mc') as TJsonArray)[mcsc] as TJsonObject).GetValue('path').Value;
-  var mcsn := strtoint(LLLini.ReadString('MC', 'SelectVer', '')) - 1;
+  var mcsn := LLLini.ReadInteger('MC', 'SelectVer', -1) - 1;
   var mcnt := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'MCSelJson.json'));
   { 此为MC隔离路径 }var msph := (((TJsonObject.ParseJSONValue(mcnt) as TJsonObject).GetValue('mcsel') as TJsonArray)[mcsn] as TJsonObject).GetValue('path').Value;
   var mcyj := GetFile(GetMCRealPath(msph, '.json'));
-  var iii := LLLini.ReadString('Version', 'SelectIsolation', ''); //以下为判断原版，如果是原版，则返回true，如果不是则返回false。
+  var iii := LLLini.ReadInteger('Version', 'SelectIsolation', 4); //以下为判断原版，如果是原版，则返回true，如果不是则返回false。
   var pand: Boolean := (mcyj.IndexOf('com.mumfrey:liteloader:') <> -1) or (mcyj.IndexOf('org.quiltmc:quilt-loader:') <> -1) or (mcyj.IndexOf('net.fabricmc:fabric-loader:') <> -1) or (mcyj.IndexOf('forge') <> -1);
-  if iii = '4' then ret := true
-  else if iii = '2' then begin
+  if iii = 4 then ret := true
+  else if iii = 2 then begin
     if not pand then ret := true
     else ret := false;
-  end else if iii = '3' then begin
+  end else if iii = 3 then begin
     if pand then ret := true
     else ret := false;
   end else ret := false;
@@ -41,6 +42,25 @@ begin
     if IltIni.ReadBool('Isolation', 'Partition', false) then
       ret := true;
   if ret then result := msph else result := mccp;
+end;
+//判断单独的一个Json文件是否为版本Json，如果不是则为false，如果是则为true。
+function IsJsonError(path: String): Boolean;
+begin
+  result := false;
+  if FileExists(path) then begin
+    if RightStr(path, 5) = '.json' then begin
+      var god := GetFile(path);
+      try
+        var Root := TJsonObject.ParseJSONValue(god) as TJsonObject;
+        var dd := Root.GetValue('id').Value;
+        var tmp := Root.GetValue('libraries').ToString;
+        var ttt := Root.GetValue('mainClass').Value;
+        result := true;
+      except
+        result := false;
+      end;
+    end;
+  end;
 end;
 //解压Zip
 function Unzip(zippath, extpath: String): Boolean;

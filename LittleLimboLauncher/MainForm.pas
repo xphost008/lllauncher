@@ -239,7 +239,6 @@ type
     button_progress_clean_download_list: TButton;
     button_thirdparty_check_authlib_update: TButton;
     groupbox_message_board: TGroupBox;
-    memo_message_board: TMemo;
     n_memory_optimize: TMenuItem;
     scrollbox_launch: TScrollBox;
     label_launch_window_size: TLabel;
@@ -359,6 +358,8 @@ type
     button_custom_color: TButton;
     tabsheet_online_octo_part: TTabSheet;
     edit_custom_download_path: TEdit;
+    label_export_return_value: TLabel;
+    label_message_board: TLabel;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -527,6 +528,12 @@ type
     procedure edit_isolation_additional_jvmChange(Sender: TObject);
     procedure edit_isolation_pre_launch_scriptChange(Sender: TObject);
     procedure edit_isolation_after_launch_scriptChange(Sender: TObject);
+    procedure treeview_export_keep_fileCheckStateChanging(
+      Sender: TCustomTreeView; Node: TTreeNode; NewCheckState,
+      OldCheckState: TNodeCheckState; var AllowChange: Boolean);
+    procedure radiogroup_export_modeClick(Sender: TObject);
+    procedure scrollbar_export_max_memoryChange(Sender: TObject);
+    procedure button_export_startClick(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -798,59 +805,8 @@ begin
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
-//var
-//  status: TMemoryStatus;
-//type
-//  TTT = record
-//    CurrentSize: Currency;
-//    PeakSize: Currency;
-//    PageFaultCount: ULong;
-//    MinimumWorkingSet: Currency;
-//    MaximumWorkingSet: Currency;
-//  end;
 begin
-//  var js := '{"name":"Hello"}';
-//  var json := TJSONObject.ParseJSONValue(js) as TJSONObject;
-//  showmessage(json.ToString);
-//  json.Free;
-//  json := TJSONObject.ParseJSONValue('{"name":"JOSI"}') as TJSONObject;
-//  showmessage(json.ToString);
-//  var tt := TOpenDialog.Create(nil);
-//  tt.Execute();
-//  var ss := 'sassss8sassssss';
-//  var j := TStringList.Create;
-//  showmessage(inttostr(j.Count) + ' ' + j[0]);
-//  GlobalMemoryStatus(status);
-//  showmessage(inttostr(status.dwLength)+#13#10+inttostr(status.dwMemoryLoad)+#13#10+inttostr(status.dwTotalPhys)+#13#10+inttostr(status.dwAvailPhys)+#13#10+inttostr(status.dwTotalPageFile)+#13#10+inttostr(status.dwAvailPageFile)+#13#10+inttostr(status.dwTotalVirtual)+#13#10+inttostr(status.dwAvailVirtual));
-//  var s := TDirectory.GetLogicalDrives;
-//  for var I in S do showmessage(I);
-//  showmessage(inttostr(MyMessagebox('', '', MY_ERROR, [mybutton.myYes, mybutton.myNo])));
-//      var s: TPoint;
-//      s.X := 0;
-//      s.Y := 0;
-//      s := button_launch_game.ClientToScreen(s);
-//      s := form_mainform.ScreenToClient(s);
-//      showmessage(inttostr(button_launch_game.Left) + #13#10 + inttostr(button_launch_game.Top) + #13#10 + inttostr(s.X) + #13#10 + inttostr(s.Y));
-//  var info1 := 2;
-//  var info2 := 3;
-//  var info3 := 4;
-//  var info4 := 5;
-//  var abc: TTT;
-//  abc.MinimumWorkingSet := 1.844674407371e+019;
-//  abc.MaximumWorkingSet := 1.844674407371e+019;
-//  var cd := ULong(GetProcAddress(
-//    GetModuleHandleW('ntdll.dll'),
-//    'NtSetSystemInformation'));
-//  var re0 := NtSetSystemInformation(cd, @abc, sizeof(abc));
-//  var re1 := NtSetSystemInformation(80, @info1, sizeof(info1));
-//  var re2 := NtSetSystemInformation(80, @info2, sizeof(info2));
-//  var re3 := NtSetSystemInformation(80, @info3, sizeof(info3));
-//  var re4 := NtSetSystemInformation(80, @info4, sizeof(info4));
-//  if re0 <> 0 then showmessage('not 0');
-//  if re1 <> 0 then showmessage('not 1');
-//  if re2 <> 0 then showmessage('not 2');
-//  if re3 <> 0 then showmessage('not 3');
-//  if re4 <> 0 then showmessage('not 4');
+  // TODO：Test code！
 end;
 //下载部分：查看MC版本信息
 procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
@@ -1011,6 +967,11 @@ procedure Tform_mainform.button_enable_choose_playingClick(Sender: TObject);
 begin
   ManageEnablePlaying;
 end;
+//整合包导出：开始导出咯！
+procedure Tform_mainform.button_export_startClick(Sender: TObject);
+begin
+  StartExport;
+end;
 //背景设置：小草绿
 procedure Tform_mainform.button_grass_colorClick(Sender: TObject);
 begin
@@ -1027,16 +988,6 @@ begin
   CB.Filter := 'javaw(javaw.exe)|javaw.exe';
   if CB.Execute() then begin
     var jpath := CB.FileName;
-//    var bit := GetFileBits(jpath);
-//    if (bit = '32') or (bit = '') then begin
-//      MyMessagebox(GetLanguage('messagebox_launch.not_support_java_bit.caption'), GetLanguage('messagebox_launch.not_support_java_bit.text'), MY_ERROR, [mybutton.myOK]);
-//      exit;
-//    end;
-//    var ver := GetFileVersion(jpath);
-//    form_mainform.combobox_launch_select_java_path.ItemIndex := form_mainform.combobox_launch_select_java_path.Items.Add(Concat('Java(', ver, ')(', bit, ')', jpath));
-//    (JavaJson.GetValue('java') as TJsonArray).Add(jpath);
-//    mcurrent_java := form_mainform.combobox_launch_select_java_path.ItemIndex;
-//    MyMessagebox(GetLanguage('messagebox_launch.menual_import_java_success.caption'), GetLanguage('messagebox_launch.menual_import_java_success.text'), MY_PASS, [mybutton.myOK]);
     edit_isolation_java_path.Text := jpath;
     edit_isolation_java_pathChange(Sender);
   end;
@@ -1141,7 +1092,6 @@ begin
   end;
   ShellExecute(Application.Handle, nil, pchar(ul), nil, nil, SW_SHOWNORMAL);
 end;
-
 //启动设置：前置启动脚本
 procedure Tform_mainform.button_launch_pre_launch_scriptClick(Sender: TObject);
 begin
@@ -1646,6 +1596,10 @@ begin
   pagecontrol_download_part.ActivePage := tabsheet_download_minecraft_part;
   pagecontrol_online_part.ActivePage := tabsheet_online_ipv6_part;
   pagecontrol_version_part.ActivePage := tabsheet_version_control_part;
+  scrollbox_launch.VertScrollBar.Position := 0;
+  scrollbox_version.VertScrollBar.Position := 0;
+  scrollbox_isolation.VertScrollBar.Position := 0;
+  scrollbox_export.VertScrollBar.Position := 0;
   v.ParentWindow := Handle;
   v.Visible := False;
   Log.Write('正在读取语言文件……', LOG_INFO, LOG_START);
@@ -1980,6 +1934,29 @@ procedure Tform_mainform.radiogroup_choose_mod_loaderClick(Sender: TObject);
 begin
   ChangeModLoader;
 end;
+//导出部分：选择导出格式
+procedure Tform_mainform.radiogroup_export_modeClick(Sender: TObject);
+begin
+  case radiogroup_export_mode.ItemIndex of
+    0: begin
+      self.edit_export_update_link.Enabled := true;
+      self.edit_export_official_website.Enabled := true;
+      self.edit_export_mcbbs_tid.Enabled := true;
+      self.edit_export_authentication_server.Enabled := true;
+      self.edit_export_additional_game.Enabled := true;
+      self.edit_export_additional_jvm.Enabled := true;
+    end;
+    1: begin
+      self.edit_export_update_link.Enabled := false;
+      self.edit_export_official_website.Enabled := false;
+      self.edit_export_mcbbs_tid.Enabled := false;
+      self.edit_export_authentication_server.Enabled := false;
+      self.edit_export_additional_game.Enabled := false;
+      self.edit_export_additional_jvm.Enabled := false;
+    end;
+    else exit;
+  end;
+end;
 //版本设置：版本隔离选项卡
 procedure Tform_mainform.radiogroup_partition_versionClick(Sender: TObject);
 begin
@@ -2021,6 +1998,11 @@ procedure Tform_mainform.scrollbar_download_biggest_threadChange(
 begin
   mbiggest_thread := scrollbar_download_biggest_thread.Position;
   label_download_biggest_thread.Caption := GetLanguage('label_download_biggest_thread.caption').Replace('${biggest_thread}', inttostr(mbiggest_thread));
+end;
+//导出设置：最大内存设置
+procedure Tform_mainform.scrollbar_export_max_memoryChange(Sender: TObject);
+begin
+  label_export_memory.Caption := GetLanguage('label_export_memory.caption').Replace('${max_memory}', inttostr(scrollbar_export_max_memory.Position));
 end;
 //独立设置：最大内存滑动条。
 procedure Tform_mainform.scrollbar_isolation_game_memoryChange(Sender: TObject);
@@ -2331,6 +2313,13 @@ begin
     edit_isolation_after_launch_script.Enabled := false;
   end;
   IsoMethod(1, booltostr(toggleswitch_is_open_isolation.State = tsson));
+end;
+
+procedure Tform_mainform.treeview_export_keep_fileCheckStateChanging(
+  Sender: TCustomTreeView; Node: TTreeNode; NewCheckState,
+  OldCheckState: TNodeCheckState; var AllowChange: Boolean);
+begin
+  SelectNode(Node.Checked, Node);
 end;
 
 end.

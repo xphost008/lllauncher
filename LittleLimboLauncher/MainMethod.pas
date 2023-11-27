@@ -24,6 +24,7 @@ procedure Isafdian(IsStart: Boolean; awa: Integer);
 function RenDirectory(const OldName, NewName: string): boolean;
 function GetFileBits(FileName: String): String;
 function GetFileVersion(AFileName: string): string;
+function GetVanillaVersion(json: String): String;
 
 var
   MCRootJSON: TJSONObject;
@@ -33,6 +34,69 @@ implementation
 uses
   MainForm, Log4Delphi, LanguageMethod, MyCustomWindow, AccountMethod;
 
+//获取根据json原版键值
+function GetVanillaVersion(json: String): String;
+begin
+  var jsonRoot := TJSONObject.ParseJSONValue(json.ToLower) as TJSONObject;
+  var mcid := '';
+  try
+    mcid := jsonRoot.GetValue('inheritsfrom').Value;
+    if mcid = '' then raise Exception.Create('Not Support!');
+  except
+    try
+      mcid := jsonRoot.GetValue('clientversion').Value;
+      if mcid = '' then raise Exception.Create('Not Support!');
+    except
+      try
+        var patch := jsonRoot.GetValue('patches') as TJsonArray;
+        for var I in patch do begin
+          var id := I.GetValue<String>('id').ToLower;
+          if id = 'game' then begin
+            mcid := I.GetValue<String>('version');
+          end;
+        end;
+      except
+        try
+          var game := (jsonRoot.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
+          for var I := 0 to game.Count - 1 do begin
+            if game[I].Value = '--fml.mcversion'.ToLower then begin
+              mcid := game[I + 1].Value;
+            end;
+          end;
+        except
+          try
+            var releaseTime := jsonRoot.GetValue('releaseTime').Value;
+            var Vv := '';
+            case mdownload_source of
+              1: Vv := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
+              2: Vv := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
+              3: Vv := 'https://download.mcbbs.net/mc/game/version_manifest.json';
+              else exit;
+            end;
+            if MCRootJSON = nil then begin
+              MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(Vv)) as TJSONObject;
+            end;
+            for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
+              var J := I as TJsonObject;
+              var release := J.GetValue('releaseTime').Value;
+              if release = releaseTime then begin
+                mcid := J.GetValue('id').Value;
+              end;
+            end;
+          except
+            try
+              mcid := jsonRoot.GetValue('id').Value;
+            except
+              MyMessagebox(GetLanguage('messagebox_export.cannot_find_vanilla_key.caption'), GetLanguage('messagebox_export.cannot_find_vanilla_key.text'), MY_ERROR, [mybutton.myOK]);
+              exit;
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+  result := mcid;
+end;
 //此处可以用获取exe的版本信息。
 function GetFileVersion(AFileName: string): string;
 var
@@ -43,11 +107,9 @@ var
   Transstring: string;
 begin
   Len := GetFileVersionInfoSize(PChar(AFileName), n);
-  if Len > 0 then
-  begin
+  if Len > 0 then begin
     Buf := AllocMem(Len);
-    if GetFileVersionInfo(Pchar(AFileName), n, Len, Buf) then
-    begin
+    if GetFileVersionInfo(Pchar(AFileName), n, Len, Buf) then begin
       Value := nil;
       VerQueryValue(Buf, '\VarFileInfo\Translation', Value, Len);
       if Value <> nil then
