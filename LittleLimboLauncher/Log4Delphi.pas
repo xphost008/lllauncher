@@ -54,6 +54,7 @@ begin
     3: tdt := 'Start';
     4: tdt := 'Account';
     5: tdt := 'Plugin';
+    else raise Exception.Create('Read Log Stream Error');
   end;
   var FileStr := Concat('[', Now.Format('yyyy/mm/dd HH:nn:ss'), ']', '[', tdt, '/', tdd, '] ', text);
   try

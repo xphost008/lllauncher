@@ -188,9 +188,9 @@ begin
   end;
   if form_mainform.combobox_select_game_version.Items[form_mainform.combobox_select_game_version.ItemIndex] = '' then begin
     mselect_ver := -1;
-    form_mainform.button_launch_game.Caption := GetLanguage('button_launch_game.caption').Replace('${launch_version_name}', form_mainform.combobox_select_game_version.Items[form_mainform.combobox_select_game_version.ItemIndex]);
-  end else begin
     form_mainform.button_launch_game.Caption := GetLanguage('button_launch_game.caption.absence');
+  end else begin
+    form_mainform.button_launch_game.Caption := GetLanguage('button_launch_game.caption').Replace('${launch_version_name}', form_mainform.combobox_select_game_version.Items[form_mainform.combobox_select_game_version.ItemIndex]);
   end;
   SetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'), MCJson.Format);
   SetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'), MCSelJson.Format);

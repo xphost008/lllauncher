@@ -4,9 +4,11 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
-  StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
+  StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,msxml,
   ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections, FileCtrl,
-  Vcl.Buttons, Vcl.ControlList, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils;
+  Vcl.Buttons, Vcl.ControlList, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils,
+  IdBaseComponent, IdComponent, IdCustomTCPServer, IdCustomHTTPServer,
+  IdHTTPServer;
 
 type
   Tform_mainform = class(TForm)
@@ -534,6 +536,20 @@ type
     procedure radiogroup_export_modeClick(Sender: TObject);
     procedure scrollbar_export_max_memoryChange(Sender: TObject);
     procedure button_export_startClick(Sender: TObject);
+    procedure n_current_versionClick(Sender: TObject);
+    procedure n_reset_launcherClick(Sender: TObject);
+    procedure n_check_updateClick(Sender: TObject);
+    procedure n_entry_official_websiteClick(Sender: TObject);
+    procedure n_support_authorClick(Sender: TObject);
+    procedure n_support_bmclapiClick(Sender: TObject);
+    procedure button_check_ipv6_ipClick(Sender: TObject);
+    procedure listbox_view_all_ipv6_ipClick(Sender: TObject);
+    procedure edit_online_ipv6_portChange(Sender: TObject);
+    procedure button_copy_ipv6_ip_and_portClick(Sender: TObject);
+    procedure button_online_ipv6_tipClick(Sender: TObject);
+    procedure n_export_argumentClick(Sender: TObject);
+    procedure pagecontrol_account_partChange(Sender: TObject);
+    procedure image_exit_running_mcClick(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -560,16 +576,18 @@ var
   mgradient_value, mgradient_step: Integer;
   mis_gradient: Boolean;
   mchoose_skin, mbiggest_thread, mdownload_source: Integer;
+  mjudge_lang_chinese: Boolean;
 
 implementation
 
 uses
   MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow, ExportMethod,
-  PluginMethod, PlayingMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod;
+  PluginMethod, PlayingMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod,
+  OnlineIPv6Method;
 
-var
-  Cave, Answer, Lucky: TStringList;
-  Intro: array of array of String;
+//var
+//  Cave, Answer, Lucky: array of String;
+//  Intro: array of array of String;
 
 {$R *.dfm}
 //任意插件菜单栏点击的事件
@@ -590,7 +608,7 @@ begin
         var lj := TJSONObject.ParseJSONValue(GetFile(I)) as TJsonObject;
         try
           var title := lj.GetValue('file_language_title').Value;
-          if mi.Caption.IndexOf(title) <> -1 then begin
+          if mi.Caption.Replace('&', '').Contains(title.Replace('&', '')) then begin
             LLLini.WriteString('Language', 'SelectLanguageFile', ChangeFileExt(ExtractFileName(I), ''));
             SetLanguage(ChangeFileExt(ExtractFileName(I), ''));
             MyMessagebox(GetLanguage('messagebox_mainform.change_language.caption'), GetLanguage('messagebox_mainform.change_language.text'), MY_INFORMATION, [mybutton.myOK]);
@@ -718,6 +736,11 @@ procedure Tform_mainform.listbox_select_modloaderClick(Sender: TObject);
 begin
   form_mainform.edit_minecraft_version_name.Text := Concat(form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex], '-', form_mainform.listbox_select_modloader.Items[form_mainform.listbox_select_modloader.ItemIndex]);
 end;
+//联机IPv6：列表框点击
+procedure Tform_mainform.listbox_view_all_ipv6_ipClick(Sender: TObject);
+begin
+  ChangeIPv6List;
+end;
 //高危系统库ntdll.dll
 function NtSetSystemInformation(SystemInformationClass: DWORD; SystemInformation: Pointer; SystemInformationLength: ULONG): NTSTATUS; stdcall; external 'ntdll.dll';
 //提取权限
@@ -739,6 +762,26 @@ begin
       end;
     end;
   end;
+end;
+//检查更新
+procedure Tform_mainform.n_check_updateClick(Sender: TObject);
+begin
+  MyMessagebox('暂时无法更新', '暂时无法查询，请去https://github.com/rechalow/lllauncher中手动找到下载一栏查看更新！', MY_INFORMATION, [mybutton.myOK]);
+end;
+//当前版本
+procedure Tform_mainform.n_current_versionClick(Sender: TObject);
+begin
+  MyMessagebox(GetLanguage('messagebox_mainform.show_lll_version.caption'), GetLanguage('messagebox_mainform.show_lll_version.text').Replace('${version}', LauncherVersion), MY_INFORMATION, [mybutton.myOK]);
+end;
+//进入官网
+procedure Tform_mainform.n_entry_official_websiteClick(Sender: TObject);
+begin
+  ShellExecute(Application.Handle, nil, 'https://github.com/rechalow/lllauncher', nil, nil, SW_SHOWNORMAL);
+end;
+//手动导出启动参数
+procedure Tform_mainform.n_export_argumentClick(Sender: TObject);
+begin
+  StartLaunch(true);
 end;
 //内存清理按钮
 procedure Tform_mainform.n_memory_optimizeClick(Sender: TObject);
@@ -805,8 +848,23 @@ begin
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
+var
+  s: String;
 begin
-  // TODO：Test code！
+//  if GetLocalIP(s) then begin
+//  var ip := TIdHTTPServer.Create(nil);
+//  ip
+//  showmessage(GetWebText('http://www.3322.org/dyndns/getip').Trim);
+//  end;
+//  showmessage(inttostr(ipv4toint('255.255.255.255')));
+//  var res := GetUserDefaultGeoName(nil, 0);
+//  if res > 0 then begin
+//    var gname: LPWSTR := StrAlloc(res);
+//    var res2 := GetUserDefaultGeoName(gname, res);
+//    if res > 0 then begin
+//      showmessage('获取到国家名称：' + gname);
+//    end;
+//  end;
 end;
 //下载部分：查看MC版本信息
 procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
@@ -822,6 +880,16 @@ end;
 procedure Tform_mainform.n_view_mod_websiteClick(Sender: TObject);
 begin
   PlayingOpenVerWeb;
+end;
+//联机部分：开始检测IPv6地址
+procedure Tform_mainform.button_check_ipv6_ipClick(Sender: TObject);
+begin
+  InitIPv6Online;
+end;
+//IPv6联机：复制链接
+procedure Tform_mainform.button_copy_ipv6_ip_and_portClick(Sender: TObject);
+begin
+  CopyIPv6Link;
 end;
 //背景设置：自定义配色按钮
 procedure Tform_mainform.button_custom_colorClick(Sender: TObject);
@@ -1041,7 +1109,7 @@ end;
 //主界面：启动游戏按钮
 procedure Tform_mainform.button_launch_gameClick(Sender: TObject);
 begin
-//
+  StartLaunch(false);
 end;
 //启动设置：手动导入Java
 procedure Tform_mainform.button_launch_manual_importClick(Sender: TObject);
@@ -1145,6 +1213,11 @@ begin
   TTask.Run(procedure begin
     edit_offline_name.Text := UUIDToName(e);
   end);
+end;
+//IPv6联机：联机提示
+procedure Tform_mainform.button_online_ipv6_tipClick(Sender: TObject);
+begin
+  MyMessagebox(GetLanguage('messagebox_ipv6.online_tips.caption'), GetLanguage('messagebox_ipv6.online_tips.text'), MY_INFORMATION, [mybutton.myOK])
 end;
 //玩法管理界面：打开选中的文件夹
 procedure Tform_mainform.button_open_choose_playingClick(Sender: TObject);
@@ -1495,6 +1568,11 @@ procedure Tform_mainform.edit_launch_window_titleChange(Sender: TObject);
 begin
   mwindow_title := edit_launch_window_title.Text;
 end;
+//IPv6联机：端口号被修改
+procedure Tform_mainform.edit_online_ipv6_portChange(Sender: TObject);
+begin
+  ChangeIPv6Port;
+end;
 //主界面：窗口关闭事件
 procedure Tform_mainform.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -1522,9 +1600,6 @@ begin
   Log := Log4D.Create;
   Log.Write('窗口创建！', LOG_INFO, LOG_START);
   AppData := GetEnvironmentVariable('AppData');
-  Cave := TStringList.Create;
-  Answer := TStringList.Create;
-  Lucky := TStringList.Create;
   v := TMediaPlayer.Create(form_mainform);
   Log.Write('初始化变量1完毕。', LOG_INFO, LOG_START);
   LLLini := TIniFile.Create(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\LittleLimboLauncher.ini'));
@@ -1574,9 +1649,10 @@ begin
     LLLini.WriteString('Language', 'SelectLanguageFile', 'zh_cn');
   end;
   if not FileExists(Concat(AppData, '\LLLauncher\Other.ini')) then begin
-    Otherini.WriteString('Other', 'Random', inttostr(random(2000000) + 1));
-    Otherini.WriteString('Misc', 'Launcher', '0');
-    Otherini.WriteString('Misc', 'StartGame', '0');
+    Otherini.WriteInteger('Other', 'Random', random(2000000) + 1);
+    Otherini.WriteBool('Other', 'AllowOffline', false);
+    Otherini.WriteInteger('Misc', 'Launcher', 0);
+    Otherini.WriteInteger('Misc', 'StartGame', 0);
   end;
   Log.Write('初始化变量2完毕。', LOG_INFO, LOG_START); //输出Log
   Log.Write('判断完成窗口创建事件！', LOG_INFO, LOG_START);
@@ -1602,6 +1678,21 @@ begin
   scrollbox_export.VertScrollBar.Position := 0;
   v.ParentWindow := Handle;
   v.Visible := False;
+  if OtherIni.ReadString('Other', 'Lang', '') = '' then begin
+    if JudgeCountry then begin
+      mjudge_lang_chinese := true;
+      OtherIni.WriteBool('Other', 'Lang', true);
+    end else begin
+      mjudge_lang_chinese := false;
+      OtherIni.WriteBool('Other', 'Lang', false);
+    end;
+  end else begin
+    if OtherIni.ReadBool('Other', 'Lang', false) then begin
+      mjudge_lang_chinese := true;
+    end else begin
+      mjudge_lang_chinese := false;
+    end;
+  end;
   Log.Write('正在读取语言文件……', LOG_INFO, LOG_START);
   var langtle := LLLini.ReadString('Language', 'SelectLanguageFile', '');
   SetLanguage(langtle);
@@ -1739,12 +1830,28 @@ begin
     mdownload_source := 1;
     LLLini.WriteInteger('Version', 'SelectDownloadSource', 1);
   end;
+  if not mjudge_lang_chinese then begin
+    if mdownload_source <> 1 then begin
+      mdownload_source := 1;
+      LLLini.WriteInteger('Version', 'SelectDownloadSource', 1);
+    end;
+  end;
   timer_form_gradient_tick.Interval := mgradient_value;
   SetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE, GetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE) or WS_EX_LAYERED);
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);
   Log.Write(Concat('已判断完成，开始应用窗口颜色。'), LOG_INFO, LOG_START);
   Color := rgb(mred, mgreen, mblue); //实装RGBA。
   ResetBackImage(false);
+end;
+//强制结束MC
+procedure Tform_mainform.image_exit_running_mcClick(Sender: TObject);
+begin
+  if image_exit_running_mc.Cursor = crHandPoint then begin
+    ShellExecute(Application.Handle, 'open', 'taskkill.exe', pchar(Concat('/F /PID ', inttostr(mcpid))), nil, SW_HIDE);
+    mcpid := 0;
+    Log.Write('宁结束了MC的运行。', LOG_INFO, LOG_LAUNCH);
+    MyMessagebox(GetLanguage('messagebox_launcher.exit_mc_success.caption'), GetLanguage('messagebox_launcher.exit_mc_success.text'), MY_PASS, [mybutton.myOK]);
+  end;
 end;
 //打开下载界面
 procedure Tform_mainform.image_open_download_prograssClick(Sender: TObject);
@@ -1760,6 +1867,16 @@ end;
 procedure Tform_mainform.image_refresh_background_musicClick(Sender: TObject);
 begin
   ResetBackMusic(true);
+end;
+//账号部分：页切换！
+procedure Tform_mainform.pagecontrol_account_partChange(Sender: TObject);
+begin
+  if not mjudge_lang_chinese then begin
+    if pagecontrol_account_part.ActivePage = tabsheet_account_thirdparty_part then begin
+      MyMessagebox(GetLanguage('messagebox_account.area_not_chinese.caption'), GetLanguage('messagebox_account.area_not_chinese.text'), MY_ERROR, [mybutton.myOK]);
+      pagecontrol_account_part.ActivePage := tabsheet_account_microsoft_part;
+    end;
+  end;
 end;
 //下载部分：初次切换页
 procedure Tform_mainform.pagecontrol_download_partChange(Sender: TObject);
@@ -1811,7 +1928,6 @@ begin
     SaveCustomDl;
   end else if pagecontrol_mainpage.ActivePage = tabsheet_version_part then
     SaveVersion;
-
 end;
 //玩法部分：玩法管理界面/下载玩法切换。
 procedure Tform_mainform.pagecontrol_playing_partChange(Sender: TObject);
@@ -1939,6 +2055,12 @@ procedure Tform_mainform.radiogroup_export_modeClick(Sender: TObject);
 begin
   case radiogroup_export_mode.ItemIndex of
     0: begin
+      if not mjudge_lang_chinese then begin
+        MyMessagebox(GetLanguage('messagebox_export.area_not_chinese.caption'), GetLanguage('messagebox_export.area_not_chinese.text'), MY_ERROR, [mybutton.myOK]);
+        radiogroup_export_mode.ItemIndex := 0;
+        radiogroup_export_modeClick(Sender);
+        exit;
+      end;
       self.edit_export_update_link.Enabled := true;
       self.edit_export_official_website.Enabled := true;
       self.edit_export_mcbbs_tid.Enabled := true;
@@ -2139,7 +2261,9 @@ begin
   end;
 end;
 //主窗口：总体计时器
-var open_form: Boolean = true;
+var
+  open_form: Boolean = true;
+  u, l, m: Boolean;
 procedure Tform_mainform.timer_all_ticksTimer(Sender: TObject);
 begin
   if open_form then begin
@@ -2194,6 +2318,77 @@ begin
           mainmenu_mainpage.Items[3].Add(TM); //给主菜单栏添加这个菜单。
           Log.Write(Concat('判定成功，语言文件名为：', I), LOG_START, LOG_INFO);
         end else continue; //如果不为json或dll，则继续。
+      end;
+    end;
+  end;
+  if mcpid > 0 then begin
+    if not u then begin
+      self.image_exit_running_mc.Cursor := crHandPoint;
+      var find_lwjgl := FindWindow('LWJGL', nil);
+      var find_sunawtframe := FindWindow('SunAwtFrame', nil);
+      var find_glfw30 := FindWindow('GLFW30', nil);
+      m := true;
+      if (find_lwjgl <> 0) or (find_sunawtframe <> 0) or (find_glfw30 <> 0) then begin
+        u := true;
+        try
+          Log.Write(Concat('启动游戏后，开始判定是否播放音乐。'), LOG_INFO, LOG_LAUNCH);
+          var p := strtoint(LLLini.ReadString('Misc', 'SelectType', ''));
+          if p = 2 then PlayMusic; //读取外部文件是否为2，如果是，则播放音乐。
+        except
+          Log.Write(Concat('判定失败，默认返回不播放音乐。'), LOG_ERROR, LOG_LAUNCH);
+          LLLini.WriteString('Misc', 'SelectType', '3'); //如果都不是，则输出值。
+        end;
+        var tile := LLLini.ReadString('Version', 'CustomTitle', '');
+        var mcsn := strtoint(LLLini.ReadString('MC', 'SelectVer', '')) - 1;
+        var mct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'MCSelJson.json'));
+        var mcspth := (((TJsonObject.ParseJSONValue(mct) as TJsonObject).GetValue('mcsel') as TJsonArray)[mcsn] as TJsonObject).GetValue('path').Value;
+        var IltIni := TIniFile.Create(Concat(mcspth, '\LLLauncher.ini'));
+        Log.Write('开始判断窗口标题', LOG_INFO, LOG_LAUNCH);
+        if IltIni.ReadString('Isolation', 'IsIsolation', '') = 'True' then begin
+          var tite := IltIni.ReadString('Isolation', 'CustomTitle', '');
+          if tite <> '' then tile := tite;
+        end;
+        if tile <> '' then begin
+          Log.Write(Concat('判断成功！窗口标题为：', tile), LOG_INFO, LOG_LAUNCH);
+          SetWindowText(find_lwjgl, tile);
+          SetWindowText(find_sunawtframe, tile);
+          SetWindowText(find_glfw30, tile);
+        end;
+        DeleteFile(Concat(JudgeIsolation(), '\logs\latest.log'));
+        if mwindow_control = 1 then self.Hide;//如果选中启动时隐藏启动器，则执行。隐藏主窗口
+        if mwindow_control = 3 then Application.Terminate;
+      end;
+    end else begin
+      if not ProcessExists(mcpid) then begin
+        mcpid := -1;
+      end;
+    end;
+  end else begin
+    if l then begin
+      l := false;
+      image_exit_running_mc.Cursor := crNo;
+      exit;
+    end;
+    if u or m then begin
+      image_exit_running_mc.Cursor := crNo;
+      if mwindow_control = 1 then self.Show; //显示主窗口
+      u := false;
+      m := false;
+      mcpid := -1;
+      var mcpve := JudgeIsolation;
+      try
+        var lat := GetDirectoryFileCount(Concat(mcpve, '\crash-reports'), '.txt');
+        if lat.Count <> crash_count then begin
+          var crash_log := GetFile(lat[lat.Count - 1]);
+          // TODO: 写崩溃的日志。。。
+          MyMessagebox(GetLanguage('messagebox_launcher.illegal_exit.caption'), GetLanguage('messagebox_launcher.illegal_exit.text'), MY_WARNING, [mybutton.myOK]);
+          exit;
+        end;
+//        var lat := GetOutsideDocument(Concat(mcpve, '\logs\latest.log'));
+//        if lat = '' then raise Exception.Create('File is No Content Exception');
+        // TODO: 写崩溃的日志。。。
+      except
+//        messagebox(Handle, 'latest.log暂未出现。程序已经崩溃，可能是由于你强制退出，也有可能是窗口暂未出现程序就已经崩溃。', '非法退出游戏', MB_ICONWARNING);
       end;
     end;
   end;
@@ -2314,12 +2509,29 @@ begin
   end;
   IsoMethod(1, booltostr(toggleswitch_is_open_isolation.State = tsson));
 end;
-
+//导出部分：文件树修改方法
 procedure Tform_mainform.treeview_export_keep_fileCheckStateChanging(
   Sender: TCustomTreeView; Node: TTreeNode; NewCheckState,
   OldCheckState: TNodeCheckState; var AllowChange: Boolean);
 begin
   SelectNode(Node.Checked, Node);
+end;
+//主界面：重置启动器菜单栏方法
+procedure Tform_mainform.n_reset_launcherClick(Sender: TObject);
+begin
+  if MyMessagebox(GetLanguage('messagebox_mainform.is_reset_launcher.caption'), GetLanguage('messagebox_mainform.is_reset_launcher.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+  DeleteDirectory(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher'));
+  Application.Terminate;
+end;
+//主界面：赞助作者菜单栏
+procedure Tform_mainform.n_support_authorClick(Sender: TObject);
+begin
+  ShellExecute(Application.Handle, nil, 'https://afdian.net/a/Rechalow', nil, nil, SW_SHOWNORMAL);
+end;
+//主界面：赞助BMCLAPI菜单栏
+procedure Tform_mainform.n_support_bmclapiClick(Sender: TObject);
+begin
+  ShellExecute(Application.Handle, nil, 'https://bmclapidoc.bangbang93.com', nil, nil, SW_SHOWNORMAL);
 end;
 
 end.

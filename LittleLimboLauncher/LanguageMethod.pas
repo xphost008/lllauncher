@@ -40,6 +40,7 @@ begin
   form_mainform.tabsheet_download_custom_part.Caption := GetLanguage('tabsheet_download_custom_part.caption');
   form_mainform.tabsheet_download_modloader_part.Caption := GetLanguage('tabsheet_download_modloader_part.caption');
   form_mainform.tabsheet_online_ipv6_part.Caption := GetLanguage('tabsheet_online_ipv6_part.caption');
+  form_mainform.tabsheet_online_octo_part.Caption := GetLanguage('tabsheet_online_octo_part.caption');
   form_mainform.tabsheet_version_control_part.Caption := GetLanguage('tabsheet_version_control_part.caption');
   form_mainform.tabsheet_version_isolation_part.Caption := GetLanguage('tabsheet_version_isolation_part.caption');            
   form_mainform.tabsheet_version_export_part.Caption := GetLanguage('tabsheet_version_export_part.caption');   
@@ -57,7 +58,8 @@ begin
   form_mainform.n_reset_launcher.Caption := GetLanguage('menu_manual_reset.caption');                
   form_mainform.n_export_argument.Caption := GetLanguage('menu_manual_export.caption');                
   form_mainform.n_current_version.Caption := GetLanguage('menu_manual_version.caption');                
-  form_mainform.n_check_update.Caption := GetLanguage('menu_manual_update.caption');                
+  form_mainform.n_check_update.Caption := GetLanguage('menu_manual_update.caption');
+  form_mainform.n_memory_optimize.Caption := GetLanguage('menu_manual_optimize.caption');
   form_mainform.n_test_button.Caption := GetLanguage('menu_manual_test.caption');
   form_mainform.n_languages.Caption := GetLanguage('menu_manual_language.caption');
   form_mainform.n_plugins.Caption := GetLanguage('menu_manual_plugin.caption');
@@ -254,6 +256,7 @@ begin
   form_mainform.button_remove_version_list.Caption := GetLanguage('button_remove_version_list.caption');
   form_mainform.button_rename_game_version.Caption := GetLanguage('button_rename_game_version.caption');
   form_mainform.button_delete_game_version.Caption := GetLanguage('button_delete_game_version.caption');
+  form_mainform.label_version_tip.Caption := GetLanguage('label_version_tip.caption');
   //以下是独立设置部分
   form_mainform.toggleswitch_is_open_isolation.StateCaptions.CaptionOn := GetLanguage('toggleswitch_is_open_isolation.on.caption');
   form_mainform.toggleswitch_is_open_isolation.StateCaptions.CaptionOff := GetLanguage('toggleswitch_is_open_isolation.off.caption');
@@ -282,6 +285,43 @@ begin
   form_mainform.label_isolation_after_launch_script.Caption := GetLanguage('label_isolation_after_launch_script.caption');
   form_mainform.edit_isolation_after_launch_script.TextHint := GetLanguage('edit_isolation_after_launch_script.texthint');
   form_mainform.label_isolation_tip.Caption := GetLanguage('label_isolation_tip.caption');
+  //以下是导出部分的！
+  form_mainform.radiogroup_export_mode.Caption := GetLanguage('radiogroup_export_mode.caption');
+  form_mainform.label_export_mode_more.Caption := GetLanguage('label_export_mode_more.caption');
+  form_mainform.label_export_modpack_name.Caption := GetLanguage('label_export_modpack_name.caption');
+  form_mainform.edit_export_modpack_name.TextHint := GetLanguage('edit_export_modpack_name.texthint');
+  form_mainform.label_export_modpack_author.Caption := GetLanguage('label_export_modpack_author.caption');
+  form_mainform.edit_export_modpack_author.TextHint := GetLanguage('edit_export_modpack_author.texthint');
+  form_mainform.label_export_modpack_version.Caption := GetLanguage('label_export_modpack_version.caption');
+  form_mainform.edit_export_modpack_version.TextHint := GetLanguage('edit_export_modpack_version.texthint');
+  form_mainform.label_export_update_link.Caption := GetLanguage('label_export_update_link.caption');
+  form_mainform.edit_export_update_link.TextHint := GetLanguage('edit_export_update_link.texthint');
+  form_mainform.edit_export_update_link.Hint := GetLanguage('edit_export_update_link.hint');
+  form_mainform.label_export_official_website.Caption := GetLanguage('label_export_official_website.caption');
+  form_mainform.edit_export_official_website.TextHint := GetLanguage('edit_export_official_website.texthint');
+  form_mainform.edit_export_official_website.Hint := GetLanguage('edit_export_official_website.hint');
+  form_mainform.label_export_mcbbs_tid.Caption := GetLanguage('label_export_mcbbs_tid.caption');
+  form_mainform.edit_export_mcbbs_tid.TextHint := GetLanguage('edit_export_mcbbs_tid.texthint');
+  form_mainform.edit_export_mcbbs_tid.Hint := GetLanguage('edit_export_mcbbs_tid.hint');
+  form_mainform.label_export_authentication_server.Caption := GetLanguage('label_export_authentication_server.caption');
+  form_mainform.edit_export_authentication_server.TextHint := GetLanguage('edit_export_authentication_server.texthint');
+  form_mainform.edit_export_authentication_server.Hint := GetLanguage('edit_export_authentication_server.hint');
+  form_mainform.label_export_additional_game.Caption := GetLanguage('label_export_additional_game.caption');
+  form_mainform.edit_export_additional_game.TextHint := GetLanguage('edit_export_additional_game.texthint');
+  form_mainform.edit_export_additional_game.Hint := GetLanguage('edit_export_additional_game.hint');
+  form_mainform.label_export_additional_jvm.Caption := GetLanguage('label_export_additional_jvm.caption');
+  form_mainform.edit_export_additional_jvm.TextHint := GetLanguage('edit_export_additional_jvm.texthint');
+  form_mainform.edit_export_additional_jvm.Hint := GetLanguage('edit_export_additional_jvm.hint');
+  form_mainform.label_export_modpack_profile.Caption := GetLanguage('label_export_modpack_profile.caption');
+  form_mainform.label_export_keep_file.Caption := GetLanguage('label_export_keep_file.caption');
+  form_mainform.button_export_start.Caption := GetLanguage('button_export_start.caption');
+  //以下是IPv6联机部分
+  form_mainform.button_check_ipv6_ip.Caption := GetLanguage('button_check_ipv6_ip.caption');
+  form_mainform.label_online_ipv6_port.Caption := GetLanguage('label_online_ipv6_port.caption');
+  form_mainform.button_copy_ipv6_ip_and_port.Caption := GetLanguage('button_copy_ipv6_ip_and_port.caption');
+  form_mainform.button_online_ipv6_tip.Caption := GetLanguage('button_online_ipv6_tip.caption');
+  form_mainform.label_online_ipv6_return_value.Caption := GetLanguage('label_online_ipv6_return_value.caption.current_ipv6_ip').Replace('${ip}', '');
+  form_mainform.label_online_tip.Caption := GetLanguage('label_online_tip.caption');
 end;
 //初始化语言
 procedure InitLanguage();
@@ -308,6 +348,7 @@ begin
       .AddPair('tabsheet_download_custom_part.caption', '下载自定义文件')
       .AddPair('tabsheet_download_modloader_part.caption', '下载模组加载器手动安装包')
       .AddPair('tabsheet_online_ipv6_part.caption', 'IPv6联机')
+      .AddPair('tabsheet_online_octo_part.caption', 'Octo联机')
       .AddPair('tabsheet_version_control_part.caption', '版本控制')
       .AddPair('tabsheet_version_isolation_part.caption', '独立设置')
       .AddPair('tabsheet_version_export_part.caption', '导出整合包') 
@@ -327,6 +368,7 @@ begin
       .AddPair('menu_manual_export.caption', '手动导出启动参数')
       .AddPair('menu_manual_version.caption', '当前版本')
       .AddPair('menu_manual_update.caption', '检查更新')
+      .AddPair('menu_manual_optimize.caption', '内存清理')
       .AddPair('menu_manual_test.caption', '测试按钮')
       .AddPair('menu_manual_language.caption', '语言')
       .AddPair('menu_manual_plugin.caption', '插件')
@@ -342,6 +384,10 @@ begin
       .AddPair('inputbox_button_yes.caption', '确认')
       .AddPair('inputbox_button_no.caption', '取消')
       .AddPair('picturebox_button_ok.caption', '确认')
+      .AddPair('messagebox_launcher.exit_mc_success.caption', '结束MC运行成功！')
+      .AddPair('messagebox_launcher.exit_mc_success.text', '结束MC的运行成功了！但是假如你的游戏是刚刚开始运行的话，有可能会结束不成功。请见谅！')
+      .AddPair('messagebox_launcher.illegal_exit.caption', '非法退出游戏')
+      .AddPair('messagebox_launcher.illegal_exit.text', '你的MC非法退出了，可能是引发了崩溃。建议将crash-reports内容复制到任何群里进行询问！')
       .AddPair('messagebox_background_reset_image.success.text', Concat('背景图片刷新成功！', #13#10, '名称：${background_image_filename}'))
       .AddPair('messagebox_background_reset_image.success.caption', '刷新成功')
       .AddPair('messagebox_background_reset_image.not_found.text', '背景图片刷新失败，暂未放入文件。')
@@ -368,6 +414,10 @@ begin
       .AddPair('messagebox_mainform.cannot_root_seProfileSingleProcessPrivilege.caption', '提取权限时出现错误')
       .AddPair('messagebox_mainform.release_memory_success.text', '清理内存成功！一共清理出${release_memory_value}MB内存！')
       .AddPair('messagebox_mainform.release_memory_success.caption', '清理内存成功')
+      .AddPair('messagebox_mainform.show_lll_version.text', '当前你使用的Little Limbo Launcher版本是：${version}')
+      .AddPair('messagebox_mainform.show_lll_version.caption', '当前使用启动器版本')
+      .AddPair('messagebox_mainform.is_reset_launcher.text', '请问是否需要重置LLL启动器，该操作会删除你目前已存在的所有配置文件，包括插件、语言、背景图、背景音乐等。启动器会直接关闭，你需要手动重新打开一次。是否继续？【简单来说就是删掉{exe}\LLLauncher文件】')
+      .AddPair('messagebox_mainform.is_reset_launcher.caption', '是否重置LLL启动器？')
       .AddPair('messagebox_account_offline_error.cannot_name.text', '你的离线登录名称并不理想，输入错误！请不要输入中文，也不要超过16个字符！不要为空。')
       .AddPair('messagebox_account_offline_error.cannot_name.caption', '错误警告')
       .AddPair('messagebox_account_offline_error.cannot_uuid.text', '你的离线登录UUID输入错误，请输入一串长32位无符号UUID。或者不输入等待随机生成')
@@ -440,6 +490,8 @@ begin
       .AddPair('messagebox_account.uuid_to_name_error.caption', '该用户不存在')
       .AddPair('messagebox_account.uuid_not_true.text', 'UUID不符合规范，请重新输入！')
       .AddPair('messagebox_account.uuid_not_true.caption', 'UUID不符合规范')
+      .AddPair('messagebox_account_offline.add_demo_warning.caption', '离线登录警告')
+      .AddPair('messagebox_account_offline.add_demo_warning.text', '由于你目前并不处于中国地区，并且你暂未登录过任一正版账号，因此你所登录的离线登录将会被加上--demo。除非你登录一次正版，否则这个标签将会一直加上！')
       .AddPair('messagebox_mainform.launch_afdian.text', Concat('LLL启动器已经帮你启动过${launch_number}次游戏了，真的不打算为作者发电么？【呜呜的请求……】', #13#10, '点是进入作者的爱发电。'))
       .AddPair('messagebox_mainform.open_afdian.text', Concat('LLL启动器已经被你打开过${open_number}次了，真的不打算为作者发电么？【呜呜的请求……】', #13#10, '点是进入作者的爱发电。'))
       .AddPair('messagebox_mainform.afdian.caption', '快点来给我发电吧')
@@ -466,7 +518,7 @@ begin
       .AddPair('messagebox_playing.name_pagedown_error.caption', '名称下一页失败')
       .AddPair('messagebox_playing.name_pagedown_error.text', '已经是最后一页啦！不要再下一页啦！')
       .AddPair('messagebox_playing.not_choose_mod_error.caption', '暂未选择模组。')
-      .AddPair('messagebox_playing.name_pagedown_error.text', '暂未选择任意模组，无法打开官网，请重试。')
+      .AddPair('messagebox_playing.not_choose_mod_error.text', '暂未选择任意模组，无法打开官网，请重试。')
       .AddPair('messagebox_playing.open_intro_error.caption', '打开简介失败')
       .AddPair('messagebox_playing.open_intro_error.text', '打开简介失败，请尝试选择任意一个玩法版本后，再尝试打开简介。')
       .AddPair('mypicturebox_playing.open_curseforge_intro_success.text', Concat(
@@ -761,6 +813,47 @@ begin
       .AddPair('messagebox_export.export_file_exists.text', '你所选择的整合包导出路径已有一个相同文件名的文件，请删除或者重命名后再尝试！')
       .AddPair('messagebox_export.export_success.caption', '导出完成')
       .AddPair('messagebox_export.export_success.text', '你的整合包已导出完成，现在你可以去目录里面查看了！')
+      .AddPair('messagebox_ipv6.choose_ip_timeout.caption', '超时IP不予选择')
+      .AddPair('messagebox_ipv6.choose_ip_timeout.text', '你不能选择这个IP，因为这个IP在ping的时候超时了！')
+      .AddPair('messagebox_ipv6.port_enter_error.caption', '端口输入错误')
+      .AddPair('messagebox_ipv6.port_enter_error.text', '你的游戏端口输入错误啦！请输入1024~65536之间，并且只能为数字！')
+      .AddPair('messagebox_ipv6.no_ipv6_choose.caption', '暂未选中任意IPv6地址')
+      .AddPair('messagebox_ipv6.no_ipv6_choose.text', '暂未选中任意IPv6地址，请至少扫描一次后，选中任一IPv6地址再复制！')
+      .AddPair('messagebox_ipv6.copy_link_success.caption', '复制成功')
+      .AddPair('messagebox_ipv6.copy_link_success.text', '复制链接成功！现在你可以将链接发送给你的好友进行联机了！')
+      .AddPair('messagebox_ipv6.online_tips.caption', 'IPv6联机提示')
+      .AddPair('messagebox_ipv6.online_tips.text', Concat('亲爱的玩家：', #13#10,
+              '这里你将体验到使用IPv6公网进行联机的功能。在此有以下几点要求：', #13#10,
+              '1.你的电脑必须支持IPv6公网，这样才能检测得出公网地址。如果不支持，你需要去网上寻找教程来开启IPv6公网。', #13#10,
+              '2.你的电脑网络环境必须要好，如果网络环境不好，那么再出色的联机方式也无力回天。', #13#10,
+              '3.你必须对MC多人联机的机制有所了解，例如如何打开MC的多人联机，显示端口等。', #13#10,
+              '4.此联机模式必须双方均拥有IPv6公网IP连接，如果有一方未有，则无法联机。', #13#10,
+              '5.此功能必须在MC启动参数中不能有【-Djava.net.preferIPv4Stack=true】，如果必须有，则你需要联系该启动器作者将其删除。', #13#10,
+              '6.或者，如果必须有以上参数，则你可以在启动器中设置额外JVM参数，复制上方参数，并将上方的true改为false即可。', #13#10,
+              '点进联机部分，首先点击一次【开始检测IPv6公网IP】，如果有IPv6，则底下的列表框将会显示你目前所有IPv6地址。', #13#10,
+              '如果列表框中一项也没有，则说明你没有IPv6地址，则参考第一点要求。', #13#10,
+              '此时在列表框中随便点击一项IP【会有临时和永久的显示】', #13#10,
+              '然后在文本框内输入你游戏内的端口号，此时下面的Label框会产生改变。', #13#10,
+              '然后点击复制IPv6公网IP，此时IP会复制进剪切板，然后将IP地址发给你的好友 ', #13#10,
+              '即可开始联机之旅！'))
+      .AddPair('messagebox_account.area_not_chinese.caption', '国家地区不为中国')
+      .AddPair('messagebox_account.area_not_chinese.text', '目前你的国家地区不为中国，你无法使用第三方外置登录，请使用微软登录！')
+      .AddPair('messagebox_download.area_not_chinese.caption', '国家地区不为中国')
+      .AddPair('messagebox_download.area_not_chinese.text', '目前你的国家地区不为中国，你无法使用除官方以外的任何下载源，请使用官方下载源！')
+      .AddPair('messagebox_export.area_not_chinese.caption', '国家地区不为中国')
+      .AddPair('messagebox_export.area_not_chinese.text', '目前你的国家地区不为中国，你无法使用MCBBS导出源，请使用MultiMC导出源！')
+      .AddPair('messagebox_launcher.not_choose_mc_version.caption', '暂未选择MC版本')
+      .AddPair('messagebox_launcher.not_choose_mc_version.text', '你还暂未选择任一MC版本，请去选择一个后再来吧！')
+      .AddPair('messagebox_launcher.not_choose_java.caption', '暂未选择Java')
+      .AddPair('messagebox_launcher.not_choose_java.text', '你还暂未选择任一Java，请去选择一个后再来吧！')
+      .AddPair('messagebox_launcher.access_token_expire.caption', 'Access Token已过期')
+      .AddPair('messagebox_launcher.access_token_expire.text', '你的Access Token已过期了，请去账号部分刷新一次账号或者重新登录一次吧！')
+      .AddPair('messagebox_launcher.not_support_thirdparty.caption', '登录方式不支持')
+      .AddPair('messagebox_launcher.not_support_thirdparty.text', '目前由于你并不处于中国地区，因此无法使用第三方外置登录启动游戏，你似乎导入成了别人的账号配置文件，请重试！')
+      .AddPair('messagebox_launcher.not_support_login_type.caption', '不支持的登录方式')
+      .AddPair('messagebox_launcher.not_support_login_type.text', '你使用了一种并不受支持的登录方式，你似乎修改了账号配置文件中的内容，请立即修改回来！')
+      .AddPair('messagebox_launcher.not_choose_account.caption', '暂未选择账号')
+      .AddPair('messagebox_launcher.not_choose_account.text', '你还暂未选择任一账号，请去选择一个后再来吧！')
       //以下为下载进度列表框
       .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
@@ -1400,6 +1493,7 @@ begin
       .AddPair('button_remove_version_list.caption', '移除文件列表')
       .AddPair('button_rename_game_version.caption', '重命名游戏版本')
       .AddPair('button_delete_game_version.caption', '删除游戏版本')
+      .AddPair('label_version_tip.caption', '这里是版本部分，你可以操作游戏文件夹，还可以选择版本隔离，还可以为独立版本设计，甚至可以导出整合包噢！')
       //以下是独立设置部分
       .AddPair('__isolation_comment', '（注解）以下是独立设置部分语言')
       .AddPair('label_isolation_current_version.caption', '当前选中版本：${current_version}')
@@ -1434,7 +1528,7 @@ begin
       .AddPair('edit_isolation_after_launch_script.texthint', '输入后置启动脚本-非专业人士请勿修改【留空则全局应用】')
       .AddPair('label_isolation_tip.caption', '以上，只要是开启了全局应用开关，或者是修改了文本框内容【指不为空】，则默认应用全局设置噢！')
       //以下是整合包导出部分
-      .AddPair('__export_comment', '（注解）以下是整合包导出部分')
+      .AddPair('__export_comment', '（注解）以下是整合包导出部分语言')
       .AddPair('label_export_current_version.caption', '当前选中版本：${current_version}')
       .AddPair('label_export_return_value.caption.initialize', '正在初始化整合包导出的文件树……')
       .AddPair('label_export_return_value.caption.init_success', '初始化文件树完成！')
@@ -1445,6 +1539,58 @@ begin
       .AddPair('label_export_return_value.caption.copy_file_finish', '扫描复制完成，弹出保存路径窗口……')
       .AddPair('label_export_return_value.caption.is_export', '正在打包成zip，请勿关闭，请等待信息框弹出……')
       .AddPair('label_export_return_value.caption.export_success', '打包完成！你现在可以去查到zip包了！')
+      .AddPair('radiogroup_export_mode.caption', '导出方式')
+      .AddPair('label_export_mode_more.caption', '更多导出方式敬请期待噢！')
+      .AddPair('label_export_modpack_name.caption', '整合包名称')
+      .AddPair('edit_export_modpack_name.texthint', '此处输入你的整合包名称【必填项】')
+      .AddPair('label_export_modpack_author.caption', '整合包作者')
+      .AddPair('edit_export_modpack_author.texthint', '此处输入你的整合包作者【必填项】')
+      .AddPair('label_export_modpack_version.caption', '整合包版本')
+      .AddPair('edit_export_modpack_version.texthint', '此处输入你的整合包版本【必填项】')
+      .AddPair('label_export_update_link.caption', '整合包更新链接')
+      .AddPair('edit_export_update_link.texthint', '此处输入你的整合包更新链接【选填项】')
+      .AddPair('edit_export_update_link.hint', '例如【https://example.com/manifact.json】，只需输入【https://example.com】即可。')
+      .AddPair('label_export_official_website.caption', '整合包官方网站')
+      .AddPair('edit_export_official_website.texthint', '此处输入你的整合包官方网站【选填项】')
+      .AddPair('edit_export_official_website.hint', '此处填写你整合包的官方网址，例如curseforge就填网址。填全称。')
+      .AddPair('label_export_mcbbs_tid.caption', 'MCBBS——TID')
+      .AddPair('edit_export_mcbbs_tid.texthint', '此处输入你的整合包MCBBS-TID【选填项】')
+      .AddPair('edit_export_mcbbs_tid.hint', '如果已将整合包发布在MCBBS上，则这个地方填入你的帖子MCBBS-TID。如发布贴为【https://www.mcbbs.com/thread-114514-1-1.html】，则这个地方只需填入114514即可。')
+      .AddPair('label_export_authentication_server.caption', '认证服务器')
+      .AddPair('edit_export_authentication_server.texthint', '此处输入你的整合包认证服务器【选填项】')
+      .AddPair('edit_export_authentication_server.hint', '此处仅限外置登录，如果你不确定，请留空。该处只能填入类似于【littleskin.cn】这种外置登录皮肤站根目录')
+      .AddPair('label_export_additional_game.caption', '额外Game')
+      .AddPair('edit_export_additional_game.texthint', '此处输入你的整合包额外Game参数【选填项】')
+      .AddPair('edit_export_additional_game.hint', '用空格分割你的额外Game参数。')
+      .AddPair('label_export_additional_jvm.caption', '额外JVM')
+      .AddPair('edit_export_additional_jvm.texthint', '此处输入你的整合包额外JVM参数')
+      .AddPair('edit_export_additional_jvm.hint', '用空格分割你的额外JVM参数。')
+      .AddPair('label_export_modpack_profile.caption', '整合包简介')
+      .AddPair('label_export_keep_file.caption', '需要保留的文件')
+      .AddPair('button_export_start.caption', '♥点我导出♥')
+      //以下是联机IPv6部分
+      .AddPair('__online_comment', '（注解）以下是联机部分语言')
+      .AddPair('label_online_ipv6_return_value.caption.check_ipv6_port', '正在检测你的IPv6公网IP中……')
+      .AddPair('listbox_view_all_ipv6_ip.caption.timeout', '超时')
+      .AddPair('listbox_view_all_ipv6_ip.caption.forever', '永久')
+      .AddPair('listbox_view_all_ipv6_ip.caption.temp', '临时')
+      .AddPair('label_online_ipv6_return_value.caption.not_support_ipv6', '你的局域网网络暂不支持IPv6连接，如果你确信自己拥有IPv6而LLL无法识别出来时，请联系作者！')
+      .AddPair('label_online_ipv6_return_value.caption.check_ipv6_success', '检测IPv6成功！现在你可以在列表框里查看了！')
+      .AddPair('label_online_ipv6_return_value.caption.current_ipv6_ip', '你选中的IPv6地址是：${ip}')
+      .AddPair('button_check_ipv6_ip.caption', '开始检测IPv6公网IP')
+      .AddPair('label_online_ipv6_port.caption', '请输入你在游戏中的端口【1024~65536】')
+      .AddPair('button_copy_ipv6_ip_and_port.caption', '复制IPv6公网IP与端口')
+      .AddPair('button_online_ipv6_tip.caption', 'IPv6联机提示')
+      .AddPair('label_online_tip.caption', '这里是联机部分，你可以在这里找一个你所想要的联机方式进行联机噢！')
+      //以下是启动游戏时的语言
+      .AddPair('__launcher_comment', '（注解）以下是启动游戏时的语言')
+      .AddPair('label_launch_tips.caption.judge_args', '正在开始判断配置文件是否有误……')
+      .AddPair('label_launch_tips.caption.not_choose_mc_version', 'MC版本判断失误，你还没有选择任一MC版本。')
+      .AddPair('label_launch_tips.caption.not_choose_java', 'Java判断失误，你还没有选择任一Java。')
+      .AddPair('label_launch_tips.caption.access_token_expire', '你的Access Token已过期，请尝试重新登录一次吧【或者点击刷新账号】！')
+      .AddPair('label_launch_tips.caption.not_support_third_party', '目前并不处在中国，暂不支持第三方外置登录！请重试！')
+      .AddPair('label_launch_tips.caption.not_support_login_type', '不支持的登录方式，也许你修改了账号配置中的数据，请立即改回来！')
+      .AddPair('label_launch_tips.caption.not_choose_account', '账号判断失误，你还没有选择任一账号。')
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
   end;

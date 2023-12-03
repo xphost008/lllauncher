@@ -19,7 +19,8 @@ uses
   DownloadMethod in 'DownloadMethod.pas',
   CustomDlMethod in 'CustomDlMethod.pas',
   VersionMethod in 'VersionMethod.pas',
-  ExportMethod in 'ExportMethod.pas';
+  ExportMethod in 'ExportMethod.pas',
+  OnlineIPv6Method in 'OnlineIPv6Method.pas';
 
 {$R *.res}
 

@@ -14,7 +14,7 @@ Btw, this project only support RAD Studio Delphi to compile it, it not support L
 
 BBtw, if you want to support the author so that the author can have a good meal, you can use a Chinese account by afdian to support the author. However, if you are only a child or a worker without a fixed income source, you are absolutely not allowed to give money for me, which will have a serious impact on your economy.
 
-You can choose to ask your questions on the issue of bitbucket. my chat room is only limited to China, and the group chat is always open. You don't need to give me a penny,
+You can choose to ask your questions on the issue of github. my chat room is only limited to China, and the group chat is always open. You don't need to give me a penny,
 
 My afdian website is: [Rechalow](https://afdian.net/a/Rechalow)
 

@@ -54,7 +54,6 @@ uses
 
 var
   mauthlib_download: String;
-  maccount_logintype: Integer;
 
 const
   Steve =
@@ -572,6 +571,9 @@ procedure OfflineLogin(offline_name, offline_uuid: String);
 var
   uid: TGuid;
 begin
+  if (not mjudge_lang_chinese) and (not OtherIni.ReadBool('Other', 'CanOffline', false)) then begin
+    if MyMessagebox(GetLanguage('messagebox_account_offline.add_demo_warning.caption'), GetLanguage('messagebox_account_offline.add_demo_warning.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+  end;
   if (offline_name = '') or (not TRegex.IsMatch(offline_name, '^[a-zA-Z0-9_]+$')) or (offline_name.Length > 16) or (offline_name.Length < 3) then begin
     MyMessagebox(GetLanguage('messagebox_account_offline_error.cannot_name.caption'), GetLanguage('messagebox_account_offline_error.cannot_name.text'), MY_ERROR, [mybutton.myOK]);
     exit;
@@ -819,6 +821,9 @@ begin
         .AddPair('refresh_token', rt)
         .AddPair('head_skin', sk)
       );
+      if not OtherIni.ReadBool('Other', 'CanOffline', false) then begin
+        OtherIni.WriteBool('Other', 'CanOffline', true);
+      end;
       form_mainform.combobox_all_account.ItemIndex := form_mainform.combobox_all_account.Items.Add(Concat(un, GetLanguage('combobox_all_account.microsoft_tip')));
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_microsoft_success');
       form_mainform.combobox_all_accountChange(TObject.Create);
@@ -935,6 +940,7 @@ end;
 //初始化第三方登录
 procedure InitAuthlib();
 begin
+  if not mjudge_lang_chinese then exit;
   var filepath := Concat(AppData, '\LLLauncher\authlib-injector.jar');
   form_mainform.button_add_account.Enabled := false;
   form_mainform.button_refresh_account.Enabled := false;
@@ -1055,21 +1061,6 @@ begin
     form_mainform.combobox_all_account.ItemIndex := -1;
     form_mainform.label_account_return_value.Caption := '未登录';
   end;
-  try //给登录方式进行赋值。
-    Log.Write(Concat('账号选择判断完毕，现在开始判断选择登录方式。'), LOG_INFO, LOG_START);
-    maccount_logintype := strtoint(LLLini.ReadString('Account', 'SelectLoginMode', ''));
-    case maccount_logintype of
-      1: form_mainform.pagecontrol_account_part.ActivePage := form_mainform.tabsheet_account_offline_part;
-      2: form_mainform.pagecontrol_account_part.ActivePage := form_mainform.tabsheet_account_microsoft_part;
-      3: form_mainform.pagecontrol_account_part.ActivePage := form_mainform.tabsheet_account_thirdparty_part;
-      else raise Exception.Create('Format Exception');
-    end;
-  except  //如果登录方式不合理，则抛出报错。
-    Log.Write(Concat('登录方式判断失败，已重置登录方式为离线登录。'), LOG_ERROR, LOG_START);
-    LLLini.WriteString('Account', 'SelectLoginMode', '1');
-    form_mainform.pagecontrol_account_part.ActivePage := form_mainform.tabsheet_account_offline_part;
-    maccount_logintype := 1;
-  end;
   form_mainform.combobox_all_accountChange(TObject.Create);
   InitAuthlib;
 end;
@@ -1079,7 +1070,6 @@ begin
   if AccountJson = nil then exit;
   SetFile(Concat(AppData, '\LLLauncher\AccountJson.json'), AccountJson.Format);
   Otherini.WriteString('Account', 'SelectAccount', inttostr(form_mainform.combobox_all_account.ItemIndex + 1));
-  LLLini.WriteString('Account', 'SelectLoginMode', inttostr(maccount_logintype));
   if form_mainform.combobox_all_account.ItemIndex = -1 then begin
     form_mainform.label_account_view.Caption := GetLanguage('label_account_view.caption.absence')
   end else begin

@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Classes, Windows, IOUtils, StrUtils, JSON, Zip, Forms, IniFiles;
+  SysUtils, Classes, Windows, IOUtils, StrUtils, JSON, Zip, Forms, IniFiles, Math;
 
 function GetMCRealPath(path, suffix: string): String;
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
@@ -12,11 +12,12 @@ function ConvertNameToPath(name: String): String;
 function Unzip(zippath, extpath: String): Boolean;
 function JudgeIsolation: String;
 function IsJSONError(path: String): Boolean;
+procedure StartLaunch(isExportArgs: Boolean);
 
 implementation
 
 uses
-  MainMethod, MainForm;
+  MainMethod, MainForm, MyCustomWindow, LanguageMethod, Log4Delphi, AccountMethod;
 function JudgeIsolation: String;
 begin
   var ret: Boolean;
@@ -220,6 +221,171 @@ begin
         result := selpath;
         if inheritsorjar = 'jar' then result := '';
       end;
+    end;
+  end;
+end;
+var
+  //非必需参数: javapath、accname、accuuid、accat、acctype、basecode, serpath
+  //必需参数: mcpath, mcselpath, maxm, heig, widh, cuif, addion, addgon, serv, port
+  isExports: Boolean;
+  javapath, mcpath, mcselpath, accname, accuuid, accat, acctype, prels, afels: String;
+  //Java路径、MC路径、MC版本路径、账号名称、账号UUID、账号AccessToken、账号类型、前置运行参数。后置运行参数
+  maxm, heig, widh: Integer;
+  cuif, addion, addgame, basecode, serpath: String;
+  //最大内存、窗口高度、窗口宽度、版本类型、额外JVM参数、额外game参数、外置登录元数据base64码、authlib-injector文件路径。
+//开始游戏！
+procedure StartLaunch(isExportArgs: Boolean);
+var
+  status: TMemoryStatus;
+  istoi: Boolean;
+  IioIni: TIniFile;
+var
+  addgame: String;
+begin
+  GlobalMemoryStatus(status);
+  var mem: Integer := ceil(status.dwTotalPhys / 1024 / 1024);
+  form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.judge_args');
+  try
+    Log.Write('开始判断是否选择了登录账号。', LOG_INFO, LOG_LAUNCH);
+    var acv := GetFile(Concat(AppData, '\LLLauncher\AccountJson.json'));
+    var acn := Otherini.ReadInteger('Account', 'SelectAccount', 0) - 1;
+    var accj := (((TJsonObject.ParseJSONValue(acv) as TJsonObject).GetValue('account') as TJsonArray)[acn] as TJsonObject);
+    var actp := accj.GetValue('type').Value;
+    if actp.Equals('offline') then begin
+      if (not mjudge_lang_chinese) and (not OtherIni.ReadBool('Other', 'CanOffline', false)) then begin
+        addgame := Concat(addgame, '--demo');
+      end;
+      accname := accj.GetValue('name').Value;
+      accuuid := accj.GetValue('uuid').Value;
+      accat := accj.GetValue('uuid').Value;
+      acctype := 'Legacy';
+      Log.Write(Concat('判断成功，你选择的是离线登录，用户名为：', accname), LOG_INFO, LOG_LAUNCH);
+    end else if actp = 'oauth' then begin
+      var w := 'https://api.minecraftservices.com/minecraft/profile';
+      var k := accj.GetValue('access_token').Value;
+      Log.Write('判断成功，你选择的是微软登录。', LOG_INFO, LOG_LAUNCH);
+      try
+        var t := TAccount.GetHttph(k, w);
+        var j := TJsonObject.ParseJSONValue(t) as TJsonObject;
+        accname := j.GetValue('name').Value;
+        accuuid := j.GetValue('id').Value;
+        accat := accj.GetValue('access_token').Value;
+        acctype := 'msa';
+        Log.Write(Concat('判断成功，你选择的是离线登录，用户名为：', accname), LOG_INFO, LOG_LAUNCH);
+      except
+        form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.access_token_expire');
+        Log.Write('你的账号Access Token已经过期了。', LOG_ERROR, LOG_LAUNCH);
+        MyMessagebox(GetLanguage('messagebox_launcher.access_token_expire.caption'), GetLanguage('messagebox_launcher.access_token_expire.text'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
+    end else if actp = 'thirdparty' then begin
+      if not mjudge_lang_chinese then begin
+        MyMessagebox(GetLanguage('messagebox_launcher.not_support_thirdparty.caption'), GetLanguage('messagebox_launcher.not_support_thirdparty.text'), MY_ERROR, [mybutton.myOK]);
+        Log.Write('目前并不处于中国地区，第三方登录失败！', LOG_ERROR, LOG_LAUNCH);
+        form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_support_third_party');
+        exit;
+      end;
+      var w := Concat(accj.GetValue('server').Value, 'authserver/validate');
+      var aj := Concat('{"accessToken":"',
+        accj.GetValue('access_token').Value,
+        '","clientToken":"',
+        accj.GetValue('client_token').Value,
+        '"}');
+      Log.Write('判断成功，你选择的是第三方/外置登录。', LOG_INFO, LOG_LAUNCH);
+      try
+        var aa := TAccount.GetHttpf(aj, w);
+        if aa = '' then begin
+          accat := accj.GetValue('access_token').Value;
+          accuuid := accj.GetValue('uuid').Value;
+          accname := accj.GetValue('name').Value;
+          acctype := 'Mojang';
+          serpath := Concat(accj.GetValue('server').Value, 'api/yggdrasil');
+          basecode := accj.GetValue('base_code').Value;
+          Log.Write(Concat('判断成功，你选择的是离线登录，用户名为：', accname), LOG_INFO, LOG_LAUNCH);
+        end else raise Exception.Create('Login Authlib Error');
+      except
+        form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.access_token_expire');
+        Log.Write('你的账号Access Token已经过期了。', LOG_ERROR, LOG_LAUNCH);
+        MyMessagebox(GetLanguage('messagebox_launcher.access_token_expire.caption'), GetLanguage('messagebox_launcher.access_token_expire.text'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
+    end else begin
+      form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_support_login_type');
+      Log.Write('不支持的登录方式，请重试！', LOG_ERROR, LOG_LAUNCH);
+        MyMessagebox(GetLanguage('messagebox_launcher.not_support_login_type.caption'), GetLanguage('messagebox_launcher.not_support_login_type.text'), MY_ERROR, [mybutton.myOK]);
+    end;
+  except
+    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_choose_account');
+    Log.Write('账号判断失误，你还没有选择任何一个账号。', LOG_ERROR, LOG_LAUNCH);
+    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_account.caption'), GetLanguage('messagebox_launcher.not_choose_account.text'), MY_ERROR, [mybutton.myOK]);
+  end;
+  try
+    Log.Write('开始判断是否选择了MC版本。', LOG_INFO, LOG_LAUNCH);
+    var mce := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'MCJson.json'));
+    var mcn := LLLini.ReadInteger('MC', 'SelectMC', 0) - 1;
+    mcpath := (((TJsonObject.ParseJSONValue(mce) as TJsonObject).GetValue('mc') as TJsonArray)[mcn] as TJsonObject).GetValue('path').Value;
+    var mcsn := LLLini.ReadInteger('MC', 'SelectVer', 0) - 1;
+    var mct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'MCSelJson.json'));
+    mcselpath := (((TJsonObject.ParseJSONValue(mct) as TJsonObject).GetValue('mcsel') as TJsonArray)[mcsn] as TJsonObject).GetValue('path').Value;
+    IioIni := TIniFile.Create(Concat(mcselpath, '\LLLauncher.ini')); //将IioIni保存为外部独立运行的配置文件。
+    istoi := IioIni.ReadBool('Isolation', 'IsIsolation', false);
+  except
+    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_choose_mc_version');
+    Log.Write('MC版本判断失误，你还没有选择任何一个MC版本。', LOG_ERROR, LOG_LAUNCH);
+    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_mc_version.caption'), GetLanguage('messagebox_launcher.not_choose_mc_version.text'), MY_ERROR, [mybutton.myOK]);
+  end;
+  try
+    Log.Write('开始判断是否选择了Java。', LOG_INFO, LOG_LAUNCH);
+    var jnv := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'JavaJson.json'));
+    var jan := LLLini.ReadInteger('Java', 'SelectJava', 0) - 1;
+    javapath := ((TJsonObject.ParseJSONValue(jnv) as TJsonObject).GetValue('java') as TJsonArray)[jan].GetValue<String>;
+    if not FileExists(javapath) then raise Exception.Create('File Not Exists');
+    if istoi then begin
+      var isojp := IioIni.ReadString('Isolation', 'JavaPath', '');
+      if FileExists(isojp) then javapath := isojp;
+    end;
+  except
+    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_choose_java');
+    Log.Write('Java判断失误，你还没有选择任何一个Java。', LOG_ERROR, LOG_LAUNCH);
+    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_java.caption'), GetLanguage('messagebox_launcher.not_choose_java.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  try
+    Log.Write('开始判断窗口宽度。', LOG_INFO, LOG_LAUNCH);
+    widh := LLLini.ReadInteger('Document', 'WindowsWidth', -1);
+    if (widh < 854) or (widh > GetSystemMetrics(SM_CXSCREEN)) then raise Exception.Create('Format Exception');
+    Log.Write('开始判断窗口高度。', LOG_INFO, LOG_LAUNCH);
+    heig := LLLini.ReadInteger('Document', 'WindowsHeight', -1);
+    if (heig < 480) or (heig > GetSystemMetrics(SM_CYSCREEN)) then raise Exception.Create('Format Exception');
+  except
+    Log.Write('窗口宽高判断失败，已生成默认值', LOG_ERROR, LOG_LAUNCH);
+    widh := 854;
+    heig := 480;
+    LLLini.WriteInteger('Document', 'WindowsWidth', 854);
+    LLLini.WriteInteger('Document', 'WindowsHeight', 480);
+  end;
+  try
+    Log.Write('开始判断最大内存', LOG_INFO, LOG_LAUNCH);
+    maxm := LLLini.ReadInteger('Document', 'MaxMemory', -1);
+    if (maxm < 1024) or (maxm > mem) then raise Exception.Create('Error Message');
+  except
+    Log.Write('最大内存判断失败，已生成默认值', LOG_ERROR, LOG_LAUNCH);
+    maxm := 1024;
+    LLLini.WriteInteger('Document', 'MaxMemory', 1024);
+  end;
+  Log.Write('开始判断自定义信息。', LOG_INFO, LOG_LAUNCH);
+  cuif := LLLini.ReadString('Version', 'CustomInfo', '');
+  Log.Write('开始判断额外JVM参数。', LOG_INFO, LOG_LAUNCH);
+  addion := LLLini.ReadString('Version', 'AdditionalJVM', '');
+  Log.Write('开始判断额外game参数。', LOG_INFO, LOG_LAUNCH);
+  addgame := LLLini.ReadString('Version', 'AdditionalGame', '');
+  Log.Write('开始判断启动前执行命令。', LOG_INFO, LOG_LAUNCH);
+  prels := LLLini.ReadString('Version', 'Pre-LaunchScript', '');
+  Log.Write('开始判断启动后执行命令。', LOG_INFO, LOG_LAUNCH);
+  afels := LLLini.ReadString('Version', 'After-LaunchScript', '');
+  if istoi then begin
+    if IioIni.ReadBool('Isolation', 'IsSize', false) then begin
+
     end;
   end;
 end;

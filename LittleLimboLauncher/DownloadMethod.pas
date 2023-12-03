@@ -480,6 +480,18 @@ end;
 //下载源单选框组改变
 procedure ChangeDlSource;
 begin
+  if not mjudge_lang_chinese then begin
+    MyMessagebox(GetLanguage('messagebox_download.area_not_chinese.caption'), GetLanguage('messagebox_download.area_not_chinese.text'), MY_ERROR, [mybutton.myOK]);
+//    form_mainform.listbox_select_modloader.Items.Clear;
+//    loaderJSON.Free;
+//    loaderJSON := TJSONArray.Create;
+//    mcwe := 'https://piston-meta.mojang.com';
+//    fabme := 'https://meta.fabricmc.net';
+//    quime := 'https://meta.quiltmc.org';
+    form_mainform.radiogroup_choose_download_source.ItemIndex := 0;
+//    mdownload_source := form_mainform.radiogroup_choose_download_source.ItemIndex + 1;
+    exit;
+  end;
   mdownload_source := form_mainform.radiogroup_choose_download_source.ItemIndex + 1;
   form_mainform.listbox_select_modloader.Items.Clear;
   loaderJSON.Free;
@@ -489,19 +501,16 @@ begin
       mcwe := 'https://piston-meta.mojang.com';
       fabme := 'https://meta.fabricmc.net';
       quime := 'https://meta.quiltmc.org';
-      form_mainform.radiogroup_choose_download_source.ItemIndex := 0;
     end;
     2: begin
       mcwe := 'https://bmclapi2.bangbang93.com';
       fabme := 'https://bmclapi2.bangbang93.com/fabric-meta';
       quime := 'https://bmclapi2.bangbang93.com/quilt-meta';
-      form_mainform.radiogroup_choose_download_source.ItemIndex := 1;
     end;
     3: begin
       mcwe := 'https://download.mcbbs.net';
       fabme := 'https://download.mcbbs.net/fabric-meta';
       quime := 'https://download.mcbbs.net/quilt-meta';
-      form_mainform.radiogroup_choose_download_source.ItemIndex := 2;
     end;
     else begin
       mcwe := 'https://piston-meta.mojang.com';

@@ -3,8 +3,9 @@
 interface         
 
 uses
-  Classes, Windows, IOUtils, StrUtils, JSON, Forms, JPEG, PngImage, GIFImg, RegularExpressions, Math, IdHashSHA, ShellAPI,
-  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent, SysUtils, NetEncoding, Generics.Collections;
+  Classes, Windows, IOUtils, StrUtils, JSON, Forms, JPEG, PngImage, GIFImg, RegularExpressions, Math, IdHashSHA, ShellAPI, Dialogs,
+  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent, SysUtils, NetEncoding, Generics.Collections,
+  Tlhelp32;
 
 function GetWebStream(url: String): TStringStream;
 function GetWebText(url: String): String;
@@ -25,15 +26,106 @@ function RenDirectory(const OldName, NewName: string): boolean;
 function GetFileBits(FileName: String): String;
 function GetFileVersion(AFileName: string): string;
 function GetVanillaVersion(json: String): String;
+function RunDOSBack1(CommandLine: string): string;
+function JudgeCountry: Boolean;
+function ProcessExists(PID: DWORD): Boolean;
+function RunDOSAndGetPID(FileName, Parameters: string): Integer;
+function IPv4ToInt(ipv4: String): Int64;
 
 var
   MCRootJSON: TJSONObject;
+//获取国家代码
+function GetUserDefaultGeoName(geoName: LPWSTR; geoNameCount: Integer): Integer; stdcall; external 'kernel32.dll';
 
 implementation
 
 uses
   MainForm, Log4Delphi, LanguageMethod, MyCustomWindow, AccountMethod;
 
+//运行进程，但是可以得到进程的PID。
+function RunDOSAndGetPID(FileName, Parameters: string): Integer;
+var
+  StartupInfo:TStartupInfo;
+  ProcessInfo:TProcessInformation;
+begin
+  FillChar(ProcessInfo, sizeof(ProcessInfo), 0);
+  FillChar(StartupInfo, Sizeof(StartupInfo), 0);
+  StartupInfo.cb := Sizeof(TStartupInfo);
+  StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
+  StartupInfo.wShowWindow := SW_SHOW;
+  if CreateProcess(pchar(FileName), pchar(Parameters), nil, nil, False, NORMAL_PRIORITY_CLASS,
+    nil, nil, StartupInfo, ProcessInfo) then
+    result := ProcessInfo.dwProcessId //这里就是创建进程的PID值
+  else result := 0;
+end;
+//运行DOS，但显示回显，回显不超过183行可等待。
+//已应用于IPv6联机模块，用于显示ipconfig。
+function RunDOSBack1(CommandLine: string): string;
+var
+  HRead, HWrite: THandle;
+  StartInfo: TStartupInfo;
+  ProceInfo: TProcessInformation;
+  b: Boolean;
+  sa: TSecurityAttributes;
+  inS: THandleStream;
+  sRet: TStrings;
+begin
+  Result := '';
+  UniqueString(CommandLine);
+  FillChar(sa, sizeof(sa), 0);
+  //设置允许继承，否则在NT和2000下无法取得输出结果
+  with sa do begin
+    nLength := sizeof(sa);
+    bInheritHandle := True;
+    lpSecurityDescriptor := nil;
+  end;
+  b := CreatePipe(HRead, HWrite, @sa, 0); //此处建立一个管道。目标是TSecurityAttributes的引用、读入和写出。
+  if not b then
+    raise Exception.Create(SysErrorMessage(GetLastError));
+  FillChar(StartInfo, SizeOf(StartInfo), 0);
+  with StartInfo do begin
+    cb := SizeOf(StartInfo);  //为Start信息建立初值。
+    wShowWindow := SW_HIDE;
+    //使用指定的句柄作为标准输入输出的文件句柄,使用指定的显示方式
+    dwFlags := STARTF_USESTDHANDLES or STARTF_USESHOWWINDOW;
+    hStdError := HWrite;
+    hStdInput := GetStdHandle(STD_INPUT_HANDLE); //HRead;
+    hStdOutput := HWrite;
+  end;
+  b := CreateProcess(
+    nil, //lpApplicationName: PChar  //建立进程进行回显。
+    PChar(CommandLine), //lpCommandLine: PChar
+    nil, //lpProcessAttributes: PSecurityAttributes
+    nil, //lpThreadAttributes: PSecurityAttributes
+    True, //bInheritHandles: BOOL
+    CREATE_NEW_CONSOLE,
+    nil,
+    nil,
+    StartInfo,
+    ProceInfo);
+  if not b then
+    raise Exception.Create(SysErrorMessage(GetLastError));
+  WaitForSingleObject(ProceInfo.hProcess, Integer.MaxValue); //这里并不会使用等待命令行执行完毕，直接使用参数等待。
+  inS := THandleStream.Create(HRead); //将读出值设置到句柄流里面。
+  if inS.Size > 0 then begin
+    sRet := TStringList.Create;
+    sRet.LoadFromStream(inS);
+    Result := sRet.Text;   //将流中的内容读入返回值并返回。
+    sRet.Free;
+  end else result := '';
+  inS.Free;
+  CloseHandle(HRead);
+  CloseHandle(HWrite);
+end;
+//将IPv4地址转成Integer数字
+function IPv4ToInt(ipv4: String): Int64;
+begin
+  var spl := SplitString(ipv4, '.');
+  result := result + Int64(strtoint(spl[0])) * Int64($ff) * Int64($ff) * Int64($ff);
+  result := result + Int64(strtoint(spl[1])) * Int64($ff) * Int64($ff);
+  result := result + Int64(strtoint(spl[2])) * Int64($ff);
+  result := result + Int64(strtoint(spl[3]));
+end;
 //获取根据json原版键值
 function GetVanillaVersion(json: String): String;
 begin
@@ -177,6 +269,29 @@ begin
     say := GetLanguage('messagebox_mainform.open_afdian.text').Replace('${open_number}', inttostr(awa));
   end;
   if MyMessagebox(GetLanguage('messagebox_mainform.afdian.caption'), say, MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 2 then ShellExecute(Application.Handle, nil, 'https://afdian.net/@Rechalow', nil, nil, SW_SHOWNORMAL);
+end;
+//根据进程PID判断进程是否存在，如果无法获取则返回false，获取成功则返回true。
+function ProcessExists(PID: DWORD): Boolean;
+var
+  SnapshotHandle: THandle;
+  ProcessEntry32: TProcessEntry32;
+begin
+  Result := False;
+  SnapshotHandle := CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+  if SnapshotHandle = INVALID_HANDLE_VALUE then
+    Exit;
+  ProcessEntry32.dwSize := SizeOf(TProcessEntry32);
+  if Process32First(SnapshotHandle, ProcessEntry32) then
+  begin
+    repeat
+      if ProcessEntry32.th32ProcessID = PID then
+      begin
+        Result := True;
+        Break;
+      end;
+    until not Process32Next(SnapshotHandle, ProcessEntry32);
+  end;
+  CloseHandle(SnapshotHandle);
 end;
 //运行DOS命令，仅等待。
 //应用于插件执行、启动前执行命令、Forge安装Processors（实验性）。
@@ -572,6 +687,41 @@ begin
       result.Add(I);
     end;
   end;
+end;
+//判断中文
+function JudgeChinese(text: String): Boolean;
+begin
+  result := false;
+  for var I in text do begin
+    if (Ord(I) > $4E00) and (Ord(I) < $9FA5) then begin
+      result := true;
+      break;
+    end;
+  end;
+end;
+//获取国家代码【废弃】
+function GetCountryCode: String; deprecated;
+begin
+  result := '';
+  var res := GetUserDefaultGeoName(nil, 0);
+  if res > 0 then begin
+    var gname: LPWSTR := StrAlloc(res);
+    var res2 := GetUserDefaultGeoName(gname, res);
+    if res2 > 0 then begin
+      result := gname;
+    end;
+  end;
+end;
+//获取本局域网外网IP【废弃】
+//通过http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest匹配。
+function GetLocalIP: String; deprecated;
+begin
+  result := GetWebText('http://www.3322.org/dyndns/getip').Trim;
+end;
+//判断国家语言
+function JudgeCountry: Boolean;
+begin
+  result := JudgeChinese(RunDOSBack1('systeminfo'));
 end;
 
 end.
