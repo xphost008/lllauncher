@@ -993,7 +993,7 @@ begin
       var icourl := JudgeException(2, 'icon_url');
       var icoss := GetWebStream(icourl);
       MyPictureBox(JudgeException(2, 'title'),
-        GetLanguage('mypicturebox_playing.open_modrinth_intro_success.text')
+        GetLanguage('picturebox_playing.open_modrinth_intro_success.text')
             .Replace('${project_id}', JudgeException(2, 'project_id'))
             .Replace('${project_type}', JudgeException(2, 'project_type'))
             .Replace('${slug}', JudgeException(2, 'slug'))
@@ -1026,7 +1026,7 @@ begin
       except end;
       var t := ((SelectRoot.GetValue('latestFilesIndexes') as TJsonArray)[0] as TJsonObject).GetValue('gameVersion').Value;
       MyPictureBox(JudgeException(2, 'name'),
-        GetLanguage('mypicturebox_playing.open_curseforge_intro_success.text')
+        GetLanguage('picturebox_playing.open_curseforge_intro_success.text')
             .Replace('${p_id}', JudgeException(2, 'id'))
             .Replace('${classId}', JudgeException(1, 'classId'))
             .Replace('${slug}', JudgeException(2, 'slug'))

@@ -1725,7 +1725,7 @@ begin
   try //查找账号并赋值
     Log.Write(Concat('开始查找账号部分是否符合规定。'), LOG_INFO, LOG_START);
     var json := GetFile(Concat(AppData, '\LLLauncher\AccountJson.json'));
-    var s := strtoint(OtherIni.ReadString('Account', 'SelectAccount', '')) - 1;
+    var s := OtherIni.ReadInteger('Account', 'SelectAccount', -1) - 1;
     if s <= -1 then raise Exception.Create('Format Exception');
     var acv := (((TJsonObject.ParseJSONValue(json) as TJsonObject).GetValue('account') as TJsonArray)[s] as TJsonObject).GetValue('name').Value;
     Log.Write(Concat('账号判断完毕，欢迎', acv, '。'), LOG_INFO, LOG_START);
@@ -1750,7 +1750,7 @@ begin
       svv := Concat(svv, GetLanguage('button_launch_game.caption.error.missing_inherits_version'));
     end;
     var IltIni := TIniFile.Create(Concat(svp, '\LLLauncher.ini'));
-    if IltIni.ReadString('Isolation', 'IsIsolation', '') = 'True' then svv := Concat(svv, GetLanguage('button_launch_game.caption.isolation'));
+    if IltIni.ReadBool('Isolation', 'IsIsolation', false) then svv := Concat(svv, GetLanguage('button_launch_game.caption.isolation'));
     Log.Write(Concat('游戏版本：已确认宁所选版本为：', svv), LOG_INFO, LOG_START);
     button_launch_game.Caption := GetLanguage('button_launch_game.caption').Replace('${launch_version_name}', svv);
   except
@@ -2277,6 +2277,9 @@ begin
       Log.Write('是否打开启动器时播放音乐的ini配置文件不符。', LOG_START, LOG_ERROR);
       LLLini.WriteInteger('Misc', 'SelectType', 3);
     end;
+    u := false;
+    l := True;
+    m := false;
     Log.Write('开始判断是否需要捐款。', LOG_START, LOG_INFO);
     case mopen_number of
       100: Isafdian(false, mopen_number);
@@ -2340,11 +2343,11 @@ begin
         end;
         var tile := LLLini.ReadString('Version', 'CustomTitle', '');
         var mcsn := strtoint(LLLini.ReadString('MC', 'SelectVer', '')) - 1;
-        var mct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'MCSelJson.json'));
+        var mct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
         var mcspth := (((TJsonObject.ParseJSONValue(mct) as TJsonObject).GetValue('mcsel') as TJsonArray)[mcsn] as TJsonObject).GetValue('path').Value;
         var IltIni := TIniFile.Create(Concat(mcspth, '\LLLauncher.ini'));
         Log.Write('开始判断窗口标题', LOG_INFO, LOG_LAUNCH);
-        if IltIni.ReadString('Isolation', 'IsIsolation', '') = 'True' then begin
+        if IltIni.ReadBool('Isolation', 'IsIsolation', false) then begin
           var tite := IltIni.ReadString('Isolation', 'CustomTitle', '');
           if tite <> '' then tile := tite;
         end;
@@ -2354,7 +2357,7 @@ begin
           SetWindowText(find_sunawtframe, tile);
           SetWindowText(find_glfw30, tile);
         end;
-        DeleteFile(Concat(JudgeIsolation(), '\logs\latest.log'));
+//        DeleteFile(Concat(JudgeIsolation(), '\logs\latest.log'));
         if mwindow_control = 1 then self.Hide;//如果选中启动时隐藏启动器，则执行。隐藏主窗口
         if mwindow_control = 3 then Application.Terminate;
       end;
@@ -2374,7 +2377,17 @@ begin
       if mwindow_control = 1 then self.Show; //显示主窗口
       u := false;
       m := false;
-      mcpid := -1;
+      mcpid := -1;  //以下判断后置启动脚本
+      var als := LLLini.ReadString('Version', 'After-LaunchScript', '');
+      if als.IsEmpty then begin
+        var mcsn := LLLini.ReadInteger('MC', 'SelectVer', -1) - 1;
+        var mcnt := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
+        var msph := (((TJsonObject.ParseJSONValue(mcnt) as TJsonObject).GetValue('mcsel') as TJsonArray)[mcsn] as TJsonObject).GetValue('path').Value;
+        var tini := TIniFile.Create(Concat(msph, '\LLLauncher.ini'));
+        var tls := tini.ReadString('Isolation', 'After-LaunchScript', '');
+        if tls <> '' then als := tls;
+      end;
+      RunDOSOnlyWait(als);
       var mcpve := JudgeIsolation;
       try
         var lat := GetDirectoryFileCount(Concat(mcpve, '\crash-reports'), '.txt');

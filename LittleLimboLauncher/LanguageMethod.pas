@@ -521,7 +521,7 @@ begin
       .AddPair('messagebox_playing.not_choose_mod_error.text', '暂未选择任意模组，无法打开官网，请重试。')
       .AddPair('messagebox_playing.open_intro_error.caption', '打开简介失败')
       .AddPair('messagebox_playing.open_intro_error.text', '打开简介失败，请尝试选择任意一个玩法版本后，再尝试打开简介。')
-      .AddPair('mypicturebox_playing.open_curseforge_intro_success.text', Concat(
+      .AddPair('picturebox_playing.open_curseforge_intro_success.text', Concat(
               '项目ID：${p_id}', #13#10,
               '项目类型：${classId}', #13#10,
               '项目slug：${slug}', #13#10,
@@ -546,7 +546,7 @@ begin
 //              '所选加载器：${loaders}', #13#10,
 //              '所选更新日志：${changelog}', #13#10
               ))
-      .AddPair('mypicturebox_playing.open_modrinth_intro_success.text', Concat(
+      .AddPair('picturebox_playing.open_modrinth_intro_success.text', Concat(
               '项目ID：${project_id}', #13#10,
               '项目类型：${project_type}', #13#10,
               '项目slug：${slug}', #13#10,
@@ -854,6 +854,22 @@ begin
       .AddPair('messagebox_launcher.not_support_login_type.text', '你使用了一种并不受支持的登录方式，你似乎修改了账号配置文件中的内容，请立即修改回来！')
       .AddPair('messagebox_launcher.not_choose_account.caption', '暂未选择账号')
       .AddPair('messagebox_launcher.not_choose_account.text', '你还暂未选择任一账号，请去选择一个后再来吧！')
+      .AddPair('messagebox_launcher.cannot_find_json.caption', '未找到JSON错误')
+      .AddPair('messagebox_launcher.cannot_find_json.text', '版本错误，未从版本文件夹中找到json文件！')
+      .AddPair('messagebox_launcher.unzip_native_error.caption', '未能成功解压Natives文件夹')
+      .AddPair('messagebox_launcher.unzip_native_error.text', '未能成功解压Natives文件夹，请将此报错上传给作者，同时请尝试使用别的启动器启动一次后再尝试用LLL启动器！')
+      .AddPair('messagebox_launcher.cannot_set_launch_args.caption', '无法拼接启动参数')
+      .AddPair('messagebox_launcher.cannot_set_launch_args.text', '你的版本JSON似乎有误，无法解析版本JSON文件，请重试！')
+      .AddPair('messagebox_launcher.cannot_find_authlib_file.caption', '找不到Authlib-Injector文件')
+      .AddPair('messagebox_launcher.cannot_find_authlib_file.text', '找不到Authlib-Injector文件，请进入账号部分重新下载一次！')
+      .AddPair('messagebox_launcher.is_export_arguments.caption', '是否进行启动脚本导出')
+      .AddPair('messagebox_launcher.is_export_arguments.text', '是否进行启动脚本导出？将导出至【{exe}\LLLauncher\LaunchArguments\args】目录下。')
+      .AddPair('messagebox_launcher.is_hide_accesstoken.caption', '是否将AccessToken进行打码')
+      .AddPair('messagebox_launcher.is_hide_accesstoken.text', '在此做个声明：如果你的登录方式为【微软登录/外置登录】，则请你慎重的考虑选择“否”不进行打码，因为AccessToken实在是太重要了，即使它只有24小时有效期。你绝对不可以将附有AccessToken启动令牌的启动参数随意发给别人！【ps：自然，如果选择否的话，则你后续将无法使用该启动脚本进行正版登录。】')
+      .AddPair('messagebox_launcher.export_launch_args_success.caption', '导出成功')
+      .AddPair('messagebox_launcher.export_launch_args_success.text', '启动参数导出成功！现在你可以去文件夹里查看了！')
+      .AddPair('messagebox_launcher.args_put_success.caption', '参数拼接成功')
+      .AddPair('messagebox_launcher.args_put_success.text', '参数拼接成功！是否立刻启动游戏？')
       //以下为下载进度列表框
       .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
@@ -1591,6 +1607,14 @@ begin
       .AddPair('label_launch_tips.caption.not_support_third_party', '目前并不处在中国，暂不支持第三方外置登录！请重试！')
       .AddPair('label_launch_tips.caption.not_support_login_type', '不支持的登录方式，也许你修改了账号配置中的数据，请立即改回来！')
       .AddPair('label_launch_tips.caption.not_choose_account', '账号判断失误，你还没有选择任一账号。')
+      .AddPair('label_launch_tips.caption.set_launch_script', '现在开始拼接启动参数……')
+      .AddPair('label_launch_tips.caption.cannot_find_json', '版本错误，未从版本文件夹中找到符合标准的json文件！……')
+      .AddPair('label_launch_tips.caption.unzip_native_error', '未能成功解压Natives文件。')
+      .AddPair('label_launch_tips.caption.cannot_set_launch_args', '无法拼接MC启动参数，请仔细的检查你的MC版本JSON是否有误！')
+      .AddPair('label_launch_tips.caption.cannot_find_authlib_file', '找不到Authlib-Injector文件，请进入账号部分下载一个后再尝试！')
+      .AddPair('label_launch_tips.caption.export_launch_args_success', '启动参数导出成功！')
+      .AddPair('label_launch_tips.caption.launch_game_success', '游戏启动成功！')
+      .AddPair('label_launch_tips.caption.cancel_launch', '取消启动。')
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
   end;

@@ -31,6 +31,8 @@ function JudgeCountry: Boolean;
 function ProcessExists(PID: DWORD): Boolean;
 function RunDOSAndGetPID(FileName, Parameters: string): Integer;
 function IPv4ToInt(ipv4: String): Int64;
+function getMCRealDir(path, suffix: String): String;
+function DeleteRetain(N, suffix: String): Boolean;
 
 var
   MCRootJSON: TJSONObject;
@@ -57,6 +59,51 @@ begin
     nil, nil, StartupInfo, ProcessInfo) then
     result := ProcessInfo.dwProcessId //这里就是创建进程的PID值
   else result := 0;
+end;
+//获取MC真实的文件夹路径
+function getMCRealDir(path, suffix: String): String;
+var
+  Dirs: TArray<String>;
+begin
+  result := '';
+  if DirectoryExists(path) then
+  begin
+    Dirs := TDirectory.GetDirectories(path);
+    for var I in Dirs do begin
+      if (I.IndexOf(suffix) <> -1) then begin
+        result := I;
+        exit;
+      end;
+    end;
+  end;
+end;
+//删除文件但是保留后缀
+function DeleteRetain(N, suffix: String): Boolean;
+var
+  F: TSearchRec;
+begin
+  result := false;
+  if N = '' then exit;
+  if (suffix = '') or (suffix = '.') then exit;
+  if N.IndexOf('\') = -1 then exit;
+  if FindFirst(Concat(N, '\*.*'), faAnyFile, F) = 0 then begin //查找文件并赋值
+    try
+      repeat  //此处调用了API函数。
+        var S: String := F.Name;
+        if (F.Attr and faDirectory) > 0 then //查找是否为文件夹，如果是则执行
+        begin
+          if (S <> '.') and (S <> '..') then //删除首次寻找文件时出现的【.】和【..】字符。
+            DeleteRetain(Concat(N, '\', S), suffix) //重复调用本函数，并且加上文件名。
+        end
+        else
+          if S.Substring(S.LastIndexOf('.', S.Length)) <> suffix then SysUtils.DeleteFile(N + '\' + F.Name); //如果没发现后缀为suffix的话，则执行。
+      until SysUtils.FindNext(F) <> 0; //查询下一个。
+    finally
+      FindClose(F); //关闭文件查询。
+    end;
+    RemoveDir(N);
+    result := true;
+  end;
 end;
 //运行DOS，但显示回显，回显不超过183行可等待。
 //已应用于IPv6联机模块，用于显示ipconfig。

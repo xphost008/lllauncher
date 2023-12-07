@@ -3,7 +3,8 @@
 interface
 
 uses
-  SysUtils, Classes, Windows, IOUtils, StrUtils, JSON, Zip, Forms, IniFiles, Math;
+  SysUtils, Classes, Windows, IOUtils, StrUtils, JSON, Zip, Forms, IniFiles, Math, Character, DateUtils,
+  Dialogs;
 
 function GetMCRealPath(path, suffix: string): String;
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
@@ -22,10 +23,10 @@ function JudgeIsolation: String;
 begin
   var ret: Boolean;
   var mcsc := LLLini.ReadInteger('MC', 'SelectMC', -1) - 1;
-  var mcct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'MCJson.json'));
+  var mcct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'));
   { 此为MC未隔路径 }var mccp := (((TJsonObject.ParseJSONValue(mcct) as TJsonObject).GetValue('mc') as TJsonArray)[mcsc] as TJsonObject).GetValue('path').Value;
   var mcsn := LLLini.ReadInteger('MC', 'SelectVer', -1) - 1;
-  var mcnt := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\', 'MCSelJson.json'));
+  var mcnt := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
   { 此为MC隔离路径 }var msph := (((TJsonObject.ParseJSONValue(mcnt) as TJsonObject).GetValue('mcsel') as TJsonArray)[mcsn] as TJsonObject).GetValue('path').Value;
   var mcyj := GetFile(GetMCRealPath(msph, '.json'));
   var iii := LLLini.ReadInteger('Version', 'SelectIsolation', 4); //以下为判断原版，如果是原版，则返回true，如果不是则返回false。
@@ -40,8 +41,9 @@ begin
   end else ret := false;
   var IltIni := TIniFile.Create(Concat(msph, '\LLLauncher.ini'));
   if IltIni.ReadBool('Isolation', 'IsIsolation', false) then
-    if IltIni.ReadBool('Isolation', 'Partition', false) then
-      ret := true;
+    if IltIni.ReadBool('Isolation', 'IsPartition', false) then
+      if IltIni.ReadBool('Isolation', 'OpenPartition', false) then
+        ret := true;
   if ret then result := msph else result := mccp;
 end;
 //判断单独的一个Json文件是否为版本Json，如果不是则为false，如果是则为true。
@@ -121,9 +123,9 @@ end;
 //反馈给程序——将原来的MCJson与有着InheritsFrom键的JSON给合并之后再返回。
 function ReplaceMCInheritsFrom(yuanjson, gaijson: String): String;
 begin
-  if yuanjson = '' then begin result := ''; exit; end;  //如果任意一个json为空，则返回空。
-  if gaijson = '' then begin result := ''; exit; end;
-  if yuanjson = gaijson then begin result := yuanjson; exit; end; //如果两个json一样，则返回原值。
+  if yuanjson.IsEmpty then begin result := ''; exit; end;  //如果任意一个json为空，则返回空。
+  if gaijson.IsEmpty then begin result := ''; exit; end;
+  if yuanjson.Equals(gaijson) then begin result := yuanjson; exit; end; //如果两个json一样，则返回原值。
   yuanjson := yuanjson.Replace('\', '');
   gaijson := gaijson.Replace('\', '');
   var Rty := TJsonObject.ParseJSONValue(yuanjson) as TJsonObject;
@@ -181,6 +183,26 @@ begin
     end;
   end;
 end;
+// 将字符串里的所有数字/非数字提取出来（如果bo为真，则摘取数字，如果为假，则摘取字符。）
+function ExtractNumber(str: String; bo: Boolean): String;
+begin
+  var Temp := ''; // 设置temp
+  if str.Length = 0 then // 判断长度
+  begin
+    result := ''; // 如果长度等于0，则返回空
+    exit;
+  end;
+  for var I in str do begin // for循环判断长度
+    if bo then begin // 如果参数bo为真，则执行，否则执行以下
+      if I.IsNumber then // 判断是否为数字
+        Temp := Concat(Temp, I); // 是则添加
+    end else begin
+      if not I.IsNumber then // 判断是否不为数字
+        Temp := Concat(Temp, I); // 不是则添加
+    end;
+  end;
+  result := Temp;
+end;
 //获取MC的InheritsFrom或jar键，所对应的MC文件夹。【如果MC不存在InheritsFrom或jar键，则返回原本参数值。如果找不到Json文件，则返回空。如果找到了InheritsFrom键但是却找不到原本的文件夹，则也同样返回空。当一切都满足的时候，则返回找到后的Json文件地址。】
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
 var
@@ -228,11 +250,416 @@ var
   //非必需参数: javapath、accname、accuuid、accat、acctype、basecode, serpath
   //必需参数: mcpath, mcselpath, maxm, heig, widh, cuif, addion, addgon, serv, port
   isExports: Boolean;
-  javapath, mcpath, mcselpath, accname, accuuid, accat, acctype, prels, afels: String;
+  javapath, mcpath, mcselpath, accname, accuuid, accat, acctype, prels: String;
   //Java路径、MC路径、MC版本路径、账号名称、账号UUID、账号AccessToken、账号类型、前置运行参数。后置运行参数
   maxm, heig, widh: Integer;
   cuif, addion, addgame, basecode, serpath: String;
   //最大内存、窗口高度、窗口宽度、版本类型、额外JVM参数、额外game参数、外置登录元数据base64码、authlib-injector文件路径。
+
+//此函数传参一个json与一个要查询的键，需要的键有jvm或者game。格式的字符串，然后直接查询arguments下的所有键，
+function JudgeArguments(json, can: String): String;
+begin
+  var Rt := TJsonObject.ParseJSONValue(json) as TJsonObject;
+  var Rt2 := Rt.GetValue('arguments') as TJsonObject;
+  var Rvj := Rt2.GetValue(can) as TJsonArray;
+  for var I in rvj do begin
+    var s := I.Value;
+    if I.Value.IndexOf('rules') <> -1 then continue;
+    if I.Value.ToLower.IndexOf('fabric') <> -1 then s := TrimStrm(s);
+    result := Concat(result, ' ', s);
+  end;
+end;
+//解压Natives文件
+function UnzipNative(json, path, relpath: String): Boolean;
+begin
+  result := false;
+  var sb := TStringBuilder.Create; // 创建变量
+  var Yuan := TStringList.Create;
+  var LibNo := TStringList.Create;
+  var NoRe := TStringList.Create;
+  var ReTemp := TStringList.Create;
+  var vername := ExtractFileName(relpath);
+  try //解析Json
+    var Rt := TJsonObject.ParseJSONValue(json) as TJsonObject;
+    var Jr := Rt.GetValue('libraries') as TJsonArray; //获取libraries中的内容
+    for var I in Jr do //添加元素，并将name转换成path加入进yuan数组
+    begin
+      try //找不同游戏，本次找不同你的对手是：Mojang！
+        var Jr1 := I as TJsonObject;
+        var pdd := true;
+        try
+          var rl := Jr1.GetValue('rules') as TJsonArray; //获取某一个元素的rule值。
+          for var J in rl do begin  //下面开始判断rule值里面的action的os是否支持windows
+            var r1 := J as TJsonObject;
+            var an := r1.GetValue('action').Value;
+            if an = 'allow' then begin
+              var r2 := r1.GetValue('os') as TJsonObject;
+              var r3 := r2.GetValue('name').Value;
+              if r3 <> 'windows' then begin pdd := false; end; //如果支持windows，则pdd为true，反之则为false
+            end else if an = 'disallow' then begin
+              var r2 := r1.GetValue('os') as TJsonObject;
+              var r3 := r2.GetValue('name').Value;
+              if r3 = 'windows' then begin pdd := false; end;
+            end;
+          end;
+        except end;
+        var Jr2 := Jr1.GetValue('name').Value;
+        var Jr3 := Jr1.GetValue('natives') as TJsonObject;
+        var Jr4 := Jr3.GetValue('windows').Value.Replace('${arch}', '64');
+        if pdd then Yuan.Add(Concat(Jr2, ':', Jr4));
+      except
+        continue;
+      end;
+    end;//去除重复
+    for var N in Yuan do
+      if LibNo.IndexOf(N) = -1 then // 去除重复
+        LibNo.Add(N);
+    for var G in libNo do begin //去除版本较低的那个，以下为去除不必要的重复
+      var KN := G.Replace('.', '').Replace(':', '').Replace('-', '').Replace('/', '');
+      var KW := ExtractNumber(KN, false); //摘取字符
+      var KM := ExtractNumber(KN, true).Substring(0, 9);  //摘取数字
+      var TS := strtoint(KM);
+      if ReTemp.IndexOf(KW) = -1 then begin //判断是否
+        ReTemp.Add(KW);
+        NoRe.Add(G);
+      end else if strtoint(ExtractNumber(NoRe[ReTemp.IndexOf(KW)], true).Substring(0, 9)) <= TS then begin
+        NoRe.Delete(ReTemp.IndexOf(KW));
+        NoRe.Insert(ReTemp.IndexOf(KW), G); // 添加新元素
+      end;
+    end;
+    if not DirectoryExists(Concat(relpath, '\', vername, '-LLL-natives')) then ForceDirectories(Concat(relpath, '\', vername, '-LLL-natives'));
+    if NoRe.Count = 0 then begin
+      result := true;
+      exit;
+    end else begin
+      for var C in Nore do begin
+        if not Unzip(Concat(path, '\libraries\', ConvertNameToPath(C).Replace('/', '\')), Concat(relpath, '\', vername, '-LLL-natives')) then begin
+          continue;
+        end;
+      end; //删除除了dll文件以外的所有文件。
+      DeleteRetain(getMCRealDir(relpath, 'natives'), '.dll');
+      result := true;
+    end;
+  finally
+    sb.Free; //给所有free掉
+    Yuan.Free;
+    libNo.Free;
+    NoRe.Free;
+    ReTemp.Free;
+  end;
+end;
+//获取MC所有类库
+function GetMCAllLibs(json, path, relpath: String): String;
+begin
+  var sb := TStringBuilder.Create; // 创建变量
+  var Yuan := TStringList.Create;
+  var LibNo := TStringList.Create;
+  var NoRe := TStringList.Create;
+  var ReTemp := TStringList.Create;
+  try //解析Json
+    var Rt := TJsonObject.ParseJSONValue(json) as TJsonObject;
+    var Jr := Rt.GetValue('libraries') as TJsonArray; //获取libraries中的内容
+    for var I in Jr do begin //添加元素，并将name转换成path加入进yuan数组
+      //找不同游戏，本次找不同你的对手是：Mojang！
+      var pdd := true;
+      var Jr2 := I as TJsonObject; //以下，判断是否为64位
+      try
+        var r1 := Jr2.GetValue('natives').ToString;
+        pdd := false;
+      except end;
+      try
+        var r1 := Jr2.GetValue('downloads') as TJsonObject;
+        var r2 := r1.GetValue('classifiers').ToString;
+        pdd := false;
+        var r3 := r1.GetValue('artifact').ToString;
+        pdd := true;
+      except end;
+      try
+        var rl := Jr2.GetValue('rules') as TJsonArray; //获取某一个元素的rule值。
+        for var J in rl do begin  //下面开始判断rule值里面的action的os是否支持windows
+          var r1 := J as TJsonObject;
+          var an := r1.GetValue('action').Value;
+          if an = 'allow' then begin
+            var r2 := r1.GetValue('os') as TJsonObject;
+            var r3 := r2.GetValue('name').Value;
+            if r3 <> 'windows' then begin pdd := false; end; //如果支持windows，则没有continue，反之则为false
+          end else if an = 'disallow' then begin
+            var r2 := r1.GetValue('os') as TJsonObject;
+            var r3 := r2.GetValue('name').Value;
+            if r3 = 'windows' then begin pdd := false; end;
+          end;
+        end;
+      except end;
+      if pdd then begin
+        Yuan.Add(Jr2.GetValue('name').Value);
+      end;
+    end; //去除重复
+    for var N in Yuan do
+      if LibNo.IndexOf(N) = -1 then // 去除重复
+        LibNo.Add(N);
+    for var G in libNo do begin //去除版本较低的那个，以下为去除不必要的重复
+      var KN := G.Replace('.', '').Replace(':', '').Replace('-', '');
+      var KW := ExtractNumber(KN, false); //摘取字符
+      var KM := ExtractNumber(KN, true);  //摘取数字
+      if ReTemp.IndexOf(KW) = -1 then begin //判断是否
+        ReTemp.Add(KW);
+        NoRe.Add(G);
+      end else if strtoint64(ExtractNumber(NoRe[ReTemp.IndexOf(KW)], true)) <= strtoint64(KM) then begin
+        NoRe.Delete(ReTemp.IndexOf(KW));
+        NoRe.Insert(ReTemp.IndexOf(KW), G); // 添加新元素
+      end;
+    end;
+    for var I in NoRe do sb.Append(Concat(path, '\libraries\', ConvertNameToPath(I), ';'));
+    var tmp1 := GetMCInheritsFrom(relpath, 'jar');
+    var tmp3 := getMCRealPath(tmp1, '.jar');
+    if tmp3 = '' then begin
+      tmp1 := GetMCInheritsFrom(relpath, 'inheritsFrom');
+      tmp3 := getMCRealPath(tmp1, '.jar');
+    end;
+    if tmp3 = '' then begin
+      tmp3 := Concat(GetMCRealPath(relpath, '.jar'));
+    end;
+    if tmp3 = '' then begin
+      raise Exception.Create('List Libraries Error!');
+    end;
+    if (json.IndexOf('fmlloader') <> -1) or (json.IndexOf('fancymodloader') <> -1) then begin
+      sb.Remove(sb.Length - 1, 1);
+    end else begin
+      sb.Append(tmp3);//拼接最后一个jar
+    end;
+    result := sb.ToString;
+  finally
+    sb.Free;
+    Yuan.Free;
+    libNo.Free;
+    NoRe.Free;
+    ReTemp.Free;
+  end;
+end;
+//拼接1.13版本以上的新json文件
+function SetParam113(json, mcpv, defjvm, addjvm: String; var param: String): Boolean;
+begin
+  result := false;
+  var Root := TJSONObject.ParseJSONValue(json) as TJSONObject;
+  var mcid: String;
+  try
+    mcid := Root.GetValue('id').Value;
+  except
+    mcid := ExtractFileName(mcselpath);
+  end;
+  var jaram := TStringBuilder.Create;
+  jaram.Append(defjvm).Append(' ').Append(addjvm);
+  if Win32MajorVersion = 10 then jaram.Append(' "-Dos.name=Windows 10" -Dos.version=10.0');
+  if addion <> '' then jaram.Append(' ').Append(addion); //拼接额外JVM参数，以下拼接服务器。
+  try
+    jaram.Append(JudgeArguments(Root.ToString, 'jvm'));
+  except exit; end;
+  var launver := ExtractNumber(LauncherVersion, true);
+  if mcid.CountChar(' ') > 0 then begin
+    mcid := Concat('"', mcid, '"');
+  end;
+  jaram := jaram  //替换字符串模板中的内容。
+    .Replace('${natives_directory}', Concat('"', getMCRealDir(mcselpath, 'natives'), '"'))
+    .Replace('${launcher_name}', 'LLL')
+    .Replace('${launcher_version}', launver)
+    .Replace('${classpath}', Concat('"', getMCAllLibs(json, mcpath, mcselpath), '"'))
+    .Replace('${version_name}', mcid)
+    .Replace('${library_directory}', Concat('"', mcpath, '\libraries"'))
+    .Replace('${classpath_separator}', ';');
+  if basecode <> '' then begin
+    var fpath := Concat(AppData, '\LLLauncher\authlib-injector.jar');
+    if FileExists(fpath) then begin
+      jaram.Append(' -javaagent:').Append(fpath).Append('=').Append(serpath).Append(' -Dauthlibinjector.side=client -Dauthlibinjector.yggdrasil.prefetched=').Append(basecode.Replace(#13, '').Replace(#10, ''));
+    end else begin
+      form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cannot_find_authlib_file');
+      Log.Write('未能找到Authlib-Injector文件，请去账号部分下载一次后再试！', LOG_INFO, LOG_LAUNCH);
+      MyMessagebox(GetLanguage('messagebox_launcher.cannot_find_authlib_file.caption'), GetLanguage('messagebox_launcher.cannot_find_authlib_file.text'), MY_ERROR, [mybutton.myOK]);
+      param := '';
+      result := true;
+      exit;
+    end;
+  end;
+  var para := TStringBuilder.Create;
+  para.Append(jaram).Append(' -Xmn256m -Xmx').Append(maxm).Append('m ').Append(Root.GetValue('mainClass').Value);
+  try
+    para.Append(JudgeArguments(Root.ToString, 'game'));
+  except exit; end;
+  para := para  //替换字符串模板
+    .Replace('${auth_player_name}', accname) //替换美元符号内的内容
+    .Replace('${version_name}', mcid)
+    .Replace('${game_directory}', Concat('"', mcpv, '"'))
+    .Replace('${assets_root}', Concat('"', mcpath, '\assets', '"'))
+    .Replace('${assets_index_name}', (Root.GetValue('assetIndex') as TJsonObject).GetValue('id').Value)
+    .Replace('${auth_uuid}', accuuid)
+    .Replace('${auth_access_token}', accat)
+    .Replace('${user_type}', acctype)
+    .Replace('${version_type}', cuif); //拼接长度与宽度
+  para.Append(' --width ').Append(widh).Append(' --height ').Append(heig);
+  if addgame <> '' then para.Append(addgame);
+  param := para.ToString;
+  result := true;
+end;
+//拼接1.12版本以下的旧json文件
+function SetParam112(json, mcpv, defjvm, addjvm: String; var param: String): Boolean;
+begin
+  result := false;
+  var Root := TJSONObject.ParseJSONValue(json) as TJSONObject;
+  var son := Root.GetValue('minecraftArguments').Value; //这里找的是minecraftArguments部分的。
+  if son = '' then raise Exception.Create('Read Minecraft Argument Error');
+  var mcid: String;
+  try
+    mcid := Root.GetValue('id').Value;
+  except
+    mcid := ExtractFileName(mcselpath);
+  end;
+  var para := TStringBuilder.Create;
+  para.Append(defjvm).Append(' ').Append(addion).Append(' ').Append(addjvm);
+  try //尝试查询1.12.2以下版本是否拥有arguments键。以便启动Liteloader。
+    para.Append(JudgeArguments(json, 'jvm'));
+  except end;
+  para.Append(' "-Djava.library.path=').Append(getMCRealDir(mcselpath, 'natives')).Append('" -cp "').Append(getMCAllLibs(Root.ToString, mcpath, mcselpath)).Append('"');
+  if basecode <> '' then begin
+    var fpath := Concat(AppData, '\LLLauncher\authlib-injector.jar');
+    if FileExists(fpath) then begin
+      para.Append(' -javaagent:').Append(fpath).Append('=').Append(serpath).Append(' -Dauthlibinjector.side=client -Dauthlibinjector.yggdrasil.prefetched=').Append(basecode.Replace(#13, '').Replace(#10, ''));
+    end else begin
+      form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cannot_find_authlib_file');
+      Log.Write('未能找到Authlib-Injector文件，请去账号部分下载一次后再试！', LOG_INFO, LOG_LAUNCH);
+      MyMessagebox(GetLanguage('messagebox_launcher.cannot_find_authlib_file.caption'), GetLanguage('messagebox_launcher.cannot_find_authlib_file.text'), MY_ERROR, [mybutton.myOK]);
+      param := '';
+      result := true;
+      exit;
+    end;
+  end;
+  para.Append(' -Xmn256m -Xmx').Append(maxm).Append('m ').Append(Root.GetValue('mainClass').Value);
+  son := son //替换美元符号内
+    .Replace('${auth_player_name}', accname)
+    .Replace('${auth_session}', accuuid)
+    .Replace('${game_directory}', Concat('"', mcpv, '"'))
+    .Replace('${game_assets}', Concat('"', mcpath, '\assets\virtual\legacy', '"'))
+    .Replace('${assets_root}', Concat('"', mcpath, '\assets', '"'))
+    .Replace('${version_name}', mcid)
+    .Replace('${assets_index_name}', (Root.GetValue('assetIndex') as TJsonObject).GetValue('id').Value)
+    .Replace('${auth_uuid}', accuuid)
+    .Replace('${auth_access_token}', accat)
+    .Replace('${user_properties}', '{}')
+    .Replace('${user_type}', acctype)
+    .Replace('${version_type}', Concat('"', cuif, '"')); //与上面一样了，不做注释了。
+  para.Append(' ').Append(son).Append(' --width ').Append(widh).Append(' --height ').Append(heig);
+  try //尝试查询1.12.2以下版本是否拥有arguments键。以便启动Liteloader。
+    para.Append(JudgeArguments(json, 'game'));
+  except end;
+  if addgame <> '' then para.Append(' ').Append(addgame);
+  param := para.ToString;
+  result := true;
+end;
+//拼接启动参数！
+procedure PutLaunch(isExportArgs: Boolean);
+const
+  defjvm = '-XX:+UseG1GC -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -Dfml.ignoreInvalidMinecraftCertificates=True -Dfml.ignorePatchDiscrepancies=True -Dlog4j2.formatMsgNoLookups=true';
+  addjvm = '-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump';
+begin
+  Log.Write('开始判断json文件内容。', LOG_INFO, LOG_LAUNCH);
+  form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.set_launch_script');
+  var jso := GetMCRealPath(mcselpath, '.json'); //找json路径。直接查找就可以了。
+  if not FileExists(jso) then begin
+    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cannot_find_json');
+    Log.Write('未能从版本文件夹中找到符合条件的json', LOG_INFO, LOG_LAUNCH);
+    MyMessagebox(GetLanguage('messagebox_launcher.cannot_find_json.caption'), GetLanguage('messagebox_launcher.cannot_find_json.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var jnn := '';
+  var jsn := GetFile(jso); //获取json内容。
+  var jon := GetMCInheritsFrom(mcselpath, 'inheritsFrom');
+  if jon <> mcselpath then begin
+    Log.Write('判断成功，有InheritsFrom键。', LOG_INFO, LOG_LAUNCH);
+    jnn := GetFile(GetMCRealPath(jon, '.json'));
+  end else jnn := jsn;
+  try
+    if not UnzipNative(jnn, mcpath, mcselpath) then raise Exception.Create('Cannot Unzip Method');
+  except
+    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.unzip_native_error');
+    Log.Write('解压Natives文件夹失误，请重试！', LOG_INFO, LOG_LAUNCH);
+    MyMessagebox(GetLanguage('messagebox_launcher.unzip_native_error.caption'), GetLanguage('messagebox_launcher.unzip_native_error.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var param := '';
+  var mcpv := JudgeIsolation;
+  try
+    if not SetParam113(ReplaceMCInheritsFrom(jsn, jnn), mcpv, defjvm, addjvm, param) then raise Exception.Create('MC Not 1.13 upper');
+  except
+    try
+      if not SetParam112(ReplaceMCInheritsFrom(jsn, jnn), mcpv, defjvm, addjvm, param) then raise Exception.Create('MC Not 1.12 lower');
+    except
+      form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cannot_set_launch_args');
+      Log.Write('解压Natives文件夹失误，请重试！', LOG_INFO, LOG_LAUNCH);
+      MyMessagebox(GetLanguage('messagebox_launcher.cannot_set_launch_args.caption'), GetLanguage('messagebox_launcher.cannot_set_launch_args.text'), MY_ERROR, [mybutton.myOK]);
+      exit;
+    end;
+  end;
+  if param = '' then exit;
+  if isExportArgs then begin
+    if MyMessagebox(GetLanguage('messagebox_launcher.is_export_arguments.caption'), GetLanguage('messagebox_launcher.is_export_arguments.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+    if MyMessagebox(GetLanguage('messagebox_launcher.is_hide_accesstoken.caption'), GetLanguage('messagebox_launcher.is_hide_accesstoken.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 2 then begin
+      var l1 := param.Substring(param.IndexOf('--accessToken') + 14, param.Length);
+      var l2 := param.Replace(l1, '');
+      var l3 := l1.Substring(l1.IndexOf(' '), l1.Length);
+      param := Concat(l2, '********************************', l3);
+    end;
+    var tir := Now.Format('yyyy-mm-dd_HH.nn.ss');
+    var pth := Concat(ExtractFilePath(Application.ExeName), '\LLLauncher\LaunchArguments\args-', tir, '.bat');
+    SetFile(pth,
+      Concat('@echo off', #13#10,
+      '@title 启动游戏：', ExtractFileName(mcselpath), #13#10,
+      'echo 正在启动游戏，请稍候……', #13#10,
+      'set APPDATA="', mcpv, '"', #13#10,
+      'cd /d "', mcpv, '"', #13#10,
+      '"', javapath, '" ', param, #13#10,
+      'echo 游戏已退出……请按任意键退出程序。', #13#10,
+      'pause'));
+    Log.Write('导出完成！', LOG_INFO, LOG_LAUNCH);
+    MyMessagebox(GetLanguage('messagebox_launcher.export_launch_args_success.caption'), GetLanguage('messagebox_launcher.export_launch_args_success.text'), MY_PASS, [mybutton.myOK]);
+    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.export_launch_args_success');
+    exit;
+  end;
+  if MyMessagebox(GetLanguage('messagebox_launcher.args_put_success.caption'), GetLanguage('messagebox_launcher.args_put_success.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 1 then begin
+    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cancel_launch');
+    Log.Write('取消启动。', LOG_INFO, LOG_LAUNCH);
+    exit;
+  end;
+  if prels <> '' then begin
+    RunDOSOnlyWait(prels);
+  end;
+  crash_count := GetDirectoryFileCount(Concat(mcpv, '\crash-reports'), '.txt').Count;
+  try  //判断启动器的启动次数
+    Log.Write('判断启动游戏的次数。', LOG_INFO, LOG_LAUNCH);
+    mlaunch_number := Otherini.ReadInteger('Misc', 'StartGame', -1) + 1;
+    if mlaunch_number < 0 then raise Exception.Create('Format Exception');
+    Otherini.WriteString('Misc', 'StartGame', inttostr(mlaunch_number));
+    form_mainform.label_launch_game_number.Caption := GetLanguage('label_launch_game_number.caption').Replace('${launch_game_number}', inttostr(mlaunch_number));
+    Log.Write(Concat('判断成功，你已启动了：', inttostr(mlaunch_number)), LOG_INFO, LOG_LAUNCH);
+  except
+    Log.Write('次数判断失败，已重置。', LOG_ERROR, LOG_LAUNCH);
+    Otherini.WriteString('Misc', 'StartGame', '1');
+    mlaunch_number := 1;
+    form_mainform.label_launch_game_number.Caption := GetLanguage('label_launch_game_number.caption').Replace('${launch_game_number}', inttostr(mlaunch_number + 1));
+  end; //判断是否是时候给作者捐款了。
+  mcpid := RUNDOSANDGETPID(javapath, param);
+  form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.launch_game_success');
+  Log.Write('游戏启动成功！。', LOG_INFO, LOG_LAUNCH);
+  case mlaunch_number of
+    100: Isafdian(true, mlaunch_number);
+    200: Isafdian(true, mlaunch_number);
+    300: Isafdian(true, mlaunch_number);
+    400: Isafdian(true, mlaunch_number);
+    600: Isafdian(true, mlaunch_number);
+    800: Isafdian(true, mlaunch_number);
+    1100: Isafdian(true, mlaunch_number);
+    1400: Isafdian(true, mlaunch_number);
+    1700: Isafdian(true, mlaunch_number);
+    2000: Isafdian(true, mlaunch_number);
+  end;
+end;
 //开始游戏！
 procedure StartLaunch(isExportArgs: Boolean);
 var
@@ -298,8 +725,8 @@ begin
           accat := accj.GetValue('access_token').Value;
           accuuid := accj.GetValue('uuid').Value;
           accname := accj.GetValue('name').Value;
-          acctype := 'Mojang';
-          serpath := Concat(accj.GetValue('server').Value, 'api/yggdrasil');
+          acctype := 'msa';
+          serpath := Concat(accj.GetValue('server').Value);
           basecode := accj.GetValue('base_code').Value;
           Log.Write(Concat('判断成功，你选择的是离线登录，用户名为：', accname), LOG_INFO, LOG_LAUNCH);
         end else raise Exception.Create('Login Authlib Error');
@@ -312,12 +739,14 @@ begin
     end else begin
       form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_support_login_type');
       Log.Write('不支持的登录方式，请重试！', LOG_ERROR, LOG_LAUNCH);
-        MyMessagebox(GetLanguage('messagebox_launcher.not_support_login_type.caption'), GetLanguage('messagebox_launcher.not_support_login_type.text'), MY_ERROR, [mybutton.myOK]);
+      MyMessagebox(GetLanguage('messagebox_launcher.not_support_login_type.caption'), GetLanguage('messagebox_launcher.not_support_login_type.text'), MY_ERROR, [mybutton.myOK]);
+      exit;
     end;
   except
     form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_choose_account');
     Log.Write('账号判断失误，你还没有选择任何一个账号。', LOG_ERROR, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.not_choose_account.caption'), GetLanguage('messagebox_launcher.not_choose_account.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
   end;
   try
     Log.Write('开始判断是否选择了MC版本。', LOG_INFO, LOG_LAUNCH);
@@ -333,6 +762,7 @@ begin
     form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_choose_mc_version');
     Log.Write('MC版本判断失误，你还没有选择任何一个MC版本。', LOG_ERROR, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.not_choose_mc_version.caption'), GetLanguage('messagebox_launcher.not_choose_mc_version.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
   end;
   try
     Log.Write('开始判断是否选择了Java。', LOG_INFO, LOG_LAUNCH);
@@ -381,13 +811,28 @@ begin
   addgame := LLLini.ReadString('Version', 'AdditionalGame', '');
   Log.Write('开始判断启动前执行命令。', LOG_INFO, LOG_LAUNCH);
   prels := LLLini.ReadString('Version', 'Pre-LaunchScript', '');
-  Log.Write('开始判断启动后执行命令。', LOG_INFO, LOG_LAUNCH);
-  afels := LLLini.ReadString('Version', 'After-LaunchScript', '');
   if istoi then begin
     if IioIni.ReadBool('Isolation', 'IsSize', false) then begin
-
+      var tw := IioIni.ReadInteger('Isolation', 'Width', -1);
+      if not ((tw < 854) or (tw > GetSystemMetrics(SM_CXSCREEN))) then widh := tw;
+      var th := IioIni.ReadInteger('Isolation', 'Height', -1);
+      if not ((th < 480) or (th > GetSystemMetrics(SM_CYSCREEN))) then heig := th;
     end;
+    if IioIni.ReadBool('Isolation', 'IsMemory', false) then begin
+      var tm := IioIni.ReadInteger('Isolation', 'MaxMemory', -1);
+      if not ((tm < 1024) or (tm > mem)) then maxm := mem;
+    end;
+    var tci := IioIni.ReadString('Isolation', 'CustomInfo', '');
+    if not (tci.IsEmpty) then cuif := tci;
+    var tai := IioIni.ReadString('Isolation', 'AdditionalJVM', '');
+    if not (tai.isEmpty) then addion := tai;
+    var tag := IioIni.ReadString('Isolation', 'AdditionalGame', '');
+    if not (tag.isEmpty) then addgame := tag;
+    var tpl := IioIni.ReadString('Isolation', 'Pre-LaunchScript', '');
+    if not (tpl.IsEmpty) then prels := tpl;
   end;
+  Log.Write('目前你设置的所有参数都已判断完毕，现在开始拼接启动参数……', LOG_INFO, LOG_LAUNCH);
+  PutLaunch(isExportArgs);
 end;
 end.
 

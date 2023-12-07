@@ -4,11 +4,6 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Threading, Vcl.ExtCtrls;
 type
-  btn = class(TForm)
-    procedure MCWButtonClick(Sender: TObject);
-    procedure MCWOKClick(Sender: TObject);
-    procedure MCWCancalClick(Sender: TObject);
-  end;
   mybutton = (myYes, myOK, myNo, myCancal, myRetry, myAbort, myIgnore, myCustom);
 
 const
@@ -21,6 +16,12 @@ function MyInputBox(title, content: String; color: Integer; defcontent: String =
 procedure MyPictureBox(title, content: String; web: TStringStream);
 implementation
 uses LanguageMethod;
+type
+  btn = class(TForm)
+    procedure MCWButtonClick(Sender: TObject);
+    procedure MCWOKClick(Sender: TObject);
+    procedure MCWCancalClick(Sender: TObject);
+  end;
 var
   bt: btn;
   tbt: array of TButton;

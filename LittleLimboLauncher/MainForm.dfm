@@ -2132,6 +2132,7 @@ object form_mainform: Tform_mainform
         Width = 826
         Height = 433
         HorzScrollBar.Tracking = True
+        VertScrollBar.Position = 413
         VertScrollBar.Tracking = True
         Align = alClient
         Color = clBtnFace
@@ -2142,105 +2143,105 @@ object form_mainform: Tform_mainform
         OnMouseWheel = scrollbox_launchMouseWheel
         object label_launch_window_size: TLabel
           Left = 3
-          Top = 3
+          Top = -410
           Width = 159
           Height = 15
           Caption = #28216#25103#31383#21475#22823#23567#65292#40664#35748'854x480'
         end
         object label_launch_window_width: TLabel
           Left = 3
-          Top = 24
+          Top = -389
           Width = 188
           Height = 15
           Caption = #23485#24230#65292#24403#21069#36873#20013#65306'99999999999999'
         end
         object label_launch_window_height: TLabel
           Left = 3
-          Top = 74
+          Top = -339
           Width = 188
           Height = 15
           Caption = #39640#24230#65292#24403#21069#36873#20013#65306'99999999999999'
         end
         object label_launch_java_path: TLabel
           Left = 3
-          Top = 124
+          Top = -289
           Width = 48
           Height = 15
           Caption = 'Java'#36335#24452
         end
         object label_launch_java_logic: TLabel
           Left = 3
-          Top = 177
+          Top = -236
           Width = 48
           Height = 15
           Caption = 'Java'#36923#36753
         end
         object label_launch_download_java: TLabel
           Left = 3
-          Top = 227
+          Top = -186
           Width = 48
           Height = 15
           Caption = #19979#36733'Java'
         end
         object label_launch_max_memory: TLabel
           Left = 3
-          Top = 277
+          Top = -136
           Width = 246
           Height = 15
           Caption = #28216#25103#20869#23384#22823#23567#65292#24403#21069#36873#20013#65306'999999999999999'
         end
         object label_launch_custom_info: TLabel
           Left = 3
-          Top = 327
+          Top = -86
           Width = 165
           Height = 15
           Caption = #33258#23450#20041#20449#24687#65292#40664#35748'LLLauncher'
         end
         object label_launch_window_title: TLabel
           Left = 3
-          Top = 377
+          Top = -36
           Width = 130
           Height = 15
           Caption = #31383#21475#26631#39064#65292#40664#35748#21363#40664#35748
         end
         object label_launch_pre_launch_script: TLabel
           Left = 3
-          Top = 427
+          Top = 14
           Width = 78
           Height = 15
           Caption = #21069#32622#21551#21160#33050#26412
         end
         object label_launch_after_launch_script: TLabel
           Left = 3
-          Top = 506
+          Top = 93
           Width = 78
           Height = 15
-          Caption = #21518#32622#21551#21160#21442#25968
+          Caption = #21518#32622#21551#21160#33050#26412
         end
         object label_launch_default_jvm: TLabel
           Left = 3
-          Top = 585
+          Top = 172
           Width = 74
           Height = 15
           Caption = #40664#35748'JVM'#21442#25968
         end
         object label_launch_additional_jvm: TLabel
           Left = 3
-          Top = 664
+          Top = 251
           Width = 74
           Height = 15
           Caption = #39069#22806'JVM'#21442#25968
         end
         object label_launch_additional_game: TLabel
           Left = 3
-          Top = 743
+          Top = 330
           Width = 82
           Height = 15
           Caption = #39069#22806'game'#21442#25968
         end
         object scrollbar_launch_window_height: TScrollBar
           Left = 3
-          Top = 95
+          Top = -318
           Width = 794
           Height = 23
           Max = 1000
@@ -2252,7 +2253,7 @@ object form_mainform: Tform_mainform
         end
         object scrollbar_launch_window_width: TScrollBar
           Left = 3
-          Top = 45
+          Top = -368
           Width = 794
           Height = 23
           Max = 1000
@@ -2264,7 +2265,7 @@ object form_mainform: Tform_mainform
         end
         object combobox_launch_select_java_path: TComboBox
           Left = 3
-          Top = 145
+          Top = -268
           Width = 794
           Height = 23
           Style = csDropDownList
@@ -2273,7 +2274,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_full_scan_java: TButton
           Left = 3
-          Top = 198
+          Top = -215
           Width = 194
           Height = 23
           Caption = #20840#30424#25195#25551
@@ -2282,7 +2283,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_basic_scan_java: TButton
           Left = 203
-          Top = 198
+          Top = -215
           Width = 194
           Height = 23
           Caption = #29305#23450#25195#25551
@@ -2291,7 +2292,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_manual_import: TButton
           Left = 403
-          Top = 198
+          Top = -215
           Width = 194
           Height = 23
           Caption = #25163#21160#23548#20837
@@ -2300,7 +2301,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_remove_java: TButton
           Left = 603
-          Top = 198
+          Top = -215
           Width = 194
           Height = 23
           Caption = #31227#38500'Java'
@@ -2309,7 +2310,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_download_java_8: TButton
           Left = 3
-          Top = 248
+          Top = -165
           Width = 194
           Height = 23
           Caption = #19979#36733'Java8'
@@ -2318,7 +2319,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_download_java_16: TButton
           Left = 203
-          Top = 248
+          Top = -165
           Width = 194
           Height = 23
           Caption = #19979#36733'Java16'
@@ -2327,7 +2328,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_download_java_17: TButton
           Left = 403
-          Top = 248
+          Top = -165
           Width = 194
           Height = 23
           Caption = #19979#36733'Java17'
@@ -2336,7 +2337,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_official_java: TButton
           Left = 603
-          Top = 248
+          Top = -165
           Width = 194
           Height = 23
           Caption = #25171#24320'Java'#23448#32593
@@ -2345,7 +2346,7 @@ object form_mainform: Tform_mainform
         end
         object scrollbar_launch_max_memory: TScrollBar
           Left = 3
-          Top = 298
+          Top = -115
           Width = 794
           Height = 23
           Max = 8192
@@ -2357,7 +2358,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_custom_info: TEdit
           Left = 3
-          Top = 348
+          Top = -65
           Width = 794
           Height = 23
           TabOrder = 12
@@ -2366,7 +2367,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_window_title: TEdit
           Left = 3
-          Top = 398
+          Top = -15
           Width = 794
           Height = 23
           TabOrder = 13
@@ -2375,7 +2376,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_pre_launch_script: TEdit
           Left = 3
-          Top = 448
+          Top = 35
           Width = 794
           Height = 23
           TabOrder = 14
@@ -2384,7 +2385,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_pre_launch_script: TButton
           Left = 3
-          Top = 477
+          Top = 64
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#22914#20309#22635#20889#21069#32622#21551#21160#33050#26412#21629#20196#30340#23436#25972#25552#31034
@@ -2396,7 +2397,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_after_launch_script: TEdit
           Left = 3
-          Top = 527
+          Top = 114
           Width = 794
           Height = 23
           TabOrder = 16
@@ -2405,7 +2406,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_after_launch_script: TButton
           Left = 3
-          Top = 556
+          Top = 143
           Width = 794
           Height = 23
           Caption = #26597#30475#35813#34892#25552#31034
@@ -2414,7 +2415,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_default_jvm: TEdit
           Left = 3
-          Top = 606
+          Top = 193
           Width = 794
           Height = 23
           ReadOnly = True
@@ -2426,7 +2427,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_default_jvm: TButton
           Left = 3
-          Top = 635
+          Top = 222
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#40664#35748'JVM'#21442#25968#30340#23436#25972#25552#31034
@@ -2438,7 +2439,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_additional_jvm: TEdit
           Left = 3
-          Top = 685
+          Top = 272
           Width = 794
           Height = 23
           TabOrder = 20
@@ -2447,7 +2448,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_additional_jvm: TButton
           Left = 3
-          Top = 714
+          Top = 301
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#22914#20309#22635#20889#39069#22806'JVM'#21442#25968#30340#23436#25972#25552#31034
@@ -2459,7 +2460,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_additional_game: TEdit
           Left = 3
-          Top = 764
+          Top = 351
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#22914#20309#22635#20837#21069#32622#21551#21160#33050#26412#21629#20196
@@ -2469,7 +2470,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_additional_game: TButton
           Left = 3
-          Top = 793
+          Top = 380
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#22914#20309#22635#20889#39069#22806'game'#21442#25968#30340#23436#25972#25552#31034
@@ -2658,6 +2659,7 @@ object form_mainform: Tform_mainform
             Top = 0
             Width = 816
             Height = 377
+            VertScrollBar.Position = 356
             VertScrollBar.Tracking = True
             Align = alClient
             Color = clBtnFace
@@ -2666,112 +2668,112 @@ object form_mainform: Tform_mainform
             OnMouseWheel = scrollbox_isolationMouseWheel
             object label_isolation_current_version: TLabel
               Left = 3
-              Top = 3
+              Top = -353
               Width = 91
               Height = 15
               Caption = #24403#21069#36873#20013#29256#26412#65306
             end
             object label_is_open_isolation: TLabel
               Left = 3
-              Top = 24
+              Top = -332
               Width = 130
               Height = 15
               Caption = #26159#21542#24320#21551#29256#26412#29420#31435#35774#32622
             end
             object label_isolation_java_path: TLabel
               Left = 3
-              Top = 71
+              Top = -285
               Width = 48
               Height = 15
               Caption = 'Java'#36335#24452
             end
             object label_isolation_custom_info: TLabel
               Left = 3
-              Top = 121
+              Top = -235
               Width = 65
               Height = 15
               Caption = #33258#23450#20041#20449#24687
             end
             object label_isolation_window_title: TLabel
               Left = 3
-              Top = 171
+              Top = -185
               Width = 52
               Height = 15
               Caption = #31383#21475#26631#39064
             end
             object label_isolation_window_size: TLabel
               Left = 3
-              Top = 221
+              Top = -135
               Width = 52
               Height = 15
               Caption = #31383#21475#22823#23567
             end
             object label_isolation_window_width: TLabel
               Left = 3
-              Top = 268
+              Top = -88
               Width = 175
               Height = 15
               Caption = #23485#65292#24403#21069#36873#20013#65306'66666666666666'
             end
             object label_isolation_window_height: TLabel
               Left = 3
-              Top = 318
+              Top = -38
               Width = 175
               Height = 15
               Caption = #39640#65292#24403#21069#36873#20013#65306'66666666666666'
             end
             object label_isolation_game_memory: TLabel
               Left = 3
-              Top = 368
+              Top = 12
               Width = 240
               Height = 15
               Caption = #28216#25103#20869#23384#22823#23567#65292#24403#21069#36873#20013#65306'66666666666666'
             end
             object label_isolation_partition: TLabel
               Left = 3
-              Top = 444
+              Top = 88
               Width = 273
               Height = 15
               Caption = #26159#21542#38548#31163#65288#25171#21246#21017#21333#29420#38548#31163#65292#21542#21017#21333#29420#19981#38548#31163#65289
             end
             object label_isolation_additional_game: TLabel
               Left = 3
-              Top = 514
+              Top = 158
               Width = 82
               Height = 15
               Caption = #39069#22806'game'#21442#25968
             end
             object label_isolation_additional_jvm: TLabel
               Left = 3
-              Top = 564
+              Top = 208
               Width = 72
               Height = 15
               Caption = #39069#22806'jvm'#21442#25968
             end
             object label_isolation_pre_launch_script: TLabel
               Left = 3
-              Top = 614
+              Top = 258
               Width = 78
               Height = 15
               Caption = #21069#32622#21551#21160#33050#26412
             end
             object label_isolation_after_launch_script: TLabel
               Left = 3
-              Top = 664
+              Top = 308
               Width = 78
               Height = 15
               Caption = #21518#32622#21551#21160#33050#26412
             end
             object label_isolation_tip: TLabel
               Left = 3
-              Top = 714
+              Top = 358
               Width = 585
               Height = 15
               Caption = #20197#19978#65292#21482#35201#26159#24320#21551#20102#20840#23616#24212#29992#24320#20851#65292#25110#32773#26159#20462#25913#20102#25991#26412#26694#20869#23481#12304#25351#19981#20026#31354#12305#65292#21017#40664#35748#24212#29992#20840#23616#35774#32622#22114#65281
             end
             object toggleswitch_is_open_isolation: TToggleSwitch
               Left = 3
-              Top = 45
+              Top = -311
               Width = 69
               Height = 20
               StateCaptions.CaptionOn = #24320
@@ -2781,7 +2783,7 @@ object form_mainform: Tform_mainform
             end
             object edit_isolation_java_path: TEdit
               Left = 3
-              Top = 92
+              Top = -264
               Width = 594
               Height = 23
               TabOrder = 1
@@ -2790,7 +2792,7 @@ object form_mainform: Tform_mainform
             end
             object button_isolation_choose_java: TButton
               Left = 603
-              Top = 92
+              Top = -264
               Width = 180
               Height = 23
               Caption = #36873#25321#36335#24452
@@ -2799,7 +2801,7 @@ object form_mainform: Tform_mainform
             end
             object edit_isolation_custom_info: TEdit
               Left = 3
-              Top = 142
+              Top = -214
               Width = 780
               Height = 23
               TabOrder = 3
@@ -2808,7 +2810,7 @@ object form_mainform: Tform_mainform
             end
             object edit_isolation_window_title: TEdit
               Left = 3
-              Top = 192
+              Top = -164
               Width = 780
               Height = 23
               TabOrder = 4
@@ -2817,7 +2819,7 @@ object form_mainform: Tform_mainform
             end
             object toggleswitch_isolation_window_size: TToggleSwitch
               Left = 3
-              Top = 242
+              Top = -114
               Width = 108
               Height = 20
               StateCaptions.CaptionOn = #24320#21551#29420#31435
@@ -2827,7 +2829,7 @@ object form_mainform: Tform_mainform
             end
             object scrollbar_isolation_window_width: TScrollBar
               Left = 3
-              Top = 289
+              Top = -67
               Width = 780
               Height = 23
               Max = 1000
@@ -2839,7 +2841,7 @@ object form_mainform: Tform_mainform
             end
             object scrollbar_isolation_window_height: TScrollBar
               Left = 3
-              Top = 339
+              Top = -17
               Width = 780
               Height = 23
               Max = 1000
@@ -2851,7 +2853,7 @@ object form_mainform: Tform_mainform
             end
             object toggleswitch_isolation_open_memory: TToggleSwitch
               Left = 3
-              Top = 389
+              Top = 33
               Width = 108
               Height = 20
               StateCaptions.CaptionOn = #24320#21551#29420#31435
@@ -2861,7 +2863,7 @@ object form_mainform: Tform_mainform
             end
             object scrollbar_isolation_game_memory: TScrollBar
               Left = 3
-              Top = 415
+              Top = 59
               Width = 780
               Height = 23
               Max = 8192
@@ -2873,7 +2875,7 @@ object form_mainform: Tform_mainform
             end
             object toggleswitch_isolation_open_partition: TToggleSwitch
               Left = 3
-              Top = 465
+              Top = 109
               Width = 108
               Height = 20
               StateCaptions.CaptionOn = #24320#21551#29420#31435
@@ -2883,7 +2885,7 @@ object form_mainform: Tform_mainform
             end
             object checkbox_isolation_is_partition: TCheckBox
               Left = 3
-              Top = 491
+              Top = 135
               Width = 780
               Height = 17
               Caption = #24320#21551#29420#31435#29256#26412#38548#31163
@@ -2892,7 +2894,7 @@ object form_mainform: Tform_mainform
             end
             object edit_isolation_additional_game: TEdit
               Left = 3
-              Top = 535
+              Top = 179
               Width = 780
               Height = 23
               TabOrder = 12
@@ -2901,7 +2903,7 @@ object form_mainform: Tform_mainform
             end
             object edit_isolation_additional_jvm: TEdit
               Left = 3
-              Top = 585
+              Top = 229
               Width = 780
               Height = 23
               TabOrder = 13
@@ -2910,7 +2912,7 @@ object form_mainform: Tform_mainform
             end
             object edit_isolation_pre_launch_script: TEdit
               Left = 3
-              Top = 635
+              Top = 279
               Width = 780
               Height = 23
               TabOrder = 14
@@ -2919,7 +2921,7 @@ object form_mainform: Tform_mainform
             end
             object edit_isolation_after_launch_script: TEdit
               Left = 3
-              Top = 685
+              Top = 329
               Width = 780
               Height = 23
               TabOrder = 15
