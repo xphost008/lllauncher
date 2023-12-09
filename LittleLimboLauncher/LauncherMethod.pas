@@ -263,9 +263,10 @@ begin
   var Rt2 := Rt.GetValue('arguments') as TJsonObject;
   var Rvj := Rt2.GetValue(can) as TJsonArray;
   for var I in rvj do begin
+    if I.ToString.IndexOf('rules') <> -1 then continue;
     var s := I.Value;
-    if I.Value.IndexOf('rules') <> -1 then continue;
-    if I.Value.ToLower.IndexOf('fabric') <> -1 then s := TrimStrm(s);
+    if s.ToLower.Contains('fabric') then s := TrimStrm(s);
+    if s.ToLower.Contains('mcemu') then s := TrimStrm(s);
     result := Concat(result, ' ', s);
   end;
 end;
@@ -410,23 +411,29 @@ begin
       end;
     end;
     for var I in NoRe do sb.Append(Concat(path, '\libraries\', ConvertNameToPath(I), ';'));
-    var tmp1 := GetMCInheritsFrom(relpath, 'jar');
-    var tmp3 := getMCRealPath(tmp1, '.jar');
-    if tmp3 = '' then begin
-      tmp1 := GetMCInheritsFrom(relpath, 'inheritsFrom');
-      tmp3 := getMCRealPath(tmp1, '.jar');
-    end;
-    if tmp3 = '' then begin
-      tmp3 := Concat(GetMCRealPath(relpath, '.jar'));
-    end;
-    if tmp3 = '' then begin
-      raise Exception.Create('List Libraries Error!');
-    end;
-    if (json.IndexOf('fmlloader') <> -1) or (json.IndexOf('fancymodloader') <> -1) then begin
+    var tmp := GetMCRealPath(relpath, '.jar');
+    if tmp = '' then begin
       sb.Remove(sb.Length - 1, 1);
     end else begin
-      sb.Append(tmp3);//拼接最后一个jar
+      sb.Append(tmp);
     end;
+//    var tmp1 := GetMCInheritsFrom(relpath, 'jar');
+//    var tmp3 := getMCRealPath(tmp1, '.jar');
+//    if tmp3 = '' then begin
+//      tmp1 := GetMCInheritsFrom(relpath, 'inheritsFrom');
+//      tmp3 := getMCRealPath(tmp1, '.jar');
+//    end;
+//    if tmp3 = '' then begin
+//      tmp3 := Concat(GetMCRealPath(relpath, '.jar'));
+//    end;
+//    if tmp3 = '' then begin
+//      raise Exception.Create('List Libraries Error!');
+//    end;
+////    if (json.IndexOf('fmlloader') <> -1) or (json.IndexOf('fancymodloader') <> -1) then begin
+////      sb.Remove(sb.Length - 1, 1);
+////    end else begin
+//      sb.Append(tmp3);//拼接最后一个jar
+////    end;
     result := sb.ToString;
   finally
     sb.Free;
@@ -459,7 +466,7 @@ begin
     mcid := Concat('"', mcid, '"');
   end;
   jaram := jaram  //替换字符串模板中的内容。
-    .Replace('${natives_directory}', Concat('"', getMCRealDir(mcselpath, 'natives'), '"'))
+    .Replace('${natives_directory}', Concat('"', Concat(mcselpath, '\', ExtractFileName(mcselpath), '-LLL-natives'), '"'))
     .Replace('${launcher_name}', 'LLL')
     .Replace('${launcher_version}', launver)
     .Replace('${classpath}', Concat('"', getMCAllLibs(json, mcpath, mcselpath), '"'))
@@ -480,10 +487,14 @@ begin
     end;
   end;
   var para := TStringBuilder.Create;
-  para.Append(jaram).Append(' -Xmn256m -Xmx').Append(maxm).Append('m ').Append(Root.GetValue('mainClass').Value);
+  para.Append(jaram).Append(' -Xmn256m -Xmx').Append(maxm).Append('m ');
+//  var jv := GetFileVersion(javapath);
+//  if strtoint(jv.Substring(0, jv.IndexOf('.'))) > 8 then para.Append('--add-exports cpw.mods.bootstraplauncher/cpw.mods.bootstraplauncher=ALL-UNNAMED ');
+  para.Append(Root.GetValue('mainClass').Value);
   try
     para.Append(JudgeArguments(Root.ToString, 'game'));
   except exit; end;
+  para.Append(' --width ').Append(widh).Append(' --height ').Append(heig).Append(' ');
   para := para  //替换字符串模板
     .Replace('${auth_player_name}', accname) //替换美元符号内的内容
     .Replace('${version_name}', mcid)
@@ -494,8 +505,14 @@ begin
     .Replace('${auth_access_token}', accat)
     .Replace('${user_type}', acctype)
     .Replace('${version_type}', cuif); //拼接长度与宽度
-  para.Append(' --width ').Append(widh).Append(' --height ').Append(heig);
   if addgame <> '' then para.Append(addgame);
+  //sboptifine
+  if para.ToString.Contains('--tweakClass optifine.OptiFineForgeTweaker') then begin
+    para.Replace('--tweakClass optifine.OptiFineForgeTweaker', '').Append(' --tweakClass optifine.OptiFineForgeTweaker');
+  end;
+  if para.ToString.Contains('--tweakClass optifine.OptiFineTweaker') then begin
+    para.Replace('--tweakClass optifine.OptiFineTweaker', '').Append(' --tweakClass optifine.OptiFineTweaker');
+  end;
   param := para.ToString;
   result := true;
 end;
@@ -517,7 +534,7 @@ begin
   try //尝试查询1.12.2以下版本是否拥有arguments键。以便启动Liteloader。
     para.Append(JudgeArguments(json, 'jvm'));
   except end;
-  para.Append(' "-Djava.library.path=').Append(getMCRealDir(mcselpath, 'natives')).Append('" -cp "').Append(getMCAllLibs(Root.ToString, mcpath, mcselpath)).Append('"');
+  para.Append(' "-Djava.library.path=').Append(Concat(mcselpath, '\', ExtractFileName(mcselpath), '-LLL-natives')).Append('" -cp "').Append(getMCAllLibs(Root.ToString, mcpath, mcselpath)).Append('"');
   if basecode <> '' then begin
     var fpath := Concat(AppData, '\LLLauncher\authlib-injector.jar');
     if FileExists(fpath) then begin
@@ -531,7 +548,10 @@ begin
       exit;
     end;
   end;
-  para.Append(' -Xmn256m -Xmx').Append(maxm).Append('m ').Append(Root.GetValue('mainClass').Value);
+  para.Append(' -Xmn256m -Xmx').Append(maxm).Append('m ');
+//  var jv := GetFileVersion(javapath);
+//  if strtoint(jv.Substring(0, jv.IndexOf('.'))) > 8 then para.Append('--add-exports cpw.mods.bootstraplauncher/cpw.mods.bootstraplauncher=ALL-UNNAMED ');
+  para.Append(Root.GetValue('mainClass').Value);
   son := son //替换美元符号内
     .Replace('${auth_player_name}', accname)
     .Replace('${auth_session}', accuuid)
@@ -545,11 +565,17 @@ begin
     .Replace('${user_properties}', '{}')
     .Replace('${user_type}', acctype)
     .Replace('${version_type}', Concat('"', cuif, '"')); //与上面一样了，不做注释了。
-  para.Append(' ').Append(son).Append(' --width ').Append(widh).Append(' --height ').Append(heig);
   try //尝试查询1.12.2以下版本是否拥有arguments键。以便启动Liteloader。
     para.Append(JudgeArguments(json, 'game'));
   except end;
   if addgame <> '' then para.Append(' ').Append(addgame);
+  //sboptifine
+  if para.ToString.Contains('--tweakClass optifine.OptiFineForgeTweaker') then begin
+    para.Replace('--tweakClass optifine.OptiFineForgeTweaker', '').Append(' --tweakClass optifine.OptiFineForgeTweaker');
+  end;
+  if para.ToString.Contains('--tweakClass optifine.OptiFineTweaker') then begin
+    para.Replace('--tweakClass optifine.OptiFineTweaker', '').Append(' --tweakClass optifine.OptiFineTweaker');
+  end;
   param := para.ToString;
   result := true;
 end;
@@ -644,20 +670,11 @@ begin
     mlaunch_number := 1;
     form_mainform.label_launch_game_number.Caption := GetLanguage('label_launch_game_number.caption').Replace('${launch_game_number}', inttostr(mlaunch_number + 1));
   end; //判断是否是时候给作者捐款了。
-  mcpid := RUNDOSANDGETPID(javapath, param);
-  form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.launch_game_success');
+  mcpid := RUNDOSANDGETPID(javapath, param, mcpv);
+  form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.wait_launch_game');
   Log.Write('游戏启动成功！。', LOG_INFO, LOG_LAUNCH);
   case mlaunch_number of
-    100: Isafdian(true, mlaunch_number);
-    200: Isafdian(true, mlaunch_number);
-    300: Isafdian(true, mlaunch_number);
-    400: Isafdian(true, mlaunch_number);
-    600: Isafdian(true, mlaunch_number);
-    800: Isafdian(true, mlaunch_number);
-    1100: Isafdian(true, mlaunch_number);
-    1400: Isafdian(true, mlaunch_number);
-    1700: Isafdian(true, mlaunch_number);
-    2000: Isafdian(true, mlaunch_number);
+    100, 200, 300, 400, 600, 800, 1100, 1400, 1700, 2000: Isafdian(true, mlaunch_number);
   end;
 end;
 //开始游戏！

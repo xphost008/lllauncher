@@ -418,6 +418,8 @@ begin
       .AddPair('messagebox_mainform.show_lll_version.caption', '当前使用启动器版本')
       .AddPair('messagebox_mainform.is_reset_launcher.text', '请问是否需要重置LLL启动器，该操作会删除你目前已存在的所有配置文件，包括插件、语言、背景图、背景音乐等。启动器会直接关闭，你需要手动重新打开一次。是否继续？【简单来说就是删掉{exe}\LLLauncher文件】')
       .AddPair('messagebox_mainform.is_reset_launcher.caption', '是否重置LLL启动器？')
+      .AddPair('messagebox_mainform.cannot_export_launch_args.text', '你目前所处的国家并不属于中国，无法使用启动脚本导出功能，请见谅！')
+      .AddPair('messagebox_mainform.cannot_export_launch_args.caption', '无法使用启动脚本导出')
       .AddPair('messagebox_account_offline_error.cannot_name.text', '你的离线登录名称并不理想，输入错误！请不要输入中文，也不要超过16个字符！不要为空。')
       .AddPair('messagebox_account_offline_error.cannot_name.caption', '错误警告')
       .AddPair('messagebox_account_offline_error.cannot_uuid.text', '你的离线登录UUID输入错误，请输入一串长32位无符号UUID。或者不输入等待随机生成')
@@ -870,6 +872,12 @@ begin
       .AddPair('messagebox_launcher.export_launch_args_success.text', '启动参数导出成功！现在你可以去文件夹里查看了！')
       .AddPair('messagebox_launcher.args_put_success.caption', '参数拼接成功')
       .AddPair('messagebox_launcher.args_put_success.text', '参数拼接成功！是否立刻启动游戏？')
+      .AddPair('messagebox_plugin.lose_content_value.caption', '缺失了某个必要值')
+      .AddPair('messagebox_plugin.lose_content_value.text', '该插件于content中缺失了某个必要值，请尝试修改后再点击！')
+      .AddPair('messagebox_plugin.lose_form_name.caption', '窗口缺少了name值')
+      .AddPair('messagebox_plugin.lose_form_name.text', '该插件在窗口处缺失了name值，请尝试修改后再点击！')
+      .AddPair('messagebox_plugin.plugin_grammar_error.caption', '窗口缺失了name值')
+      .AddPair('messagebox_plugin.plugin_grammar_error.text', '该插件在窗口处缺失了name值，请尝试修改后再点击！')
       //以下为下载进度列表框
       .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
@@ -1613,7 +1621,8 @@ begin
       .AddPair('label_launch_tips.caption.cannot_set_launch_args', '无法拼接MC启动参数，请仔细的检查你的MC版本JSON是否有误！')
       .AddPair('label_launch_tips.caption.cannot_find_authlib_file', '找不到Authlib-Injector文件，请进入账号部分下载一个后再尝试！')
       .AddPair('label_launch_tips.caption.export_launch_args_success', '启动参数导出成功！')
-      .AddPair('label_launch_tips.caption.launch_game_success', '游戏启动成功！')
+      .AddPair('label_launch_tips.caption.wait_launch_game', '游戏启动成功！正在等待打开游戏窗口中……')
+      .AddPair('label_launch_tips.caption.launch_game_success', '窗口打开成功！可以开始玩游戏了！')
       .AddPair('label_launch_tips.caption.cancel_launch', '取消启动。')
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);

@@ -29,7 +29,7 @@ function GetVanillaVersion(json: String): String;
 function RunDOSBack1(CommandLine: string): string;
 function JudgeCountry: Boolean;
 function ProcessExists(PID: DWORD): Boolean;
-function RunDOSAndGetPID(FileName, Parameters: string): Integer;
+function RunDOSAndGetPID(FileName, Parameters, dir: string): Integer;
 function IPv4ToInt(ipv4: String): Int64;
 function getMCRealDir(path, suffix: String): String;
 function DeleteRetain(N, suffix: String): Boolean;
@@ -45,7 +45,7 @@ uses
   MainForm, Log4Delphi, LanguageMethod, MyCustomWindow, AccountMethod;
 
 //运行进程，但是可以得到进程的PID。
-function RunDOSAndGetPID(FileName, Parameters: string): Integer;
+function RunDOSAndGetPID(FileName, Parameters, dir: string): Integer;
 var
   StartupInfo:TStartupInfo;
   ProcessInfo:TProcessInformation;
@@ -56,7 +56,7 @@ begin
   StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
   StartupInfo.wShowWindow := SW_SHOW;
   if CreateProcess(pchar(FileName), pchar(Parameters), nil, nil, False, NORMAL_PRIORITY_CLASS,
-    nil, nil, StartupInfo, ProcessInfo) then
+    nil, pchar(dir), StartupInfo, ProcessInfo) then
     result := ProcessInfo.dwProcessId //这里就是创建进程的PID值
   else result := 0;
 end;

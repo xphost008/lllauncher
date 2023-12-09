@@ -23,26 +23,21 @@
 ### 该杀毒报告的启动器版本为：0.1.3-Beta-2
 
 - 以下是杀毒报告：
-- 【32-bit】
-- 原始文件名：LittleLimboLauncher.exe
-- SHA256：717441ff86f9aa39f9ca5ff71e9e259c64b53dc4a2fa2bcebf296b61041afa31
-- SHA1：6a29fd53851d16df4e10d749b798f390a0c05cd7
-- MD5：2c77578a61272b3fb21989401c108442
-- 微步云沙箱：[点我](https://s.threatbook.com/report/file/717441ff86f9aa39f9ca5ff71e9e259c64b53dc4a2fa2bcebf296b61041afa31)
-- VirScan：[点我](https://www.virscan.org/report/717441ff86f9aa39f9ca5ff71e9e259c64b53dc4a2fa2bcebf296b61041afa31)
-- VirusTotal：[点我](https://www.virustotal.com/gui/file/717441ff86f9aa39f9ca5ff71e9e259c64b53dc4a2fa2bcebf296b61041afa31?nocache=1)
 - 【64-bit】
 - 原始文件名：LittleLimboLauncher.exe
-- SHA256：1500791551ad60865c3e03f469d48e10e6aa1ea311ccaa743a9c341baf1e888b
-- SHA1：d0924bc917c43c5ad0f95b782c246e296b50fa77
-- MD5：66c9926467bd12acaa210c6d3ff28605
-- 微步云沙箱：[点我](https://s.threatbook.com/report/file/1500791551ad60865c3e03f469d48e10e6aa1ea311ccaa743a9c341baf1e888b)
-- VirScan：[点我](https://www.virscan.org/report/1500791551ad60865c3e03f469d48e10e6aa1ea311ccaa743a9c341baf1e888b)
-- VirusTotal：[点我](https://www.virustotal.com/gui/file/1500791551ad60865c3e03f469d48e10e6aa1ea311ccaa743a9c341baf1e888b?nocache=1)
+- SHA256：ec80b6270324b3c9b4a857dcc17b9637c2dc204dd8848f15abfe5f18abb26c25
+- SHA1：bc87961c3772664e740a16cdfffc5698b3c14948
+- MD5：d98f6dba605fe7d4286c80d22a85ae82
+- 微步云沙箱：[点我](https://s.threatbook.com/report/file/ec80b6270324b3c9b4a857dcc17b9637c2dc204dd8848f15abfe5f18abb26c25)
+- VirScan：[点我](https://www.virscan.org/report/ec80b6270324b3c9b4a857dcc17b9637c2dc204dd8848f15abfe5f18abb26c25)
+- VirusTotal：[点我](https://www.virustotal.com/gui/file/ec80b6270324b3c9b4a857dcc17b9637c2dc204dd8848f15abfe5f18abb26c25?nocache=1)
+
+- 32位下载链接已失效
+
 - 对于某些可能会报毒的功能，解释如下：例如
-- 1.使用taskkill结束：这种功能用于结束MC的运行，但与此同时也会结束掉本机上所有使用javaw启动的程序【包括HMCL】
-- 2.对指定进程感兴趣：此功能用于检测该电脑上是否有使用javaw启动的程序，如果有则将主界面下面的结束MC运行的Button的可使用权解除。
-- 3.反检测技术：我从没用过这玩意啊！
+1. 使用taskkill结束：这种功能用于结束MC的运行，但与此同时也会结束掉本机上所有使用javaw启动的程序【包括HMCL】
+2. 对指定进程感兴趣：此功能用于检测该电脑上是否有使用javaw启动的程序，如果有则将主界面下面的结束MC运行的Button的可使用权解除。
+3. 反检测技术：我从没用过这玩意啊！
 
 - ==.已经彻底的删除了【千万别点】按钮，从现在开始，你将再也看不到我的源码中有任何千万别点的影子了。
 - 已经尽可能的去除了程序内所有可能导致系统崩溃或者内存泄漏导致的程序未响应等bug，现在应该没什么问题了吧（

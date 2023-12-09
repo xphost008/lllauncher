@@ -192,7 +192,7 @@ begin
     MyMessagebox(GetLanguage('messagebox_download.name_is_empty.caption'), GetLanguage('messagebox_download.name_is_empty.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
-  mcs := LLLini.ReadInteger('MC', 'SelectMC', -1);
+  mcs := LLLini.ReadInteger('MC', 'SelectMC', -1) - 1;
   try
     mcsp := (((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\configs\MCJson.json'))) as TJsonObject).GetValue('mc') as TJsonArray)[mcs] as TJsonObject);
     mcsp.ToString;
@@ -232,7 +232,6 @@ begin
         end;
         case mdownload_source of //Forge Official
           1: begin
-//            var ldname := form_mainform.listbox_select_modloader.Items[form_mainform.listbox_select_modloader.ItemIndex];
             var dul := Concat('https://maven.minecraftforge.net/net/minecraftforge/forge/', ldname, '/forge-', ldname, '-installer.jar');
             TTask.Run(procedure begin
               form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Forge').Replace('${source}', 'Official'));
@@ -243,7 +242,6 @@ begin
             end);
           end;
           2..3: begin //Forge BMCLAPI MCBBS
-            //https://bmclapi2.bangbang93.com/forge/download?mcversion=1.7.10&version=10.13.3.1401&branch=1710ls&category=installer&format=jar
             var lv := loaderJSON[form_mainform.listbox_select_modloader.ItemIndex] as TJSONObject;
             var lov := lv.GetValue('version').Value;
             var mcv := lv.GetValue('mcversion').Value;
@@ -317,7 +315,7 @@ begin
           end;
           var vjn := '';
           try
-            vjn := (TJSONObject.ParseJSONValue(ss).Format().Replace('\', ''));
+            vjn := TJSONObject.ParseJSONValue(ss).Format().Replace('\', '');
           except
             form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add('downloadlist.download.get_fabric_metadata_error');
             exit;
@@ -354,7 +352,7 @@ begin
           end;
           var vjn := '';
           try
-            vjn := (TJSONObject.ParseJSONValue(ss).Format().Replace('\', ''));
+            vjn := TJSONObject.ParseJSONValue(ss).Format().Replace('\', '');
           except
             form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add('downloadlist.download.get_fabric_metadata_error');
             exit;
@@ -377,7 +375,6 @@ begin
         case mdownload_source of
           1: begin
             var dul := '';
-//            var ldname := form_mainform.listbox_select_modloader.Items[form_mainform.listbox_select_modloader.ItemIndex];
             if form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex] = '1.20.1' then begin
               dul := Concat('https://maven.neoforged.net/releases/net/neoforged/forge/', ldname, '/forge-', ldname, '-installer.jar');
             end else begin
@@ -441,7 +438,7 @@ begin
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.get_mc_metadata_error'));
         abort;
       end;
-      var vjn := (TJSONObject.ParseJSONValue(ss) as TJSONObject).Format().Replace('\', '');
+      var vjn := (TJSONObject.ParseJSONValue(ss) as TJSONObject).AddPair('clientVersion', mcvname).Format().Replace('\', '');
       SetFile(mcvpath, vjn);
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.mc_metadata_download_success'));
       DownloadStart(vjn, mcspath, mcpath, mbiggest_thread, mdownload_source, 2, '', mcvname, false);

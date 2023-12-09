@@ -593,7 +593,46 @@ uses
 //任意插件菜单栏点击的事件
 procedure Tform_mainform.PluginMenuClick(Sender: TObject);
 begin
-  //
+  var mi := Sender as TMenuItem;
+  var mic := mi.Caption.Replace('&', '');
+  Log.Write(Concat('你点击了', mic, '语言文件，开始加载！'), LOG_START, LOG_INFO);
+  var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
+  if SysUtils.DirectoryExists(ld) then begin
+    var Files := TDirectory.GetFiles(ld);
+    for var I in Files do begin
+      if RightStr(I, 5) = '.json' then begin //如果文件后缀为.json，则执行。
+        var lj := TJSONObject.ParseJSONValue(GetFile(I)) as TJsonObject;
+        if mic.IndexOf(ExtractFileName(I).Replace('&', '')) <> -1 then begin
+          var f := GetFile(I);
+          var ise := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
+          try
+            f := GetWebText(ise.GetValue('url').Value);
+            if f = '' then begin
+              Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+              messagebox(Handle, '获取的URL内容为空，请重新输入一个网址！', '获取的URL内容为空', MB_ICONERROR);
+              exit;
+            end;
+            ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
+          except end;
+          try
+            if ise.GetValue('name').Value = '' then raise Exception.Create('Plugin Format Exception');
+          except
+            Log.Write(Concat('插件加载失败'), LOG_ERROR, LOG_PLUGIN);
+            MyMessagebox(GetLanguage('messagebox_plugin.plugin_grammar_error.caption'), GetLanguage('messagebox_plugin.plugin_grammar_error.text'), MY_ERROR, [mybutton.myOK]);
+            exit;
+          end;
+          Log.Write('插件解析成功，开始执行！', LOG_INFO, LOG_PLUGIN);
+          CreateFirstPluginForm(ExtractFileName(I).Replace('.json', ''), f);
+          exit;
+        end else continue;
+      end else if RightStr(I, 4) = '.dll' then begin
+        if mic.IndexOf(ExtractFileName(I).Replace('&', '')) <> -1 then begin
+          var inst := LoadLibrary(pchar(I));
+          FreeLibrary(inst);
+        end else continue;
+      end else continue;
+    end;
+  end;
 end;
 //任意语言菜单栏点击的事件
 procedure Tform_mainform.LanguageMenuClick(Sender: TObject);
@@ -618,6 +657,7 @@ begin
       end;
     end;
   end;
+
 end;
 //下载部分：模组加载器手动安装包：Fabric下载
 procedure Tform_mainform.listbox_download_modloader_fabricClick(
@@ -781,7 +821,11 @@ end;
 //手动导出启动参数
 procedure Tform_mainform.n_export_argumentClick(Sender: TObject);
 begin
-  StartLaunch(true);
+  if mjudge_lang_chinese then begin
+    StartLaunch(true);
+  end else begin
+    MyMessagebox(GetLanguage('messagebox_mainform.cannot_export_launch_args.caption'), GetLanguage('messagebox_mainform.cannot_export_launch_args.text'), MY_ERROR, [mybutton.myOK]);
+  end;
 end;
 //内存清理按钮
 procedure Tform_mainform.n_memory_optimizeClick(Sender: TObject);
@@ -851,6 +895,8 @@ procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 var
   s: String;
 begin
+  var ss := 'ss.ss';
+  showmessage(inttostr(ss.IndexOf('.')));
 //  if GetLocalIP(s) then begin
 //  var ip := TIdHTTPServer.Create(nil);
 //  ip
@@ -2282,16 +2328,7 @@ begin
     m := false;
     Log.Write('开始判断是否需要捐款。', LOG_START, LOG_INFO);
     case mopen_number of
-      100: Isafdian(false, mopen_number);
-      200: Isafdian(false, mopen_number);
-      300: Isafdian(false, mopen_number);
-      500: Isafdian(false, mopen_number);
-      700: Isafdian(false, mopen_number);
-      1000: Isafdian(false, mopen_number);
-      1300: Isafdian(false, mopen_number);
-      1800: Isafdian(false, mopen_number);
-      2400: Isafdian(false, mopen_number);
-      3000: Isafdian(false, mopen_number);
+      100, 200, 300, 500, 700, 1000, 1300, 1800, 2400, 3000: Isafdian(false, mopen_number);
     end;
     Log.Write('开始判断插件是否存在于文件夹中，并且后缀为Json或dll。', LOG_START, LOG_INFO);
     var pdir := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
@@ -2341,6 +2378,7 @@ begin
           Log.Write(Concat('判定失败，默认返回不播放音乐。'), LOG_ERROR, LOG_LAUNCH);
           LLLini.WriteString('Misc', 'SelectType', '3'); //如果都不是，则输出值。
         end;
+        self.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.launch_game_success');
         var tile := LLLini.ReadString('Version', 'CustomTitle', '');
         var mcsn := strtoint(LLLini.ReadString('MC', 'SelectVer', '')) - 1;
         var mct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
@@ -2384,10 +2422,13 @@ begin
         var mcnt := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
         var msph := (((TJsonObject.ParseJSONValue(mcnt) as TJsonObject).GetValue('mcsel') as TJsonArray)[mcsn] as TJsonObject).GetValue('path').Value;
         var tini := TIniFile.Create(Concat(msph, '\LLLauncher.ini'));
-        var tls := tini.ReadString('Isolation', 'After-LaunchScript', '');
-        if tls <> '' then als := tls;
+        if tini.ReadBool('Isolation', 'IsIsolation', false) then begin
+          var tls := tini.ReadString('Isolation', 'After-LaunchScript', '');
+          if tls <> '' then als := tls;
+        end;
       end;
-      RunDOSOnlyWait(als);
+      if not als.IsEmpty then
+        RunDOSOnlyWait(als);
       var mcpve := JudgeIsolation;
       try
         var lat := GetDirectoryFileCount(Concat(mcpve, '\crash-reports'), '.txt');
