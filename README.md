@@ -1,5 +1,11 @@
 # Little Limbo Launcher
 
+#### Chinese Readme
+
+Whatever you're a foreigners for China, I don't think you need to use this launcher, but it's entirely up to you. Very pleasant experience!
+
+Go to Chinese Readme, You neer to [Click me](./README_CN.md)
+
 #### Introduce
 
  **This is a easy Launcher for Minecraft. Its content makes you happy!**
@@ -49,9 +55,3 @@ When I have some snapshot version, I will release it in my group that not in my 
 
 - from now on, there are no private snapshot version and snapshot version in here, I will release all version in public version, thanks!
 - at the same time, I will archive my all private version for everyone to read. if you want to download old version, please check Chinese Readme!
-
-#### Chinese Readme
-
-Whatever you're a foreigners for China, I don't think you need to use this launcher, but it's entirely up to you. Very pleasant experience!
-
-Go to Chinese Readme, You neer To [Click me](./README_CN.md)
