@@ -522,7 +522,7 @@ begin
   result := false;
   var Root := TJSONObject.ParseJSONValue(json) as TJSONObject;
   var son := Root.GetValue('minecraftArguments').Value; //这里找的是minecraftArguments部分的。
-  if son = '' then raise Exception.Create('Read Minecraft Argument Error');
+  if son.IsEmpty then raise Exception.Create('Read Minecraft Argument Error');
   var mcid: String;
   try
     mcid := Root.GetValue('id').Value;
@@ -568,6 +568,7 @@ begin
   try //尝试查询1.12.2以下版本是否拥有arguments键。以便启动Liteloader。
     para.Append(JudgeArguments(json, 'game'));
   except end;
+  para.Append(' ').Append(son);
   if addgame <> '' then para.Append(' ').Append(addgame);
   //sboptifine
   if para.ToString.Contains('--tweakClass optifine.OptiFineForgeTweaker') then begin
