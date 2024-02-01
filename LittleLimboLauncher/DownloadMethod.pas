@@ -112,7 +112,11 @@ begin
     loaderJSON := TJSONObject.ParseJSONValue(json) as TJSONArray;
     for var I in loaderJSON do begin
       var J := I as TJsonObject;
-      form_mainform.listbox_select_modloader.Items.Add(J.GetValue('version').Value);
+      try
+        form_mainform.listbox_select_modloader.Items.Add(J.GetValue('rawVersion').Value);
+      except
+        form_mainform.listbox_select_modloader.Items.Add(J.GetValue('version').Value);
+      end;
     end;
     if form_mainform.listbox_select_modloader.Items.Count = 0 then form_mainform.listbox_select_modloader.Items.Add(GetLanguage('listbox_select_modloader.item.has_no_data'));
   except
@@ -278,8 +282,8 @@ begin
               end;
             end;
             var dul := '';
-            if bch = '' then dul := Concat(dui, '/forge/download?mcversion=', mcv, '&version=', lov, '&category=installer&format=jar')
-            else dul := Concat(dui, '/forge/download?mcversion=', mcv, '&version=', lov, '&branch=', bch, '&category=installer&format=jar');
+            if bch = '' then dul := Concat(dui, '/maven/net/minecraftforge/forge/', mcv, '-', lov, '/forge-', mcv, '-', lov, '-installer.jar')
+            else dul := Concat(dui, '/maven/net/minecraftforge/forge/', mcv, '-', lov, '-', bch, '/forge-', mcv, '-', lov, '-', bch, '-installer.jar');
             TTask.Run(procedure begin
               form_mainform.button_progress_clean_download_list.Enabled := false;
               DownloadStart(dul, mcspath, mcpath, mbiggest_thread, mdownload_source, 4, sjpth, mcvname, false);
@@ -400,8 +404,25 @@ begin
                 dui := 'https://download.mcbbs.net';
               end;
             end;
+            //https://maven.neoforged.net/releases/net/neoforged/neoforge/20.4.137-beta/neoforge-20.4.137-beta-installer.jar
             var lv := loaderJSON[form_mainform.listbox_select_modloader.ItemIndex] as TJSONObject;
-            var dul := Concat(dui, '/neoforge/version/', lv.GetValue('version').Value, '/download/installer.jar');
+            var dul := '';
+            if form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex] = '1.20.1' then begin
+              try
+                dul := Concat(dui, lv.GetValue('installerPath').Value);
+              except
+                var vn := lv.GetValue('version').Value;
+                dul := Concat(dui, '/maven/net/neoforged/forge/1.20.1-', vn, '/forge-1.20.1-', vn, '-installer.jar');
+              end;
+            end else begin
+              try
+                dul := Concat(dui, lv.GetValue('installerPath').Value);
+              except
+                var vn := lv.GetValue('rawVersion').Value;
+                var rvn := vn.Substring(vn.IndexOf('-') + 1);
+                dul := Concat(dui, '/maven/net/neoforged/neoforge/', rvn, '/', vn, '-installer.jar');
+              end;
+            end;
             TTask.Run(procedure begin
               form_mainform.button_progress_clean_download_list.Enabled := false;
               DownloadStart(dul, mcspath, mcpath, mbiggest_thread, mdownload_source, 4, sjpth, mcvname, false);
@@ -454,6 +475,7 @@ begin
   mbeta := form_mainform.checklistbox_choose_view_mode.Checked[2];
   malpha := form_mainform.checklistbox_choose_view_mode.Checked[3];
   mlll := form_mainform.checklistbox_choose_view_mode.Checked[4];
+  form_mainform.listbox_select_modloader.Items.Clear;
   SoluteMC;
 end;
 //重置下载界面    

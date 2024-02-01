@@ -45,19 +45,12 @@ begin
         var isf: String;
         try
           var jso := GetFile(GetMCRealPath(T, '.json')).ToLower;
-          var jsn := TJsonObject.ParseJSONValue(jso) as TJsonObject;
-          var iin := jsn.GetValue('id').Value;
-          if iin.Contains('forge') then isf := '（Forge）'
-          else if iin.Contains('fabric') then isf := '（Fabric）'
-          else if iin.Contains('quilt') then isf := '（Quilt）'
-          else if iin.Contains('neoforge') then isf := '（NeoForge）'
-          else if iin.Contains('liteloader') then isf := '（LiteLoader）';
-          jsn.GetValue('libraries').ToString;
           if GetMCInheritsFrom(T, 'inheritsFrom') = '' then raise Exception.Create('Has no inheritsFrom');
+          (TJsonObject.ParseJSONValue(jso) as TJsonObject).GetValue('id').Value;
           if jso.IndexOf('com.mumfrey:liteloader:') <> -1 then isf := '（Liteloader）'
           else if jso.IndexOf('org.quiltmc:quilt-loader:') <> -1 then isf := '（Quilt）'
           else if jso.IndexOf('net.fabricmc:fabric-loader:') <> -1 then isf := '（Fabric）'
-          else if jso.IndexOf('net.neoforged') <> -1 then isf := '（NeoForged）'
+          else if jso.IndexOf('net.neoforged') <> -1 then isf := '（NeoForge）'
           else if jso.IndexOf('net.minecraftforge') <> -1 then isf := '（Forge）'
           else isf := '（Vanilla）';
         except

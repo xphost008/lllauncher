@@ -399,7 +399,7 @@ begin
       if LibNo.IndexOf(N) = -1 then // 去除重复
         LibNo.Add(N);
     for var G in libNo do begin //去除版本较低的那个，以下为去除不必要的重复
-      var KN := G.Replace('.', '').Replace(':', '').Replace('-', '');
+      var KN := G.Replace('.', '').Replace(':', '').Replace('-', '').Replace('@jar', '').Replace('@zip', '');
       var KW := ExtractNumber(KN, false); //摘取字符
       var KM := ExtractNumber(KN, true);  //摘取数字
       if ReTemp.IndexOf(KW) = -1 then begin //判断是否
@@ -478,7 +478,7 @@ begin
     if FileExists(fpath) then begin
       jaram.Append(' -javaagent:').Append(fpath).Append('=').Append(serpath).Append(' -Dauthlibinjector.side=client -Dauthlibinjector.yggdrasil.prefetched=').Append(basecode.Replace(#13, '').Replace(#10, ''));
     end else begin
-      form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cannot_find_authlib_file');
+      form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.cannot_find_authlib_file');
       Log.Write('未能找到Authlib-Injector文件，请去账号部分下载一次后再试！', LOG_INFO, LOG_LAUNCH);
       MyMessagebox(GetLanguage('messagebox_launcher.cannot_find_authlib_file.caption'), GetLanguage('messagebox_launcher.cannot_find_authlib_file.text'), MY_ERROR, [mybutton.myOK]);
       param := '';
@@ -511,7 +511,7 @@ begin
     para.Replace('--tweakClass optifine.OptiFineForgeTweaker', '').Append(' --tweakClass optifine.OptiFineForgeTweaker');
   end;
   if para.ToString.Contains('--tweakClass optifine.OptiFineTweaker') then begin
-    para.Replace('--tweakClass optifine.OptiFineTweaker', '').Append(' --tweakClass optifine.OptiFineTweaker');
+    para.Replace('--tweakClass optifine.OptiFineTweaker', '').Append(' --tweakClass optifine.OptiFineForgeTweaker');
   end;
   param := para.ToString;
   result := true;
@@ -540,7 +540,7 @@ begin
     if FileExists(fpath) then begin
       para.Append(' -javaagent:').Append(fpath).Append('=').Append(serpath).Append(' -Dauthlibinjector.side=client -Dauthlibinjector.yggdrasil.prefetched=').Append(basecode.Replace(#13, '').Replace(#10, ''));
     end else begin
-      form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cannot_find_authlib_file');
+      form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.cannot_find_authlib_file');
       Log.Write('未能找到Authlib-Injector文件，请去账号部分下载一次后再试！', LOG_INFO, LOG_LAUNCH);
       MyMessagebox(GetLanguage('messagebox_launcher.cannot_find_authlib_file.caption'), GetLanguage('messagebox_launcher.cannot_find_authlib_file.text'), MY_ERROR, [mybutton.myOK]);
       param := '';
@@ -587,10 +587,10 @@ const
   addjvm = '-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump';
 begin
   Log.Write('开始判断json文件内容。', LOG_INFO, LOG_LAUNCH);
-  form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.set_launch_script');
+  form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.set_launch_script');
   var jso := GetMCRealPath(mcselpath, '.json'); //找json路径。直接查找就可以了。
   if not FileExists(jso) then begin
-    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cannot_find_json');
+    form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.cannot_find_json');
     Log.Write('未能从版本文件夹中找到符合条件的json', LOG_INFO, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.cannot_find_json.caption'), GetLanguage('messagebox_launcher.cannot_find_json.text'), MY_ERROR, [mybutton.myOK]);
     exit;
@@ -605,7 +605,7 @@ begin
   try
     if not UnzipNative(jnn, mcpath, mcselpath) then raise Exception.Create('Cannot Unzip Method');
   except
-    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.unzip_native_error');
+    form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.unzip_native_error');
     Log.Write('解压Natives文件夹失误，请重试！', LOG_INFO, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.unzip_native_error.caption'), GetLanguage('messagebox_launcher.unzip_native_error.text'), MY_ERROR, [mybutton.myOK]);
     exit;
@@ -618,7 +618,7 @@ begin
     try
       if not SetParam112(ReplaceMCInheritsFrom(jsn, jnn), mcpv, defjvm, addjvm, param) then raise Exception.Create('MC Not 1.12 lower');
     except
-      form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cannot_set_launch_args');
+      form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.cannot_set_launch_args');
       Log.Write('解压Natives文件夹失误，请重试！', LOG_INFO, LOG_LAUNCH);
       MyMessagebox(GetLanguage('messagebox_launcher.cannot_set_launch_args.caption'), GetLanguage('messagebox_launcher.cannot_set_launch_args.text'), MY_ERROR, [mybutton.myOK]);
       exit;
@@ -646,11 +646,11 @@ begin
       'pause'));
     Log.Write('导出完成！', LOG_INFO, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.export_launch_args_success.caption'), GetLanguage('messagebox_launcher.export_launch_args_success.text'), MY_PASS, [mybutton.myOK]);
-    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.export_launch_args_success');
+    form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.export_launch_args_success');
     exit;
   end;
   if MyMessagebox(GetLanguage('messagebox_launcher.args_put_success.caption'), GetLanguage('messagebox_launcher.args_put_success.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 1 then begin
-    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.cancel_launch');
+    form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.cancel_launch');
     Log.Write('取消启动。', LOG_INFO, LOG_LAUNCH);
     exit;
   end;
@@ -672,7 +672,7 @@ begin
     form_mainform.label_launch_game_number.Caption := GetLanguage('label_launch_game_number.caption').Replace('${launch_game_number}', inttostr(mlaunch_number + 1));
   end; //判断是否是时候给作者捐款了。
   mcpid := RUNDOSANDGETPID(javapath, param, mcpv);
-  form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.wait_launch_game');
+  form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.wait_launch_game');
   Log.Write('游戏启动成功！。', LOG_INFO, LOG_LAUNCH);
   case mlaunch_number of
     100, 200, 300, 400, 600, 800, 1100, 1400, 1700, 2000: Isafdian(true, mlaunch_number);
@@ -689,7 +689,7 @@ var
 begin
   GlobalMemoryStatus(status);
   var mem: Integer := ceil(status.dwTotalPhys / 1024 / 1024);
-  form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.judge_args');
+  form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.judge_args');
   try
     Log.Write('开始判断是否选择了登录账号。', LOG_INFO, LOG_LAUNCH);
     var acv := GetFile(Concat(AppData, '\LLLauncher\AccountJson.json'));
@@ -718,7 +718,7 @@ begin
         acctype := 'msa';
         Log.Write(Concat('判断成功，你选择的是离线登录，用户名为：', accname), LOG_INFO, LOG_LAUNCH);
       except
-        form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.access_token_expire');
+        form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.access_token_expire');
         Log.Write('你的账号Access Token已经过期了。', LOG_ERROR, LOG_LAUNCH);
         MyMessagebox(GetLanguage('messagebox_launcher.access_token_expire.caption'), GetLanguage('messagebox_launcher.access_token_expire.text'), MY_ERROR, [mybutton.myOK]);
         exit;
@@ -727,7 +727,7 @@ begin
       if not mjudge_lang_chinese then begin
         MyMessagebox(GetLanguage('messagebox_launcher.not_support_thirdparty.caption'), GetLanguage('messagebox_launcher.not_support_thirdparty.text'), MY_ERROR, [mybutton.myOK]);
         Log.Write('目前并不处于中国地区，第三方登录失败！', LOG_ERROR, LOG_LAUNCH);
-        form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_support_third_party');
+        form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.not_support_third_party');
         exit;
       end;
       var w := Concat(accj.GetValue('server').Value, 'authserver/validate');
@@ -749,19 +749,19 @@ begin
           Log.Write(Concat('判断成功，你选择的是离线登录，用户名为：', accname), LOG_INFO, LOG_LAUNCH);
         end else raise Exception.Create('Login Authlib Error');
       except
-        form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.access_token_expire');
+        form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.access_token_expire');
         Log.Write('你的账号Access Token已经过期了。', LOG_ERROR, LOG_LAUNCH);
         MyMessagebox(GetLanguage('messagebox_launcher.access_token_expire.caption'), GetLanguage('messagebox_launcher.access_token_expire.text'), MY_ERROR, [mybutton.myOK]);
         exit;
       end;
     end else begin
-      form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_support_login_type');
+      form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.not_support_login_type');
       Log.Write('不支持的登录方式，请重试！', LOG_ERROR, LOG_LAUNCH);
       MyMessagebox(GetLanguage('messagebox_launcher.not_support_login_type.caption'), GetLanguage('messagebox_launcher.not_support_login_type.text'), MY_ERROR, [mybutton.myOK]);
       exit;
     end;
   except
-    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_choose_account');
+    form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.not_choose_account');
     Log.Write('账号判断失误，你还没有选择任何一个账号。', LOG_ERROR, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.not_choose_account.caption'), GetLanguage('messagebox_launcher.not_choose_account.text'), MY_ERROR, [mybutton.myOK]);
     exit;
@@ -777,7 +777,7 @@ begin
     IioIni := TIniFile.Create(Concat(mcselpath, '\LLLauncher.ini')); //将IioIni保存为外部独立运行的配置文件。
     istoi := IioIni.ReadBool('Isolation', 'IsIsolation', false);
   except
-    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_choose_mc_version');
+    form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.not_choose_mc_version');
     Log.Write('MC版本判断失误，你还没有选择任何一个MC版本。', LOG_ERROR, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.not_choose_mc_version.caption'), GetLanguage('messagebox_launcher.not_choose_mc_version.text'), MY_ERROR, [mybutton.myOK]);
     exit;
@@ -793,7 +793,7 @@ begin
       if FileExists(isojp) then javapath := isojp;
     end;
   except
-    form_mainform.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.not_choose_java');
+    form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.not_choose_java');
     Log.Write('Java判断失误，你还没有选择任何一个Java。', LOG_ERROR, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.not_choose_java.caption'), GetLanguage('messagebox_launcher.not_choose_java.text'), MY_ERROR, [mybutton.myOK]);
     exit;

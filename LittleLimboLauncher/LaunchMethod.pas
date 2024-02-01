@@ -140,10 +140,10 @@ begin
     end;
     form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_logic.caption.search_env_path');
     var vir := GetEnvironmentVariable('PATH');
-    var ss := TStringList.Create;
-    ExtractStrings([';'], [], pchar(vir), ss);
-    for var I in ss do begin
-      if I.ToLower.IndexOf('c:\windows') <> -1 then continue;
+    var sj: TArray<String>;
+    sj := SplitString(vir, ';');
+    for var I in sj do begin
+      if I.ToLower.Contains('c:\windows') then continue;
       SearchJava(I);
     end;
     form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_logic.caption.search_program');

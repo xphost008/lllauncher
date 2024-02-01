@@ -12,8 +12,9 @@ const
   MY_INFORMATION = 3;
   MY_PASS = 4;
 function MyMessageBox(title, content: String; color: Integer; button: TArray<MyButton>; custom: TArray<String> = []; defbutton: Integer = 1): Integer;
-function MyInputBox(title, content: String; color: Integer; defcontent: String = ''; defbutton: Integer = 1): String;
-procedure MyPictureBox(title, content: String; web: TStringStream);
+function MyInputBox(title, content: String; color: Integer; defcontent: String = ''): String;
+procedure MyPictureBox(title, content: String; web: TStream);
+function MyPicMsgBox(title, content: String; web: TStream): Boolean;
 implementation
 uses LanguageMethod;
 type
@@ -21,12 +22,14 @@ type
     procedure MCWButtonClick(Sender: TObject);
     procedure MCWOKClick(Sender: TObject);
     procedure MCWCancalClick(Sender: TObject);
+    procedure MCWShow(Sender: TObject);
   end;
 var
   bt: btn;
   tbt: array of TButton;
   ResMessage: Integer;
   ResInput: String;
+  ResMsg: Boolean;
   FormMCW: TForm;
   TitleMCW: TLabel;
   PicTitleMCW: TMemo;
@@ -35,11 +38,14 @@ var
   InputMCW: TEdit;
   OkMCW, CancalMCW: TButton;
   PictureMCW: TImage;
+var
+  db: Integer;
+  len: Integer;
 //初始化窗口
 procedure InitMCW(nme: String);
 begin
   FormMCW := TForm.Create(nil);
-  if nme = 'MyPictureBox' then begin
+  if (nme = 'MyPictureBox') or (nme = 'MyPicMsgBox') then begin
     with FormMCW do begin
       Name := nme;
       ClientHeight := 730;
@@ -47,6 +53,8 @@ begin
       Color := clBtnFace;
       BorderStyle := bsDialog;
       Position := poDesktopCenter;
+      OnShow := bt.MCWShow;
+      Caption := '';
     end;
     PictureMCW := TImage.Create(FormMCW);
     with PictureMCW do begin
@@ -104,16 +112,41 @@ begin
       ReadOnly := True;
       ScrollBars := ssVertical;
     end;
-    OkMCW := TButton.Create(FormMCW);
-    with OkMCW do begin
-      Parent := FormMCW;
-      Name := 'PictureOK';
-      Left := 851;
-      Top := 687;
-      Width := 129;
-      Height := 39;
-      Caption := GetLanguage('picturebox_button_ok.caption');
-      OnClick := bt.MCWOKClick;
+    if nme = 'MyPicMsgBox' then begin
+      OkMCW := TButton.Create(FormMCW);
+      with OkMCW do begin
+        Parent := FormMCW;
+        Name := 'PictureOK';
+        Left := 714;
+        Top := 687;
+        Width := 129;
+        Height := 39;
+        Caption := GetLanguage('inputbox_button_yes.caption');
+        OnClick := bt.MCWOKClick;
+      end;
+      CancalMCW := TButton.Create(FormMCW);
+      with CancalMCW do begin
+        Parent := FormMCW;
+        Name := 'PictureCancal';
+        Left := 851;
+        Top := 687;
+        Width := 129;
+        Height := 39;
+        Caption := GetLanguage('inputbox_button_no.caption');
+        OnClick := bt.MCWCancalClick;
+      end;
+    end else begin
+      OkMCW := TButton.Create(FormMCW);
+      with OkMCW do begin
+        Parent := FormMCW;
+        Name := 'PictureOK';
+        Left := 851;
+        Top := 687;
+        Width := 129;
+        Height := 39;
+        Caption := GetLanguage('picturebox_button_ok.caption');
+        OnClick := bt.MCWOKClick;
+      end;
     end;
     exit;
   end;
@@ -124,6 +157,8 @@ begin
     Color := clBtnFace;
     BorderStyle := bsDialog;
     Position := poDesktopCenter;
+    OnShow := bt.MCWShow;
+    Caption := '';
   end;
   TitleMCW := TLabel.Create(FormMCW);
   with TitleMCW do begin
@@ -205,16 +240,26 @@ begin
 end;
 procedure btn.MCWOKClick(Sender: TObject);
 begin
-  if (Sender as TButton).Name = 'PictureOK' then begin
-    FormMCW.Close;
+  if FormMCW.Name = 'MyPicMsgBox' then begin
+//    if (Sender as TButton).Name = 'PictureOK' then begin
+      ResMsg := true;
+      FormMCW.Close;
+//    end else begin
+//      FormMCW.Close;
+//    end;
   end else begin
-    ResInput := InputMCW.Text;
-    FormMCW.Close;
+    if (Sender as TButton).Name = 'PictureOK' then begin
+      FormMCW.Close;
+    end else begin
+      ResInput := InputMCW.Text;
+      FormMCW.Close;
+    end;
   end;
 end;
 procedure btn.MCWCancalClick(Sender: TObject);
 begin
   ResInput := '';
+  ResMsg := false;
   FormMCW.Close;
 end;
 procedure btn.MCWButtonClick(Sender: TObject);
@@ -226,6 +271,17 @@ begin
     392: ResMessage := 1;
   end;
   FormMCW.Close;
+end;
+procedure btn.MCWShow(Sender: TObject);
+begin
+  if (FormMCW.Name = 'MyPicMsgBox') or (FormMCW.Name = 'MyPictureBox') then begin
+    OkMCW.SetFocus;
+  end else if FormMCW.Name = 'MyInputBox' then begin
+    InputMCW.SetFocus;
+  end else if FormMCW.Name = 'MyMessageBox' then begin
+    if (db > len) or (db < 1) then raise Exception.Create('So much default button');
+    tbt[db - 1].SetFocus;
+  end;
 end;
 //自定义信息框
 function MyMessageBox(title, content: String; color: Integer; button: TArray<MyButton>; custom: TArray<String> = []; defbutton: Integer = 1): Integer;
@@ -242,7 +298,7 @@ begin
       MY_PASS: begin TitleMCW.Font.Color := rgb(10, 192, 10); CutMCW.Font.Color := clGreen; end;
       else raise Exception.Create('So much color');
     end;
-    var len := Length(button);
+    len := Length(button);
     if (len < 1) or (len > 4) then raise Exception.Create('So much button');
     SetLength(tbt, len);
     for var I := 0 to len - 1 do begin
@@ -260,8 +316,9 @@ begin
       end;
       tbt[I].OnClick := bt.MCWButtonClick;
     end;
-    if (defbutton > len) or (defbutton < 1) then raise Exception.Create('So much default button');
-    tbt[defbutton - 1].Default := true;
+    db := defbutton;
+//    if (defbutton > len) or (defbutton < 1) then raise Exception.Create('So much default button');
+//    tbt[defbutton - 1].Default := true;
     var O := 0;
     var P := 0;
     for var I := 0 to len - 1 do begin
@@ -282,11 +339,11 @@ begin
   Result := ResMessage;
 end;
 //自定义输入框
-function MyInputBox(title, content: String; color: Integer; defcontent: String = ''; defbutton: Integer = 1): String;
+function MyInputBox(title, content: String; color: Integer; defcontent: String = ''): String;
 begin
   TThread.Synchronize(nil, procedure begin
     InitMCW('MyInputBox');
-    if (defbutton > 2) or (defbutton < 1) then raise Exception.Create('So much default button');
+//    if (defbutton > 2) or (defbutton < 1) then raise Exception.Create('So much default button');
     ContentMCW.Lines.Clear;
     TitleMCW.Caption := title;
     ContentMCW.Lines.Add(content);
@@ -297,26 +354,44 @@ begin
       MY_PASS: begin TitleMCW.Font.Color := clGreen; CutMCW.Font.Color := clGreen; end;
       else raise Exception.Create('So much color');
     end;
-    case defbutton of
-      1: OkMCW.Default := true;
-      2: CancalMCW.Default := true;
-      else raise Exception.Create('Not Support');
-    end;
+//    case defbutton of
+//      1: OkMCW.Default := true;
+//      2: CancalMCW.Default := true;
+//      else raise Exception.Create('Not Support');
+//    end;
     InputMCW.Text := defcontent;
     FormMCW.ShowModal;
   end);
   Result := ResInput;
 end;
 //自定义图片信息框【专用于模组信息显示】
-procedure MyPictureBox(title, content: String; web: TStringStream);
+procedure MyPictureBox(title, content: String; web: TStream);
 begin
-  InitMCW('MyPictureBox');
-  PicTitleMCW.Lines.Clear;
-  ContentMCW.Lines.Clear;
-  PicTitleMCW.Lines.Add(title);
-  ContentMCW.Lines.Add(content);
-  try PictureMCW.Picture.LoadFromStream(web); except end;
-  FormMCW.ShowModal;
+  TThread.Synchronize(nil, procedure begin
+    InitMCW('MyPictureBox');
+    PicTitleMCW.Lines.Clear;
+    ContentMCW.Lines.Clear;
+    PicTitleMCW.Lines.Add(title);
+    ContentMCW.Lines.Add(content);
+    if web <> nil then
+      try PictureMCW.Picture.LoadFromStream(web); except end;
+    FormMCW.ShowModal;
+  end);
+end;
+//自定义图片选择框【用于整合包导入时输出文字】
+function MyPicMsgBox(title, content: String; web: TStream): Boolean;
+begin
+  TThread.Synchronize(nil, procedure begin
+    InitMCW('MyPicMsgBox');
+    PicTitleMCW.Lines.Clear;
+    ContentMCW.Lines.Clear;
+    PicTitleMCW.Lines.Add(title);
+    ContentMCW.Lines.Add(content);
+    if web <> nil then
+      try PictureMCW.Picture.LoadFromStream(web); except end;
+    FormMCW.ShowModal;
+  end);
+  Result := ResMsg;
 end;
 end.
 

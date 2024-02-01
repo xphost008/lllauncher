@@ -315,6 +315,8 @@ begin
   form_mainform.label_export_modpack_profile.Caption := GetLanguage('label_export_modpack_profile.caption');
   form_mainform.label_export_keep_file.Caption := GetLanguage('label_export_keep_file.caption');
   form_mainform.button_export_start.Caption := GetLanguage('button_export_start.caption');
+  form_mainform.button_export_add_icon.Caption := GetLanguage('button_export_add_icon.caption');
+  form_mainform.label_export_add_icon.Caption := GetLanguage('label_export_add_icon.caption');
   //以下是IPv6联机部分
   form_mainform.button_check_ipv6_ip.Caption := GetLanguage('button_check_ipv6_ip.caption');
   form_mainform.label_online_ipv6_port.Caption := GetLanguage('label_online_ipv6_port.caption');
@@ -363,7 +365,7 @@ begin
       .AddPair('menu_official_entry.caption', '进入官网')
       .AddPair('menu_official_support.caption', '赞助作者')
       .AddPair('menu_official_bmclapi.caption', '赞助BMCLAPI')
-      .AddPair('menu_manual.caption', '手动')
+      .AddPair('menu_manual.caption', '更多')
       .AddPair('menu_manual_reset.caption', '重置启动器')
       .AddPair('menu_manual_export.caption', '手动导出启动参数')
       .AddPair('menu_manual_version.caption', '当前版本')
@@ -418,6 +420,8 @@ begin
       .AddPair('messagebox_mainform.show_lll_version.caption', '当前使用启动器版本')
       .AddPair('messagebox_mainform.is_reset_launcher.text', '请问是否需要重置LLL启动器，该操作会删除你目前已存在的所有配置文件，包括插件、语言、背景图、背景音乐等。启动器会直接关闭，你需要手动重新打开一次。是否继续？【简单来说就是删掉{exe}\LLLauncher文件】')
       .AddPair('messagebox_mainform.is_reset_launcher.caption', '是否重置LLL启动器？')
+      .AddPair('messagebox_mainform.reset_language_to_chinese.text', '请问你是否需要重置语言文件为中文，该举动将会删掉你的配置文件目录下的zh_cn.json文件，并创建一个新的，之后再加载！')
+      .AddPair('messagebox_mainform.reset_language_to_chinese.caption', '是否要重置语言为中文')
       .AddPair('messagebox_mainform.cannot_export_launch_args.text', '你目前所处的国家并不属于中国，无法使用启动脚本导出功能，请见谅！')
       .AddPair('messagebox_mainform.cannot_export_launch_args.caption', '无法使用启动脚本导出')
       .AddPair('messagebox_account_offline_error.cannot_name.text', '你的离线登录名称并不理想，输入错误！请不要输入中文，也不要超过16个字符！不要为空。')
@@ -450,8 +454,8 @@ begin
       .AddPair('messagebox_account_thirdparty.add_account_success.caption', '添加成功')
       .AddPair('messagebox_account_thirdparty_error.account_or_password_empty.text', '账号或密码为空，请重新输入！')
       .AddPair('messagebox_account_thirdparty_error.account_or_password_empty.caption', '账号或密码为空')
-      .AddPair('messagebox_account_microsoft_error.not_complete_oauth_login.text', '你还暂未完成你的微软OAuth登录就按下了按钮，请重新获取一次用户代码后再来！')
-      .AddPair('messagebox_account_microsoft_error.not_complete_oauth_login.caption', '暂未完成登录')
+      .AddPair('messagebox_account_microsoft_error.not_complete_oauth_login.text', '暂未完成登录')
+      .AddPair('messagebox_account_microsoft_error.not_complete_oauth_login.caption', '你还暂未完成你的微软OAuth登录就按下了按钮，请重新获取一次用户代码后再来！')
       .AddPair('messagebox_account_microsoft_error.login_timeout.text', '你在登录过程中超时了！请重新获取一次用户代码后再来！')
       .AddPair('messagebox_account_microsoft_error.login_timeout.caption', '登录超时')
       .AddPair('messagebox_account_microsoft_error.refresh_expire.text', '你的RefreshToken也过期了，看样子你已经很久没重置过账号了呢！请重新登录一次新的账号吧！')
@@ -525,7 +529,7 @@ begin
       .AddPair('messagebox_playing.open_intro_error.text', '打开简介失败，请尝试选择任意一个玩法版本后，再尝试打开简介。')
       .AddPair('picturebox_playing.open_curseforge_intro_success.text', Concat(
               '项目ID：${p_id}', #13#10,
-              '项目类型：${classId}', #13#10,
+              '项目隶属：${classId}', #13#10,
               '项目slug：${slug}', #13#10,
               '项目标题：${name}', #13#10,
               '项目作者：${authors}', #13#10,
@@ -550,7 +554,7 @@ begin
               ))
       .AddPair('picturebox_playing.open_modrinth_intro_success.text', Concat(
               '项目ID：${project_id}', #13#10,
-              '项目类型：${project_type}', #13#10,
+              '项目隶属：${project_type}', #13#10,
               '项目slug：${slug}', #13#10,
               '项目标题：${title}', #13#10,
               '项目作者：${author}', #13#10,
@@ -572,6 +576,7 @@ begin
               '所选支持MC版本：${game_versions}', #13#10,
               '所选加载器：${loaders}', #13#10,
               '所选更新日志：${changelog}'))
+      .AddPair('picturebox_playing.has_no_data', '暂无数据。')
       .AddPair('messagebox_playing.no_version_download_error.caption', '暂未选择任意版本')
       .AddPair('messagebox_playing.no_version_download_error.text', '您还暂未选择任意玩法的版本，无法下载，请选择一个之后重试。')
       .AddPair('opendialog_playing.download_dialog.title', '请选择你要保存的路径：')
@@ -878,6 +883,25 @@ begin
       .AddPair('messagebox_plugin.lose_form_name.text', '该插件在窗口处缺失了name值，请尝试修改后再点击！')
       .AddPair('messagebox_plugin.plugin_grammar_error.caption', '窗口缺失了name值')
       .AddPair('messagebox_plugin.plugin_grammar_error.text', '该插件在窗口处缺失了name值，请尝试修改后再点击！')
+      .AddPair('messagebox_manage.drag_modpack_only_one_file.caption', '无法拖入多个文件')
+      .AddPair('messagebox_manage.drag_modpack_only_one_file.text', '无法在导入整合包的时候拖入多个文件，你只能拖入一个！')
+      .AddPair('messagebox_manage.drag_modpack_format_error.caption', '整合包格式不符')
+      .AddPair('messagebox_manage.drag_modpack_format_error.text', '拖入的整合包只允许【mrpack】或者【zip】后缀的文件，无法拖入别的！')
+      .AddPair('messagebox_manage.cannot_unzip_modpack.caption', '解压整合包失败')
+      .AddPair('messagebox_manage.cannot_unzip_modpack.caption', '解压整合包失败了！你似乎给整合包上了密码，或者这个整合包不是正确的整合包，请重试！')
+      .AddPair('opendialog_export.add_icon', '请选择你要添加的图标')
+      .AddPair('picturebox_manage.import_modrinth_modpack.text', Concat(
+              '整合包类型：${modpack_game}', #13#10,
+              '整合包版本：${modpack_version}', #13#10,
+              '整合包名称：${modpack_name}', #13#10,
+              '整合包简介：${modpack_summary}', #13#10,
+              '-----------------------------------------------------------------------------------------------------------------------',
+              '整合包MC版本：${modpack_mcversion}', #13#10,
+              '整合包模组加载器：${modpack_modloader}', #13#10,
+              '整合包模组加载器版本：${modpack_modloader_version}', #13#10,
+              '是否继续安装？点是即安装。'))
+      .AddPair('messagebox_manage.read_config_error.caption', '读取配置文件失败！')
+      .AddPair('messagebox_manage.read_config_error.text', '读取配置文件失败了！你似乎没有选中任意游戏文件夹或者Java，请去选中一个再来！')
       //以下为下载进度列表框
       .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
@@ -938,6 +962,7 @@ begin
       .AddPair('downloadlist.forge.start_run_processors', '现在正在开始用单线程跑Forge处理器中……')
       .AddPair('downloadlist.forge.not_choose_any_java', '你暂未选中任何一个Java，无法跑Forge处理器，请重试！')
       .AddPair('downloadlist.forge.skip_processors', '已跳过：${processors_count}')
+      .AddPair('downloadlist.forge.run_processors_error', '运行失败：${processors_count}')
       .AddPair('downloadlist.forge.run_processors_success', '已完成：${processors_count}')
       .AddPair('downloadlist.forge.download_forge_success', '下载Forge已完成，耗时：${download_finish_time}秒')
       .AddPair('downloadlist.forge.cannot_extra_miencraft_jar', '无法检测出Minecraft原版Jar包，请将此错误反馈给作者！')
@@ -1592,6 +1617,8 @@ begin
       .AddPair('label_export_modpack_profile.caption', '整合包简介')
       .AddPair('label_export_keep_file.caption', '需要保留的文件')
       .AddPair('button_export_start.caption', '♥点我导出♥')
+      .AddPair('label_export_add_icon.caption', '为整合包添加图标（ps：允许任意像素，但建议200x200即可，仅限png，暂不支持jpg等）')
+      .AddPair('button_export_add_icon.caption', '选择图标文件')
       //以下是联机IPv6部分
       .AddPair('__online_comment', '（注解）以下是联机部分语言')
       .AddPair('label_online_ipv6_return_value.caption.check_ipv6_port', '正在检测你的IPv6公网IP中……')
@@ -1600,7 +1627,7 @@ begin
       .AddPair('listbox_view_all_ipv6_ip.caption.temp', '临时')
       .AddPair('label_online_ipv6_return_value.caption.not_support_ipv6', '你的局域网网络暂不支持IPv6连接，如果你确信自己拥有IPv6而LLL无法识别出来时，请联系作者！')
       .AddPair('label_online_ipv6_return_value.caption.check_ipv6_success', '检测IPv6成功！现在你可以在列表框里查看了！')
-      .AddPair('label_online_ipv6_return_value.caption.current_ipv6_ip', '你选中的IPv6地址是：${ip}')
+      .AddPair('label_online_ipv6_return_value.caption.current_ipv6_ip', '你选中的IPv6地址是：[${ip}]')
       .AddPair('button_check_ipv6_ip.caption', '开始检测IPv6公网IP')
       .AddPair('label_online_ipv6_port.caption', '请输入你在游戏中的端口【1024~65536】')
       .AddPair('button_copy_ipv6_ip_and_port.caption', '复制IPv6公网IP与端口')
@@ -1608,22 +1635,22 @@ begin
       .AddPair('label_online_tip.caption', '这里是联机部分，你可以在这里找一个你所想要的联机方式进行联机噢！')
       //以下是启动游戏时的语言
       .AddPair('__launcher_comment', '（注解）以下是启动游戏时的语言')
-      .AddPair('label_launch_tips.caption.judge_args', '正在开始判断配置文件是否有误……')
-      .AddPair('label_launch_tips.caption.not_choose_mc_version', 'MC版本判断失误，你还没有选择任一MC版本。')
-      .AddPair('label_launch_tips.caption.not_choose_java', 'Java判断失误，你还没有选择任一Java。')
-      .AddPair('label_launch_tips.caption.access_token_expire', '你的Access Token已过期，请尝试重新登录一次吧【或者点击刷新账号】！')
-      .AddPair('label_launch_tips.caption.not_support_third_party', '目前并不处在中国，暂不支持第三方外置登录！请重试！')
-      .AddPair('label_launch_tips.caption.not_support_login_type', '不支持的登录方式，也许你修改了账号配置中的数据，请立即改回来！')
-      .AddPair('label_launch_tips.caption.not_choose_account', '账号判断失误，你还没有选择任一账号。')
-      .AddPair('label_launch_tips.caption.set_launch_script', '现在开始拼接启动参数……')
-      .AddPair('label_launch_tips.caption.cannot_find_json', '版本错误，未从版本文件夹中找到符合标准的json文件！……')
-      .AddPair('label_launch_tips.caption.unzip_native_error', '未能成功解压Natives文件。')
-      .AddPair('label_launch_tips.caption.cannot_set_launch_args', '无法拼接MC启动参数，请仔细的检查你的MC版本JSON是否有误！')
-      .AddPair('label_launch_tips.caption.cannot_find_authlib_file', '找不到Authlib-Injector文件，请进入账号部分下载一个后再尝试！')
-      .AddPair('label_launch_tips.caption.export_launch_args_success', '启动参数导出成功！')
-      .AddPair('label_launch_tips.caption.wait_launch_game', '游戏启动成功！正在等待打开游戏窗口中……')
-      .AddPair('label_launch_tips.caption.launch_game_success', '窗口打开成功！可以开始玩游戏了！')
-      .AddPair('label_launch_tips.caption.cancel_launch', '取消启动。')
+      .AddPair('label_mainform_tips.caption.judge_args', '正在开始判断配置文件是否有误……')
+      .AddPair('label_mainform_tips.caption.not_choose_mc_version', 'MC版本判断失误，你还没有选择任一MC版本。')
+      .AddPair('label_mainform_tips.caption.not_choose_java', 'Java判断失误，你还没有选择任一Java。')
+      .AddPair('label_mainform_tips.caption.access_token_expire', '你的Access Token已过期，请尝试重新登录一次吧【或者点击刷新账号】！')
+      .AddPair('label_mainform_tips.caption.not_support_third_party', '目前并不处在中国，暂不支持第三方外置登录！请重试！')
+      .AddPair('label_mainform_tips.caption.not_support_login_type', '不支持的登录方式，也许你修改了账号配置中的数据，请立即改回来！')
+      .AddPair('label_mainform_tips.caption.not_choose_account', '账号判断失误，你还没有选择任一账号。')
+      .AddPair('label_mainform_tips.caption.set_launch_script', '现在开始拼接启动参数……')
+      .AddPair('label_mainform_tips.caption.cannot_find_json', '版本错误，未从版本文件夹中找到符合标准的json文件！……')
+      .AddPair('label_mainform_tips.caption.unzip_native_error', '未能成功解压Natives文件。')
+      .AddPair('label_mainform_tips.caption.cannot_set_launch_args', '无法拼接MC启动参数，请仔细的检查你的MC版本JSON是否有误！')
+      .AddPair('label_mainform_tips.caption.cannot_find_authlib_file', '找不到Authlib-Injector文件，请进入账号部分下载一个后再尝试！')
+      .AddPair('label_mainform_tips.caption.export_launch_args_success', '启动参数导出成功！')
+      .AddPair('label_mainform_tips.caption.wait_launch_game', '游戏启动成功！正在等待打开游戏窗口中……')
+      .AddPair('label_mainform_tips.caption.launch_game_success', '窗口打开成功！可以开始玩游戏了！')
+      .AddPair('label_mainform_tips.caption.cancel_launch', '取消启动。')
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
   end;

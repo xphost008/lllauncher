@@ -88,7 +88,7 @@ begin
     form_mainform.listbox_view_all_ipv6_ip.ItemIndex := -1;
     exit;
   end;
-  form_mainform.label_online_ipv6_return_value.Caption := GetLanguage('label_online_ipv6_return_value.caption.current_ipv6_ip').Replace('${ip}', mip);
+  form_mainform.label_online_ipv6_return_value.Caption := Concat(GetLanguage('label_online_ipv6_return_value.caption.current_ipv6_ip').Replace('${ip}', mip));
   if form_mainform.edit_online_ipv6_port.Text <> '' then form_mainform.label_online_ipv6_return_value.Caption := Concat(form_mainform.label_online_ipv6_return_value.Caption, ':', form_mainform.edit_online_ipv6_port.Text);
 end;
 

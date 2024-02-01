@@ -18,140 +18,101 @@ object form_mainform: Tform_mainform
   Font.Name = 'Segoe UI'
   Font.Style = []
   Icon.Data = {
-    0000010001002020000001002000A81000001600000028000000200000004000
-    0000010020000000000000100000130B0000130B000000000000000000000000
-    8AFF00008AFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000
-    CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000
-    CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000
-    CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFFFFFFFFFFFFFFFFFF0000
-    8AFF00008AFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000
-    CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000
-    CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000
-    CAFF0000CAFF0000CAFF0000CAFF0000CAFF0000CAFFFFFFFFFFFFFFFFFF0000
-    CAFF0000CAFF0000F2FF0000F2FF0000F8FF0000F8FF0000F8FF0000F8FF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    F8FF0000F8FF0000F8FF0000F8FF0000F8FF0000F8FF0000F8FF0000F8FF0000
-    F8FF0000F8FF0000F8FF0000F8FF0E0EF5FF0E0EF5FF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F2FF0000F2FF0000F8FF0000F8FF0000F8FF0000F8FF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    F8FF0000F8FF0000F8FF0000F8FF0000F8FF0000F8FF0000F8FF0000F8FF0000
-    F8FF0000F8FF0000F8FF0000F8FF0E0EF5FF0E0EF5FF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF1212FFFF1212FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF1212FFFF1212FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF1212FFFF1212FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF1212FFFF1212FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF1212FFFF1212FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF1212FFFF1212FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000
-    FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000
-    FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000
-    FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000
-    FFFF0000FFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000FFFF0000FFFF0000FFFFFFFFFFFF0000FFFF0000FFFF0000
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000
-    FFFF0000FFFFFFFFFFFF0000FFFF0000FFFF0000FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFFFFFFFFFF0000FFFF0000FFFF0000
-    FFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFF0000FFFF0000
-    FFFF0000FFFFFFFFFFFF0000FFFF1212FFFF1212FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0000F8FF0000F8FF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFFFFFFFFFFFFFFFFFFFFFFFFFF0000FFFF0000
-    FFFF0000FFFF0000FFFF0000FFFF0000FFFF1212FFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0E0EF5FF0E0EF5FF1212FFFF1212FFFF1212FFFF1212FFFF1212
-    FFFF1212FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF1212FFFF1212FFFF1212
-    FFFF1212FFFF1212FFFF1212FFFF2B2BFFFF2B2BFFFF8F8FFFFF8F8FFFFF0000
-    CAFF0000CAFF0E0EF5FF0E0EF5FF1212FFFF1212FFFF1212FFFF1212FFFF1212
-    FFFF1212FFFF1212FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-    FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF1212FFFF1212FFFF1212FFFF1212
-    FFFF1212FFFF1212FFFF1212FFFF2B2BFFFF2B2BFFFF8F8FFFFF8F8FFFFFFFFF
-    FFFFFFFFFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8F
-    FFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8F
-    FFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8F
-    FFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFFC5C5FFFFC5C5FFFFFFFF
-    FFFFFFFFFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8F
-    FFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8F
-    FFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8F
-    FFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFF8F8FFFFFC5C5FFFFC5C5FFFF0000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    0000000000000000000000000000000000000000000000000000000000000000
-    000000000000000000000000000000000000000000000000000000000000}
+    0000010001004040000000002000BC0B00001600000089504E470D0A1A0A0000
+    000D4948445200000040000000400806000000AA6971DE0000000467414D4100
+    00B18F0BFC6105000000017352474200AECE1CE9000000206348524D00007A26
+    000080840000FA00000080E8000075300000EA6000003A98000017709CBA513C
+    00000B3A49444154789CD55B5B6F1BC715FE66C9E575AD58CECA92B8A4489962
+    64C78D95BAB16BA4499A0469D10679E86BDABC14C88FF04FF08F508006058A3C
+    15288A20688134498B26699D26BEEB4A7949ED528AC4D891BCBC2F397DA0C8EC
+    65F64659ADF20102A8DDB99CDB9C3973E62CC1F708F24BAFD3885206DF6E8258
+    DE5142D038711289BD0715512D4A7EC7B48E732C5195F22A0849F96DDF0947C0
+    775ABE04C11D8EB4A387FCE3576910E60180D7DB002129F9E28BD4ABAD6F0BA8
+    4A791500B46C3E854EA7FF90E3202872050082985DA0390DCCD7C7C691D87B50
+    31B6D1A46C4AA8941DC7A88D8BC8DEFEDC914F4F0154A5BCAACD9C49099BF75D
+    DB695312725F7CF25897945258A0B146ADFF0FA58E265D95F26A2B1A4F45DB4D
+    366D8573C87DF467266DAE04BBADBD2E17022504E1AE3E7CD609F1982E2D3D36
+    2154D3737D137661DE88F2B94B34F1E821FBA5C3188E3EC089796DB600505A99
+    2CAF90A9D23201A515505A0100BEDB81FCC22F3CD79D5F2C2A0D5010DBF2BA06
+    895E83649B6766E93AE97221E658CD84C0542453008E9AA7B492FBC707C44890
+    A81625512D4A03214495921B4F81F18E52B73DBB0AD5D1CA425DBDC27A1E6BD4
+    867ECC08A600F430CF64DECD0C45B52869E91CDE95F799EFAB525E35FE398DC3
+    024BDBA3402B9CB5F115B63EA84A791586750DF4838C0965DD6686564DBCF7F9
+    926DAC9A38994A7EB36323467EFEE734F7E95F5DFDC555A864C0FCE31002BF69
+    DF2D6C16A04D676C52AA9F1499031A89B2123858462CE60140286F603B7BD693
+    A9AB508955D0AC677E106D356CCBC036889ABF40A32DF3BAAB8D4F207BFB335B
+    5B965606845D8344DFBC3083E4373BC335D94C9C48C51A9AA97D3B1C414ABE37
+    1CDB48E028B18567D46859CA26A69C3A77C2114C1B88F4026B79B8CDA165CF40
+    908B9576349E8A18F6F22E1742A8AB078AED95B9051A6BD69C1B5804E02B14E6
+    F536D383B2E0C63C70A0D5831D6300A1B4011062621E0042BD2E40484ACD3FE3
+    6BFD57A5BCEACA3C03BECF02CD387B1F35C28BF90144B52869B3739E73EAA130
+    7A84C3EF8B0FFC39C1806706C02200512D4AAD6882D930D6AC8D14E40C82162B
+    03C2C61A73BF06002D9D0528AD4C9596C9E9CD5562F42B4E7DB6724F7BD2A687
+    C236BF62B380CEC484E30082BC8EF2F9CBBE856025D82808512D4ACCA88DD24A
+    EEF30F899550272154A5BCBA9B2E505E6F7BD2D39CB2BB129B00844DD9513300
+    90D87B809D4C811A039AAA9457773385C0D6D1B308A0158D0F35C4B29A811076
+    8DF3139222F037F5E0E46A844D00A25A947AC4DD357094F6D71B21A9DD4C8182
+    9014A114BF999FF445C800214BC0D5C9CD027037F5DFCE24410CF3FB9DAB4738
+    E6B6CAE4B4B1F043BFE3F6893940ACF6C8F48EE51007CFAA525EE568CFF44E58
+    BE6BD390D512BA21DE376D46D4CF1498CF1D3DF676F62C0D5B34E40B3E8FAEA5
+    677F4293D5AF4DCFB4FC3C729FBC4F9C4C1F00763205CAD1E051B1A8AC337975
+    B4F5B0DE71F5058E2024E5153354A5BC6A651E00A2A50D0066868DBFFB5633C2
+    91C0127798C875EB27BFFC0615D697834F783029CB124A3FFB154D2EDD71ECA6
+    CDCD23F7F1FB4CBA46D1BECE8530555E193D25263FF7532A6C073ABD0ED1E542
+    683E710A341E07A76948EC3FF0D5AF7EE22412FB0F4D5AA31C9722236ADF6D49
+    FA8AEFE5177F4985FB6BC127FF7FC3873FF20C85AB525EE52BCAE323EA98C1DD
+    07BCF43A1536563D076179D8CAEC791AE9B40E419AF71CC3A4A90BEA4F9CC2CC
+    DD7F07F7017EB7415159279BF31769BCF65D2A8C128289CD350200F28F5EA2C2
+    D7A36D289D308F69B99F6596AFBC46A35B2AF86E67780D3673EF3A299FBF4C13
+    7BEEBE450F8531555AF69F16F7AB3D5159275FCFCCD350AFCB7CBFA83470152A
+    A94A79B576EA742AF970D7734CC09C07B80689BE9D8EBBD2A0CC5DA0B1A63D79
+    CA6A6B7D66F301A51F5CF1CDBCFCDCCB8ECC9BDAAA45297BFB33B2A834D08C27
+    D18C27418999964E9847339EC4A2D2C06479C576187242353D47D3EBB77C3973
+    D689D12400F9953768F2DBAA9FB1000089114C3BBD7693A4D76E9289CD35B2A8
+    34B0A834004A2BD3F21249AFDD1CF952A5CD473DDBF07A1BA5675F3009612880
+    AA945785B560418F3596B7E2ED741CF295D7A8572ADCAA6DA5B0400734BDF9CC
+    8C2F5ADAA7D8895B2B92D56D53766B2880DAA9D381B3297E2028F2F0E4F6763A
+    0ED6DD80F1F75B0511B1460D3B07A74CBF7E0391886F9A9AF1E490D7F09000BF
+    131D168623ACC1B9A5B6B36769A8D70539B80C0D1CF3B7FD6FB9B1661D5529AF
+    8A6A51E200409B4C8DA4FD7624364A3726C25D1D2385BA83FE7BDF066AAF4D49
+    29E060092477B7034FA8CC2DD0D4C69D635361E2671B3422B9B305000857A5BC
+    8A11241F34FD7C54688D688584D2FEF15A9B993D94F3734A34FCAF206DDC213B
+    99A7465A3BDACC9914476ADE9A6C244E309F0F62F1668C9D4A3F6AD49EECE720
+    BDB66327909A068EE8EE919C76A680CCEA5744CBCC32DF6F67CFD2F4FA2DC7C2
+    84A3429B8F227BF39FC4F1404469C56B79F08FF6C1C51E397BCF4E8847EEEF1F
+    100010CA1BCCB02FDCD5B1397F914E9657881EB2DDB61F09F45018A9FB771D99
+    6FF351886A518AB61AAEA16A58EFB8E70378BD3D1CC02D5D1EAFED4399BB40A7
+    4ACBA42E3C317CBEA834202AEB4454D689D38D9313F45078783630A291103055
+    5A76D63C80F66C7E48B35B3E1000B84E841D43B722315B885A97328E03C59A75
+    6C67CFD299E5FF109663948AB74827CCA3911C43EDD4695BFF4E3802FD20E55D
+    1F1BC75469797836A88F8DF71952D64966F5862BF30020ACDC3529CED9322938
+    3D21305FB1CCC7EBD628DCD5878E91258477E57D6456BE24D95B9F9281662821
+    0787A17B64AAB44416950666EE5D37F59DB9779D88CA3A51F317A817F3B593A2
+    4D71CDC23CB36D635C04875C96F992751C15D5A2D410C6DCE607D0DF1DAAE939
+    FA564174BC5617D5A24409C13B9B75CF4288F2F9CBB49A9EB3156EB0907CB86B
+    57DCD21DA6E2E8F83808AB60C19889B12268DD2E0034926320BD2E6275CD5455
+    3AB800315D7C1C08AC9D1052E1760B412E679A7101E9B51B0E29F5A7A86DBBA4
+    B44200C09AD2D2A42C72FFFAD031C0912FBD4285AD4DDF8459D1E542D0C33C68
+    280CCA71205D1D5C5707AF770E751E70CB026FE59E36DD200FAA5E3800886B7B
+    6613F1385AE6AE7F440E53B215EA75116D37116B6888D7F6116BD611E9B40FC5
+    BC363BE7B194CC63B7CEF4770A0EE89BA429A3E28390FAF98511C83C3AB8155C
+    58D1E6A3C8FDAD5F3B3CDCD823EDE67703101FE1FDB13907068791D7A10044B5
+    28D52F5E020024E575C77ADCEF1BAE41A2E5A72F515E3F28F177AB12EBEDF51D
+    21A114BF3E373D1C802588E4ED1BA325FB8F009D10EF5A501DD10C0EDE522E6B
+    12C07B9FDC80367F1EDA541A7F58DA3255641E676BD0A3E6687650AD36F8FB5D
+    590328AD74B910DEFBF886A92D67EC0400B90FFF44725F7C6C629A55E9D13F1B
+    1C0F4710AF3D72B4466351D6E4C135B95199BEEA049DB45F17A782517A0CE1EB
+    FCEA54FC28EC542AA314273E4E3412279059FD8A5952E707430B702B687282A8
+    16A54ED8231F7FF04549EDC9D3F0AA3E1BA0CB8586FDBCFAC46BFB9ECE98556D
+    3EF87DE8452C5F798D0A8ACC7EC9084D8D87A3C1672C8333C200D63E5BD97394
+    EF766CC3F70887D39BAB87E2E1D0291C61F33E731934120232AB379827CAA073
+    F07A9B39477D5A0236BDEB17DC70E80F2745B5283592F6A4A99B671E650ED6E5
+    A7A0960F3D47600BA84A79554BE752A0BDEF08D0F68FDC19762351C0706DDF48
+    8E21B3F2A55495F2AA56389742BD068C8F23F7973F065A12811A979EB942930F
+    19D7E794DA05E0B360D22FE4CBAF52E317A26D3E0A4A08AC1F4B521010DAF33D
+    B7EF2550BAF03C9B7960A43AFDA020E293A6FF239D968D790020A0BE8A3507F0
+    2500A5B040930FD81F3FB1D0E5428FFD5B622E990CD4BE3631ED4B29FF05AFAA
+    78E2BFD05F150000000049454E44AE426082}
   Menu = mainmenu_mainpage
   Position = poDesktopCenter
   OnClose = FormClose
@@ -170,7 +131,7 @@ object form_mainform: Tform_mainform
     Top = 8
     Width = 834
     Height = 463
-    ActivePage = tabsheet_version_part
+    ActivePage = tabsheet_mainpage_part
     MultiLine = True
     TabOrder = 0
     OnChange = pagecontrol_mainpageChange
@@ -180,33 +141,33 @@ object form_mainform: Tform_mainform
       Caption = #20027#30028#38754
       object label_account_view: TLabel
         Left = 3
-        Top = 3
+        Top = 73
         Width = 351
         Height = 15
         Caption = #20320#36824#26242#26410#30331#24405#20219#20309#19968#20010#36134#21495#65292#30331#24405#21518#21363#21487#22312#36825#37324#26597#30475#27426#36814#35821#65281
       end
       object label_open_launcher_time: TLabel
         Left = 3
-        Top = 24
+        Top = 94
         Width = 344
         Height = 15
         Caption = #21551#21160#21551#21160#22120#26102#38388#65306'6666666666666666666666666666666666666666'
       end
       object label_open_launcher_number: TLabel
         Left = 3
-        Top = 45
+        Top = 115
         Width = 344
         Height = 15
         Caption = #25171#24320#21551#21160#22120#27425#25968#65306'6666666666666666666666666666666666666666'
       end
       object label_launch_game_number: TLabel
         Left = 3
-        Top = 66
+        Top = 136
         Width = 344
         Height = 15
         Caption = #21551#21160#28216#25103#30340#27425#25968#65306'6666666666666666666666666666666666666666'
       end
-      object label_launch_tips: TLabel
+      object label_mainform_tips: TLabel
         Left = 3
         Top = 339
         Width = 814
@@ -541,6 +502,13 @@ object form_mainform: Tform_mainform
         Stretch = True
         OnClick = image_open_download_prograssClick
       end
+      object image_mainform_login_avatar: TImage
+        Left = 3
+        Top = 3
+        Width = 64
+        Height = 64
+        Stretch = True
+      end
       object button_launch_game: TButton
         Left = 3
         Top = 366
@@ -563,7 +531,7 @@ object form_mainform: Tform_mainform
       end
       object groupbox_message_board: TGroupBox
         Left = 3
-        Top = 87
+        Top = 157
         Width = 474
         Height = 78
         Caption = #30041#35328#26495#65288#28857#25105#21487#20197#26356#25442#30041#35328#26495#22114#65281#65289
@@ -662,7 +630,7 @@ object form_mainform: Tform_mainform
         Top = 94
         Width = 824
         Height = 146
-        ActivePage = tabsheet_account_microsoft_part
+        ActivePage = tabsheet_account_offline_part
         TabOrder = 5
         OnChange = pagecontrol_account_partChange
         object tabsheet_account_offline_part: TTabSheet
@@ -904,7 +872,7 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_playing_manage_part
+        ActivePage = tabsheet_playing_download_part
         TabOrder = 0
         OnChange = pagecontrol_playing_partChange
         object tabsheet_playing_download_part: TTabSheet
@@ -2132,7 +2100,7 @@ object form_mainform: Tform_mainform
         Width = 826
         Height = 433
         HorzScrollBar.Tracking = True
-        VertScrollBar.Position = 413
+        VertScrollBar.Position = 34
         VertScrollBar.Tracking = True
         Align = alClient
         Color = clBtnFace
@@ -2143,105 +2111,105 @@ object form_mainform: Tform_mainform
         OnMouseWheel = scrollbox_launchMouseWheel
         object label_launch_window_size: TLabel
           Left = 3
-          Top = -410
+          Top = -31
           Width = 159
           Height = 15
           Caption = #28216#25103#31383#21475#22823#23567#65292#40664#35748'854x480'
         end
         object label_launch_window_width: TLabel
           Left = 3
-          Top = -389
+          Top = -10
           Width = 188
           Height = 15
           Caption = #23485#24230#65292#24403#21069#36873#20013#65306'99999999999999'
         end
         object label_launch_window_height: TLabel
           Left = 3
-          Top = -339
+          Top = 40
           Width = 188
           Height = 15
           Caption = #39640#24230#65292#24403#21069#36873#20013#65306'99999999999999'
         end
         object label_launch_java_path: TLabel
           Left = 3
-          Top = -289
+          Top = 90
           Width = 48
           Height = 15
           Caption = 'Java'#36335#24452
         end
         object label_launch_java_logic: TLabel
           Left = 3
-          Top = -236
+          Top = 143
           Width = 48
           Height = 15
           Caption = 'Java'#36923#36753
         end
         object label_launch_download_java: TLabel
           Left = 3
-          Top = -186
+          Top = 193
           Width = 48
           Height = 15
           Caption = #19979#36733'Java'
         end
         object label_launch_max_memory: TLabel
           Left = 3
-          Top = -136
+          Top = 243
           Width = 246
           Height = 15
           Caption = #28216#25103#20869#23384#22823#23567#65292#24403#21069#36873#20013#65306'999999999999999'
         end
         object label_launch_custom_info: TLabel
           Left = 3
-          Top = -86
+          Top = 293
           Width = 165
           Height = 15
           Caption = #33258#23450#20041#20449#24687#65292#40664#35748'LLLauncher'
         end
         object label_launch_window_title: TLabel
           Left = 3
-          Top = -36
+          Top = 343
           Width = 130
           Height = 15
           Caption = #31383#21475#26631#39064#65292#40664#35748#21363#40664#35748
         end
         object label_launch_pre_launch_script: TLabel
           Left = 3
-          Top = 14
+          Top = 393
           Width = 78
           Height = 15
           Caption = #21069#32622#21551#21160#33050#26412
         end
         object label_launch_after_launch_script: TLabel
           Left = 3
-          Top = 93
+          Top = 472
           Width = 78
           Height = 15
           Caption = #21518#32622#21551#21160#33050#26412
         end
         object label_launch_default_jvm: TLabel
           Left = 3
-          Top = 172
+          Top = 551
           Width = 74
           Height = 15
           Caption = #40664#35748'JVM'#21442#25968
         end
         object label_launch_additional_jvm: TLabel
           Left = 3
-          Top = 251
+          Top = 630
           Width = 74
           Height = 15
           Caption = #39069#22806'JVM'#21442#25968
         end
         object label_launch_additional_game: TLabel
           Left = 3
-          Top = 330
+          Top = 709
           Width = 82
           Height = 15
           Caption = #39069#22806'game'#21442#25968
         end
         object scrollbar_launch_window_height: TScrollBar
           Left = 3
-          Top = -318
+          Top = 61
           Width = 794
           Height = 23
           Max = 1000
@@ -2253,7 +2221,7 @@ object form_mainform: Tform_mainform
         end
         object scrollbar_launch_window_width: TScrollBar
           Left = 3
-          Top = -368
+          Top = 11
           Width = 794
           Height = 23
           Max = 1000
@@ -2265,7 +2233,7 @@ object form_mainform: Tform_mainform
         end
         object combobox_launch_select_java_path: TComboBox
           Left = 3
-          Top = -268
+          Top = 111
           Width = 794
           Height = 23
           Style = csDropDownList
@@ -2274,7 +2242,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_full_scan_java: TButton
           Left = 3
-          Top = -215
+          Top = 164
           Width = 194
           Height = 23
           Caption = #20840#30424#25195#25551
@@ -2283,7 +2251,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_basic_scan_java: TButton
           Left = 203
-          Top = -215
+          Top = 164
           Width = 194
           Height = 23
           Caption = #29305#23450#25195#25551
@@ -2292,7 +2260,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_manual_import: TButton
           Left = 403
-          Top = -215
+          Top = 164
           Width = 194
           Height = 23
           Caption = #25163#21160#23548#20837
@@ -2301,7 +2269,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_remove_java: TButton
           Left = 603
-          Top = -215
+          Top = 164
           Width = 194
           Height = 23
           Caption = #31227#38500'Java'
@@ -2310,7 +2278,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_download_java_8: TButton
           Left = 3
-          Top = -165
+          Top = 214
           Width = 194
           Height = 23
           Caption = #19979#36733'Java8'
@@ -2319,7 +2287,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_download_java_16: TButton
           Left = 203
-          Top = -165
+          Top = 214
           Width = 194
           Height = 23
           Caption = #19979#36733'Java16'
@@ -2328,7 +2296,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_download_java_17: TButton
           Left = 403
-          Top = -165
+          Top = 214
           Width = 194
           Height = 23
           Caption = #19979#36733'Java17'
@@ -2337,7 +2305,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_official_java: TButton
           Left = 603
-          Top = -165
+          Top = 214
           Width = 194
           Height = 23
           Caption = #25171#24320'Java'#23448#32593
@@ -2346,7 +2314,7 @@ object form_mainform: Tform_mainform
         end
         object scrollbar_launch_max_memory: TScrollBar
           Left = 3
-          Top = -115
+          Top = 264
           Width = 794
           Height = 23
           Max = 8192
@@ -2358,7 +2326,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_custom_info: TEdit
           Left = 3
-          Top = -65
+          Top = 314
           Width = 794
           Height = 23
           TabOrder = 12
@@ -2367,7 +2335,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_window_title: TEdit
           Left = 3
-          Top = -15
+          Top = 364
           Width = 794
           Height = 23
           TabOrder = 13
@@ -2376,7 +2344,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_pre_launch_script: TEdit
           Left = 3
-          Top = 35
+          Top = 414
           Width = 794
           Height = 23
           TabOrder = 14
@@ -2385,7 +2353,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_pre_launch_script: TButton
           Left = 3
-          Top = 64
+          Top = 443
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#22914#20309#22635#20889#21069#32622#21551#21160#33050#26412#21629#20196#30340#23436#25972#25552#31034
@@ -2397,7 +2365,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_after_launch_script: TEdit
           Left = 3
-          Top = 114
+          Top = 493
           Width = 794
           Height = 23
           TabOrder = 16
@@ -2406,7 +2374,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_after_launch_script: TButton
           Left = 3
-          Top = 143
+          Top = 522
           Width = 794
           Height = 23
           Caption = #26597#30475#35813#34892#25552#31034
@@ -2415,7 +2383,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_default_jvm: TEdit
           Left = 3
-          Top = 193
+          Top = 572
           Width = 794
           Height = 23
           ReadOnly = True
@@ -2427,7 +2395,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_default_jvm: TButton
           Left = 3
-          Top = 222
+          Top = 601
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#40664#35748'JVM'#21442#25968#30340#23436#25972#25552#31034
@@ -2439,7 +2407,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_additional_jvm: TEdit
           Left = 3
-          Top = 272
+          Top = 651
           Width = 794
           Height = 23
           TabOrder = 20
@@ -2448,7 +2416,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_additional_jvm: TButton
           Left = 3
-          Top = 301
+          Top = 680
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#22914#20309#22635#20889#39069#22806'JVM'#21442#25968#30340#23436#25972#25552#31034
@@ -2460,7 +2428,7 @@ object form_mainform: Tform_mainform
         end
         object edit_launch_additional_game: TEdit
           Left = 3
-          Top = 351
+          Top = 730
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#22914#20309#22635#20837#21069#32622#21551#21160#33050#26412#21629#20196
@@ -2470,7 +2438,7 @@ object form_mainform: Tform_mainform
         end
         object button_launch_additional_game: TButton
           Left = 3
-          Top = 380
+          Top = 759
           Width = 794
           Height = 23
           Hint = #28857#25105#26597#30475#22914#20309#22635#20889#39069#22806'game'#21442#25968#30340#23436#25972#25552#31034
@@ -2494,7 +2462,7 @@ object form_mainform: Tform_mainform
       end
       object pagecontrol_version_part: TPageControl
         Left = -1
-        Top = 24
+        Top = 23
         Width = 824
         Height = 407
         ActivePage = tabsheet_version_export_part
@@ -2938,7 +2906,7 @@ object form_mainform: Tform_mainform
             Top = 0
             Width = 816
             Height = 377
-            VertScrollBar.Position = 592
+            VertScrollBar.Position = 808
             VertScrollBar.Tracking = True
             Align = alClient
             Color = clBtnFace
@@ -2947,7 +2915,7 @@ object form_mainform: Tform_mainform
             OnMouseWheel = scrollbox_exportMouseWheel
             object label_export_current_version: TLabel
               Left = 3
-              Top = -589
+              Top = -805
               Width = 439
               Height = 15
               Caption = 
@@ -2956,105 +2924,119 @@ object form_mainform: Tform_mainform
             end
             object label_export_mode_more: TLabel
               Left = 3
-              Top = -521
+              Top = -737
               Width = 156
               Height = 15
               Caption = #26356#22810#23548#20986#26041#24335#25964#35831#26399#24453#22114#65281
             end
             object label_export_modpack_name: TLabel
               Left = 3
-              Top = -500
+              Top = -716
               Width = 65
               Height = 15
               Caption = #25972#21512#21253#21517#31216
             end
             object label_export_modpack_author: TLabel
               Left = 3
-              Top = -450
+              Top = -666
               Width = 65
               Height = 15
               Caption = #25972#21512#21253#20316#32773
             end
             object label_export_modpack_version: TLabel
               Left = 3
-              Top = -400
+              Top = -616
               Width = 65
               Height = 15
               Caption = #25972#21512#21253#29256#26412
             end
             object label_export_update_link: TLabel
               Left = 3
-              Top = -350
+              Top = -566
               Width = 91
               Height = 15
               Caption = #25972#21512#21253#26356#26032#38142#25509
             end
             object label_export_official_website: TLabel
               Left = 3
-              Top = -300
+              Top = -516
               Width = 91
               Height = 15
               Caption = #25972#21512#21253#23448#26041#32593#31449
             end
             object label_export_mcbbs_tid: TLabel
               Left = 3
-              Top = -250
+              Top = -466
               Width = 80
               Height = 15
               Caption = 'MCBBS'#8212#8212'TID'
             end
             object label_export_authentication_server: TLabel
               Left = 3
-              Top = -200
+              Top = -416
               Width = 65
               Height = 15
               Caption = #35748#35777#26381#21153#22120
             end
             object label_export_additional_game: TLabel
               Left = 3
-              Top = -150
+              Top = -366
               Width = 56
               Height = 15
               Caption = #39069#22806'game'
             end
             object label_export_additional_jvm: TLabel
               Left = 3
-              Top = -100
+              Top = -316
               Width = 46
               Height = 15
               Caption = #39069#22806'jvm'
             end
             object label_export_memory: TLabel
               Left = 3
-              Top = -50
+              Top = -266
               Width = 214
               Height = 15
               Caption = #26368#22823#20869#23384#65292#24403#21069#36873#20013#65306'99999999999999'
             end
             object label_export_modpack_profile: TLabel
               Left = 3
-              Top = 0
+              Top = -216
               Width = 65
               Height = 15
               Caption = #25972#21512#21253#31616#20171
             end
             object label_export_keep_file: TLabel
               Left = 3
-              Top = 303
+              Top = 272
               Width = 91
               Height = 15
               Caption = #38656#35201#20445#30041#30340#25991#20214
             end
             object label_export_return_value: TLabel
               Left = 3
-              Top = 744
+              Top = 713
               Width = 39
               Height = 15
               Caption = #36820#22238#20540
             end
+            object label_export_add_icon: TLabel
+              Left = 3
+              Top = 87
+              Width = 508
+              Height = 15
+              Caption = #20026#25972#21512#21253#28155#21152#22270#26631#65288'ps'#65306#20801#35768#20219#24847#20687#32032#65292#20294#24314#35758'200x200'#21363#21487#65292#20165#38480'png'#65292#26242#19981#25903#25345'jpg'#31561#65289
+            end
+            object image_export_add_icon: TImage
+              Left = 583
+              Top = 87
+              Width = 200
+              Height = 200
+              Stretch = True
+            end
             object radiogroup_export_mode: TRadioGroup
               Left = 3
-              Top = -568
+              Top = -784
               Width = 780
               Height = 41
               Caption = #23548#20986#26041#24335
@@ -3067,7 +3049,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_modpack_name: TEdit
               Left = 3
-              Top = -479
+              Top = -695
               Width = 780
               Height = 23
               TabOrder = 1
@@ -3075,7 +3057,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_modpack_author: TEdit
               Left = 3
-              Top = -429
+              Top = -645
               Width = 780
               Height = 23
               TabOrder = 2
@@ -3083,7 +3065,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_modpack_version: TEdit
               Left = 3
-              Top = -379
+              Top = -595
               Width = 780
               Height = 23
               TabOrder = 3
@@ -3091,7 +3073,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_update_link: TEdit
               Left = 3
-              Top = -329
+              Top = -545
               Width = 780
               Height = 23
               Hint = 
@@ -3104,7 +3086,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_official_website: TEdit
               Left = 3
-              Top = -279
+              Top = -495
               Width = 780
               Height = 23
               Hint = #27492#22788#22635#20889#20320#25972#21512#21253#30340#23448#26041#32593#22336#65292#20363#22914'curseforge'#23601#22635#32593#22336#12290#22635#20840#31216#12290
@@ -3115,7 +3097,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_mcbbs_tid: TEdit
               Left = 3
-              Top = -229
+              Top = -445
               Width = 780
               Height = 23
               Hint = 
@@ -3128,7 +3110,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_authentication_server: TEdit
               Left = 3
-              Top = -179
+              Top = -395
               Width = 780
               Height = 23
               Hint = #27492#22788#20165#38480#22806#32622#30331#24405#65292#22914#26524#20320#19981#30830#23450#65292#35831#30041#31354#12290#35813#22788#21482#33021#22635#20837#31867#20284#20110#12304'littleskin.cn'#12305#36825#31181#22806#32622#30331#24405#30382#32932#31449#26681#30446#24405
@@ -3139,7 +3121,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_additional_game: TEdit
               Left = 3
-              Top = -129
+              Top = -345
               Width = 780
               Height = 23
               Hint = #29992#31354#26684#20998#21106#20320#30340#39069#22806'Game'#21442#25968#12290
@@ -3150,7 +3132,7 @@ object form_mainform: Tform_mainform
             end
             object edit_export_additional_jvm: TEdit
               Left = 3
-              Top = -79
+              Top = -295
               Width = 780
               Height = 23
               Hint = #29992#31354#26684#20998#21106#20320#30340#39069#22806'JVM'#21442#25968#12290
@@ -3161,7 +3143,7 @@ object form_mainform: Tform_mainform
             end
             object scrollbar_export_max_memory: TScrollBar
               Left = 3
-              Top = -29
+              Top = -245
               Width = 780
               Height = 23
               Max = 8192
@@ -3173,7 +3155,7 @@ object form_mainform: Tform_mainform
             end
             object memo_export_modpack_profile: TMemo
               Left = 3
-              Top = 21
+              Top = -195
               Width = 780
               Height = 276
               ScrollBars = ssBoth
@@ -3181,7 +3163,7 @@ object form_mainform: Tform_mainform
             end
             object treeview_export_keep_file: TTreeView
               Left = 3
-              Top = 324
+              Top = 293
               Width = 780
               Height = 414
               CheckBoxes = True
@@ -3191,12 +3173,30 @@ object form_mainform: Tform_mainform
             end
             object button_export_start: TButton
               Left = 3
-              Top = 765
+              Top = 734
               Width = 780
               Height = 31
               Caption = #24320#22987#23548#20986' :)'
               TabOrder = 13
               OnClick = button_export_startClick
+            end
+            object button_export_add_icon: TButton
+              Left = 217
+              Top = 239
+              Width = 177
+              Height = 48
+              Caption = #36873#25321#22270#26631#25991#20214
+              TabOrder = 14
+              OnClick = button_export_add_iconClick
+            end
+            object button_export_remove_icon: TButton
+              Left = 400
+              Top = 239
+              Width = 177
+              Height = 48
+              Caption = #31227#38500#22270#26631#25991#20214
+              TabOrder = 15
+              OnClick = button_export_remove_iconClick
             end
           end
         end
@@ -3294,7 +3294,7 @@ object form_mainform: Tform_mainform
       end
     end
     object n_manual: TMenuItem
-      Caption = #25163#21160
+      Caption = #26356#22810
       object n_reset_launcher: TMenuItem
         Caption = #37325#32622#21551#21160#22120
         ShortCut = 49234
@@ -3324,6 +3324,11 @@ object form_mainform: Tform_mainform
         Caption = #27979#35797#25353#38062
         ShortCut = 49236
         OnClick = n_test_buttonClick
+      end
+      object c1: TMenuItem
+        Caption = #37325#35774#35821#35328#20026#20013#25991
+        ShortCut = 49219
+        OnClick = c1Click
       end
     end
     object n_languages: TMenuItem

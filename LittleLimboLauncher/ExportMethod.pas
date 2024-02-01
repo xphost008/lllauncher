@@ -4,13 +4,15 @@ interface
 
 uses
   Windows, SysUtils, Forms, IniFiles, WinXCtrls, Math, JSON, Classes, Threading, 
-  ComCtrls, StrUtils, DateUtils, Dialogs, Zip;
+  ComCtrls, StrUtils, DateUtils, Dialogs, Zip, pngimage, NetEncoding;
 
 procedure InitIsolation;
 procedure InitExport;
 procedure IsoMethod(k: Integer; v: String);
-procedure SelectNode(AllCheck: Boolean; ANode: TTreeNode); 
+procedure SelectNode(AllCheck: Boolean; ANode: TTreeNode);
 procedure StartExport;
+procedure ImportModPackIcon(path: String);
+procedure RemoveModPackIcon;
 
 implementation
 
@@ -22,28 +24,56 @@ var
 
 var
   mexport_mcpath, mexport_mcname, mexport_mcid, mexport_vanillaid, mexport_loader, mexport_loadversion: String;
-  NodeChecked, NodePath, NodeReal: TStringList;
+  NodePath: TStringList;
+  mpicon: String = '';
+//导入整合包图标
+procedure ImportModPackIcon(path: String);
+begin
+  if FileExists(path) then begin
+    var ss := TMemoryStream.Create;
+    var s2 := TStringStream.Create;
+    var pg := TPngImage.Create;
+    try
+      ss.LoadFromFile(path);
+      pg.LoadFromStream(ss);
+      form_mainform.image_export_add_icon.Picture.Assign(pg);
+      ss.Position := 0;
+      TNetEncoding.Base64.Encode(ss, s2);
+      mpicon := s2.DataString;
+    finally
+      ss.Free;
+      s2.Free;
+      pg.Free;
+    end;
+  end;
+end;
+//移除整合包图标
+procedure RemoveModPackIcon;
+begin
+  form_mainform.image_export_add_icon.Picture := nil;
+  mpicon := '';
+end;
 //与下一个一致，使用递归解决。
-procedure GetAllChildNodes(ANode: TTreeNode);
+procedure GetAllChildNodes(ANode: TTreeNode; var NodeChecked: TStringList);
 var
   vNode: TTreeNode;
 begin
   vNode := ANode.getFirstChild;
   while vNode <> nil do begin
     NodeChecked.Add(IfThen(vnode.Checked, 'True', 'False'));
-    GetAllChildNodes(vNode);
+    GetAllChildNodes(vNode, NodeChecked);
     vNode := ANode.GetNextChild(vNode);
   end;
 end;
 //遍历所有子文件树
-procedure VisitAllNodes(ATreeView: TTreeView);
+procedure VisitAllNodes(ATreeView: TTreeView; var NodeChecked: TStringList);
 var
   vNode: TTreeNode;
 begin
   vNode := ATreeView.Items.GetFirstNode;
   while vNode <> nil do begin
     NodeChecked.Add(IfThen(vnode.Checked, 'True', 'False'));
-    GetAllChildNodes(vNode);
+    GetAllChildNodes(vNode, NodeChecked);
     vNode := vNode.getNextSibling;
   end;
 end;
@@ -132,7 +162,7 @@ begin
     CopyFile(pchar(I), pchar(rlpth), False);
   end;
 end;
-function GetMCBBSMeta(): String;
+function GetMCBBSMeta(var NodeReal: TStringList): String;
 begin
   var desc: String := '';
   for var I := 0 to form_mainform.memo_export_modpack_profile.Lines.Count - 1 do begin
@@ -154,6 +184,8 @@ begin
     .AddPair('url', form_mainform.edit_export_official_website.Text)
     .AddPair('forceUpdate', false)
     .AddPair('origin', TJsonArray.Create);
+  if mpicon <> '' then
+    root.AddPair('icon', mpicon);
   if form_mainform.edit_export_mcbbs_tid.Text <> '' then begin
     (root.GetValue('origin') as TJSONArray)
       .Add(TJSONObject.Create
@@ -220,6 +252,8 @@ begin
   SetLength(result, 2);
   var root := TJsonObject.Create;
   root.AddPair('formatVersion', 1);
+  if mpicon <> '' then
+    root.AddPair('icon', mpicon);
   root.AddPair('components', TJsonArray.Create.Add(TJsonObject.Create
     .AddPair('important', true)
     .AddPair('dependencyOnly', false)
@@ -504,9 +538,7 @@ begin
     exit;
   end;
   if f then begin
-    NodeChecked := TStringList.Create; 
     NodePath := TStringList.Create;
-    NodeReal := TStringList.Create;
   end;
   f := false;
   var json := GetFile(GetMCRealPath(MCVersionSelect[mselect_ver], '.json')).ToLower;
@@ -586,26 +618,27 @@ begin
   TTask.Run(procedure begin
     if not PackCheckError() then exit;
     form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.scan_file');
-    NodeChecked.Clear;
-    VisitAllNodes(form_mainform.treeview_export_keep_file);                     
+    var NodeChecked := TStringList.Create;
+    var NodeReal := TStringList.Create;
+    VisitAllNodes(form_mainform.treeview_export_keep_file, NodeChecked);
     form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.copy_file');
     var TempPath := TStringList.Create;
     for var I := 0 to NodePath.Count - 1 do begin
       if FileExists(NodePath[I]) then begin
         TempPath.Add(NodePath[I]);
         if strtobool(NodeChecked[I]) then
-          NodeReal.Add(TempPath[I]);
+          NodeReal.Add(TempPath[TempPath.Count - 1]);
       end;
     end;
     form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.scan_file_finish');
     case form_mainform.radiogroup_export_mode.ItemIndex of
       0: begin
         CopyFileOver(NodeReal, Concat(mexport_mcpath, '\===zip===\overrides'));
-        SetFile(Concat(mexport_mcpath, '\===zip===\mcbbs.packmeta'), GetMCBBSMeta());
+        SetFile(Concat(mexport_mcpath, '\===zip===\mcbbs.packmeta'), GetMCBBSMeta(NodeReal));
       end;
       1: begin
-        CopyFileOver(NodeReal, Concat(mexport_mcpath, '\===zip===\.minecraft'));   
-        var mtmc := GetMultiMCFiles();      
+        CopyFileOver(NodeReal, Concat(mexport_mcpath, '\===zip===\.minecraft'));
+        var mtmc := GetMultiMCFiles();
         SetFile(Concat(mexport_mcpath, '\===zip===\mmc-pack.json'), mtmc[0]);
         SetFile(Concat(mexport_mcpath, '\===zip===\instance.cfg'), mtmc[1]);
       end;

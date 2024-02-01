@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Classes, IOUtils, StrUtils, Winapi.Messages, ShellAPI, Windows, Forms;
+  SysUtils, Classes, IOUtils, StrUtils, Winapi.Messages, ShellAPI, Windows, Forms, JSON, pngimage, Threading, IniFiles;
 
 function InitManage: Boolean;
 procedure DragFileInWindow(var Msg: TMessage);
@@ -18,7 +18,7 @@ procedure ManageOpenPlaying;
 implementation
 
 uses
-  LauncherMethod, MainForm, MyCustomWindow, LanguageMethod, MainMethod;
+  LauncherMethod, MainForm, MyCustomWindow, LanguageMethod, MainMethod, ProgressMethod;
 
 var
   ModSelect: TStringList;
@@ -28,6 +28,73 @@ var
   DatSelect: TStringList;
   PluSelect: TStringList;
   mcrlpth: String;
+  temp: String;
+var
+  ModPackMetadata: TJSONObject;
+//导入整合包函数，按照键值对来获取
+function JudgeException(index: Integer; key: String): String;
+begin
+  try
+    case index of
+      1: begin
+        result := ModPackMetadata.GetValue(key).Value;
+      end;
+      2: begin
+        var dep := ModPackMetadata.GetValue('dependencies') as TJSONObject;
+        result := dep.GetValue(key).Value;
+      end;
+      3: begin
+        var dep := ModPackMetadata.GetValue('dependencies') as TJSONObject;
+        result := dep.Get(strtoint(key)).JsonString.Value;
+      end;
+    end;
+  except
+    result := GetLanguage('picturebox_playing.has_no_data');
+  end;
+end;
+//导入整合包函数
+procedure ImportModPack(path: String);
+begin
+  if not Unzip(path, Concat(temp, 'LLLauncher\importmodpack')) then begin
+    MyMessagebox(GetLanguage('messagebox_manage.cannot_unzip_modpack.caption'), GetLanguage('messagebox_manage.cannot_unzip_modpack.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  if FileExists(Concat(temp, 'LLLauncher\importmodpack\modrinth.index.json')) then begin
+    var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\modrinth.index.json'));
+    ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
+    var mcv := JudgeException(2, 'minecraft');
+    var ml := JudgeException(3, '1');
+    var mlv := JudgeException(2, ml);
+    if MyPicMsgBox(JudgeException(1, 'name'), GetLanguage('picturebox_manage.import_modrinth_modpack.text')
+      .Replace('${modpack_game}', 'Modrinth')
+      .Replace('${modpack_version}', JudgeException(1, 'versionId'))
+      .Replace('${modpack_name}', JudgeException(1, 'name'))
+      .Replace('${modpack_summary}', JudgeException(1, 'summary'))
+      .Replace('${modpack_mcversion}', mcv)
+      .Replace('${modpack_modloader}', ml)
+      .Replace('${modpack_modloader_version}', mlv), nil) then begin
+      try
+        var mccp := (((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'))) as TJsonObject).GetValue('mc') as TJsonArray)[LLLini.ReadInteger('MC', 'SelectMC', -1) - 1] as TJsonObject).GetValue('path').Value;
+        var jpth := ((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'))) as TJSONObject).GetValue('java') as TJSONArray)[LLLini.ReadInteger('Java', 'SelectJava', -1) - 1].Value;
+        var mcsp := Concat(mccp, '\versions\', JudgeException(1, 'name'));
+        if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
+        ForceDirectories(mcsp);
+        TTask.Run(procedure begin
+          form_mainform.button_progress_clean_download_list.Enabled := false;
+          DownloadStart(Concat('Modrinth@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
+          form_mainform.button_progress_clean_download_list.Enabled := true;
+          MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
+        end);
+      except
+        MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
+        exit;
+      end;
+    end else exit;
+  end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\mmc-pack.json')) or FileExists(Concat(temp, 'LLLauncher\importmodpack\instance.cfg')) then begin
+
+  end;
+  DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+end;
 //复制文件夹
 function CopyDir(source, target: string): Boolean;
 var
@@ -491,7 +558,16 @@ begin
   (cc.Y < lpak.Y + form_mainform.listbox_manage_import_modpack.Height) and
   (cc.X > lpak.X) and
   (cc.X < lpak.X + form_mainform.listbox_manage_import_modpack.Width) then begin
-    MyMessagebox('整合包', '正在测试，请稍等……', MY_PASS, [mybutton.myYes]);
+    if i > 1 then begin
+      MyMessagebox(GetLanguage('messagebox_manage.drag_modpack_only_one_file.caption'), GetLanguage('messagebox_manage.drag_modpack_only_one_file.text'), MY_ERROR, [mybutton.myOK]);
+    end;
+    DragQueryFile(Msg.WParam, 0, @P, sizeof(P));
+    var ne := strpas(p);
+    if (RightStr(ne, 7) = '.mrpack') or (RightStr(ne, 4) = '.zip') then begin
+      ImportModPack(ne);
+    end else begin
+      MyMessagebox(GetLanguage('messagebox_manage.drag_modpack_format_error.caption'), GetLanguage('messagebox_manage.drag_modpack_format_error.text').Replace('${drag_file_name}', ExtractFileName(ne)), MY_ERROR, [mybutton.myOK]);
+    end;
   end;
   SelectPlayingDir;
   if ic > 0 then MyMessagebox(GetLanguage('messagebox_manage.drag_file_finish.caption'), GetLanguage('messagebox_manage.drag_file_finish.text'), MY_PASS, [mybutton.myOK]);
@@ -515,12 +591,15 @@ end;
 //初始化玩法管理界面方法
 var f: Boolean = false;
 function InitManage: Boolean;
+var
+  p: array [0..255] of char;
 begin
   result := true;
+  GetTempPath(255, @p);
+  temp := strpas(p);
   if f then begin
     try
       mcrlpth := JudgeIsolation;
-//      mcrlpth := 'D:\testdir';
     except
       result := false;
       exit;

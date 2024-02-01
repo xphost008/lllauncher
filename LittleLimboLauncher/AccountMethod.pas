@@ -213,6 +213,7 @@ begin
       var ss := TStringStream.Create;
       TNetEncoding.Base64.Encode(pic, ss);
       result := CutBase64Image(ss.DataString, 8, 8, 16, 16, 64, 64);
+      exit;
     end;
   end;
 end;
@@ -371,7 +372,7 @@ begin
     if t1 = '' then begin abort; end;
     var j1 := TJsonObject.ParseJSONValue(t1) as TJsonObject;
     try //以上为直接post得到后的json，然后解析json。下面为直接获取json，如果没有皮肤，则换。但绝大概率是有皮肤的。
-      var j2 := TJsonObject.ParseJSONValue(j1.GetValue('selectedProfile').ToString) as TJsonObject;
+      var j2 := j1.GetValue('selectedProfile') as TJsonObject;
       self.username := j2.GetValue('name').Value;
       self.uuid := j2.GetValue('id').Value;
       self.accesstoken := j1.GetValue('accessToken').Value;
@@ -396,6 +397,8 @@ begin
     try //如果邮箱与账号不匹配，则返回。
       j1.GetValue('accessToken').ToString;
     except
+      var err := j1.GetValue('errorMessage').Value;
+
       Log.Write('输入的邮箱与密码不匹配，请重新输入。', LOG_ACCOUNT, LOG_ERROR);
       MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.caption'), GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.text'), MY_ERROR, [mybutton.myOK]);
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_username_or_password_nottrue');
@@ -428,6 +431,10 @@ begin
       Log.Write('现在开始输入角色序号。', LOG_ACCOUNT, LOG_INFO);
       var input := MyInputBox(GetLanguage('inputbox_account_thirdparty.choose_a_role.caption'), GetLanguage('inputbox_account_thirdparty.choose_a_role.text').Replace('${role_group}', st), MY_INFORMATION);
       try
+        if input.IsEmpty then begin
+          accesstoken := 'noneaccount';
+          abort;
+        end;
         if (strtoint(input) < 1) or (strtoint(input) > r1.Count) then raise Exception.Create('Entry Error');
       except
         Log.Write('不要尝试在选择角色的时候输入错误的字符。', LOG_ACCOUNT, LOG_ERROR);
@@ -437,9 +444,9 @@ begin
         exit;
       end;
       var sa := strtoint(input) - 1;
-      var j3 := r1[sa] as TJsonObject;
-      self.uuid := j3.GetValue('id').Value;
-      self.username := j3.GetValue('name').Value;
+      var j2 := r1[sa] as TJsonObject;
+      self.uuid := j2.GetValue('id').Value;
+      self.username := j2.GetValue('name').Value;
       self.accesstoken := j1.GetValue('accessToken').Value;
       self.thirdclienttoken := j1.GetValue('clientToken').Value;
       self.thirdbase64 := basecode;
@@ -536,13 +543,14 @@ end;
 procedure JudgeJSONSkin(index: Integer);
 begin
   try
-    var pla := ((AccountJson.Values['account'] as TJsonArray)[index] as TJsonObject);
+    var pla := ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject);
     var pls := pla.GetValue('head_skin').Value;
     var base := TNetEncoding.Base64.DecodeStringToBytes(pls);
     var png := TPngImage.Create;
     try
       png.LoadFromStream(TBytesStream.Create(base));
       form_mainform.image_login_avatar.Picture.Assign(png);
+      form_mainform.image_mainform_login_avatar.Picture.Assign(png);
     finally
       png.Free;
     end;

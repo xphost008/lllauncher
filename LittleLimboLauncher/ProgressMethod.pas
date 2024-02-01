@@ -38,6 +38,7 @@ type
     procedure DownloadMinecraft;
     procedure DownloadJava;
     procedure DownloadForge;
+    procedure DownloadModpack;
     constructor InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);
     procedure StartDownload(LoadSource: Integer);
     procedure DownloadAsWindow(SavePath, DownloadURL, FileHash, ViewName: String; isLibraries: Boolean; SelectMode: Integer);
@@ -170,10 +171,8 @@ procedure TDownloadMethod.ReceiveData(const Sender: TObject;
   AContentLength, AReadCount: Int64; var AAbort: Boolean);
 begin
   form_mainform.progressbar_progress_download_bar.Max := AContentLength;
-  var jd: Currency := 100 * AReadCount / AContentLength; //设置下载进度。这里用100乘以自增sf然后除以最大线程。如果自增达到了与最大线程一样的话，那么就会达到100。
-  if isShowProgress then form_mainform.label_progress_download_progress.Caption := Concat('下载进度：', floattostr(SimpleRoundTo(jd)), '% | ', inttostr(AReadCount), '/', inttostr(AContentLength));//输出下载进度。给一个标签添加下载进度。使用了保留两位小数。
-  if isShowList then form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(Concat('目前已经下载到：', inttostr(AReadCount)));
-  if isShowProgress then form_mainform.progressbar_progress_download_bar.Position := AReadCount;
+//  if isShowList then form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(Concat('目前已经下载到：', inttostr(AReadCount)));
+  if isShowProgress then ShowCurrentProgress(AReadCount, AContentLength);
 end;
 //获取特定位置的Http流
 function TDownloadMethod.GetHTTPRange(url: String; tstart, tend: Integer;
@@ -421,6 +420,24 @@ begin
       eil := eil.Replace(K.Key, K.Value);
     end;
     RunDOSOnlyWait(eil);
+    try
+      for var O in J.GetValue('outputs') as TJSONObject do begin
+        var ky := O.JsonString.Value;
+        var ve := O.JsonValue.Value;
+        for var P in dic do begin
+          ky := ky.Replace(P.Key, P.Value);
+          ve := ve.Replace(P.Key, P.Value);
+        end;
+        if (LeftStr(ky, 1) = '"') and (RightStr(ky, 1) = '"') then
+          ky := ky.Substring(1, ky.Length - 2);
+        if (LeftStr(ve, 1) = '''') and (RightStr(ve, 1) = '''') then
+          ve := ve.Substring(1, ve.Length - 2);
+        if GetFileHash(ky) <> ve.Substring(1, ve.Length - 2) then begin
+          form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.run_processors_error').Replace('${processors_count}', inttostr(TDPCount)));
+          abort;
+        end;
+      end;
+    except end;
     ShowCurrentProgress(TDPCount, processors.Count);
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.run_processors_success').Replace('${processors_count}', inttostr(TDPCount)));
   end;
@@ -934,6 +951,10 @@ begin
   DeleteDirectory(Concat(TempPath, 'LLLauncher'));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_success').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000)));
 end;
+procedure TDownloadMethod.DownloadModpack;
+begin
+
+end;
 //设置所有参数。
 constructor TDownloadMethod.InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);
 var
@@ -959,18 +980,19 @@ begin
     2: DownloadMinecraft;
     3: DownloadJava;
     4: DownloadForge;
+    5: DownloadModpack;
     else abort;
   end;
 end;
 //调用函数
-//第一个url是下载链接，如果LoadSource是2、3、4的话，则需要为对应的json。
-//第二个SavePath是保存路径。当LoadSource为2、4的时候，需要为该Minecraft的version文件夹。
-//第三个RootPath是根路径，只有LoadSource为2、4的时候，则需要指定对应的.minecraft文件夹。否则为空。
+//第一个url是下载链接，如果LoadSource是2、3、4的话，则需要为对应的json。如果Loadsource是5的话，则这里需要指定'Modrinth'、'Curseforge'、'MCBBS'、'MultiMC'，因为程序会自动找到temp路径下的LLLauncher下的importmodpack路径进行导入。
+//第二个SavePath是保存路径。当LoadSource为2、4、5的时候，需要为该Minecraft的version文件夹。
+//第三个RootPath是根路径，只有LoadSource为2、4、5的时候，则需要指定对应的.minecraft文件夹。否则为空。
 //第四个BiggestThread是最大线程。
 //第五个SelectMode是下载源，只有1、2、3，如果为1，则是官方下载源，2为bmclapi，3为MCBBS。如果是国外则默认全部都是1，无法使用2、3，如果是下载自定义文件，则指定0即可！
-//第六个LoadSource是加载顺序，1为下载自定义文件，2为下载Minecraft，3为下载Java，4为下载Forge。
-//第七个javapath是本地Java路径，只有LoadSource为4时才需要。
-//第八个VanillaVersion是将要下载的MC原版名称，只有LoaderSource为2或4时才需要，否则为空。当补全文件时可以为空。
+//第六个LoadSource是加载顺序，1为下载自定义文件，2为下载Minecraft，3为下载Java，4为下载Forge，5是导入整合包。
+//第七个javapath是本地Java路径，只有LoadSource为4、5时才需要，并且5还必须是整合包模组加载器为Forge时才必须指定，否则为空。
+//第八个VanillaVersion是将要下载的MC原版名称，只有LoaderSource为2、4、5时才需要，否则为空。当补全文件时可以为空。
 //第九个isShowList为是否展示下载列表框（一般都是False）
 //第十个isShowProgress为是否展示下载进度框（一般都是True）
 procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMode, LoadSource: Integer; javapath: String = ''; VanillaVersion: String = ''; isShowList: Boolean = false; isShowProgress: Boolean = true);

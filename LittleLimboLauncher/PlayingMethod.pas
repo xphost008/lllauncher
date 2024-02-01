@@ -949,6 +949,9 @@ begin
         else if sel = '4471' then result := 'modpack'
         else if sel = '5' then result := 'bukkit-plugin'
         else if sel = '6' then result := 'mod'
+        else if sel = '4559' then result := 'addons'
+        else if sel = '4546' then result := 'customization'
+        else if sel = '6552' then result := 'shaders'
         else raise Exception.Create('No Result');
       end;
       2: result := SelectRoot.GetValue(key).Value;
@@ -982,7 +985,7 @@ begin
       9: result := ((SelectRoot.GetValue('latestFilesIndexes') as TJsonArray)[0] as TJsonObject).GetValue(key).Value;
     end;
   except
-    result := '暂无数据';
+    result := GetLanguage('picturebox_playing.has_no_data');
   end;
 end;
 //打开简介

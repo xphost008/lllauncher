@@ -6,8 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,msxml,
   ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections, FileCtrl,
-  Vcl.Buttons, Vcl.ControlList, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils,
-  IdBaseComponent, IdComponent, IdCustomTCPServer, IdCustomHTTPServer,
+  Vcl.Buttons, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils,
+  IdBaseComponent, IdComponent, IdCustomTCPServer, IdCustomHTTPServer, NetEncoding,
   IdHTTPServer;
 
 type
@@ -29,7 +29,7 @@ type
     label_open_launcher_time: TLabel;
     label_open_launcher_number: TLabel;
     label_launch_game_number: TLabel;
-    label_launch_tips: TLabel;
+    label_mainform_tips: TLabel;
     image_refresh_background_music: TImage;
     image_refresh_background_image: TImage;
     image_exit_running_mc: TImage;
@@ -362,6 +362,12 @@ type
     edit_custom_download_path: TEdit;
     label_export_return_value: TLabel;
     label_message_board: TLabel;
+    label_export_add_icon: TLabel;
+    image_export_add_icon: TImage;
+    button_export_add_icon: TButton;
+    c1: TMenuItem;
+    button_export_remove_icon: TButton;
+    image_mainform_login_avatar: TImage;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -550,6 +556,9 @@ type
     procedure n_export_argumentClick(Sender: TObject);
     procedure pagecontrol_account_partChange(Sender: TObject);
     procedure image_exit_running_mcClick(Sender: TObject);
+    procedure button_export_add_iconClick(Sender: TObject);
+    procedure c1Click(Sender: TObject);
+    procedure button_export_remove_iconClick(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -657,7 +666,6 @@ begin
       end;
     end;
   end;
-
 end;
 //下载部分：模组加载器手动安装包：Fabric下载
 procedure Tform_mainform.listbox_download_modloader_fabricClick(
@@ -767,14 +775,18 @@ end;
 //下载部分：Minecraft版本选择
 procedure Tform_mainform.listbox_select_minecraftClick(Sender: TObject);
 begin
-  listbox_select_modloader.ItemIndex := -1;
-  listbox_select_modloader.Items.Clear;
-  form_mainform.edit_minecraft_version_name.Text := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
+  try
+    form_mainform.edit_minecraft_version_name.Text := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
+    listbox_select_modloader.ItemIndex := -1;
+    listbox_select_modloader.Items.Clear;
+  except end;
 end;
 //下载部分：模组加载器列表框
 procedure Tform_mainform.listbox_select_modloaderClick(Sender: TObject);
 begin
-  form_mainform.edit_minecraft_version_name.Text := Concat(form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex], '-', form_mainform.listbox_select_modloader.Items[form_mainform.listbox_select_modloader.ItemIndex]);
+  try
+    form_mainform.edit_minecraft_version_name.Text := Concat(form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex], '-', form_mainform.listbox_select_modloader.Items[form_mainform.listbox_select_modloader.ItemIndex]);
+  except end;
 end;
 //联机IPv6：列表框点击
 procedure Tform_mainform.listbox_view_all_ipv6_ipClick(Sender: TObject);
@@ -892,11 +904,23 @@ begin
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
-var
-  s: String;
 begin
-  var ss := 'ss.ss';
-  showmessage(inttostr(ss.IndexOf('.')));
+              var vn := 'neoforge-20.4.137-beta';
+              var rvn := vn.Substring(vn.IndexOf('-') + 1);
+              var dul := Concat('/maven/net/neoforged/neoforge/', rvn, '/', vn, '-installer.jar');
+              messagebox(0, pchar(dul), '', 0);
+//  if MyPicMsgBox('aa', 'bb', nil) then begin
+//    showmessage('ok');
+//  end else begin
+//    showmessage('no');
+//  end;
+//  var ss := 'yv66vgAAADQAHQoABgAPCQAQABEIABIKABMAFAcAFQcAFgEABjxpbml0PgEAAygpVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAARtYWluAQAWKFtMamF2YS9sYW5nL1N0cmluZzspVgEAClNvdXJjZUZpbGUBAApIZWxsby5qYXZhDAAHAAgHABcMABgAGQEADUhlbGxvIFdvcmxkISEHABoMABsAHAEABUhlbGxvAQAQamF2YS9sYW5nL09iamVjdAEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEAFShMamF2YS9sYW5nL1N0cmluZzspVgAhAAUABgAAAAAAAgABAAcACAABAAkAAAAdAAEAAQAAAAUqtwABsQAAAAEACgAAAAYAAQAAAAEACQALAAwAAQAJAAAAJQACAAEAAAAJsgACEgO2AASxAAAAAQAKAAAACgACAAAAAwAIAAQAAQANAAAAAgAO';
+//  var sk := TStringStream.Create(ss);
+//  var st := TMemoryStream.Create;
+//  TNetEncoding.Base64.Decode(sk, st);
+//  st.SaveToFile('C:\Users\Rechalow\Desktop\Hello.class');
+//  var ss := 'ss.ss';
+//  showmessage(inttostr(ss.IndexOf('.')));
 //  if GetLocalIP(s) then begin
 //  var ip := TIdHTTPServer.Create(nil);
 //  ip
@@ -1080,6 +1104,22 @@ end;
 procedure Tform_mainform.button_enable_choose_playingClick(Sender: TObject);
 begin
   ManageEnablePlaying;
+end;
+//整合包导入图标
+procedure Tform_mainform.button_export_add_iconClick(Sender: TObject);
+begin
+  var OD := TOpenDialog.Create(nil);
+  OD.Title := GetLanguage('opendialog_export.add_icon');
+  OD.Filter := '*.png|*.png';
+  if OD.Execute() then begin
+    var ph := OD.FileName;
+    ImportModPackIcon(ph);
+  end;
+end;
+//移除图标文件
+procedure Tform_mainform.button_export_remove_iconClick(Sender: TObject);
+begin
+  RemoveModPackIcon;
 end;
 //整合包导出：开始导出咯！
 procedure Tform_mainform.button_export_startClick(Sender: TObject);
@@ -1474,6 +1514,15 @@ begin
   end;
   ChooseVersionDir(name, path);
 end;
+//重设语言为中文
+procedure Tform_mainform.c1Click(Sender: TObject);
+begin
+  if MyMessagebox(GetLanguage('messagebox_mainform.reset_language_to_chinese.caption'), GetLanguage('messagebox_mainform.reset_language_to_chinese.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+  deletefile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\lang\zh_cn.json'));
+  InitLanguage;
+  SetLanguage('zh_cn');
+  LLLini.WriteString('Language', 'SelectLanguageFile', 'zh_cn');
+end;
 //独立设置：开启单独隔离
 procedure Tform_mainform.checkbox_isolation_is_partitionClick(Sender: TObject);
 begin
@@ -1739,6 +1788,7 @@ begin
       mjudge_lang_chinese := false;
     end;
   end;
+  form_mainform.label_mainform_tips.Caption := '';
   Log.Write('正在读取语言文件……', LOG_INFO, LOG_START);
   var langtle := LLLini.ReadString('Language', 'SelectLanguageFile', '');
   SetLanguage(langtle);
@@ -1773,9 +1823,19 @@ begin
     var json := GetFile(Concat(AppData, '\LLLauncher\AccountJson.json'));
     var s := OtherIni.ReadInteger('Account', 'SelectAccount', -1) - 1;
     if s <= -1 then raise Exception.Create('Format Exception');
-    var acv := (((TJsonObject.ParseJSONValue(json) as TJsonObject).GetValue('account') as TJsonArray)[s] as TJsonObject).GetValue('name').Value;
-    Log.Write(Concat('账号判断完毕，欢迎', acv, '。'), LOG_INFO, LOG_START);
-    label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', acv);
+    var acv := (((TJsonObject.ParseJSONValue(json) as TJsonObject).GetValue('account') as TJsonArray)[s] as TJsonObject);
+    var acn := acv.GetValue('name').Value;
+    var aca := acv.GetValue('head_skin').Value;
+    var base := TNetEncoding.Base64.DecodeStringToBytes(aca);
+    var png := TPngImage.Create;
+    try
+      png.LoadFromStream(TBytesStream.Create(base));
+      image_mainform_login_avatar.Picture.Assign(png);
+    finally
+      png.Free;
+    end;
+    Log.Write(Concat('账号判断完毕，欢迎', acn, '。'), LOG_INFO, LOG_START);
+    label_account_view.Caption := GetLanguage('label_account_view.caption.have').Replace('${account_view}', acn);
   except
     Log.Write(Concat('账号判断失败，宁还暂未登录一个账号。'), LOG_ERROR, LOG_START);
     label_account_view.Caption := GetLanguage('label_account_view.caption.absence');
@@ -2378,7 +2438,7 @@ begin
           Log.Write(Concat('判定失败，默认返回不播放音乐。'), LOG_ERROR, LOG_LAUNCH);
           LLLini.WriteString('Misc', 'SelectType', '3'); //如果都不是，则输出值。
         end;
-        self.label_launch_tips.Caption := GetLanguage('label_launch_tips.caption.launch_game_success');
+        self.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.launch_game_success');
         var tile := LLLini.ReadString('Version', 'CustomTitle', '');
         var mcsn := strtoint(LLLini.ReadString('MC', 'SelectVer', '')) - 1;
         var mct := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
