@@ -353,55 +353,79 @@ end;
 //初始化外置登录（servername一定是【https://example.com/api/yggdrasil/】形式的，且最后一定要接一个/符号。）
 constructor TAccount.InitializeAccount(servername, username, password, clienttoken, uuid, rr: string);
 begin
-  Log.Write('正在请求皮肤站元数据链接。', LOG_ACCOUNT, LOG_INFO);
-  var metadata := GetWebText(servername);
-  if metadata = '' then begin
-    Log.Write('皮肤站元数据链接请求失败，请重试。', LOG_ACCOUNT, LOG_ERROR);
-    MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.cannot_get_metadata.caption'), GetLanguage('messagebox_account_thirdparty_error.cannot_get_metadata.text'), MY_ERROR, [mybutton.myOK]);
-    form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_cannot_get_metadata');
-    accesstoken := 'noneaccount';
-    exit;
-  end;
   var res := servername;
-  var basecode := TNetEncoding.Base64.Encode(metadata);
   if rr = 'refresh' then begin
     res := Concat(res, 'authserver/refresh');
-    var k1 := Concat('{"accessToken":"', username, '","clientToken":"', password, '","requestUser":false,"selectedProfile":{"id":"', clienttoken, '","name":"', uuid, '"}}');
+    var k1 := Concat('{"accessToken":"', username, '","clientToken":"', password, '","requestUser":false}');
     Log.Write('正在使用当前账号以及角色重置外置登录。', LOG_ACCOUNT, LOG_INFO);
     var t1 := TAccount.GetHttpf(k1, res);
-    if t1 = '' then begin abort; end;
+    if t1 = '' then begin raise Exception.Create('refresh account error'); end;
     var j1 := TJsonObject.ParseJSONValue(t1) as TJsonObject;
     try //以上为直接post得到后的json，然后解析json。下面为直接获取json，如果没有皮肤，则换。但绝大概率是有皮肤的。
-      var j2 := j1.GetValue('selectedProfile') as TJsonObject;
-      self.username := j2.GetValue('name').Value;
-      self.uuid := j2.GetValue('id').Value;
+//      var j2 := j1.GetValue('selectedProfile') as TJsonObject;
+//      self.username := j2.GetValue('name').Value;
+//      self.uuid := j2.GetValue('id').Value;
       self.accesstoken := j1.GetValue('accessToken').Value;
       self.thirdclienttoken := j1.GetValue('clientToken').Value;
-      self.thirdbase64 := basecode;
+//      self.avatar := JudgeThirdSkin(servername, self.uuid);
+//      self.thirdbase64 := basecode;
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_account_success_and_get_avatar');
-      self.avatar := JudgeThirdSkin(servername, self.uuid);
     except
-      Log.Write('你在重置外置登录时，可能官网上已经删掉了该皮肤，建议重新尝试后再继续！', LOG_ACCOUNT, LOG_ERROR);
-      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.refresh_skin_error.caption'), GetLanguage('messagebox_account_thirdparty_error.refresh_skin_error.text'), MY_ERROR, [mybutton.myOK]);
-      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_cannot_refresh_skin');
+      var err := j1.GetValue('errorMessage').Value;
+      Messagebox(0, pchar(err), '', 0);
+      if err.ToLower.Contains('invalid') and err.ToLower.Contains('token') then begin
+        Log.Write('外置登录令牌无效！', LOG_ACCOUNT, LOG_ERROR);
+        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.accesstoken_invalid.caption'), GetLanguage('messagebox_account_thirdparty_error.accesstoken_invalid.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_accesstoken_invalid');
+      end else if err.ToLower.Contains('invalid') and err.ToLower.Contains('username') and err.ToLower.Contains('password') then begin
+        Log.Write('外置登录密码错误或登录次数失败过多而暂时被禁止登录！', LOG_ACCOUNT, LOG_ERROR);
+        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.caption'), GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_username_or_password_nottrue');
+      end else begin
+        Log.Write('外置登录出现了未知错误，为何不再试一次呢？', LOG_ACCOUNT, LOG_ERROR);
+        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.unknown_error.caption'), GetLanguage('messagebox_account_thirdparty_error.unknown_error.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_unknown_error');
+      end;
+//      Log.Write('你在重置外置登录时，可能官网上已经删掉了该皮肤，建议重新尝试后再继续！', LOG_ACCOUNT, LOG_ERROR);
+//      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.refresh_skin_error.caption'), GetLanguage('messagebox_account_thirdparty_error.refresh_skin_error.text'), MY_ERROR, [mybutton.myOK]);
+//      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_cannot_refresh_skin');
       accesstoken := 'noneaccount';
       exit;
     end;
   end else begin
+    Log.Write('正在请求皮肤站元数据链接。', LOG_ACCOUNT, LOG_INFO);
+    var metadata := GetWebText(servername);
+    if metadata = '' then begin
+      Log.Write('皮肤站元数据链接请求失败，请重试。', LOG_ACCOUNT, LOG_ERROR);
+      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.cannot_get_metadata.caption'), GetLanguage('messagebox_account_thirdparty_error.cannot_get_metadata.text'), MY_ERROR, [mybutton.myOK]);
+      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_cannot_get_metadata');
+      accesstoken := 'noneaccount';
+      exit;
+    end;
+    var basecode := TNetEncoding.Base64.Encode(metadata);
     res := Concat(res, 'authserver/authenticate');
     var k1 := Concat('{"username":"', username, '","password":"', password, '","clientToken":"', clienttoken, '","requestUser":false,"agent":{"name":"Minecraft","version":1}}');
     Log.Write('正在使用账号密码进行外置登录。', LOG_ACCOUNT, LOG_INFO);
     var t1 := TAccount.GetHttpf(k1, res);
     if t1 = '' then abort;
     var j1 := TJsonObject.ParseJSONValue(t1) as TJsonObject;
-    try //如果邮箱与账号不匹配，则返回。
+    try //如果登录失败，则返回。
       j1.GetValue('accessToken').ToString;
     except
       var err := j1.GetValue('errorMessage').Value;
-
-      Log.Write('输入的邮箱与密码不匹配，请重新输入。', LOG_ACCOUNT, LOG_ERROR);
-      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.caption'), GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.text'), MY_ERROR, [mybutton.myOK]);
-      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_username_or_password_nottrue');
+      if err.ToLower.Contains('invalid') and err.ToLower.Contains('token') then begin
+        Log.Write('外置登录令牌无效！', LOG_ACCOUNT, LOG_ERROR);
+        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.accesstoken_invalid.caption'), GetLanguage('messagebox_account_thirdparty_error.accesstoken_invalid.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_accesstoken_invalid');
+      end else if err.ToLower.Contains('invalid') and err.ToLower.Contains('username') and err.ToLower.Contains('password') then begin
+        Log.Write('外置登录密码错误或登录次数失败过多而暂时被禁止登录！', LOG_ACCOUNT, LOG_ERROR);
+        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.caption'), GetLanguage('messagebox_account_thirdparty_error.username_or_password_nottrue.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_username_or_password_nottrue');
+      end else begin
+        Log.Write('外置登录出现了未知错误，为何不再试一次呢？', LOG_ACCOUNT, LOG_ERROR);
+        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.unknown_error.caption'), GetLanguage('messagebox_account_thirdparty_error.unknown_error.text'), MY_ERROR, [mybutton.myOK]);
+        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_unknown_error');
+      end;
       accesstoken := 'noneaccount';
       exit;
     end;//查询邮箱，如果邮箱里没有皮肤，则执行
@@ -851,6 +875,8 @@ begin
     MyMessagebox(GetLanguage('messagebox_account.offline_cannot_refresh.caption'), GetLanguage('messagebox_account.offline_cannot_refresh.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
+  messagebox(0, pchar(((AccountJSON.GetValue('account') as TJsonArray)[index] as TJSONObject).Format()), '', 0);
+  ClipBoard.SetTextBuf(pchar(((AccountJSON.GetValue('account') as TJsonArray)[index] as TJSONObject).Format()));
   if (getType = 'microsoft') or (getType = 'oauth') then begin
     var clientID := '';
     if getType = 'oauth' then clientID := MS_CLIENT_ID; //此处依旧使用了私有函数中的Client ID。
@@ -909,9 +935,9 @@ begin
           accm := TAccount.InitializeAccount(
           ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('server').Value,
           ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('access_token').Value,
-          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('client_token').Value,
+          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('client_token').Value{,
           ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('uuid').Value,
-          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('name').Value, 'refresh');
+          ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('name').Value}, '', '', 'refresh');
         except
           Log.Write(Concat('重置失败，RefreshToken也已过期，请尝试登录吧。'), LOG_ACCOUNT, LOG_ERROR);
           MyMessagebox(GetLanguage('messagebox_account.refresh_thirdparty_error.caption'), GetLanguage('messagebox_account.refresh_thirdparty_error.text'), MY_ERROR, [mybutton.myOK]);
@@ -924,16 +950,16 @@ begin
         var un := accm.GetUserName;
         var uu := accm.GetUUID;
         var sk := accm.GetAvatar;
-        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('name');//删除键
+        {((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('name');
         ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('uuid');
-        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('access_token');
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('head_skin');}
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('access_token');//删除键
         ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('client_token');
-        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).RemovePair('head_skin');
-        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('name', un);
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('access_token', at); //增加键
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('client_token', ct);
+        {((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('name', un);
         ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('uuid', uu);
-        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('access_token', at);
-        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('client_token', ct);//增加键
-        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('head_skin', sk);
+        ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject).AddPair('head_skin', sk);}
         Log.Write(Concat('重置成功！玩家名称：', un), LOG_ACCOUNT, LOG_INFO);
         form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', un);
         MyMessagebox(GetLanguage('messagebox_account.refresh_thirdparty_success.caption'), GetLanguage('messagebox_account.refresh_thirdparty_success.text'), MY_PASS, [mybutton.myOK]);

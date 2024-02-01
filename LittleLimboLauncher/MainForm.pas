@@ -568,7 +568,7 @@ type
   end;
 
 const
-  LauncherVersion = '1.0.0-Beta-1';
+  LauncherVersion = '1.0.0-Beta-3';
 
 var
   form_mainform: Tform_mainform;
@@ -588,6 +588,22 @@ var
   mjudge_lang_chinese: Boolean;
 
 implementation
+
+(*
+ * 大家好！这里是Little Limbo Launcher的源码部分，很高兴能在这里遇见你！
+ * 如果你发现了任意的bug，可以自行观看这些源码部分，然后为作者提交pull request！
+ * 如果你提交的任意pull request被作者【marge】了之后，你很有可能会被作者写到【传奇贡献人员】里面噢！
+ * 如果你的确发现了bug，但是不知道如何解决，你也可以为作者提交一个issue，这个issue可以包含源码中什么文件的第几行。
+ * 如果你的issue被作者标记为【solve】，你也很有可能会被作者写到【精品贡献人员】里噢！
+ * 自然，如果你有很好的点子，想为作者提出一些建议，也可以发issue噢。
+ * 只要作者将其标记为【accept】，你很有可能会被作者写到【优秀贡献人员】里噢！
+ * 目前作者的贡献人员等级将分为4等，分别是【传奇】【精品】【优秀】【赞助】。分别对应着各位能为该启动器做出如何的贡献。
+ * 其中【赞助】的全称是【赞助人员】，皆在表示为作者捐款10元及以上的金额做出一点点渺小的力量！
+ * 如果你赞助的金额很多，但是并未为启动器做出贡献，你也将无法升级！因为贡献人员是为了给玩家做出贡献的提议！
+ * 如果你不仅赞助了，而且为作者做出贡献了！你的名字将会不仅存在于【赞助】上，而且还会逐步往上升！直到所有名单里都有你！
+ * 也就是说一个人最多可以拥有4个名字存在我的贡献名单上噢！
+ * 因此请努力吧！让我们为LLL启动器的未来做出伟大的贡献吧！
+ *)
 
 uses
   MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow, ExportMethod,
