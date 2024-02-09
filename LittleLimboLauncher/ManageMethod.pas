@@ -9,11 +9,11 @@ function InitManage: Boolean;
 procedure DragFileInWindow(var Msg: TMessage);
 procedure ClearDatSelect;
 procedure ManageChangeMap;
-procedure ManageDisablePlaying;
-procedure ManageEnablePlaying;
-procedure ManageDeletePlaying;
-procedure ManageRenamePlaying;
-procedure ManageOpenPlaying;
+procedure ManageDisableresource;
+procedure ManageEnableresource;
+procedure ManageDeleteresource;
+procedure ManageRenameresource;
+procedure ManageOpenresource;
 
 implementation
 
@@ -49,7 +49,7 @@ begin
       end;
     end;
   except
-    result := GetLanguage('picturebox_playing.has_no_data');
+    result := GetLanguage('picturebox_resource.has_no_data');
   end;
 end;
 //导入整合包函数
@@ -90,7 +90,10 @@ begin
         exit;
       end;
     end else exit;
-  end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\mmc-pack.json')) or FileExists(Concat(temp, 'LLLauncher\importmodpack\instance.cfg')) then begin
+  end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\mmc-pack.json')) and FileExists(Concat(temp, 'LLLauncher\importmodpack\instance.cfg')) then begin
+    var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\mmc-pack.json'));
+    var mo := TIniFile.Create(Concat(temp, 'LLLauncher\importmodpack\instance.cfg'));
+    ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
 
   end;
   DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
@@ -127,7 +130,7 @@ begin
   Result := SHFileOperation(sop) = 0;
 end;
 //查询玩法文件夹，然后添加到列表框。
-procedure SelectPlayingDir();
+procedure SelectresourceDir();
 var
   ModFiles: TArray<String>;
   ResFiles: TArray<String>;
@@ -217,43 +220,43 @@ begin
   except end;
 end;
 //禁用玩法
-procedure ManageDisablePlaying;
+procedure ManageDisableresource;
 begin
   var S := '';
   if form_mainform.listbox_manage_import_mod.ItemIndex <> -1 then S := ModSelect[form_mainform.listbox_manage_import_mod.ItemIndex] else
   if form_mainform.listbox_manage_import_plugin.ItemIndex <> -1 then S := PluSelect[form_mainform.listbox_manage_import_plugin.ItemIndex] else begin
-    MyMessagebox(GetLanguage('messagebox_manage.disable_playing_not_choose.caption'), GetLanguage('messagebox_manage.disable_playing_not_choose.text'), MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_manage.disable_resource_not_choose.caption'), GetLanguage('messagebox_manage.disable_resource_not_choose.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   if (RightStr(S, 13) = '.jar.diasbled') or (RightStr(S, 13) = '.zip.disabled') then begin
-    MyMessagebox(GetLanguage('messagebox_manage.playing_already_disable.caption'), GetLanguage('messagebox_manage.playing_already_disable.text'), MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_manage.resource_already_disable.caption'), GetLanguage('messagebox_manage.resource_already_disable.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   RenameFile(S, Concat(S, '.disabled'));
-  SelectPlayingDir();
+  SelectresourceDir();
 end;
 //启用玩法
-procedure ManageEnablePlaying;
+procedure ManageEnableresource;
 begin
   var S := '';
   if form_mainform.listbox_manage_import_mod.ItemIndex <> -1 then S := ModSelect[form_mainform.listbox_manage_import_mod.ItemIndex] else
   if form_mainform.listbox_manage_import_plugin.ItemIndex <> -1 then S := PluSelect[form_mainform.listbox_manage_import_plugin.ItemIndex] else begin
-    MyMessagebox(GetLanguage('messagebox_manage.enable_playing_not_choose.caption'), GetLanguage('messagebox_manage.enable_playing_not_choose.text'), MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_manage.enable_resource_not_choose.caption'), GetLanguage('messagebox_manage.enable_resource_not_choose.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   if (RightStr(S, 4) = '.jar') or (RightStr(S, 4) = '.zip') then begin
-    MyMessagebox(GetLanguage('messagebox_manage.playing_already_enable.caption'), GetLanguage('messagebox_manage.playing_already_enable.text'), MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_manage.resource_already_enable.caption'), GetLanguage('messagebox_manage.resource_already_enable.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   RenameFile(S, S.Substring(0, S.LastIndexOf('.')));
-  SelectPlayingDir();
+  SelectresourceDir();
 end;
 procedure ClearDatSelect;
 begin
   DatSelect.Clear;
 end;
 //删除玩法
-procedure ManageDeletePlaying;
+procedure ManageDeleteresource;
 begin
   var S := '';
   if form_mainform.listbox_manage_import_datapack.ItemIndex <> -1 then S := DatSelect[form_mainform.listbox_manage_import_datapack.ItemIndex]
@@ -263,15 +266,15 @@ begin
   else if form_mainform.listbox_manage_import_shader.ItemIndex <> -1 then S := ShaSelect[form_mainform.listbox_manage_import_shader.ItemIndex]
   else if form_mainform.listbox_manage_import_plugin.ItemIndex <> -1 then S := PluSelect[form_mainform.listbox_manage_import_plugin.ItemIndex]
   else begin
-    MyMessagebox(GetLanguage('messagebox_manage.delete_playing_not_choose.caption'), GetLanguage('messagebox_manage.delete_playing_not_choose.text'), MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_manage.delete_resource_not_choose.caption'), GetLanguage('messagebox_manage.delete_resource_not_choose.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
-  if MyMessagebox(GetLanguage('messagebox_manage.playing_is_delete.caption'), GetLanguage('messagebox_manage.playing_is_delete.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
+  if MyMessagebox(GetLanguage('messagebox_manage.resource_is_delete.caption'), GetLanguage('messagebox_manage.resource_is_delete.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
   RecycleFile(S);
-  SelectPlayingDir;
+  SelectresourceDir;
 end;
 //重命名玩法
-procedure ManageRenamePlaying;
+procedure ManageRenameresource;
 begin
   var S := '';
   if form_mainform.listbox_manage_import_datapack.ItemIndex <> -1 then S := DatSelect[form_mainform.listbox_manage_import_datapack.ItemIndex]
@@ -281,7 +284,7 @@ begin
   else if form_mainform.listbox_manage_import_shader.ItemIndex <> -1 then S := ShaSelect[form_mainform.listbox_manage_import_shader.ItemIndex]
   else if form_mainform.listbox_manage_import_plugin.ItemIndex <> -1 then S := PluSelect[form_mainform.listbox_manage_import_plugin.ItemIndex]
   else begin
-    MyMessagebox(GetLanguage('messagebox_manage.rename_playing_not_choose.caption'), GetLanguage('messagebox_manage.rename_playing_not_choose.text'), MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_manage.rename_resource_not_choose.caption'), GetLanguage('messagebox_manage.rename_resource_not_choose.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   var rs := MyInputBox(GetLanguage('inputbox_manage.rename_new_name.caption'), GetLanguage('inputbox_manage.rename_new_name.text'), MY_INFORMATION);
@@ -301,10 +304,10 @@ begin
       RenameFile(S, ald);
     end;
   end;
-  SelectPlayingDir;
+  SelectresourceDir;
 end;
 //打开文件夹
-procedure ManageOpenPlaying;
+procedure ManageOpenresource;
 begin
   var S := '';
   if form_mainform.listbox_manage_import_datapack.ItemIndex <> -1 then S := Concat(SavSelect[form_mainform.listbox_manage_import_map.ItemIndex], '\datapacks')
@@ -314,7 +317,7 @@ begin
   else if form_mainform.listbox_manage_import_shader.ItemIndex <> -1 then S := Concat(mcrlpth, '\shaderpacks')
   else if form_mainform.listbox_manage_import_plugin.ItemIndex <> -1 then S := Concat(mcrlpth, '\plugins')
   else begin
-    MyMessagebox(GetLanguage('messagebox_manage.open_no_choose_playing.caption'), GetLanguage('messagebox_manage.open_no_choose_playing.text'), MY_ERROR, [mybutton.myOK]);
+    MyMessagebox(GetLanguage('messagebox_manage.open_no_choose_resource.caption'), GetLanguage('messagebox_manage.open_no_choose_resource.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   if not DirectoryExists(S) then ForceDirectories(S);
@@ -569,7 +572,7 @@ begin
       MyMessagebox(GetLanguage('messagebox_manage.drag_modpack_format_error.caption'), GetLanguage('messagebox_manage.drag_modpack_format_error.text').Replace('${drag_file_name}', ExtractFileName(ne)), MY_ERROR, [mybutton.myOK]);
     end;
   end;
-  SelectPlayingDir;
+  SelectresourceDir;
   if ic > 0 then MyMessagebox(GetLanguage('messagebox_manage.drag_file_finish.caption'), GetLanguage('messagebox_manage.drag_file_finish.text'), MY_PASS, [mybutton.myOK]);
 end;
 //点击地图列表框事件
@@ -604,7 +607,7 @@ begin
       result := false;
       exit;
     end;
-    SelectPlayingDir;
+    SelectresourceDir;
   end else begin
     ModSelect := TStringList.Create;
     SavSelect := TStringList.Create;
@@ -620,7 +623,7 @@ begin
       exit;
     end;
     f := true;
-    SelectPlayingDir;
+    SelectresourceDir;
   end;
 end;
 

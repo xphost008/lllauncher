@@ -372,7 +372,6 @@ begin
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_account_success_and_get_avatar');
     except
       var err := j1.GetValue('errorMessage').Value;
-      Messagebox(0, pchar(err), '', 0);
       if err.ToLower.Contains('invalid') and err.ToLower.Contains('token') then begin
         Log.Write('外置登录令牌无效！', LOG_ACCOUNT, LOG_ERROR);
         MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.accesstoken_invalid.caption'), GetLanguage('messagebox_account_thirdparty_error.accesstoken_invalid.text'), MY_ERROR, [mybutton.myOK]);
@@ -875,7 +874,6 @@ begin
     MyMessagebox(GetLanguage('messagebox_account.offline_cannot_refresh.caption'), GetLanguage('messagebox_account.offline_cannot_refresh.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
-  messagebox(0, pchar(((AccountJSON.GetValue('account') as TJsonArray)[index] as TJSONObject).Format()), '', 0);
   ClipBoard.SetTextBuf(pchar(((AccountJSON.GetValue('account') as TJsonArray)[index] as TJSONObject).Format()));
   if (getType = 'microsoft') or (getType = 'oauth') then begin
     var clientID := '';

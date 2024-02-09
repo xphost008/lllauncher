@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
-  StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,msxml,
+  StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
   ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections, FileCtrl,
   Vcl.Buttons, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils,
   IdBaseComponent, IdComponent, IdCustomTCPServer, IdCustomHTTPServer, NetEncoding,
@@ -73,35 +73,35 @@ type
     edit_thirdparty_server: TEdit;
     edit_thirdparty_account: TEdit;
     edit_thirdparty_password: TEdit;
-    tabsheet_playing_part: TTabSheet;
-    label_playing_tip: TLabel;
-    pagecontrol_playing_part: TPageControl;
-    tabsheet_playing_download_part: TTabSheet;
-    label_playing_search_name: TLabel;
-    label_playing_search_version: TLabel;
-    label_playing_return_value: TLabel;
-    label_playing_search_category_modrinth_tip: TLabel;
-    label_playing_search_version_tip: TLabel;
-    label_playing_search_category_curseforge_tip: TLabel;
-    label_playing_search_mode_tip: TLabel;
-    label_playing_search_source_tip: TLabel;
-    label_playing_search_name_tip: TLabel;
-    listbox_playing_search_name: TListBox;
-    listbox_playing_search_version: TListBox;
-    button_playing_name_previous_page: TButton;
-    button_playing_name_next_page: TButton;
-    button_playing_version_previous_page: TButton;
-    button_playing_version_next_page: TButton;
-    edit_playing_search_name: TEdit;
-    combobox_playing_search_source: TComboBox;
-    combobox_playing_search_mode: TComboBox;
-    combobox_playing_search_category_curseforge: TComboBox;
-    combobox_playing_search_version: TComboBox;
-    checklistbox_playing_search_category_modrinth: TCheckListBox;
+    tabsheet_resource_part: TTabSheet;
+    label_resource_tip: TLabel;
+    pagecontrol_resource_part: TPageControl;
+    tabsheet_resource_download_part: TTabSheet;
+    label_resource_search_name: TLabel;
+    label_resource_search_version: TLabel;
+    label_resource_return_value: TLabel;
+    label_resource_search_category_modrinth_tip: TLabel;
+    label_resource_search_version_tip: TLabel;
+    label_resource_search_category_curseforge_tip: TLabel;
+    label_resource_search_mode_tip: TLabel;
+    label_resource_search_source_tip: TLabel;
+    label_resource_search_name_tip: TLabel;
+    listbox_resource_search_name: TListBox;
+    listbox_resource_search_version: TListBox;
+    button_resource_name_previous_page: TButton;
+    button_resource_name_next_page: TButton;
+    button_resource_version_previous_page: TButton;
+    button_resource_version_next_page: TButton;
+    edit_resource_search_name: TEdit;
+    combobox_resource_search_source: TComboBox;
+    combobox_resource_search_mode: TComboBox;
+    combobox_resource_search_category_curseforge: TComboBox;
+    combobox_resource_search_version: TComboBox;
+    checklistbox_resource_search_category_modrinth: TCheckListBox;
     button_open_download_website: TButton;
-    button_playing_start_search: TButton;
-    button_playing_start_download: TButton;
-    tabsheet_playing_manage_part: TTabSheet;
+    button_resource_start_search: TButton;
+    button_resource_start_download: TButton;
+    tabsheet_resource_manage_part: TTabSheet;
     tabsheet_download_part: TTabSheet;
     label_download_tip: TLabel;
     pagecontrol_download_part: TPageControl;
@@ -167,11 +167,11 @@ type
     label_manage_import_shader: TLabel;
     label_manage_import_datapack: TLabel;
     label_manage_import_plugin: TLabel;
-    button_disable_choose_playing: TButton;
-    button_enable_choose_playing: TButton;
-    button_delete_choose_playing: TButton;
-    button_rename_choose_playing: TButton;
-    button_open_choose_playing: TButton;
+    button_disable_choose_resource: TButton;
+    button_enable_choose_resource: TButton;
+    button_delete_choose_resource: TButton;
+    button_rename_choose_resource: TButton;
+    button_open_choose_resource: TButton;
     tabsheet_background_part: TTabSheet;
     image_mainpage_background_image: TImage;
     n_official: TMenuItem;
@@ -424,26 +424,26 @@ type
     procedure timer_all_ticksTimer(Sender: TObject);
     procedure n_test_buttonClick(Sender: TObject);
     procedure n_memory_optimizeClick(Sender: TObject);
-    procedure combobox_playing_search_sourceChange(Sender: TObject);
-    procedure combobox_playing_search_modeChange(Sender: TObject);
-    procedure button_playing_start_searchClick(Sender: TObject);
-    procedure combobox_playing_search_category_curseforgeChange(
+    procedure combobox_resource_search_sourceChange(Sender: TObject);
+    procedure combobox_resource_search_modeChange(Sender: TObject);
+    procedure button_resource_start_searchClick(Sender: TObject);
+    procedure combobox_resource_search_category_curseforgeChange(
       Sender: TObject);
-    procedure checklistbox_playing_search_category_modrinthClick(
+    procedure checklistbox_resource_search_category_modrinthClick(
       Sender: TObject);
     procedure button_open_download_websiteClick(Sender: TObject);
-    procedure button_playing_name_previous_pageClick(Sender: TObject);
-    procedure button_playing_name_next_pageClick(Sender: TObject);
-    procedure button_playing_version_previous_pageClick(Sender: TObject);
-    procedure button_playing_version_next_pageClick(Sender: TObject);
-    procedure listbox_playing_search_nameClick(Sender: TObject);
+    procedure button_resource_name_previous_pageClick(Sender: TObject);
+    procedure button_resource_name_next_pageClick(Sender: TObject);
+    procedure button_resource_version_previous_pageClick(Sender: TObject);
+    procedure button_resource_version_next_pageClick(Sender: TObject);
+    procedure listbox_resource_search_nameClick(Sender: TObject);
     procedure n_view_mod_profileClick(Sender: TObject);
     procedure n_view_mod_websiteClick(Sender: TObject);
-    procedure listbox_playing_search_versionClick(Sender: TObject);
-    procedure button_playing_start_downloadClick(Sender: TObject);
+    procedure listbox_resource_search_versionClick(Sender: TObject);
+    procedure button_resource_start_downloadClick(Sender: TObject);
     procedure scrollbox_launchMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure pagecontrol_playing_partChange(Sender: TObject);
+    procedure pagecontrol_resource_partChange(Sender: TObject);
     procedure WmDropFiles(var Msg: TMessage); message WM_DROPFILES;
     procedure listbox_manage_import_mapClick(Sender: TObject);
     procedure listbox_manage_import_modClick(Sender: TObject);
@@ -451,11 +451,11 @@ type
     procedure listbox_manage_import_shaderClick(Sender: TObject);
     procedure listbox_manage_import_pluginClick(Sender: TObject);
     procedure listbox_manage_import_datapackClick(Sender: TObject);
-    procedure button_disable_choose_playingClick(Sender: TObject);
-    procedure button_enable_choose_playingClick(Sender: TObject);
-    procedure button_delete_choose_playingClick(Sender: TObject);
-    procedure button_rename_choose_playingClick(Sender: TObject);
-    procedure button_open_choose_playingClick(Sender: TObject);
+    procedure button_disable_choose_resourceClick(Sender: TObject);
+    procedure button_enable_choose_resourceClick(Sender: TObject);
+    procedure button_delete_choose_resourceClick(Sender: TObject);
+    procedure button_rename_choose_resourceClick(Sender: TObject);
+    procedure button_open_choose_resourceClick(Sender: TObject);
     procedure scrollbar_launch_window_heightChange(Sender: TObject);
     procedure scrollbar_launch_window_widthChange(Sender: TObject);
     procedure combobox_launch_select_java_pathChange(Sender: TObject);
@@ -607,7 +607,7 @@ implementation
 
 uses
   MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow, ExportMethod,
-  PluginMethod, PlayingMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod,
+  PluginMethod, resourceMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod,
   OnlineIPv6Method;
 
 //var
@@ -779,14 +779,14 @@ begin
   ClearDatSelect;
 end;
 //玩法部分：名称列表框点击
-procedure Tform_mainform.listbox_playing_search_nameClick(Sender: TObject);
+procedure Tform_mainform.listbox_resource_search_nameClick(Sender: TObject);
 begin
-  PlayingSelNameList;
+  resourceSelNameList;
 end;
 //玩法部分：版本列表框点击
-procedure Tform_mainform.listbox_playing_search_versionClick(Sender: TObject);
+procedure Tform_mainform.listbox_resource_search_versionClick(Sender: TObject);
 begin
-  PlayingSelVerList;
+  resourceSelVerList;
 end;
 //下载部分：Minecraft版本选择
 procedure Tform_mainform.listbox_select_minecraftClick(Sender: TObject);
@@ -921,10 +921,13 @@ end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 begin
-              var vn := 'neoforge-20.4.137-beta';
-              var rvn := vn.Substring(vn.IndexOf('-') + 1);
-              var dul := Concat('/maven/net/neoforged/neoforge/', rvn, '/', vn, '-installer.jar');
-              messagebox(0, pchar(dul), '', 0);
+//  var j := TJSONObject.ParseJSONValue('{"a":"111"}') as TJSONObject;
+//  var nu := j.GetValue('a').Null;
+//  showmessage(booltostr(nu, true));
+//              var vn := 'neoforge-20.4.137-beta';
+//              var rvn := vn.Substring(vn.IndexOf('-') + 1);
+//              var dul := Concat('/maven/net/neoforged/neoforge/', rvn, '/', vn, '-installer.jar');
+//              messagebox(0, pchar(dul), '', 0);
 //  if MyPicMsgBox('aa', 'bb', nil) then begin
 //    showmessage('ok');
 //  end else begin
@@ -960,12 +963,12 @@ end;
 //玩法部分：打开该模组的简介
 procedure Tform_mainform.n_view_mod_profileClick(Sender: TObject);
 begin
-  PlayingOpenIntro;
+  resourceOpenIntro;
 end;
 //玩法部分：打开该模组的官网。
 procedure Tform_mainform.n_view_mod_websiteClick(Sender: TObject);
 begin
-  PlayingOpenVerWeb;
+  resourceOpenVerWeb;
 end;
 //联机部分：开始检测IPv6地址
 procedure Tform_mainform.button_check_ipv6_ipClick(Sender: TObject);
@@ -1073,9 +1076,9 @@ begin
   combobox_all_account.ItemIndex := DeleteAccount(combobox_all_account.ItemIndex);
 end;
 //玩法管理界面：删除选中
-procedure Tform_mainform.button_delete_choose_playingClick(Sender: TObject);
+procedure Tform_mainform.button_delete_choose_resourceClick(Sender: TObject);
 begin
-  ManageDeletePlaying;
+  ManageDeleteresource;
 end;
 //版本设置：删除游戏版本
 procedure Tform_mainform.button_delete_game_versionClick(Sender: TObject);
@@ -1094,9 +1097,9 @@ begin
   end;
 end;
 //玩法管理界面：禁用选中
-procedure Tform_mainform.button_disable_choose_playingClick(Sender: TObject);
+procedure Tform_mainform.button_disable_choose_resourceClick(Sender: TObject);
 begin
-  ManageDisablePlaying;
+  ManageDisableresource;
 end;
 //下载部分：模组加载器手动安装包：开始下载
 procedure Tform_mainform.button_download_modloader_downloadClick(
@@ -1117,9 +1120,9 @@ begin
   DownloadMinecraft;
 end;
 //玩法管理界面：启用选中
-procedure Tform_mainform.button_enable_choose_playingClick(Sender: TObject);
+procedure Tform_mainform.button_enable_choose_resourceClick(Sender: TObject);
 begin
-  ManageEnablePlaying;
+  ManageEnableresource;
 end;
 //整合包导入图标
 procedure Tform_mainform.button_export_add_iconClick(Sender: TObject);
@@ -1322,46 +1325,46 @@ begin
   MyMessagebox(GetLanguage('messagebox_ipv6.online_tips.caption'), GetLanguage('messagebox_ipv6.online_tips.text'), MY_INFORMATION, [mybutton.myOK])
 end;
 //玩法管理界面：打开选中的文件夹
-procedure Tform_mainform.button_open_choose_playingClick(Sender: TObject);
+procedure Tform_mainform.button_open_choose_resourceClick(Sender: TObject);
 begin
-  ManageOpenPlaying;
+  ManageOpenresource;
 end;
 //打开下载源官网
 procedure Tform_mainform.button_open_download_websiteClick(Sender: TObject);
 begin
-  PlayingOpenOciWeb();
+  resourceOpenOciWeb();
 end;
 //玩法界面：名称下一页
-procedure Tform_mainform.button_playing_name_next_pageClick(Sender: TObject);
+procedure Tform_mainform.button_resource_name_next_pageClick(Sender: TObject);
 begin
-  PlayingPageDownName();
+  resourcePageDownName();
 end;
 //玩法界面：名称上一页
-procedure Tform_mainform.button_playing_name_previous_pageClick(
+procedure Tform_mainform.button_resource_name_previous_pageClick(
   Sender: TObject);
 begin
-  PlayingPageUpName();
+  resourcePageUpName();
 end;
 //玩法界面：开始下载
-procedure Tform_mainform.button_playing_start_downloadClick(Sender: TObject);
+procedure Tform_mainform.button_resource_start_downloadClick(Sender: TObject);
 begin
-  PlayingDownload;
+  resourceDownload;
 end;
 //下载进度界面：清空列表框
-procedure Tform_mainform.button_playing_start_searchClick(Sender: TObject);
+procedure Tform_mainform.button_resource_start_searchClick(Sender: TObject);
 begin
-  PlayingStartSearch;
+  resourceStartSearch;
 end;
 //玩法界面：版本下一页
-procedure Tform_mainform.button_playing_version_next_pageClick(Sender: TObject);
+procedure Tform_mainform.button_resource_version_next_pageClick(Sender: TObject);
 begin
-  PlayingPageDownVer();
+  resourcePageDownVer();
 end;
 //玩法界面：版本上一页
-procedure Tform_mainform.button_playing_version_previous_pageClick(
+procedure Tform_mainform.button_resource_version_previous_pageClick(
   Sender: TObject);
 begin
-  PlayingPageUpVer();
+  resourcePageUpVer();
 end;
 //下载窗口：清除列表框
 procedure Tform_mainform.button_progress_clean_download_listClick(
@@ -1412,9 +1415,9 @@ begin
   MyMessagebox(GetLanguage('messagebox_version.remove_mc_dir_success.caption'), GetLanguage('messagebox_version.remove_mc_dir_success.text'), MY_PASS, [mybutton.myOK]);
 end;
 //玩法管理界面：重命名选中
-procedure Tform_mainform.button_rename_choose_playingClick(Sender: TObject);
+procedure Tform_mainform.button_rename_choose_resourceClick(Sender: TObject);
 begin
-  ManageRenamePlaying;
+  ManageRenameresource;
 end;
 //版本设置：重命名游戏版本
 procedure Tform_mainform.button_rename_game_versionClick(Sender: TObject);
@@ -1555,10 +1558,10 @@ begin
   CheckMode;
 end;
 //搜索类型改变复选组（Modrinth）
-procedure Tform_mainform.checklistbox_playing_search_category_modrinthClick(
+procedure Tform_mainform.checklistbox_resource_search_category_modrinthClick(
   Sender: TObject);
 begin
-  PlayingSelCateModrinth;
+  resourceSelCateModrinth;
 end;
 //账号部分：所有账号下拉框改变事件
 procedure Tform_mainform.combobox_all_accountChange(Sender: TObject);
@@ -1575,20 +1578,20 @@ begin
   mcurrent_java := combobox_launch_select_java_path.ItemIndex;
 end;
 //搜索类型改变下拉框（Curseforge）
-procedure Tform_mainform.combobox_playing_search_category_curseforgeChange(
+procedure Tform_mainform.combobox_resource_search_category_curseforgeChange(
   Sender: TObject);
 begin
-  PlayingSelCateCurseforge;
+  resourceSelCateCurseforge;
 end;
 //搜索方式修改的下拉框
-procedure Tform_mainform.combobox_playing_search_modeChange(Sender: TObject);
+procedure Tform_mainform.combobox_resource_search_modeChange(Sender: TObject);
 begin
-  PlayingSelMode;
+  resourceSelMode;
 end;
 //搜索源修改的下拉框
-procedure Tform_mainform.combobox_playing_search_sourceChange(Sender: TObject);
+procedure Tform_mainform.combobox_resource_search_sourceChange(Sender: TObject);
 begin
-  PlayingSelSource;
+  resourceSelSource;
 end;
 //版本设置：文件列表下拉框改变
 procedure Tform_mainform.combobox_select_file_listChange(Sender: TObject);
@@ -1689,7 +1692,7 @@ procedure Tform_mainform.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   SaveBackground;
   SaveAccount;
-  SavePlaying;
+  Saveresource;
   SaveLaunch;
   SaveDownload;
   SaveCustomDl;
@@ -1698,8 +1701,8 @@ begin
 end;
 procedure Tform_mainform.WmDropFiles(var Msg: TMessage);
 begin
-  if pagecontrol_mainpage.ActivePage = tabsheet_playing_part then begin
-    if pagecontrol_playing_part.ActivePage = tabsheet_playing_manage_part then begin
+  if pagecontrol_mainpage.ActivePage = tabsheet_resource_part then begin
+    if pagecontrol_resource_part.ActivePage = tabsheet_resource_manage_part then begin
       DragFileInWindow(Msg);
     end;
   end;
@@ -1770,7 +1773,7 @@ begin
   ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
   ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
   ChangeWindowMessageFilter(WM_COPYGLOBALDATA, MSGFLT_ADD);
-//  DragAcceptFiles(tabsheet_playing_manage_part.Handle, true);
+//  DragAcceptFiles(tabsheet_resource_manage_part.Handle, true);
   DragAcceptFiles(self.Handle, true);
   InitLanguage;
 end;
@@ -1779,7 +1782,7 @@ procedure Tform_mainform.FormShow(Sender: TObject);
 begin
   pagecontrol_mainpage.ActivePage := tabsheet_mainpage_part;
   pagecontrol_account_part.ActivePage := tabsheet_account_microsoft_part;
-  pagecontrol_playing_part.ActivePage := tabsheet_playing_download_part;
+  pagecontrol_resource_part.ActivePage := tabsheet_resource_download_part;
   pagecontrol_download_part.ActivePage := tabsheet_download_minecraft_part;
   pagecontrol_online_part.ActivePage := tabsheet_online_ipv6_part;
   pagecontrol_version_part.ActivePage := tabsheet_version_control_part;
@@ -2024,8 +2027,8 @@ begin
     InitBackground
   else if pagecontrol_mainpage.ActivePage = tabsheet_account_part then
     InitAccount
-  else if pagecontrol_mainpage.ActivePage = tabsheet_playing_part then
-    InitPlaying
+  else if pagecontrol_mainpage.ActivePage = tabsheet_resource_part then
+    Initresource
   else if pagecontrol_mainpage.ActivePage = tabsheet_launch_part then
     InitLaunch
   else if pagecontrol_mainpage.ActivePage = tabsheet_download_part then
@@ -2041,8 +2044,8 @@ begin
     SaveBackground
   else if pagecontrol_mainpage.ActivePage = tabsheet_account_part then
     SaveAccount
-  else if pagecontrol_mainpage.ActivePage = tabsheet_playing_part then
-    SavePlaying
+  else if pagecontrol_mainpage.ActivePage = tabsheet_resource_part then
+    Saveresource
   else if pagecontrol_mainpage.ActivePage = tabsheet_launch_part then
     SaveLaunch
   else if pagecontrol_mainpage.ActivePage = tabsheet_download_part then begin
@@ -2052,12 +2055,12 @@ begin
     SaveVersion;
 end;
 //玩法部分：玩法管理界面/下载玩法切换。
-procedure Tform_mainform.pagecontrol_playing_partChange(Sender: TObject);
+procedure Tform_mainform.pagecontrol_resource_partChange(Sender: TObject);
 begin
-  if pagecontrol_playing_part.ActivePage = tabsheet_playing_manage_part then begin
+  if pagecontrol_resource_part.ActivePage = tabsheet_resource_manage_part then begin
     if not InitManage then begin
-      MyMessagebox(GetLanguage('messagebox_playing.open_manage_error.caption'), GetLanguage('messagebox_playing.open_manage_error.text'), MY_ERROR, [mybutton.myOK]);
-      pagecontrol_playing_part.ActivePage := tabsheet_playing_download_part;
+      MyMessagebox(GetLanguage('messagebox_resource.open_manage_error.caption'), GetLanguage('messagebox_resource.open_manage_error.text'), MY_ERROR, [mybutton.myOK]);
+      pagecontrol_resource_part.ActivePage := tabsheet_resource_download_part;
       exit;
     end;
   end;

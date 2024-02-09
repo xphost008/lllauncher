@@ -564,46 +564,58 @@ begin
   var isloader := '';
   var islver := '';
   var muid := '';
-  for var I in jsonRoot.GetValue('libraries') as TJSONArray do begin
-    var ne := I.GetValue<String>('name'); //遍历库文件
-    if ne.Contains('quilt-loader') then begin //查询是否有关键字符串
-      isloader := 'quilt'; //一旦查到则执行，此处为切割出版本名
-      islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
-      islver := ne.Replace(islver, ''); //切割出版本号。
-      muid := 'org.quiltmc.quilt-loader';
-      break;
-    end else if ne.Contains('liteloader') then begin
-      isloader := 'liteloader';
-      islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
-      islver := ne.Replace(islver, '').ToUpper;
-      muid := 'com.mumfrey.liteloader';
-      break;
-    end else if ne.Contains('fabric-loader') then begin
-      isloader := 'fabric';
-      islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
-      islver := ne.Replace(islver, '');
-      muid := 'net.fabricmc.fabric-loader';
-      break;
-    end else if ne.Contains('minecraftforge') or ne.Contains('fmlloader') then begin
-      isloader := 'forge';
-      islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
-      islver := ne.Replace(islver, '');
-      islver := islver.Substring(islver.IndexOf('-') + 1, islver.Length);
-      muid := 'net.minecraftforge';
-      break;
-    end else isloader := 'vanilla';
-  end;
-  if isloader = 'vanilla' then begin //forge需要额外的判断一次。
-    try
-      var game := (jsonRoot.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
-      for var I := 0 to game.Count - 1 do begin //此处如果库文件找不到【net.minecraftforge.forge:】则执行
-        if game[I].Value = '--fml.forgeversion'.ToLower then begin //开始查找其arguments/game中是否有--fml.forgeVersion键
-          isloader := 'forge';
-          islver := game[I + 1].Value;
-          muid := 'net.minecraftforge';
-        end;
+  try
+    var game := (jsonRoot.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
+    for var I := 0 to game.Count - 1 do begin //此处如果库文件找不到【net.minecraftforge.forge:】则执行
+      if game[I].Value.ToLower.Equals('--fml.forgeversion') then begin //开始查找其arguments/game中是否有--fml.forgeVersion键
+        isloader := 'forge';
+        islver := game[I + 1].Value;
+        muid := 'net.minecraftforge';
+        break;
+      end else if game[I].Value.ToLower.Equals('--fml.neoforgeversion') then begin
+        isloader := 'neoforge';
+        islver := game[I + 1].Value;
+        muid := 'net.neoforged';
+        break;
       end;
-    except end;
+    end;
+  except end;
+  if isloader.IsEmpty then begin //forge需要额外的判断一次。
+    for var I in jsonRoot.GetValue('libraries') as TJSONArray do begin
+      var ne := I.GetValue<String>('name'); //遍历库文件
+      if ne.Contains('quilt-loader') then begin //查询是否有关键字符串
+        isloader := 'quilt'; //一旦查到则执行，此处为切割出版本名
+        islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
+        islver := ne.Replace(islver, ''); //切割出版本号。
+        muid := 'org.quiltmc.quilt-loader';
+        break;
+      end else if ne.Contains('liteloader') then begin
+        isloader := 'liteloader';
+        islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
+        islver := ne.Replace(islver, '').ToUpper;
+        muid := 'com.mumfrey.liteloader';
+        break;
+      end else if ne.Contains('fabric-loader') then begin
+        isloader := 'fabric';
+        islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
+        islver := ne.Replace(islver, '');
+        muid := 'net.fabricmc.fabric-loader';
+        break;
+      end else if (ne.Contains('minecraftforge:forge') or ne.Contains('fmlloader')) and (ne.CountChar(':') = 2) then begin
+        isloader := 'forge';
+        islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
+        islver := ne.Replace(islver, '');
+        islver := islver.Substring(islver.IndexOf('-') + 1, islver.Length);
+        muid := 'net.minecraftforge';
+        break;
+      end else if ne.Contains('neoforged:neoforge') then begin
+        isloader := 'neoforge';
+        islver := ne.Substring(0, ne.LastIndexOf(':') + 1);
+        islver := ne.Replace(islver, '');
+        muid := 'net.neoforged';
+        break;
+      end else isloader := 'vanilla';
+    end;
   end;
   mcid := GetVanillaVersion(json);
   if mcid = '' then begin

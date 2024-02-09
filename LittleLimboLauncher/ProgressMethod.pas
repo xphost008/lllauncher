@@ -433,6 +433,7 @@ begin
         if (LeftStr(ve, 1) = '''') and (RightStr(ve, 1) = '''') then
           ve := ve.Substring(1, ve.Length - 2);
         if GetFileHash(ky) <> ve.Substring(1, ve.Length - 2) then begin
+          ShowCurrentProgress(TDPCount, processors.Count);
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.run_processors_error').Replace('${processors_count}', inttostr(TDPCount)));
           abort;
         end;
@@ -951,6 +952,7 @@ begin
   DeleteDirectory(Concat(TempPath, 'LLLauncher'));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_success').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000)));
 end;
+//下载你可爱的整合包去罢！
 procedure TDownloadMethod.DownloadModpack;
 begin
 

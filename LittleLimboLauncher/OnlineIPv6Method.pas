@@ -80,6 +80,7 @@ end;
 //ÁÐ±í¿òÐÞ¸Ä
 procedure ChangeIPv6List;
 begin
+  if form_mainform.listbox_view_all_ipv6_ip.ItemIndex < 0 then exit;
   form_mainform.listbox_view_all_ipv6_ip.Hint := form_mainform.listbox_view_all_ipv6_ip.Items[form_mainform.listbox_view_all_ipv6_ip.ItemIndex];
   mip := form_mainform.listbox_view_all_ipv6_ip.Items[form_mainform.listbox_view_all_ipv6_ip.ItemIndex].Replace(Concat('[', GetLanguage('listbox_view_all_ipv6_ip.caption.forever'), ']'), '').Replace(Concat('[', GetLanguage('listbox_view_all_ipv6_ip.caption.temp'), ']'), '');
   if mip.IndexOf(GetLanguage('listbox_view_all_ipv6_ip.caption.timeout')) <> -1 then begin

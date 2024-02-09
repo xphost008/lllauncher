@@ -84,12 +84,15 @@ begin
 end;
 // 将名称转换成路径 （此方法简称，把json中的name文件转换成path的格式。）
 function ConvertNameToPath(name: String): String;
-begin //重新再再再再写一遍。。
+begin //重新又双叒叕再再再再写一遍。。
   var all := TStringList.Create;
   var sb := TStringBuilder.Create;
   try
-    var hou: TArray<String> := SplitString(name, '@'); //先按照@切割一遍
-    name := hou[0];
+    var hou := '';
+    if name.LastIndexOf('@') > 0 then begin //不按照@切了，直接判断name里面是否含有@符号，如果有则执行。。
+      name := name.Substring(0, name.LastIndexOf('@'));
+      hou := name.Substring(name.LastIndexOf('@') + 1);
+    end;
     var n1 := name.Substring(0, name.IndexOf(':'));
     var n2 := name.Substring(name.IndexOf(':') + 1, name.Length);
     var c1 := SplitString(n1, '.');
@@ -106,10 +109,10 @@ begin //重新再再再再写一遍。。
       if I < Length(c2) - 1 then begin
         all.Add(Concat(c2[I], '-'));
       end else begin
-        try
-          all.Add(Concat(c2[I], '.', hou[1]))
-        except
+        if hou.IsEmpty then begin
           all.Add(Concat(c2[I], '.jar'));
+        end else begin
+          all.Add(Concat(c2[I], '.', hou));
         end;
       end;
     end;

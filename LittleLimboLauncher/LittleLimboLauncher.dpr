@@ -13,7 +13,7 @@ uses
   ProgressMethod in 'ProgressMethod.pas',
   PrivacyMethod in 'PrivacyMethod.pas',
   PluginMethod in 'PluginMethod.pas',
-  PlayingMethod in 'PlayingMethod.pas',
+  ResourceMethod in 'ResourceMethod.pas',
   ManageMethod in 'ManageMethod.pas',
   LauncherMethod in 'LauncherMethod.pas',
   DownloadMethod in 'DownloadMethod.pas',
