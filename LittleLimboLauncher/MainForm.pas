@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
   ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections, FileCtrl,
-  Vcl.Buttons, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils,
+  Vcl.Buttons, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils, Types,
   IdBaseComponent, IdComponent, IdCustomTCPServer, IdCustomHTTPServer, NetEncoding,
   IdHTTPServer;
 
@@ -568,7 +568,7 @@ type
   end;
 
 const
-  LauncherVersion = '1.0.0-Beta-3';
+  LauncherVersion = '1.0.0-Beta-4';
 
 var
   form_mainform: Tform_mainform;
@@ -619,15 +619,14 @@ uses
 procedure Tform_mainform.PluginMenuClick(Sender: TObject);
 begin
   var mi := Sender as TMenuItem;
-  var mic := mi.Caption.Replace('&', '');
+  var mic := mi.Caption.Replace('&', '').Replace('[', '').Replace(']', '');
   Log.Write(Concat('你点击了', mic, '语言文件，开始加载！'), LOG_START, LOG_INFO);
   var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
   if SysUtils.DirectoryExists(ld) then begin
     var Files := TDirectory.GetFiles(ld);
     for var I in Files do begin
       if RightStr(I, 5) = '.json' then begin //如果文件后缀为.json，则执行。
-        var lj := TJSONObject.ParseJSONValue(GetFile(I)) as TJsonObject;
-        if mic.IndexOf(ExtractFileName(I).Replace('&', '')) <> -1 then begin
+        if mic.IndexOf(ExtractFileName(I).Replace('&', '').Replace('[', '').Replace(']', '')) <> -1 then begin
           var f := GetFile(I);
           var ise := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
           try
@@ -921,6 +920,7 @@ end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 begin
+  showmessage(inttostr(IPv4ToInt('255.255.255.255')));
 //  var j := TJSONObject.ParseJSONValue('{"a":"111"}') as TJSONObject;
 //  var nu := j.GetValue('a').Null;
 //  showmessage(booltostr(nu, true));
@@ -1792,6 +1792,7 @@ begin
   scrollbox_export.VertScrollBar.Position := 0;
   v.ParentWindow := Handle;
   v.Visible := False;
+  v.AutoOpen := false;
   if OtherIni.ReadString('Other', 'Lang', '') = '' then begin
     if JudgeCountry then begin
       mjudge_lang_chinese := true;

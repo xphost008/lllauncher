@@ -40,7 +40,7 @@
 
 ### 贡献名单
 
-[点我](./CONTRIBUTING.md)
+[点我](./CONTRIBUTOR.md)
 
 ### 食用教程
 

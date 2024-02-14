@@ -30,7 +30,7 @@ function RunDOSBack1(CommandLine: string): string;
 function JudgeCountry: Boolean;
 function ProcessExists(PID: DWORD): Boolean;
 function RunDOSAndGetPID(FileName, Parameters, dir: string): Integer;
-function IPv4ToInt(ipv4: String): Int64;
+function IPv4ToInt(ipv4: String): UInt;
 function getMCRealDir(path, suffix: String): String;
 function DeleteRetain(N, suffix: String): Boolean;
 
@@ -165,13 +165,14 @@ begin
   CloseHandle(HWrite);
 end;
 //将IPv4地址转成Integer数字
-function IPv4ToInt(ipv4: String): Int64;
+function IPv4ToInt(ipv4: String): UInt;
 begin
   var spl := SplitString(ipv4, '.');
-  result := result + Int64(strtoint(spl[0])) * Int64($ff) * Int64($ff) * Int64($ff);
-  result := result + Int64(strtoint(spl[1])) * Int64($ff) * Int64($ff);
-  result := result + Int64(strtoint(spl[2])) * Int64($ff);
-  result := result + Int64(strtoint(spl[3]));
+  result := 0;
+  result := result + UInt(strtoint(spl[0])) * UInt($ff) * UInt($ff) * UInt($ff);
+  result := result + UInt(strtoint(spl[1])) * UInt($ff) * UInt($ff);
+  result := result + UInt(strtoint(spl[2])) * UInt($ff);
+  result := result + UInt(strtoint(spl[3]));
 end;
 //获取根据json原版键值
 function GetVanillaVersion(json: String): String;
@@ -634,8 +635,8 @@ begin
   if SysUtils.DirectoryExists(path) then begin
     Files := TDirectory.GetFiles(path);
     for var I in Files do begin //遍历
-      var J := I.Substring(I.LastIndexOf('.'), I.Length - I.LastIndexOf('.'));
-      if (J = '.mp3') or (J = '.wav') or (J = 'm4a') then begin
+      var J := I.Substring(I.LastIndexOf('.'));
+      if (J = '.mp3') or (J = '.wav') or (J = '.m4a') then begin
         MList.Add(I);
         inc(jrr);
       end;

@@ -47,7 +47,7 @@ When I have some snapshot version, I will release it in my group that not in my 
 
 #### Contributor
 
-[Click me](./CONTRIBUTING.md)
+[Click me](./CONTRIBUTOR.md)
 
 #### Download link
 
