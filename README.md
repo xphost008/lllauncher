@@ -1,24 +1,62 @@
 # Little Limbo Launcher
 
-#### Chinese Readme
+> Even though this launcher is mainly designed for the Chinese, it provides vast numbers of functions, which is suitable and useful for everyone. 
+[Click me for a Chinese README | 中文文档](./README_CN.md)
 
-Whatever you're a foreigners for China, I don't think you need to use this launcher, but it's entirely up to you. Very pleasant experience!
+#### Introduction
 
-Go to Chinese Readme, You neer to [Click me](./README_CN.md)
-
-#### Introduce
-
- **This is a easy Launcher for Minecraft. Its content makes you happy!**
+ **This is an easy-to-use Launcher for Minecraft. Lightweight, Simple and fast.**
 
 2022.4.6
 
-First of all, this launcher is open source, when author make this software which who never consider anybody. The auther is a student that no source to income, he also doesn't have any development team. The author is anamateur programmer.
+First of all, this launcher is open source, but not adjusted for the most people. What's more, the author is a student without any income or in a development team. As a result, the launcher is still at the development stage. You can suggest sone good ideas or ask your questions on the GitHub issue. Besides, our group chat always opens to you. No penny required!
 
-This Launcher source existance a PrivacyMethod unit, and this unit is ignored, because it has my privacy const value, such as Microsoft AZure Client ID and CurseForge API Key, so you cannot compile this project at first, you should add an PrivacyMethod.pas in your workspace and import it, then add some const value in this unit, see Privacy.md please! you also can write an empty value, the empty value also can be compile, but if you do, you will cannot uses some of function in your compile spawn. 
+This precompiled launcher includes a method, using private api keys such as Microsoft AZure Client ID and CurseForge API Key, so you cannot compile this project after you clone the project. To fix it, you should add an PrivacyMethod.pas in your workspace. For further information, see Privacy.md. You also can fill an empty string value to compile a release without Microsoft OAuth or CurseForge API, without some vital functions. 
+
+Btw, this project do **only** support **RAD Studio Delphi** to compile it, it does not support *Lazarus* or *other compiler*.
+
+BBtw, if you want to support the author so that the author can have a good meal, you can donate on Afdian. However, if you are only a child or a worker without a fixed income source, you are absolutely not allowed to give money for me, which may cause a serious impact.
+
+
+
+My afdian website is: [Rechalow](https://afdian.net/a/Rechalow)
+
+~Oh by by the way, this launcher is written in the language Delphi. If you are worried that this launcher contains viruses, you can unpack this launcher or do researches on the code. This launcher does not contain any virus and will not cause any damage to the computer.~ No virus risks with your code reviews!
+
+This launcher call name "Little Limbo Launcher", You also can call it "LaLaLa Launcher". It is up to you. Just enjoy it!
+
+For further information related to the license, see [LICENSE](./LICENSE)
+
+
+
+#### Author contact information by QQ
+
+My QQ group id is 792484446, If you have any question, please tell me about it. 
+This Repository is published under GNU-GPL License, if you know less about this license, Check it [Click me](https://choosealicense.com/licenses/lgpl-2.1/) in GitHub Issue.
+
+As soon as I have some snapshot version, I will release it in my group that not in my LANZOU drive.
+
+#### Installation tutorial
+~
+1. Download a zip
+2. if a zip is downloaded, just unzip it. but whatever it is exe, run it immediately!
+4. Download two dll file on your C:/Windows, I release two dll in my lanzou, welcome to download it!
+5. Don't forget to watch the update log, by the way, I use Chinese to write it, Don't mind that!
+~
+#### Contributor
+
+[Click me](./CONTRIBUTING.md)
+
+#### Download link
+
+3. (Release version): [lanzou click me](https://wwdy.lanzouj.com/b023j206d) password: 90y9
+
+- There are no private snapshot version and snapshot version in here any more. However, all later releases are public version.
+- at the same time, I will archive my all private version for everyone to read. if you want to download old version, please check Chinese Readme!
 
 Btw, this project only support RAD Studio Delphi to compile it, it not support Lazarus or other compiler, remember it!
 
-BBtw, if you want to support the author so that the author can have a good meal, you can use a Chinese account by afdian to support the author. However, if you are only a child or a worker without a fixed income source, you are absolutely not allowed to give money for me, which will have a serious impact on your economy.
+BBtw, if you want to support the author so that the author can have a good meal, you can use a Chinese account by afdian to support the author. However, if you are only a child or a worker without a fixed income source, you are absolutely not allowed to give money for me, which may have a serious impact.
 
 You can choose to ask your questions on the issue of github. my chat room is only limited to China, and the group chat is always open. You don't need to give me a penny,
 
@@ -28,22 +66,17 @@ Oh by the way, this launcher is made in the language Delphi. If you are worried 
 
 This launcher call name "Little Limbo Launcher", You also can call it "LaLaLa Launcher", I won't care about these details. Go to use it!
 
-BBBtw, and then if you want to use this software to earn money, THAT IS FORBIDDEN ABOUT ME. If you encounter and form of spent money to buy this software anywhere, welcome to report it to me. It's all you right protection action!
 
-This Repository use GNU-GPL License, if you dont know about this License, Check it [Click me](https://choosealicense.com/licenses/lgpl-2.1/)
+
+This Repository is under GNU-GPL License, if yoy know less about this License, Check it [Click me](https://choosealicense.com/licenses/lgpl-2.1/). 
+
+Notice: **EARNING MONEY WITH THIS PROJECT IS FORBIDDEN.**
 
 #### Author contact information by QQ
 
-My QQ group is 792484446, If you have any question, please say it in issue.
+My QQ group is 792484446, If you have any question, issues are welcomed.
 
-When I have some snapshot version, I will release it in my group that not in my lanzou.
 
-#### Installation tutorial
-
-1. Download zip
-2. if it is a zip, Unzip it, but whatever it is exe, double click it!
-3. Download two dll file on your C:/Windows, I release two dll in my lanzou, welcome to download it!
-4. Don't forget to watch the update log, by the way, I use Chinese to write it, Don't be mind!
 
 #### Contributor
 
@@ -51,7 +84,7 @@ When I have some snapshot version, I will release it in my group that not in my 
 
 #### Download link
 
-3. (Release version): [lanzou click me](https://wwdy.lanzouj.com/b023j206d) password: 90y9
+(Release version): [lanzou click me](https://wwdy.lanzouj.com/b023j206d) password: 90y9
 
-- from now on, there are no private snapshot version and snapshot version in here, I will release all version in public version, thanks!
-- at the same time, I will archive my all private version for everyone to read. if you want to download old version, please check Chinese Readme!
+- from now on, there are **no private snapshot** version and snapshot version in here, I will release all version in *public* version, thanks!
+- at the same time, I archived my all private version for everyone to read. Fot older releases, please check the Chinese Readme!
