@@ -458,8 +458,8 @@ begin
       .AddPair('messagebox_account_thirdparty.add_account_success.caption', '添加成功')
       .AddPair('messagebox_account_thirdparty_error.account_or_password_empty.text', '账号或密码为空，请重新输入！')
       .AddPair('messagebox_account_thirdparty_error.account_or_password_empty.caption', '账号或密码为空')
-      .AddPair('messagebox_account_microsoft_error.not_complete_oauth_login.text', '暂未完成登录')
-      .AddPair('messagebox_account_microsoft_error.not_complete_oauth_login.caption', '你还暂未完成你的微软OAuth登录就按下了按钮，请重新获取一次用户代码后再来！')
+      .AddPair('messagebox_account_microsoft_error.not_complete_oauth_login.text', '你还暂未完成你的微软OAuth登录就按下了按钮，请重新获取一次用户代码后再来！')
+      .AddPair('messagebox_account_microsoft_error.not_complete_oauth_login.caption', '暂未完成登录')
       .AddPair('messagebox_account_microsoft_error.login_timeout.text', '你在登录过程中超时了！请重新获取一次用户代码后再来！')
       .AddPair('messagebox_account_microsoft_error.login_timeout.caption', '登录超时')
       .AddPair('messagebox_account_microsoft_error.refresh_expire.text', '你的RefreshToken也过期了，看样子你已经很久没重置过账号了呢！请重新登录一次新的账号吧！')
@@ -801,6 +801,8 @@ begin
       .AddPair('messagebox_version.delete_ver_error.text', '删除版本失败了，可能是LLL权限不足的原因，也有可能是该文件受保护，请取消后再试！')
       .AddPair('messagebox_version.cannot_find_vanilla_key.caption', '选择的版本内无JSON')
       .AddPair('messagebox_version.cannot_find_vanilla_key.text', '你选择的版本的文件夹里无JSON文件，如果是你误删了的话，请备份一次版本，重新去下载部分里下载一次吧！')
+      .AddPair('messagebox_version.complete_version_success.caption', '补全文件成功')
+      .AddPair('messagebox_version.complete_version_success.text', '补全文件成功了！现在该版本的资源是齐全的！')
       .AddPair('messagebox_export.cannot_find_vanilla_key.caption', '无法找到原版键')
       .AddPair('messagebox_export.cannot_find_vanilla_key.text', '无法找到原版的键值，请找到你的版本json文件，在里面的根对象中，新建一个键值对，键名是clientVersion，键值是【该版本的原版版本】。例如该版本是1.20.1-forge-47.1.0，则原版键值就是1.20.1。如果本身就是原版的话，就填写原版值即可！如果是快照版的话，也填入快照版的id即可！【例如1.20.3-pre2，填1.20.3-pre2即可！】')
       .AddPair('messagebox_export.not_choose_mode.caption', '暂未选择导出方式')
@@ -817,6 +819,8 @@ begin
       .AddPair('messagebox_export.official_website_error.text', '整合包官方网站输入错误，请重新输入后再尝试！')
       .AddPair('messagebox_export.authentication_server_error.caption', '整合包认证服务器输入错误')
       .AddPair('messagebox_export.authentication_server_error.text', '整合包认证服务器输入错误，请重新输入后再尝试！')
+      .AddPair('messagebox_export.mcbbs_tid_error.caption', 'MCBBS-tid输入错误')
+      .AddPair('messagebox_export.mcbbs_tid_error.text', 'MCBBS-tid输入错误，请重新输入后再尝试！')
       .AddPair('messagebox_export.no_export_file.caption', '暂未选中任一导出文件')
       .AddPair('messagebox_export.no_export_file.text', '暂未选中任一导出文件，你必须至少选择一个文件后再进行导出，请重试！')
       .AddPair('savedialog_export.choose_export_path', '请选择整合包导出的保存路径')
@@ -896,16 +900,56 @@ begin
       .AddPair('opendialog_export.add_icon', '请选择你要添加的图标')
       .AddPair('picturebox_manage.import_modrinth_modpack.text', Concat(
               '整合包类型：${modpack_game}', #13#10,
-              '整合包版本：${modpack_version}', #13#10,
               '整合包名称：${modpack_name}', #13#10,
+              '整合包版本：${modpack_version}', #13#10,
               '整合包简介：${modpack_summary}', #13#10,
-              '-----------------------------------------------------------------------------------------------------------------------',
+              '-----------------------------------------------------------------------------------------------------------------------', #13#10,
               '整合包MC版本：${modpack_mcversion}', #13#10,
               '整合包模组加载器：${modpack_modloader}', #13#10,
               '整合包模组加载器版本：${modpack_modloader_version}', #13#10,
               '是否继续安装？点是即安装。'))
       .AddPair('messagebox_manage.read_config_error.caption', '读取配置文件失败！')
       .AddPair('messagebox_manage.read_config_error.text', '读取配置文件失败了！你似乎没有选中任意游戏文件夹或者Java，请去选中一个再来！')
+      .AddPair('messagebox_manage.cannot_read_modloader_type.caption', '无法读取模组加载器')
+      .AddPair('messagebox_manage.cannot_read_modloader_type.text', '你在导入整合包的时候，选择了不受支持的模组加载器。如果你非要玩这个整合包，请使用别的启动器导入一次吧！')
+      .AddPair('picturebox_manage.import_multimc_modpack.text', Concat(
+              '整合包类型：${modpack_game}', #13#10,
+              '整合包名称：${modpack_name}', #13#10,
+              '整合包简介：${modpack_summary}', #13#10,
+              '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+              '整合包MC版本：${modpack_mcversion}', #13#10,
+              '整合包模组加载器：${modpack_modloader}', #13#10,
+              '整合包模组加载器版本：${modpack_modloader_version}', #13#10,
+              '是否继续安装？点是即安装。'))
+      .AddPair('picturebox_manage.import_mcbbs_modpack.text', Concat(
+              '整合包类型：${modpack_game}', #13#10,
+              '整合包名称：${modpack_name}', #13#10,
+              '整合包版本：${modpack_version}', #13#10,
+              '整合包作者：${modpack_author}', #13#10,
+              '整合包简介：${modpack_summary}', #13#10,
+              '整合包更新链接：${modpack_update_url}', #13#10,
+              '整合包官方网站：${modpack_official_url}', #13#10,
+              '整合包MCBBS发布贴：${modpack_mcbbs}', #13#10,
+              '整合包外置登录服务器官网：${modpack_server}', #13#10,
+              '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+              '整合包MC版本：${modpack_mcversion}', #13#10,
+              '整合包模组加载器：${modpack_modloader}', #13#10,
+              '整合包模组加载器版本：${modpack_modloader_version}', #13#10,
+              '是否继续安装？点是即安装。'))
+      .AddPair('messagebox_manage.not_support_modpack_type.caption', '不受支持的整合包格式！')
+      .AddPair('messagebox_manage.not_support_modpack_type.text', '在你导入的这个整合包中，并不存在modrinth.index.json、manifest.json、mcbbs.packmeta、mmc-pack.json中的任意一个，请重新下载你的整合包并重试！【或者直接解压缩至versions文件夹中也行。】')
+      .AddPair('picturebox_manage.import_curseforge_modpack.text', Concat(
+              '整合包类型：${modpack_game}', #13#10,
+              '整合包名称：${modpack_name}', #13#10,
+              '整合包版本：${modpack_version}', #13#10,
+              '整合包作者：${modpack_author}', #13#10,
+              '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+              '整合包MC版本：${modpack_mcversion}', #13#10,
+              '整合包模组加载器：${modpack_modloader}', #13#10,
+              '整合包模组加载器版本：${modpack_modloader_version}', #13#10,
+              '是否继续安装？点是即安装。'))
+      .AddPair('messagebox_manage.import_modpack_success.caption', '安装整合包成功！')
+      .AddPair('messagebox_manage.import_modpack_success.text', '恭喜安装整合包成功了！现在你可以去玩了！')
       //以下为下载进度列表框
       .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')

@@ -222,7 +222,7 @@ begin
     try
       var h := http.Get(url, strt);  //获取网络文本
       result := strt; //给最后变量赋值为网络文本的变量，返回
-      if h.StatusCode = 404 then result := nil;
+      if LeftStr(IntToStr(h.StatusCode), 1) = '4' then result := nil;
     except  //如果无法获取，则抛出报错
       result := nil;
     end;
@@ -500,7 +500,7 @@ begin
         var sap := da.GetValue('path').Value;
         var sha := da.GetValue('sha1').Value;
         var usl := da.GetValue('url').Value;
-        if usl = '' then usl := Concat('https://libraries.minecraft.net/', sap);
+        if usl = '' then usl := Concat(ForgeRoot, '/', sap);
         var sapth := Concat(RootPath, '\libraries\', sap.Replace('/', '\'));
         DownloadAsWindow(sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
       except end;
@@ -908,7 +908,6 @@ begin
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_installer_start'));
   try
     DownloadStart(url, Concat(TempPath, 'LLLauncher\tmp.jar'), '', BiggestThread, 0, 1);
-//    form_mainform.button_progress_clean_download_list.Enabled := false;
   except
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.forge_version_not_allow_install'));
     abort;

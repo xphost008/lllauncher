@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, SysUtils, Forms, IniFiles, WinXCtrls, Math, JSON, Classes, Threading, 
-  ComCtrls, StrUtils, DateUtils, Dialogs, Zip, pngimage, NetEncoding;
+  ComCtrls, StrUtils, DateUtils, Dialogs, Zip, pngimage, NetEncoding, Generics.Collections;
 
 procedure InitIsolation;
 procedure InitExport;
@@ -97,26 +97,6 @@ begin
     MyMessagebox(GetLanguage('messagebox_export.not_enter_version.caption'), GetLanguage('messagebox_export.not_enter_version.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
-  if form_mainform.radiogroup_export_mode.ItemIndex = 0 then begin
-    if (form_mainform.edit_export_update_link.Text <> '') and (LeftStr(form_mainform.edit_export_update_link.Text, 7) <> 'http://') and (LeftStr(form_mainform.edit_export_update_link.Text, 8) <> 'https://') then begin
-      MyMessagebox(GetLanguage('messagebox_export.update_link_error.caption'), GetLanguage('messagebox_export.update_link_error.text'), MY_ERROR, [mybutton.myOK]);
-      exit;
-    end;
-    if (form_mainform.edit_export_official_website.Text <> '') and (LeftStr(form_mainform.edit_export_official_website.Text, 7) <> 'http://') and (LeftStr(form_mainform.edit_export_official_website.Text, 8) <> 'https://') then begin
-      MyMessagebox(GetLanguage('messagebox_export.official_website_error.caption'), GetLanguage('messagebox_export.official_website_error.text'), MY_ERROR, [mybutton.myOK]);
-      exit;
-    end;
-    var tmp: Integer;
-    var tid: String := form_mainform.edit_export_mcbbs_tid.Text;
-    if (tid <> '') and (TryStrToInt(tid, tmp)) then begin
-      MyMessagebox(GetLanguage('messagebox_export.official_website_error.caption'), GetLanguage('messagebox_export.official_website_error.text'), MY_ERROR, [mybutton.myOK]);
-      exit;
-    end;       
-    if (form_mainform.edit_export_authentication_server.Text <> '') and (LeftStr(form_mainform.edit_export_authentication_server.Text, 7) <> 'http://') and (LeftStr(form_mainform.edit_export_authentication_server.Text, 8) <> 'https://') then begin
-      MyMessagebox(GetLanguage('messagebox_export.authentication_server_error.caption'), GetLanguage('messagebox_export.authentication_server_error.text'), MY_ERROR, [mybutton.myOK]);
-      exit;
-    end;
-  end;
   case form_mainform.radiogroup_export_mode.ItemIndex of
     0: begin
       if (form_mainform.edit_export_update_link.Text <> '') and (LeftStr(form_mainform.edit_export_update_link.Text, 7) <> 'http://') and (LeftStr(form_mainform.edit_export_update_link.Text, 8) <> 'https://') then begin
@@ -127,12 +107,12 @@ begin
         MyMessagebox(GetLanguage('messagebox_export.official_website_error.caption'), GetLanguage('messagebox_export.official_website_error.text'), MY_ERROR, [mybutton.myOK]);
         exit;
       end;
-      var tmp: Integer;
-      var tid: String := form_mainform.edit_export_mcbbs_tid.Text;
-      if (tid <> '') and (TryStrToInt(tid, tmp)) then begin
-        MyMessagebox(GetLanguage('messagebox_export.official_website_error.caption'), GetLanguage('messagebox_export.official_website_error.text'), MY_ERROR, [mybutton.myOK]);
+      var tmp := 0;
+      var tid := form_mainform.edit_export_mcbbs_tid.Text;
+      if (tid <> '') and (not TryStrToInt(tid, tmp)) then begin
+        MyMessagebox(GetLanguage('messagebox_export.mcbbs_tid_error.caption'), GetLanguage('messagebox_export.mcbbs_tid_error.text'), MY_ERROR, [mybutton.myOK]);
         exit;
-      end;       
+      end;
       if (form_mainform.edit_export_authentication_server.Text <> '') and (LeftStr(form_mainform.edit_export_authentication_server.Text, 7) <> 'http://') and (LeftStr(form_mainform.edit_export_authentication_server.Text, 8) <> 'https://') then begin
         MyMessagebox(GetLanguage('messagebox_export.authentication_server_error.caption'), GetLanguage('messagebox_export.authentication_server_error.text'), MY_ERROR, [mybutton.myOK]);
         exit;
@@ -227,14 +207,14 @@ begin
       .AddPair('javaArgument', TJsonArray.Create));
   if form_mainform.edit_export_additional_jvm.Text <> '' then begin
     var cutargs: TArray<String>;
-    cutargs := SplitString(form_mainform.edit_export_additional_jvm.Text, ' ');
+    cutargs := SplitString(form_mainform.edit_export_additional_game.Text, ' ');
     for var I in cutargs do
       ((root.GetValue('launcherInfo') as TJsonObject).GetValue('launchArgument') as TJsonArray)
         .Add(I);
   end;
   if form_mainform.edit_export_additional_game.Text <> '' then begin
     var cutargs: TArray<String>;
-    cutargs := SplitString(form_mainform.edit_export_additional_game.Text, ' ');
+    cutargs := SplitString(form_mainform.edit_export_additional_jvm.Text, ' ');
     for var I in cutargs do
       ((root.GetValue('launcherInfo') as TJsonObject).GetValue('javaArgument') as TJsonArray)
         .Add(I);                                                         

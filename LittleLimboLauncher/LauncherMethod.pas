@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Windows, IOUtils, StrUtils, JSON, Zip, Forms, IniFiles, Math, Character, DateUtils,
-  Dialogs;
+  Dialogs, Generics.Collections;
 
 function GetMCRealPath(path, suffix: string): String;
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
@@ -90,8 +90,8 @@ begin //重新又双叒叕再再再再写一遍。。
   try
     var hou := '';
     if name.LastIndexOf('@') > 0 then begin //不按照@切了，直接判断name里面是否含有@符号，如果有则执行。。
-      name := name.Substring(0, name.LastIndexOf('@'));
       hou := name.Substring(name.LastIndexOf('@') + 1);
+      name := name.Substring(0, name.LastIndexOf('@'));
     end;
     var n1 := name.Substring(0, name.IndexOf(':'));
     var n2 := name.Substring(name.IndexOf(':') + 1, name.Length);
@@ -491,8 +491,6 @@ begin
   end;
   var para := TStringBuilder.Create;
   para.Append(jaram).Append(' -Xmn256m -Xmx').Append(maxm).Append('m ');
-//  var jv := GetFileVersion(javapath);
-//  if strtoint(jv.Substring(0, jv.IndexOf('.'))) > 8 then para.Append('--add-exports cpw.mods.bootstraplauncher/cpw.mods.bootstraplauncher=ALL-UNNAMED ');
   para.Append(Root.GetValue('mainClass').Value);
   try
     para.Append(JudgeArguments(Root.ToString, 'game'));
@@ -508,7 +506,7 @@ begin
     .Replace('${auth_access_token}', accat)
     .Replace('${user_type}', acctype)
     .Replace('${version_type}', cuif); //拼接长度与宽度
-  if addgame <> '' then para.Append(addgame);
+  if not addgame.IsEmpty then para.Append(addgame);
   //sboptifine
   if para.ToString.Contains('--tweakClass optifine.OptiFineForgeTweaker') then begin
     para.Replace('--tweakClass optifine.OptiFineForgeTweaker', '').Append(' --tweakClass optifine.OptiFineForgeTweaker');
@@ -572,7 +570,7 @@ begin
     para.Append(JudgeArguments(json, 'game'));
   except end;
   para.Append(' ').Append(son);
-  if addgame <> '' then para.Append(' ').Append(addgame);
+  if not addgame.IsEmpty then para.Append(' ').Append(addgame);
   //sboptifine
   if para.ToString.Contains('--tweakClass optifine.OptiFineForgeTweaker') then begin
     para.Replace('--tweakClass optifine.OptiFineForgeTweaker', '').Append(' --tweakClass optifine.OptiFineForgeTweaker');
@@ -688,7 +686,7 @@ var
   istoi: Boolean;
   IioIni: TIniFile;
 var
-  addgame: String;
+  taddgame: String;
 begin
   GlobalMemoryStatus(status);
   var mem: Integer := ceil(status.dwTotalPhys / 1024 / 1024);
@@ -701,7 +699,7 @@ begin
     var actp := accj.GetValue('type').Value;
     if actp.Equals('offline') then begin
       if (not mjudge_lang_chinese) and (not OtherIni.ReadBool('Other', 'CanOffline', false)) then begin
-        addgame := Concat(addgame, '--demo');
+        taddgame := '--demo';
       end;
       accname := accj.GetValue('name').Value;
       accuuid := accj.GetValue('uuid').Value;
@@ -852,6 +850,7 @@ begin
     var tpl := IioIni.ReadString('Isolation', 'Pre-LaunchScript', '');
     if not (tpl.IsEmpty) then prels := tpl;
   end;
+  if not taddgame.IsEmpty then addgame := Concat(taddgame, ' ', addgame);
   Log.Write('目前你设置的所有参数都已判断完毕，现在开始拼接启动参数……', LOG_INFO, LOG_LAUNCH);
   PutLaunch(isExportArgs);
 end;

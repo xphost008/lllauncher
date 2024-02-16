@@ -3,8 +3,8 @@
 interface
 
 uses
-  SysUtils, Forms, Dialogs, FileCtrl, ShellAPI, Windows, Threading, Winapi.msxml,
-  Winapi.ActiveX, StrUtils, JSON;
+  SysUtils, Forms, Dialogs, FileCtrl, ShellAPI, Windows, Threading, Winapi.msxml, Classes,
+  Winapi.ActiveX, StrUtils, JSON, Generics.Collections;
 
 procedure InitCustomDl;
 procedure SaveCustomDl;
@@ -255,7 +255,7 @@ begin
         TTask.Run(procedure begin
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Forge').Replace('${source}', '官方'));
           form_mainform.button_progress_clean_download_list.Enabled := false;
-          DownloadStart(dui, mcustom_path, '', mbiggest_thread, 0, 1);
+          DownloadStart(dui, path, '', mbiggest_thread, 0, 1);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modloader.download_success'));
           MyMessagebox(GetLanguage('messagebox_modloader.download_modloader_success.caption'), GetLanguage('messagebox_modloader.download_modloader_success.text'), MY_PASS, [mybutton.myOK]);
@@ -539,7 +539,7 @@ begin
   end;
   var path := mcustom_path;
   if path = '' then path := ExtractFileDir(Application.ExeName);
-  if not DirectoryExists(path) then begin
+  if not SysUtils.DirectoryExists(path) then begin
     MyMessagebox(GetLanguage('messagebox_customdl.path_not_exist.caption'), GetLanguage('messagebox_customdl.path_not_exist.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;

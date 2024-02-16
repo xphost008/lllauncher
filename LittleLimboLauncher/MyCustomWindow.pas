@@ -2,7 +2,7 @@
 interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Threading, Vcl.ExtCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Threading, Vcl.ExtCtrls, Types;
 type
   mybutton = (myYes, myOK, myNo, myCancal, myRetry, myAbort, myIgnore, myCustom);
 
@@ -15,6 +15,7 @@ function MyMessageBox(title, content: String; color: Integer; button: TArray<MyB
 function MyInputBox(title, content: String; color: Integer; defcontent: String = ''): String;
 procedure MyPictureBox(title, content: String; web: TStream);
 function MyPicMsgBox(title, content: String; web: TStream): Boolean;
+function MyMultiButtonBox(title: String; color: Integer; button: TArray<String>; defbutton: Integer = 1): Integer;
 implementation
 uses LanguageMethod;
 type
@@ -23,6 +24,10 @@ type
     procedure MCWOKClick(Sender: TObject);
     procedure MCWCancalClick(Sender: TObject);
     procedure MCWShow(Sender: TObject);
+    procedure MCWMultiButtonClick(Sender: TObject);
+    procedure MCWScrollboxMouseWheel(Sender: TObject;
+      Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+      var Handled: Boolean);
   end;
 var
   bt: btn;
@@ -36,6 +41,7 @@ var
   CutMCW: TLabel;
   ContentMCW: TMemo;
   InputMCW: TEdit;
+  ScrollBoxMCW: TScrollBox;
   OkMCW, CancalMCW: TButton;
   PictureMCW: TImage;
 var
@@ -180,10 +186,25 @@ begin
     Name := 'CutLine';
     Left := 8;
     Top := 39;
-    Width := 485;
+    Width := 484;
     Height := 15;
     AutoSize := true;
     Caption := '-------------------------------------------------------------------------------------------------';
+  end;
+  if nme = 'MyMultiButtonBox' then begin
+    ScrollBoxMCW := TScrollBox.Create(FormMCW);
+    with ScrollBoxMCW do begin
+      Parent := FormMCW;
+      Name := 'ScrollBox';
+      Width := 484;
+      Height := 193;
+      Top := 60;
+      Left := 8;
+      VertScrollBar.Tracking := true;
+      HorzScrollBar.Tracking := true;
+      OnMouseWheel := bt.MCWScrollBoxMouseWheel;
+    end;
+    exit;
   end;
   ContentMCW := TMemo.Create(FormMCW);
   with ContentMCW do begin
@@ -238,15 +259,41 @@ begin
     end;
   end;
 end;
+procedure btn.MCWScrollboxMouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
+var
+  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
+  LPoint: TPoint;
+  ScrollBox: TScrollBox;
+begin
+  ScrollBox := TScrollBox(Sender);
+  LPoint := ScrollBox.ClientToScreen(Point(0,0));
+  LTopLeft := LPoint.X;
+  LTopRight := LTopLeft + ScrollBox.ClientWidth;
+  LBottomLeft := LPoint.Y;
+  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
+  if (MousePos.X >= LTopLeft) and
+    (MousePos.X <= LTopRight) and
+    (MousePos.Y >= LBottomLeft) and
+    (MousePos.Y <= LBottomRight) then
+  begin
+    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
+    Handled := True;
+  end;
+end;
+//多重按钮点击
+procedure btn.MCWMultiButtonClick(Sender: TObject);
+begin
+  var res: String := (Sender as TButton).Name;
+  ResMessage := strtoint(res.Replace('b', ''));
+  FormMCW.Close;
+end;
 procedure btn.MCWOKClick(Sender: TObject);
 begin
   if FormMCW.Name = 'MyPicMsgBox' then begin
-//    if (Sender as TButton).Name = 'PictureOK' then begin
-      ResMsg := true;
-      FormMCW.Close;
-//    end else begin
-//      FormMCW.Close;
-//    end;
+    ResMsg := true;
+    FormMCW.Close;
   end else begin
     if (Sender as TButton).Name = 'PictureOK' then begin
       FormMCW.Close;
@@ -278,7 +325,7 @@ begin
     OkMCW.SetFocus;
   end else if FormMCW.Name = 'MyInputBox' then begin
     InputMCW.SetFocus;
-  end else if FormMCW.Name = 'MyMessageBox' then begin
+  end else if (FormMCW.Name = 'MyMessageBox') or (FormMCW.Name = 'MyMultiButtonBox') then begin
     if (db > len) or (db < 1) then raise Exception.Create('So much default button');
     tbt[db - 1].SetFocus;
   end;
@@ -317,8 +364,6 @@ begin
       tbt[I].OnClick := bt.MCWButtonClick;
     end;
     db := defbutton;
-//    if (defbutton > len) or (defbutton < 1) then raise Exception.Create('So much default button');
-//    tbt[defbutton - 1].Default := true;
     var O := 0;
     var P := 0;
     for var I := 0 to len - 1 do begin
@@ -337,13 +382,46 @@ begin
     FormMCW.ShowModal;
   end);
   Result := ResMessage;
+  ResMessage := 0;
+end;
+//自定义多按钮框
+function MyMultiButtonBox(title: String; color: Integer; button: TArray<String>; defbutton: Integer = 1): Integer;
+begin
+  TThread.Synchronize(nil, procedure begin
+    InitMCW('MyMultiButtonBox');
+    TitleMCW.Caption := title;
+    case color of
+      MY_ERROR: begin TitleMCW.Font.Color := rgb(255, 10, 10); CutMCW.Font.Color := clRed; end;
+      MY_WARNING: begin TitleMCW.Font.Color := rgb(255, 215, 10); CutMCW.Font.Color := clYellow; end;
+      MY_INFORMATION: begin TitleMCW.Font.Color := rgb(10, 10, 255); CutMCW.Font.Color := clBlue; end;
+      MY_PASS: begin TitleMCW.Font.Color := rgb(10, 192, 10); CutMCW.Font.Color := clGreen; end;
+      else raise Exception.Create('So much color');
+    end;
+    len := Length(button);
+    SetLength(tbt, len);
+    for var I := 0 to len - 1 do begin
+      tbt[I] := TButton.Create(ScrollBoxMCW);
+      tbt[I].Parent := ScrollBoxMCW;
+      tbt[I].Name := Concat('b', inttostr(I + 1));
+      tbt[I].Width := 444;
+      tbt[I].Height := 40;
+      tbt[I].Left := 8;
+      tbt[I].Top := 8 + I * 44;
+      tbt[I].Caption := button[I];
+      tbt[I].WordWrap := true;
+      tbt[I].OnClick := bt.MCWMultiButtonClick;
+    end;
+    db := defbutton;
+    FormMCW.ShowModal;
+  end);
+  Result := ResMessage;
+  ResMessage := 0;
 end;
 //自定义输入框
 function MyInputBox(title, content: String; color: Integer; defcontent: String = ''): String;
 begin
   TThread.Synchronize(nil, procedure begin
     InitMCW('MyInputBox');
-//    if (defbutton > 2) or (defbutton < 1) then raise Exception.Create('So much default button');
     ContentMCW.Lines.Clear;
     TitleMCW.Caption := title;
     ContentMCW.Lines.Add(content);
@@ -354,15 +432,11 @@ begin
       MY_PASS: begin TitleMCW.Font.Color := clGreen; CutMCW.Font.Color := clGreen; end;
       else raise Exception.Create('So much color');
     end;
-//    case defbutton of
-//      1: OkMCW.Default := true;
-//      2: CancalMCW.Default := true;
-//      else raise Exception.Create('Not Support');
-//    end;
     InputMCW.Text := defcontent;
     FormMCW.ShowModal;
   end);
   Result := ResInput;
+  ResInput := '';
 end;
 //自定义图片信息框【专用于模组信息显示】
 procedure MyPictureBox(title, content: String; web: TStream);
@@ -392,6 +466,7 @@ begin
     FormMCW.ShowModal;
   end);
   Result := ResMsg;
+  ResMsg := false;
 end;
 end.
 

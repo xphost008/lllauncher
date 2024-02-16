@@ -920,40 +920,7 @@ end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 begin
-  showmessage(inttostr(IPv4ToInt('255.255.255.255')));
-//  var j := TJSONObject.ParseJSONValue('{"a":"111"}') as TJSONObject;
-//  var nu := j.GetValue('a').Null;
-//  showmessage(booltostr(nu, true));
-//              var vn := 'neoforge-20.4.137-beta';
-//              var rvn := vn.Substring(vn.IndexOf('-') + 1);
-//              var dul := Concat('/maven/net/neoforged/neoforge/', rvn, '/', vn, '-installer.jar');
-//              messagebox(0, pchar(dul), '', 0);
-//  if MyPicMsgBox('aa', 'bb', nil) then begin
-//    showmessage('ok');
-//  end else begin
-//    showmessage('no');
-//  end;
-//  var ss := 'yv66vgAAADQAHQoABgAPCQAQABEIABIKABMAFAcAFQcAFgEABjxpbml0PgEAAygpVgEABENvZGUBAA9MaW5lTnVtYmVyVGFibGUBAARtYWluAQAWKFtMamF2YS9sYW5nL1N0cmluZzspVgEAClNvdXJjZUZpbGUBAApIZWxsby5qYXZhDAAHAAgHABcMABgAGQEADUhlbGxvIFdvcmxkISEHABoMABsAHAEABUhlbGxvAQAQamF2YS9sYW5nL09iamVjdAEAEGphdmEvbGFuZy9TeXN0ZW0BAANvdXQBABVMamF2YS9pby9QcmludFN0cmVhbTsBABNqYXZhL2lvL1ByaW50U3RyZWFtAQAHcHJpbnRsbgEAFShMamF2YS9sYW5nL1N0cmluZzspVgAhAAUABgAAAAAAAgABAAcACAABAAkAAAAdAAEAAQAAAAUqtwABsQAAAAEACgAAAAYAAQAAAAEACQALAAwAAQAJAAAAJQACAAEAAAAJsgACEgO2AASxAAAAAQAKAAAACgACAAAAAwAIAAQAAQANAAAAAgAO';
-//  var sk := TStringStream.Create(ss);
-//  var st := TMemoryStream.Create;
-//  TNetEncoding.Base64.Decode(sk, st);
-//  st.SaveToFile('C:\Users\Rechalow\Desktop\Hello.class');
-//  var ss := 'ss.ss';
-//  showmessage(inttostr(ss.IndexOf('.')));
-//  if GetLocalIP(s) then begin
-//  var ip := TIdHTTPServer.Create(nil);
-//  ip
-//  showmessage(GetWebText('http://www.3322.org/dyndns/getip').Trim);
-//  end;
-//  showmessage(inttostr(ipv4toint('255.255.255.255')));
-//  var res := GetUserDefaultGeoName(nil, 0);
-//  if res > 0 then begin
-//    var gname: LPWSTR := StrAlloc(res);
-//    var res2 := GetUserDefaultGeoName(gname, res);
-//    if res > 0 then begin
-//      showmessage('获取到国家名称：' + gname);
-//    end;
-//  end;
+  showmessage(IntToStr(MyMultiButtonBox('Hello', MY_ERROR, ['World!', 'Who are you', 'you are pig!', 'good morning', 'nice to meet you', 'wtf you say!', 'are you crazy?', 'meow', 'hhhh'])));
 end;
 //下载部分：查看MC版本信息
 procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
@@ -1224,8 +1191,8 @@ end;
 //打开Java官网
 procedure Tform_mainform.button_launch_official_javaClick(Sender: TObject);
 var
-  offname: array of String;
-  offurl: array of String;
+  offname: TArray<string>;
+  offurl: TArray<string>;
   ul: String;
 begin
   offname := [
@@ -1250,19 +1217,9 @@ begin
             'https://aws.amazon.com/cn/corretto/',
             'https://jdk.java.net'
   ];
-  var ask := GetLanguage('inputbox_launch.select_java_web.text');
-  for var i := 0 to Length(offname) - 1 do begin
-    ask := Concat(ask, #13#10, inttostr(i + 1), '. ', offname[i]);
-  end;
-  var i := MyInputBox(GetLanguage('inputbox_launch.select_java_web.caption'), ask, MY_INFORMATION);
-  try
-    if i = '' then exit;
-    var s := strtoint(i);
-    ul := offurl[s - 1];
-  except
-    MyMessagebox(GetLanguage('messagebox_launch.open_java_web_error.caption'), GetLanguage('messagebox_launch.open_java_web_error.text'), MY_ERROR, [mybutton.myOK]);
-    exit;
-  end;
+  var i := MyMultiButtonBox(GetLanguage('inputbox_launch.select_java_web.caption'), MY_INFORMATION, offname);
+  if i = 0 then exit;
+  ul := offurl[i - 1];
   ShellExecute(Application.Handle, nil, pchar(ul), nil, nil, SW_SHOWNORMAL);
 end;
 //启动设置：前置启动脚本
@@ -1527,9 +1484,9 @@ begin
   end;
   name := MyInputBox(GetLanguage('inputbox_version.select_new_mc_name.caption'), GetLanguage('inputbox_version.select_new_mc_name.text'), MY_INFORMATION);
   if name = '' then exit;
-  if not DirectoryExists(path) then begin
+  if not SysUtils.DirectoryExists(path) then begin
     MyMessagebox(GetLanguage('messagebox_version.create_minecraft_dir.caption'), GetLanguage('messagebox_version.create_minecraft_dir.text'), MY_INFORMATION, [mybutton.myOK]);
-    ForceDirectories(path);
+    SysUtils.ForceDirectories(path);
   end;
   ChooseVersionDir(name, path);
 end;
@@ -1973,7 +1930,7 @@ end;
 procedure Tform_mainform.image_exit_running_mcClick(Sender: TObject);
 begin
   if image_exit_running_mc.Cursor = crHandPoint then begin
-    ShellExecute(Application.Handle, 'open', 'taskkill.exe', pchar(Concat('/F /PID ', inttostr(mcpid))), nil, SW_HIDE);
+    ShellExecute(Application.Handle, 'open', 'taskkill.exe', pchar(Concat('/F /PID ', inttostr(mcpid))), nil, SW_SHOWNORMAL);
     mcpid := 0;
     Log.Write('宁结束了MC的运行。', LOG_INFO, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.exit_mc_success.caption'), GetLanguage('messagebox_launcher.exit_mc_success.text'), MY_PASS, [mybutton.myOK]);

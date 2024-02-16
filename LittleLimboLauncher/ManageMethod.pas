@@ -3,7 +3,8 @@
 interface
 
 uses
-  SysUtils, Classes, IOUtils, StrUtils, Winapi.Messages, ShellAPI, Windows, Forms, JSON, pngimage, Threading, IniFiles;
+  SysUtils, Classes, IOUtils, StrUtils, Winapi.Messages, ShellAPI, Windows, Forms, JSON,
+  pngimage, Threading, NetEncoding, Generics.Collections;
 
 function InitManage: Boolean;
 procedure DragFileInWindow(var Msg: TMessage);
@@ -20,6 +21,17 @@ implementation
 uses
   LauncherMethod, MainForm, MyCustomWindow, LanguageMethod, MainMethod, ProgressMethod;
 
+type
+  TIni2File = class
+  private
+    var
+      rf: TStringList;
+  public
+    constructor Create(path: String);
+    function ReadString(key, default: String): String;
+    function ReadInteger(key: String; default: Integer): Integer;
+  end;
+
 var
   ModSelect: TStringList;
   SavSelect: TStringList;
@@ -31,8 +43,46 @@ var
   temp: String;
 var
   ModPackMetadata: TJSONObject;
+//自制Ini读取
+function TIni2File.ReadInteger(key: String; default: Integer): Integer;
+begin
+  var b := false;
+  var c := false;
+  for var I in rf do begin
+    if I.Trim.IndexOf('#') = 0 then continue;
+    var ss := SplitString(I, '=');
+    if ss[0].Trim.Equals(key) then begin
+      try
+        result := strtoint(ss[1]);
+        c := true;
+      except
+        b := true;
+      end;
+      break;
+    end;
+  end;
+  if b or not c then result := default;
+end;
+function TIni2File.ReadString(key, default: String): String;
+begin
+  for var I in rf do begin
+    if I.Trim.IndexOf('#') = 0 then continue;
+    var ss := SplitString(I, '=');
+    if ss[0].Trim.Equals(key) then begin
+      result := ss[1];
+      break;
+    end;
+  end;
+  if result.IsEmpty then result := default;
+end;
+constructor TIni2File.Create(path: String);
+begin
+  rf := TStringList.Create;
+  rf.DefaultEncoding := TEncoding.UTF8;
+  rf.LoadFromFile(path)
+end;
 //导入整合包函数，按照键值对来获取
-function JudgeException(index: Integer; key: String): String;
+function JudgeException(index: Integer; key: String; isemp: Boolean): String;
 begin
   try
     case index of
@@ -45,10 +95,45 @@ begin
       end;
       3: begin
         var dep := ModPackMetadata.GetValue('dependencies') as TJSONObject;
-        result := dep.Get(strtoint(key)).JsonString.Value;
+        result := dep.Pairs[strtoint(key)].JsonString.Value;
+      end;
+      4..5: begin
+        var dep := ModPackMetadata.GetValue('components') as TJSONArray;
+        var ml := dep[index - 4] as TJSONObject;
+        result := ml.GetValue(key).Value;
+      end;
+      7..8: begin
+        var dep := ModPackMetadata.GetValue('addons') as TJSONArray;
+        var ml := dep[index - 7] as TJSONObject;
+        result := ml.GetValue(key).Value;
+      end;
+      9: begin
+        var dep := ModPackMetadata.GetValue('origin') as TJSONArray;
+        for var I in dep do begin
+          var J := I as TJSONObject;
+          if J.GetValue('type').Value.Equals(key) then begin
+            result := J.GetValue<String>('id');
+          end;
+        end;
+      end;
+      10: begin
+        var dep := ModPackMetadata.GetValue('serverInfo') as TJSONObject;
+        result := dep.GetValue(key).Value;
+      end;
+      11: begin
+        var dep := ModPackMetadata.GetValue('minecraft') as TJSONObject;
+        result := dep.GetValue(key).Value;
+      end;
+      12..13: begin
+        var dep := ModPackMetadata.GetValue('minecraft') as TJSONObject;
+        var elr := dep.GetValue(key) as TJSONArray;
+        var eur := elr[0] as TJSONObject;
+        var id := eur.GetValue('id').Value;
+        result := id.Split(['-'])[index - 12];
       end;
     end;
   except
+    if isemp then result := '' else
     result := GetLanguage('picturebox_resource.has_no_data');
   end;
 end;
@@ -62,21 +147,21 @@ begin
   if FileExists(Concat(temp, 'LLLauncher\importmodpack\modrinth.index.json')) then begin
     var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\modrinth.index.json'));
     ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
-    var mcv := JudgeException(2, 'minecraft');
-    var ml := JudgeException(3, '1');
-    var mlv := JudgeException(2, ml);
-    if MyPicMsgBox(JudgeException(1, 'name'), GetLanguage('picturebox_manage.import_modrinth_modpack.text')
+    var mcv := JudgeException(2, 'minecraft', false);
+    var ml := JudgeException(3, '1', true);
+    var mlv := JudgeException(2, ml, true);
+    if MyPicMsgBox(JudgeException(1, 'name', false), GetLanguage('picturebox_manage.import_modrinth_modpack.text')
       .Replace('${modpack_game}', 'Modrinth')
-      .Replace('${modpack_version}', JudgeException(1, 'versionId'))
-      .Replace('${modpack_name}', JudgeException(1, 'name'))
-      .Replace('${modpack_summary}', JudgeException(1, 'summary'))
+      .Replace('${modpack_version}', JudgeException(1, 'versionId', false))
+      .Replace('${modpack_name}', JudgeException(1, 'name', false))
+      .Replace('${modpack_summary}', JudgeException(1, 'summary', false))
       .Replace('${modpack_mcversion}', mcv)
       .Replace('${modpack_modloader}', ml)
       .Replace('${modpack_modloader_version}', mlv), nil) then begin
       try
         var mccp := (((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'))) as TJsonObject).GetValue('mc') as TJsonArray)[LLLini.ReadInteger('MC', 'SelectMC', -1) - 1] as TJsonObject).GetValue('path').Value;
-        var jpth := ((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'))) as TJSONObject).GetValue('java') as TJSONArray)[LLLini.ReadInteger('Java', 'SelectJava', -1) - 1].Value;
-        var mcsp := Concat(mccp, '\versions\', JudgeException(1, 'name'));
+        var jpth := ((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\JavaJson.json'))) as TJSONObject).GetValue('java') as TJSONArray)[LLLini.ReadInteger('Java', 'SelectJava', -1) - 1].Value;
+        var mcsp := Concat(mccp, '\versions\', JudgeException(1, 'name', false));
         if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
         ForceDirectories(mcsp);
         TTask.Run(procedure begin
@@ -92,11 +177,125 @@ begin
     end else exit;
   end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\mmc-pack.json')) and FileExists(Concat(temp, 'LLLauncher\importmodpack\instance.cfg')) then begin
     var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\mmc-pack.json'));
-    var mo := TIniFile.Create(Concat(temp, 'LLLauncher\importmodpack\instance.cfg'));
+    var mo := TIni2File.Create(Concat(temp, 'LLLauncher\importmodpack\instance.cfg'));
     ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
-
+    var mcv := JudgeException(4, 'version', false);
+    var ml := JudgeException(5, 'uid', true);
+    var mlv := JudgeException(5, 'version', true);
+    var pls := JudgeException(1, 'icon', true);
+    var ss: TStream := nil;
+    if not pls.IsEmpty then begin
+      var base := TNetEncoding.Base64.DecodeStringToBytes(pls);
+      ss := TBytesStream.Create(base);
+    end;
+    if MyPicMsgBox(mo.ReadString('name', ''), GetLanguage('picturebox_manage.import_multimc_modpack.text')
+      .Replace('${modpack_game}', 'MultiMC')
+      .Replace('${modpack_name}', mo.ReadString('name', ''))
+      .Replace('${modpack_summary}', mo.ReadString('notes', '').Replace('\n', #13#10))
+      .Replace('${modpack_mcversion}', mcv)
+      .Replace('${modpack_modloader}', ml)
+      .Replace('${modpack_modloader_version}', mlv), ss) then begin
+      try
+        var mccp := (((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'))) as TJsonObject).GetValue('mc') as TJsonArray)[LLLini.ReadInteger('MC', 'SelectMC', -1) - 1] as TJsonObject).GetValue('path').Value;
+        var jpth := ((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\JavaJson.json'))) as TJSONObject).GetValue('java') as TJSONArray)[LLLini.ReadInteger('Java', 'SelectJava', -1) - 1].Value;
+        var mcsp := Concat(mccp, '\versions\', mo.ReadString('name', ''));
+        if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
+        ForceDirectories(mcsp);
+        TTask.Run(procedure begin
+          form_mainform.button_progress_clean_download_list.Enabled := false;
+          DownloadStart(Concat('MultiMC@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
+          form_mainform.button_progress_clean_download_list.Enabled := true;
+          DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+          MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
+        end);
+      except
+        DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+        MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
+        exit;
+      end;
+    end else DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+  end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\mcbbs.packmeta')) then begin
+    var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\mcbbs.packmeta'));
+    ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
+    var pls := JudgeException(1, 'icon', true);
+    var ss: TStream := nil;
+    if not pls.IsEmpty then begin
+      var base := TNetEncoding.Base64.DecodeStringToBytes(pls);
+      ss := TBytesStream.Create(base);
+    end;
+    var mcv := JudgeException(7, 'version', false);
+    var ml := JudgeException(8, 'id', true);
+    var mlv := JudgeException(8, 'version', true);
+    if MyPicMsgBox(JudgeException(1, 'name', false), GetLanguage('picturebox_manage.import_mcbbs_modpack.text')
+      .Replace('${modpack_game}', 'MCBBS')
+      .Replace('${modpack_name}', JudgeException(1, 'name', false))
+      .Replace('${modpack_version}', JudgeException(1, 'version', false))
+      .Replace('${modpack_author}', JudgeException(1, 'author', false))
+      .Replace('${modpack_summary}', JudgeException(1, 'description', false).Replace(#13, #13#10).Replace(#10, #13#10))
+      .Replace('${modpack_update_url}', JudgeException(1, 'fileApi', false))
+      .Replace('${modpack_official_url}', JudgeException(1, 'url', false))
+      .Replace('${modpack_mcbbs}', IfThen(JudgeException(9, 'mcbbs', true).isEmpty, GetLanguage('picturebox_resource.has_no_data'), Concat('https://www.mcbbs.net/thread-', JudgeException(9, 'mcbbs', true), '-1-1.html')))
+      .Replace('${modpack_server}', JudgeException(10, 'authlibInjectorServer', false))
+      .Replace('${modpack_mcversion}', mcv)
+      .Replace('${modpack_modloader}', ml)
+      .Replace('${modpack_modloader_version}', mlv), ss) then begin
+      try
+        var mccp := (((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'))) as TJsonObject).GetValue('mc') as TJsonArray)[LLLini.ReadInteger('MC', 'SelectMC', -1) - 1] as TJsonObject).GetValue('path').Value;
+        var jpth := ((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\JavaJson.json'))) as TJSONObject).GetValue('java') as TJSONArray)[LLLini.ReadInteger('Java', 'SelectJava', -1) - 1].Value;
+        var mcsp := Concat(mccp, '\versions\', JudgeException(1, 'name', false));
+        if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
+        ForceDirectories(mcsp);
+        TTask.Run(procedure begin
+          form_mainform.button_progress_clean_download_list.Enabled := false;
+          DownloadStart(Concat('MCBBS@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
+          form_mainform.button_progress_clean_download_list.Enabled := true;
+          DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+          MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
+        end);
+      except
+        DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+        MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
+        exit;
+      end;
+    end else DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+  end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\manifest.json')) then begin
+    var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\manifest.json'));
+    ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
+    var mcv := JudgeException(11, 'version', false);
+    var ml := JudgeException(12, 'modLoaders', true);
+    var mlv := JudgeException(13, 'modLoaders', true);
+    if MyPicMsgBox(JudgeException(1, 'name', false), GetLanguage('picturebox_manage.import_curseforge_modpack.text')
+      .Replace('${modpack_game}', 'CurseForge')
+      .Replace('${modpack_version}', JudgeException(1, 'version', false))
+      .Replace('${modpack_name}', JudgeException(1, 'name', false))
+      .Replace('${modpack_author}', JudgeException(1, 'author', false))
+      .Replace('${modpack_mcversion}', mcv)
+      .Replace('${modpack_modloader}', ml)
+      .Replace('${modpack_modloader_version}', mlv), nil) then begin
+      try
+        var mccp := (((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCJson.json'))) as TJsonObject).GetValue('mc') as TJsonArray)[LLLini.ReadInteger('MC', 'SelectMC', -1) - 1] as TJsonObject).GetValue('path').Value;
+        var jpth := ((TJsonObject.ParseJSONValue(GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\JavaJson.json'))) as TJSONObject).GetValue('java') as TJSONArray)[LLLini.ReadInteger('Java', 'SelectJava', -1) - 1].Value;
+        var mcsp := Concat(mccp, '\versions\', JudgeException(1, 'name', false));
+        if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
+        ForceDirectories(mcsp);
+        TTask.Run(procedure begin
+          form_mainform.button_progress_clean_download_list.Enabled := false;
+          DownloadStart(Concat('CurseForge@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
+          form_mainform.button_progress_clean_download_list.Enabled := true;
+          DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+          MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
+        end);
+      except
+        DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+        MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
+        exit;
+      end;
+    end else DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+  end else begin
+    DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+    MyMessagebox(GetLanguage('messagebox_manage.not_support_modpack_type.caption'), GetLanguage('messagebox_manage.not_support_modpack_type.text'), MY_ERROR, [mybutton.myYes]);
+    exit;
   end;
-  DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
 end;
 //复制文件夹
 function CopyDir(source, target: string): Boolean;

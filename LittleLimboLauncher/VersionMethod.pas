@@ -88,6 +88,7 @@ begin
     DownloadStart(yjson, selpath, mcpath, mbiggest_thread, mdownload_source, 2);
     form_mainform.button_progress_clean_download_list.Enabled := true;
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.version.complete_version_success'));
+    MyMessagebox(GetLanguage('messagebox_version.complete_version_success.caption'), GetLanguage('messagebox_version.complete_version_success.text'), MY_PASS, [mybutton.myYes]);
   end);
 end;
 //选择版本文件夹方法

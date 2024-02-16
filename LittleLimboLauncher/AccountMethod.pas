@@ -361,14 +361,9 @@ begin
     var t1 := TAccount.GetHttpf(k1, res);
     if t1 = '' then begin raise Exception.Create('refresh account error'); end;
     var j1 := TJsonObject.ParseJSONValue(t1) as TJsonObject;
-    try //以上为直接post得到后的json，然后解析json。下面为直接获取json，如果没有皮肤，则换。但绝大概率是有皮肤的。
-//      var j2 := j1.GetValue('selectedProfile') as TJsonObject;
-//      self.username := j2.GetValue('name').Value;
-//      self.uuid := j2.GetValue('id').Value;
+    try //以上为直接post得到后的json，然后解析json。下面为直接获取json。
       self.accesstoken := j1.GetValue('accessToken').Value;
       self.thirdclienttoken := j1.GetValue('clientToken').Value;
-//      self.avatar := JudgeThirdSkin(servername, self.uuid);
-//      self.thirdbase64 := basecode;
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_account_success_and_get_avatar');
     except
       var err := j1.GetValue('errorMessage').Value;
@@ -385,9 +380,6 @@ begin
         MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.unknown_error.caption'), GetLanguage('messagebox_account_thirdparty_error.unknown_error.text'), MY_ERROR, [mybutton.myOK]);
         form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_unknown_error');
       end;
-//      Log.Write('你在重置外置登录时，可能官网上已经删掉了该皮肤，建议重新尝试后再继续！', LOG_ACCOUNT, LOG_ERROR);
-//      MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.refresh_skin_error.caption'), GetLanguage('messagebox_account_thirdparty_error.refresh_skin_error.text'), MY_ERROR, [mybutton.myOK]);
-//      form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_cannot_refresh_skin');
       accesstoken := 'noneaccount';
       exit;
     end;
@@ -445,28 +437,19 @@ begin
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_account_success_and_get_avatar');
       self.avatar := JudgeThirdSkin(servername, self.uuid);
     end else begin
-      var st := '';
-      for var I := 0 to r1.Count - 1 do
-      begin
+      var sr: TArray<string>;
+      SetLength(sr, r1.Count);
+      for var I := 0 to r1.Count - 1 do begin
         var j2 := r1[I] as TJsonObject;
-        st := Concat(st, #13#10, inttostr(i + 1), '. ', j2.GetValue('name').Value);
+        sr[I] := j2.GetValue('name').Value
       end;
-      Log.Write('现在开始输入角色序号。', LOG_ACCOUNT, LOG_INFO);
-      var input := MyInputBox(GetLanguage('inputbox_account_thirdparty.choose_a_role.caption'), GetLanguage('inputbox_account_thirdparty.choose_a_role.text').Replace('${role_group}', st), MY_INFORMATION);
-      try
-        if input.IsEmpty then begin
-          accesstoken := 'noneaccount';
-          abort;
-        end;
-        if (strtoint(input) < 1) or (strtoint(input) > r1.Count) then raise Exception.Create('Entry Error');
-      except
-        Log.Write('不要尝试在选择角色的时候输入错误的字符。', LOG_ACCOUNT, LOG_ERROR);
-        MyMessagebox(GetLanguage('messagebox_account_thirdparty_error.dont_entry_other_char.caption'), GetLanguage('messagebox_account_thirdparty_error.dont_entry_other_char.text'), MY_ERROR, [mybutton.myOK]);
-        form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.thirdparty_entry_other_char');
+      Log.Write('现在开始选择角色。', LOG_ACCOUNT, LOG_INFO);
+      var input := MyMultiButtonBox(GetLanguage('inputbox_account_thirdparty.choose_a_role.caption'), MY_INFORMATION, sr);
+      if input = 0 then begin
         accesstoken := 'noneaccount';
         exit;
       end;
-      var sa := strtoint(input) - 1;
+      var sa := input - 1;
       var j2 := r1[sa] as TJsonObject;
       self.uuid := j2.GetValue('id').Value;
       self.username := j2.GetValue('name').Value;
@@ -475,6 +458,7 @@ begin
       self.thirdbase64 := basecode;
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.add_account_success_and_get_avatar');
       self.avatar := JudgeThirdSkin(servername, self.uuid);
+      Log.Write('已添加外置登录账号！', LOG_ACCOUNT, LOG_INFO);
     end;
   end;
 end;
