@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, JSON, Generics.Collections, System.RegularExpressions, Threading, Classes, NetEncoding, ExtCtrls, PngImage, Dialogs,
+  SysUtils, JSON, Generics.Collections, System.RegularExpressions, Classes, NetEncoding, ExtCtrls, PngImage, Dialogs,
   System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent, StrUtils, Forms, ShellAPI, Windows,
   ClipBrd;
 
@@ -203,16 +203,10 @@ begin
     var o := I as TJsonObject;
     if o.GetValue('name').Value = 'textures' then begin
       var value := o.GetValue('value').Value;
-      var sj2 := TNetEncoding.Base64.Decode(value);
+      var sj2 := Base64ToStream(value).DataString;
       var surl := (((TJsonObject.ParseJSONValue(sj2) as TJsonObject).GetValue('textures') as TJsonObject).GetValue('SKIN') as TJsonObject).GetValue('url').Value;
       var pic := GetWebStream(surl);
-      if pic = nil then begin
-        result := '';
-        exit;
-      end;
-      var ss := TStringStream.Create;
-      TNetEncoding.Base64.Encode(pic, ss);
-      result := CutBase64Image(ss.DataString, 8, 8, 16, 16, 64, 64);
+      result := CutBase64Image(StreamToBase64(pic), 8, 8, 16, 16, 64, 64);
       exit;
     end;
   end;
@@ -518,6 +512,7 @@ begin
     result := AvatarToUUID(choNumber + 9);
   end;
 end;
+//名称转UUID
 function NameToUUID(name: String): String;
 begin
   var playerprofile := GetWebText(Concat('https://playerdb.co/api/player/minecraft/', name));
@@ -532,6 +527,7 @@ begin
     exit;
   end;
 end;
+//UUID转名称
 function UUIDToName(uuid: String): String;
 begin
   var playerprofile := GetWebText(Concat('https://playerdb.co/api/player/minecraft/', uuid));
@@ -552,10 +548,10 @@ begin
   try
     var pla := ((AccountJson.GetValue('account') as TJsonArray)[index] as TJsonObject);
     var pls := pla.GetValue('head_skin').Value;
-    var base := TNetEncoding.Base64.DecodeStringToBytes(pls);
+    var base := Base64ToStream(pls);
     var png := TPngImage.Create;
     try
-      png.LoadFromStream(TBytesStream.Create(base));
+      png.LoadFromStream(base);
       form_mainform.image_login_avatar.Picture.Assign(png);
       form_mainform.image_mainform_login_avatar.Picture.Assign(png);
     finally
@@ -583,8 +579,8 @@ begin
 end;
 //离线登录
 procedure OfflineLogin(offline_name, offline_uuid: String);
-var
-  uid: TGuid;
+//var
+//  uid: TGuid;
 begin
   if (not mjudge_lang_chinese) and (not OtherIni.ReadBool('Other', 'CanOffline', false)) then begin
     if MyMessagebox(GetLanguage('messagebox_account_offline.add_demo_warning.caption'), GetLanguage('messagebox_account_offline.add_demo_warning.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
@@ -595,14 +591,15 @@ begin
   end;
   offline_uuid := offline_uuid.ToLower;
   if offline_uuid = '' then begin
-    CreateGuid(uid);
-    offline_uuid := GuidToString(uid).Replace('{', '').Replace('}', '').Replace('-', '').ToLower;
+    offline_uuid := TextToMD5(offline_name);
+//    CreateGuid(uid);
+//    offline_uuid := GuidToString(uid).Replace('{', '').Replace('}', '').Replace('-', '').ToLower;
   end;
   if not TRegex.IsMatch(offline_uuid, '^[a-f0-9]{32}') then begin
     MyMessagebox(GetLanguage('messagebox_account_offline_error.cannot_uuid.caption'), GetLanguage('messagebox_account_offline_error.cannot_uuid.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     var skin := '';
     form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.offline_get_avatar');
     form_mainform.button_add_account.Enabled := false;
@@ -661,7 +658,7 @@ begin
     form_mainform.combobox_all_account.Enabled := true;
     form_mainform.combobox_all_accountChange(TObject.Create);
     MyMessagebox(GetLanguage('messagebox_account_offline.add_account_success.caption'), GetLanguage('messagebox_account_offline.add_account_success.text'), MY_PASS, [mybutton.myOK]);
-  end);
+  end).Start;
 end;
 //第三方登录函数
 procedure ThirdPartyLogin(server, account, password: String);
@@ -690,7 +687,7 @@ begin
   form_mainform.button_add_account.Enabled := false;
   form_mainform.button_refresh_account.Enabled := false;
   form_mainform.combobox_all_account.Enabled := false;
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     try
       Log.Write('正在添加外置登录。', LOG_ACCOUNT, LOG_INFO);
       var taccm: TAccount;
@@ -732,7 +729,7 @@ begin
       form_mainform.button_refresh_account.Enabled := true;
       form_mainform.combobox_all_account.Enabled := true;
     end;
-  end);
+  end).Start;
 end;
 //【已弃用】微软浏览器登录
 procedure MicrosoftLogin(backcode: String); deprecated;
@@ -748,7 +745,7 @@ begin
   form_mainform.button_add_account.Enabled := false;
   form_mainform.button_refresh_account.Enabled := false;
   form_mainform.combobox_all_account.Enabled := false;
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     try
       var accm: TAccount;
       try
@@ -784,7 +781,7 @@ begin
       form_mainform.button_refresh_account.Enabled := true;
       form_mainform.combobox_all_account.Enabled := true;
     end;
-  end)
+  end).Start;
 end;
 //微软OAuth登录
 procedure OAuthLogin;
@@ -794,7 +791,7 @@ begin
   form_mainform.button_add_account.Enabled := false;
   form_mainform.button_refresh_account.Enabled := false;
   form_mainform.combobox_all_account.Enabled := false;
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     try
       form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.get_oauth_user_code');
       Log.Write('正在获取用户代码……', LOG_ACCOUNT, LOG_INFO);
@@ -848,7 +845,7 @@ begin
       form_mainform.button_refresh_account.Enabled := true;
       form_mainform.combobox_all_account.Enabled := true;
     end;
-  end);
+  end).Start;
 end;
 //刷新账号
 procedure RefreshAccount(index: Integer);
@@ -867,7 +864,7 @@ begin
     form_mainform.button_add_account.Enabled := false;
     form_mainform.button_refresh_account.Enabled := false;
     form_mainform.combobox_all_account.Enabled := false;
-    TTask.Run(procedure begin
+    TThread.CreateAnonymousThread(procedure begin
       try
         var accm: TAccount;
         var refreshToken := ((AccountJSON.GetValue('account') as TJsonArray)[index] as TJsonObject).GetValue('refresh_token').Value;
@@ -903,14 +900,14 @@ begin
         form_mainform.button_refresh_account.Enabled := true;
         form_mainform.combobox_all_account.Enabled := true;
       end;
-    end);
+    end).Start;
   end else if getType = 'thirdparty' then begin
     Log.Write(Concat('已确认重置的为第三方外置账号，正在开始重置。'), LOG_ACCOUNT, LOG_INFO);
     form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.refresh_thirdparty_start');
     form_mainform.button_add_account.Enabled := false;
     form_mainform.button_refresh_account.Enabled := false;
     form_mainform.combobox_all_account.Enabled := false;
-    TTask.Run(procedure begin
+    TThread.CreateAnonymousThread(procedure begin
       try
         var accm: TAccount;
         try
@@ -950,7 +947,7 @@ begin
         form_mainform.button_refresh_account.Enabled := true;
         form_mainform.combobox_all_account.Enabled := true;
       end;
-    end);
+    end).Start;
   end else raise Exception.Create('Not Support Login Type');
 end;
 //初始化第三方登录
@@ -966,7 +963,7 @@ begin
       TThread.Synchronize(nil, procedure begin
         form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
       end);
-      TTask.Run(procedure begin
+      TThread.CreateAnonymousThread(procedure begin
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.authlib.check_authlib_update'));
         var t1 := GetWebText(Concat(mauthlib_download, 'artifact/latest.json'));
         if t1 = '' then begin
@@ -987,9 +984,9 @@ begin
         TThread.Sleep(3000);
         form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_account_part;
         form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.check_authlib_success');
-      end);
+      end).Start;
     end else begin
-      TTask.Run(procedure begin
+      TThread.CreateAnonymousThread(procedure begin
         try
           form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.check_authlib_update');
           var authlibVersion := AccountJson.GetValue('authlib_version').Value;
@@ -1009,7 +1006,7 @@ begin
           deletefile(pchar(filepath));
           InitAuthlib;
         end;
-      end);
+      end).Start;
     end;
   finally
     form_mainform.button_add_account.Enabled := true;
@@ -1050,10 +1047,9 @@ begin
   end;
   try
     Log.Write('判断下载源以下载Authlib-Injector', LOG_INFO, LOG_START);
-    var ds := strtoint(LLLini.ReadString('Version', 'SelectDownloadSouece', ''));
+    var ds := LLLini.ReadInteger('Version', 'SelectDownloadSouece', -1);
     if ds = 1 then mauthlib_download := 'https://authlib-injector.yushi.moe/'
-    else if ds = 2 then mauthlib_download := 'https://bmclapi2.bangbang93.com/mirrors/authlib-injector/'
-    else if ds = 3 then mauthlib_download := 'https://download.mcbbs.net/mirrors/authlib-injector/'
+    else if (ds = 2) or (ds = 3) then mauthlib_download := 'https://bmclapi2.bangbang93.com/mirrors/authlib-injector/'
     else raise Exception.Create('Format Exception');
   except
     Log.Write('下载源判断失败，已自动重置为官方下载源。', LOG_ERROR, LOG_START);

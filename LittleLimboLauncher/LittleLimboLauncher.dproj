@@ -156,6 +156,7 @@
         <DCCReference Include="VersionMethod.pas"/>
         <DCCReference Include="ExportMethod.pas"/>
         <DCCReference Include="OnlineIPv6Method.pas"/>
+        <DCCReference Include="MultiPluginMethod.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -193,6 +194,12 @@
                 <DeployFile LocalName="Win64\Debug\LittleLimboLauncher.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>LittleLimboLauncher.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Debug\LittleLimboLauncher.rsm" Configuration="Debug" Class="DebugSymbols">
+                    <Platform Name="Win64">
+                        <RemoteName>LittleLimboLauncher.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

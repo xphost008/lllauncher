@@ -22,7 +22,6 @@ procedure InitBackground;
 begin
   if f then exit;
   f := true;
-//  form_mainform.buttoncolor_custom_color.SymbolColor := rgb(mred, mgreen, mblue);
   form_mainform.label_background_window_current_alpha.Caption := GetLanguage('label_background_window_current_alpha.caption').Replace('${window_alpha}', inttostr(mwindow_alpha));
   form_mainform.label_background_control_current_alpha.Caption := GetLanguage('label_background_control_current_alpha.caption').Replace('${control_alpha}', inttostr(mcontrol_alpha));
   form_mainform.scrollbar_background_window_alpha.Position := mwindow_alpha;
@@ -72,9 +71,7 @@ end;
 //保存背景
 procedure SaveBackground;
 begin
-  LLLini.WriteInteger('Misc', 'Red', mred);
-  LLLini.WriteInteger('Misc', 'Green', mgreen);
-  LLLini.WriteInteger('Misc', 'Blue', mblue);
+  LLLini.WriteInteger('Misc', 'Color', mcolor);
   LLLini.WriteInteger('Misc', 'WindowAlpha', mwindow_alpha);
   LLLini.WriteInteger('Misc', 'ControlAlpha', mcontrol_alpha);
   LLLini.WriteInteger('Misc', 'WindowControl', mwindow_control);

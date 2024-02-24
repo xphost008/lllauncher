@@ -20,7 +20,8 @@ uses
   CustomDlMethod in 'CustomDlMethod.pas',
   VersionMethod in 'VersionMethod.pas',
   ExportMethod in 'ExportMethod.pas',
-  OnlineIPv6Method in 'OnlineIPv6Method.pas';
+  OnlineIPv6Method in 'OnlineIPv6Method.pas',
+  MultiPluginMethod in 'MultiPluginMethod.pas';
 
 {$R *.res}
 

@@ -495,7 +495,9 @@ begin
   try
     para.Append(JudgeArguments(Root.ToString, 'game'));
   except exit; end;
-  para.Append(' --width ').Append(widh).Append(' --height ').Append(heig).Append(' ');
+  if not addgame.Contains('--fullScreen') then begin
+    para.Append(' --width ').Append(widh).Append(' --height ').Append(heig).Append(' ');
+  end else para.Append(' ');
   para := para  //替换字符串模板
     .Replace('${auth_player_name}', accname) //替换美元符号内的内容
     .Replace('${version_name}', mcid)
@@ -573,7 +575,7 @@ begin
   if not addgame.IsEmpty then para.Append(' ').Append(addgame);
   //sboptifine
   if para.ToString.Contains('--tweakClass optifine.OptiFineForgeTweaker') then begin
-    para.Replace('--tweakClass optifine.OptiFineForgeTweaker', '').Append(' --tweakClass optifine.OptiFineForgeTweaker');
+    para.Replace('--tweakClass optifine.OptiFineForgeTweaker', '').Append(' --tweakClass optifine.OptiFineTweaker');
   end;
   if para.ToString.Contains('--tweakClass optifine.OptiFineTweaker') then begin
     para.Replace('--tweakClass optifine.OptiFineTweaker', '').Append(' --tweakClass optifine.OptiFineTweaker');

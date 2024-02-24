@@ -4,13 +4,12 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Threading, Vcl.ExtCtrls, Types;
 type
-  mybutton = (myYes, myOK, myNo, myCancal, myRetry, myAbort, myIgnore, myCustom);
-
+  mybutton = (myYes, myOK, myNo, myCancel, myRetry, myAbort, myIgnore, myCustom);
 const
-  MY_ERROR = 1;
-  MY_WARNING = 2;
-  MY_INFORMATION = 3;
-  MY_PASS = 4;
+  MY_ERROR = 658175;
+  MY_WARNING = 710655;
+  MY_INFORMATION = 16714250;
+  MY_PASS = 704522;
 function MyMessageBox(title, content: String; color: Integer; button: TArray<MyButton>; custom: TArray<String> = []; defbutton: Integer = 1): Integer;
 function MyInputBox(title, content: String; color: Integer; defcontent: String = ''): String;
 procedure MyPictureBox(title, content: String; web: TStream);
@@ -22,7 +21,7 @@ type
   btn = class(TForm)
     procedure MCWButtonClick(Sender: TObject);
     procedure MCWOKClick(Sender: TObject);
-    procedure MCWCancalClick(Sender: TObject);
+    procedure MCWCancelClick(Sender: TObject);
     procedure MCWShow(Sender: TObject);
     procedure MCWMultiButtonClick(Sender: TObject);
     procedure MCWScrollboxMouseWheel(Sender: TObject;
@@ -42,7 +41,7 @@ var
   ContentMCW: TMemo;
   InputMCW: TEdit;
   ScrollBoxMCW: TScrollBox;
-  OkMCW, CancalMCW: TButton;
+  OkMCW, CancelMCW: TButton;
   PictureMCW: TImage;
 var
   db: Integer;
@@ -130,16 +129,16 @@ begin
         Caption := GetLanguage('inputbox_button_yes.caption');
         OnClick := bt.MCWOKClick;
       end;
-      CancalMCW := TButton.Create(FormMCW);
-      with CancalMCW do begin
+      CancelMCW := TButton.Create(FormMCW);
+      with CancelMCW do begin
         Parent := FormMCW;
-        Name := 'PictureCancal';
+        Name := 'PictureCancel';
         Left := 851;
         Top := 687;
         Width := 129;
         Height := 39;
         Caption := GetLanguage('inputbox_button_no.caption');
-        OnClick := bt.MCWCancalClick;
+        OnClick := bt.MCWCancelClick;
       end;
     end else begin
       OkMCW := TButton.Create(FormMCW);
@@ -214,7 +213,7 @@ begin
     Top := 60;
     Width := 484;
     Height := 126;
-    Font.Color := clWindowText;
+    Font.Color := rgb(0, 0, 0);
     Font.Charset := ANSI_CHARSET;
     Font.Name := '微软雅黑';
     Font.Height := -16;
@@ -246,16 +245,16 @@ begin
       Caption := GetLanguage('inputbox_button_yes.caption');
       OnClick := bt.MCWOKClick;
     end;
-    CancalMCW := TButton.Create(FormMCW);
-    with CancalMCW do begin
+    CancelMCW := TButton.Create(FormMCW);
+    with CancelMCW do begin
       Parent := FormMCW;
-      Name := 'InputCancal';
+      Name := 'InputCancel';
       Left := 392;
       Top := 221;
       Width := 100;
       Height := 28;
       Caption := GetLanguage('inputbox_button_no.caption');
-      OnClick := bt.MCWCancalClick;
+      OnClick := bt.MCWCancelClick;
     end;
   end;
 end;
@@ -303,7 +302,7 @@ begin
     end;
   end;
 end;
-procedure btn.MCWCancalClick(Sender: TObject);
+procedure btn.MCWCancelClick(Sender: TObject);
 begin
   ResInput := '';
   ResMsg := false;
@@ -338,13 +337,8 @@ begin
     ContentMCW.Lines.Clear;
     TitleMCW.Caption := title;
     ContentMCW.Lines.Add(content);
-    case color of
-      MY_ERROR: begin TitleMCW.Font.Color := rgb(255, 10, 10); CutMCW.Font.Color := clRed; end;
-      MY_WARNING: begin TitleMCW.Font.Color := rgb(255, 215, 10); CutMCW.Font.Color := clYellow; end;
-      MY_INFORMATION: begin TitleMCW.Font.Color := rgb(10, 10, 255); CutMCW.Font.Color := clBlue; end;
-      MY_PASS: begin TitleMCW.Font.Color := rgb(10, 192, 10); CutMCW.Font.Color := clGreen; end;
-      else raise Exception.Create('So much color');
-    end;
+    TitleMCW.Font.Color := color;
+    CutMCW.Font.Color := color;
     len := Length(button);
     if (len < 1) or (len > 4) then raise Exception.Create('So much button');
     SetLength(tbt, len);
@@ -371,7 +365,7 @@ begin
         myYes: tbt[O].Caption := GetLanguage('messagebox_button_yes.caption');
         myOK: tbt[O].Caption := GetLanguage('messagebox_button_ok.caption');
         myNo: tbt[O].Caption := GetLanguage('messagebox_button_no.caption');
-        myCancal: tbt[O].Caption := GetLanguage('messagebox_button_cancel.caption');
+        myCancel: tbt[O].Caption := GetLanguage('messagebox_button_cancel.caption');
         myRetry: tbt[O].Caption := GetLanguage('messagebox_button_retry.caption');
         myAbort: tbt[O].Caption := GetLanguage('messagebox_button_abort.caption');
         myIgnore: tbt[O].Caption := GetLanguage('messagebox_button_ignore.caption');
@@ -390,13 +384,8 @@ begin
   TThread.Synchronize(nil, procedure begin
     InitMCW('MyMultiButtonBox');
     TitleMCW.Caption := title;
-    case color of
-      MY_ERROR: begin TitleMCW.Font.Color := rgb(255, 10, 10); CutMCW.Font.Color := clRed; end;
-      MY_WARNING: begin TitleMCW.Font.Color := rgb(255, 215, 10); CutMCW.Font.Color := clYellow; end;
-      MY_INFORMATION: begin TitleMCW.Font.Color := rgb(10, 10, 255); CutMCW.Font.Color := clBlue; end;
-      MY_PASS: begin TitleMCW.Font.Color := rgb(10, 192, 10); CutMCW.Font.Color := clGreen; end;
-      else raise Exception.Create('So much color');
-    end;
+    TitleMCW.Font.Color := color;
+    CutMCW.Font.Color := color;
     len := Length(button);
     SetLength(tbt, len);
     for var I := 0 to len - 1 do begin
@@ -425,13 +414,8 @@ begin
     ContentMCW.Lines.Clear;
     TitleMCW.Caption := title;
     ContentMCW.Lines.Add(content);
-    case color of
-      MY_ERROR: begin TitleMCW.Font.Color := clRed; CutMCW.Font.Color := clRed; end;
-      MY_WARNING: begin TitleMCW.Font.Color := clYellow; CutMCW.Font.Color := clYellow; end;
-      MY_INFORMATION: begin TitleMCW.Font.Color := clBlue; CutMCW.Font.Color := clBlue; end;
-      MY_PASS: begin TitleMCW.Font.Color := clGreen; CutMCW.Font.Color := clGreen; end;
-      else raise Exception.Create('So much color');
-    end;
+    TitleMCW.Font.Color := color;
+    CutMCW.Font.Color := color;
     InputMCW.Text := defcontent;
     FormMCW.ShowModal;
   end);

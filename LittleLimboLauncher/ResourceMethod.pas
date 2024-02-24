@@ -4,7 +4,7 @@ interface
 
 uses
   JSON, Classes, SysUtils, System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent,
-  Threading, ShellAPI, Forms, Windows, ClipBrd, Dialogs, StrUtils;
+  ShellAPI, Forms, Windows, ClipBrd, Dialogs, StrUtils, Generics.Collections;
 
 procedure Initresource;
 procedure Saveresource;
@@ -72,7 +72,7 @@ end;
 //开始查询
 procedure SelWeb;
 begin
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     case src of
       1: begin
         form_mainform.label_resource_return_value.Caption := GetLanguage('label_resource_return_value.caption.get_curseforge_start');
@@ -492,7 +492,7 @@ begin
         end;
       end;
     end;
-  end);
+  end).Start;
 end;
 //下载玩法
 procedure resourceDownload;
@@ -518,12 +518,12 @@ begin
         exit;
       end;
       form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-      TTask.Run(procedure begin
+      TThread.CreateAnonymousThread(procedure begin
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.resource.start_download'));
         DownloadStart(furl, od.FileName, '', mbiggest_thread, 0, 1);
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.resource.download_success'));
         MyMessagebox(GetLanguage('messagebox_resource.download_resource_success.caption'), GetLanguage('messagebox_resource.download_resource_success.text'), MY_PASS, [mybutton.myYes]);
-      end);
+      end).Start;
     end;
   end else begin
     MyMessagebox(GetLanguage('messagebox_resource.no_version_download_error.caption'), GetLanguage('messagebox_resource.no_version_download_error.text'), MY_ERROR, [mybutton.myYes]);

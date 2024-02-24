@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Windows, Forms, Classes, JSON, IOUtils, IniFiles, ShellAPI, Threading;
+  SysUtils, Windows, Forms, Classes, JSON, IOUtils, IniFiles, ShellAPI;
 
 procedure InitVersion;
 procedure SaveVersion;
@@ -82,14 +82,14 @@ begin
   end;
   var yjson := GetFile(GetMCRealPath(selpath, '.json'));
   form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.version.get_complete_version'));
     form_mainform.button_progress_clean_download_list.Enabled := false;
     DownloadStart(yjson, selpath, mcpath, mbiggest_thread, mdownload_source, 2);
     form_mainform.button_progress_clean_download_list.Enabled := true;
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.version.complete_version_success'));
     MyMessagebox(GetLanguage('messagebox_version.complete_version_success.caption'), GetLanguage('messagebox_version.complete_version_success.text'), MY_PASS, [mybutton.myYes]);
-  end);
+  end).Start;
 end;
 //选择版本文件夹方法
 procedure ChooseVersionDir(name, path: String);
@@ -101,7 +101,7 @@ begin
     .AddPair('path', path)
   ));
   form_mainform.combobox_select_file_list.ItemIndex := form_mainform.combobox_select_file_list.Items.Add(name);
-  mselect_mc := form_mainform.combobox_select_file_list.ItemIndex + 1;
+  mselect_mc := form_mainform.combobox_select_file_list.ItemIndex;
   mselect_ver := -1;
   SelVer;
   MyMessagebox(GetLanguage('messagebox_version.select_mc_success.caption'), GetLanguage('messagebox_version.select_mc_success.text'), MY_PASS, [mybutton.myOK]);

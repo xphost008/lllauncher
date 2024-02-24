@@ -4,7 +4,20 @@ interface
 
 uses
   System.Net.HttpClient, System.Net.HttpClientComponent, System.Generics.Collections, JSON,
-  SysUtils, Classes, Math, Windows, Threading, StrUtils, Forms, Dialogs, ClipBrd;
+  SysUtils, Classes, Math, Windows, StrUtils, Forms, Dialogs, ClipBrd;
+
+type
+  TMyProc = reference to procedure;
+  TMyThread = class(TThread)
+  private
+    var
+      MyProc: TMyProc;
+  public
+    constructor Create(CreateSuspended: Boolean; MyProc: TMyProc);
+    procedure Execute; override;
+    destructor Destroy; override;
+    class function CreateAnonymousThread(AProc: TMyProc): TMyThread;
+  end;
 
 procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMode, LoadSource: Integer; javapath: String = ''; VanillaVersion: String = ''; isShowList: Boolean = false; isShowProgress: Boolean = true);
 function GetURLFileName(aURL: String): String;
@@ -43,6 +56,25 @@ type
     procedure StartDownload(LoadSource: Integer);
     procedure DownloadAsWindow(SavePath, DownloadURL, FileHash, ViewName: String; isLibraries: Boolean; SelectMode: Integer);
   end;
+//新的线程模式！
+constructor TMyThread.Create(CreateSuspended: Boolean; MyProc: TMyProc);
+begin
+  inherited Create(CreateSuspended);
+  FreeOnTerminate := false;
+  self.MyProc := MyProc;
+end;
+procedure TMyThread.Execute;
+begin
+  MyProc;
+end;
+destructor TMyThread.Destroy;
+begin
+  inherited
+end;
+class function TMyThread.CreateAnonymousThread(AProc: TMyProc): TMyThread;
+begin
+  result := TMyThread.Create(true, AProc);
+end;
 //获取网址后缀名
 function GetURLFileName(aURL: String): String;
 begin
@@ -98,7 +130,7 @@ begin
   var srr := GetWebStream(DownloadURL);
   if srr = nil then begin
     inc(ret);
-    if ret < 6 then begin
+    if ret < 3 then begin
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.download_error_retry').Replace('${file_error_name}', ViewName));
       if isLibraries then begin
         case SelectMode of
@@ -112,21 +144,11 @@ begin
             SelectMode := 2;
           end;
           2: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'MCBBS'));
-            DownloadURL := DownloadURL.Replace('https://bmclapi2.bangbang93.com/maven', 'https://download.mcbbs.net/assets');
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'FORGE'));
+            DownloadURL := DownloadURL.Replace('https://bmclapi2.bangbang93.com/maven', 'https://maven.minecraftforge.net');
             SelectMode := 3;
           end;
           3: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'OFFICIAL'));
-            DownloadURL := DownloadURL.Replace('https://download.mcbbs.net/maven', 'https://libraries.minecraft.net');
-            SelectMode := 4;
-          end;
-          4: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'FORGE'));
-            DownloadURL := DownloadURL.Replace('https://libraries.minecraft.net', 'https://maven.minecraftforge.net');
-            SelectMode := 5;
-          end;
-          5: begin
             form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'FABRIC'));
             DownloadURL := DownloadURL.Replace('https://maven.minecraftforge.net', 'https://maven.fabricmc.net');
             SelectMode := 1;
@@ -140,13 +162,8 @@ begin
             SelectMode := 2;
           end;
           2: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'MCBBS'));
-            DownloadURL := DownloadURL.Replace('https://bmclapi2.bangbang93.com/assets', 'https://download.mcbbs.net/assets');
-            SelectMode := 3;
-          end;
-          3: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'OFFICIAL'));
-            DownloadURL := DownloadURL.Replace('https://download.mcbbs.net/assets', 'https://resources.download.minecraft.net');
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.switch_download_source').Replace('${source_name}', 'Vanilla'));
+            DownloadURL := DownloadURL.Replace('https://bmclapi2.bangbang93.com/assets', 'https://resources.download.minecraft.net');
             SelectMode := 1;
           end;
         end;
@@ -446,7 +463,7 @@ end;
 //单独处理Forge的玩意……
 procedure TDownloadMethod.SimpleForge(profile: String);
 var
-  DownloadForgeTask: array of ITask;
+  DownloadForgeTask: array of TMyThread;
 begin
   var ForgeRoot := '';
   var VanillaRoot := '';
@@ -461,11 +478,6 @@ begin
       ForgeRoot := 'https://bmclapi2.bangbang93.com/maven';
       VanillaRoot := 'https://bmclapi2.bangbang93.com/maven';
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.judge.judge_source_bmclapi'));
-    end;
-    3: begin
-      ForgeRoot := 'https://download.mcbbs.net/maven';
-      VanillaRoot := 'https://download.mcbbs.net/maven';
-      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.judge.judge_source_mcbbs'));
     end;
   end;
   var ForgeJSONRoot := TJsonObject.ParseJSONValue(profile
@@ -489,7 +501,7 @@ begin
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(ForgeProfileRoot.Count));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.current_download_library'));
   var TDFCount := 0;
-  var DownloadForgeLibTask: TProc := procedure begin
+  var DownloadForgeLibTask: TMyProc := procedure begin
     while TDFCount < ForgeProfileRoot.Count do begin
       var RealJSON := ForgeProfileRoot[TDFCount] as TJsonObject;
       inc(TDFCount);
@@ -520,15 +532,21 @@ begin
     end;
   end;
   for var I := 0 to BiggestThread - 1 do begin
-    DownloadForgeTask[I] := TTask.Run(DownloadForgeLibTask);
+    DownloadForgeTask[I] := TMyThread.CreateAnonymousThread(DownloadForgeLibTask);
+    DownloadForgeTask[I].Start;
   end;
-  TTask.WaitForAll(DownloadForgeTask);
+  for var I := 0 to BiggestThread - 1 do begin
+    if Assigned(DownloadForgeTask[I]) then begin
+      DownloadForgeTask[I].WaitFor;
+      DownloadForgeTask[I].Destroy;
+    end;
+  end;
   RunProcessors(profile);
 end;
 //下载自定义文件
 procedure TDownloadMethod.DownloadCustomFile;
 var
-  DownloadTask: array of ITask;
+  DownloadTask: array of TMyThread;
 begin
   var ttime := GetTickCount;
   SetLength(DownloadTask, BiggestThread);
@@ -576,7 +594,7 @@ begin
     if isShowProgress then form_mainform.progressbar_progress_download_bar.Position := sf;
     if isShowProgress then form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(sf)).Replace('${download_all_count}', inttostr(BiggestThread));
   end;
-  var downp: TProc := procedure
+  var downp: TMyProc := procedure
   begin
     inc(sc);
     var tstart := fileavg * (sc - 1);
@@ -585,9 +603,15 @@ begin
     DownloadProc(sc, tstart, tend);
   end;
   for var I := 0 to BiggestThread - 1 do begin //循环生成【最大线程数量】个任务
-    DownloadTask[I] := TTask.Run(downp);
+    DownloadTask[I] := TMyThread.CreateAnonymousThread(downp);
+    DownloadTask[I].Start;
   end;
-  TTask.WaitForAll(DownloadTask);
+  for var I := 0 to BiggestThread - 1 do begin
+    if Assigned(DownloadTask[I]) then begin
+      DownloadTask[I].WaitFor;
+      DownloadTask[I].Destroy;
+    end;
+  end;
   var mStream1 := TMemoryStream.Create;
   var mStream2 := TMemoryStream.Create;
   try
@@ -615,8 +639,8 @@ end;
 //下载Minecraft
 procedure TDownloadMethod.DownloadMinecraft;
 var
-  DownloadLibraries: array of ITask;
-  DownloadResource: array of ITask;
+  DownloadLibraries: array of TMyThread;
+  DownloadResource: array of TMyThread;
 begin
   var ttime := GetTickCount;
   var SourceJSON := TJSONObject.ParseJSONValue(url) as TJsonObject;
@@ -630,8 +654,7 @@ begin
       var VanillaVersion := '';
       case SelectMode of
         1: VanillaVersion := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
-        2: VanillaVersion := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
-        3: VanillaVersion := 'https://download.mcbbs.net/mc/game/version_manifest.json';
+        2..3: VanillaVersion := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
         else abort;
       end;
       if MCRootJSON = nil then begin
@@ -691,21 +714,6 @@ begin
       LibrariesRoot := 'https://bmclapi2.bangbang93.com/maven';
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.judge.judge_source_bmclapi'));
     end;
-    3: begin
-      url := url
-        .Replace('https://piston-meta.mojang.com', 'https://download.mcbbs.net')
-        .Replace('https://piston-data.mojang.com', 'https://download.mcbbs.net')
-        .Replace('https://libraries.minecraft.net', 'https://download.mcbbs.net/maven')
-        .Replace('https://launchermeta.mojang.com', 'https://download.mcbbs.net')
-        .Replace('https://launcher.mojang.com', 'https://download.mcbbs.net')
-        .Replace('https://files.minecraftforge.net/maven', 'https://download.mcbbs.net/maven')
-        .Replace('http://files.minecraftforge.net/maven', 'https://download.mcbbs.net/maven')
-        .Replace('https://maven.minecraftforge.net', 'https://download.mcbbs.net/maven')
-        .Replace('https://maven.fabricmc.net', 'https://download.mcbbs.net/maven');
-      ResourceRoot := 'https://download.mcbbs.net/assets';
-      LibrariesRoot := 'https://download.mcbbs.net/maven';
-      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.judge.judge_source_mcbbs'));
-    end;
     else abort;
   end;
   SetLength(DownloadLibraries, BiggestThread);
@@ -760,7 +768,7 @@ begin
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(LibrariesJSONRoot.Count));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.current_download_library'));
   var TDLCount := 0;
-  var DownloadLibrariesTask: TProc := procedure begin
+  var DownloadLibrariesTask: TMyProc := procedure begin
     while TDLCount < LibrariesJSONRoot.Count do begin
       var RealJSON := LibrariesJSONRoot[TDLCount] as TJSONObject;
       inc(TDLCount);
@@ -771,7 +779,7 @@ begin
         var sap := da.GetValue('path').Value;
         var sha := da.GetValue('sha1').Value;
         var usl := da.GetValue('url').Value;
-        if usl = '' then usl := Concat('https://libraries.minecraft.net/', sap);
+        if usl = '' then usl := Concat(LibrariesRoot, '/', sap);
         var sapth := Concat(RootPath, '\libraries\', sap.Replace('/', '\'));
         DownloadAsWindow(sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
       except end;
@@ -815,15 +823,23 @@ begin
       ShowCurrentProgress(TDLCount, LibrariesJSONRoot.Count);
     end;
   end;
-  for var I := 0 to BiggestThread - 1 do DownloadLibraries[I] := TTask.Run(DownloadLibrariesTask);
-  TTask.WaitForAll(DownloadLibraries);
+  for var I := 0 to BiggestThread - 1 do begin
+    DownloadLibraries[I] := TMyThread.CreateAnonymousThread(DownloadLibrariesTask);
+    DownloadLibraries[I].Start;
+  end;
+  for var I := 0 to BiggestThread - 1 do begin
+    if Assigned(DownloadLibraries[I]) then begin
+      DownloadLibraries[I].WaitFor;
+      DownloadLibraries[I].Destroy;
+    end;
+  end;
   var AssetsJSONRoot := (TJsonObject.ParseJSONValue(GetFile(AssetPath)) as TJsonObject).GetValue('objects') as TJSONObject;
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(AssetsJSONRoot.Count));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.download_library_success'));
   form_mainform.progressbar_progress_download_bar.Max := AssetsJSONRoot.Count;
   form_mainform.progressbar_progress_download_bar.Position := 0;
   var TDACount := 0;
-  var DownloadAssetsTask: TProc := procedure begin
+  var DownloadAssetsTask: TMyProc := procedure begin
     while TDACount < AssetsJSONRoot.Count do begin
       var sr := AssetsJSONRoot.Pairs[TDACount];
       inc(TDACount);
@@ -839,8 +855,16 @@ begin
       ShowCurrentProgress(TDACount, AssetsJSONRoot.Count);
     end;
   end;
-  for var I := 0 to BiggestThread - 1 do DownloadResource[I] := TTask.Run(DownloadAssetsTask);
-  TTask.WaitForAll(DownloadResource);
+  for var I := 0 to BiggestThread - 1 do begin
+    DownloadResource[I] := TMyThread.CreateAnonymousThread(DownloadAssetsTask);
+    DownloadResource[I].Start;
+  end;
+  for var I := 0 to BiggestThread - 1 do begin
+    if Assigned(DownloadResource[I]) then begin
+      DownloadResource[I].WaitFor;
+      DownloadResource[I].Destroy;
+    end;
+  end;
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.download_assets_success'));
   var ProfilePath := Concat(SavePath, '\install_profile.json');
   if FileExists(ProfilePath) then begin
@@ -852,7 +876,7 @@ end;
 //下载Java
 procedure TDownloadMethod.DownloadJava;
 var
-  DownloadJavaTask: array of ITask;
+  DownloadJavaTask: array of TMyThread;
 begin
   var ttime := GetTickCount;
   var RootURL := '';
@@ -865,12 +889,6 @@ begin
         .Replace('https://launchermeta.mojang.com', 'https://bmclapi2.bangbang93.com');
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.judge.judge_source_bmclapi'));
     end;
-    3: begin
-      url := url
-        .Replace('https://piston-meta.mojang.com', 'https://download.mcbbs.net')
-        .Replace('https://launchermeta.mojang.com', 'https://download.mcbbs.net');
-      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.judge.judge_source_mcbbs'));
-    end;
     else abort;
   end;
   var JavaFileJSON := (TJsonObject.ParseJSONValue(url) as TJsonObject).GetValue('files') as TJSONObject;
@@ -878,7 +896,7 @@ begin
   form_mainform.progressbar_progress_download_bar.Position := 0;
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(JavaFileJSON.Count));
   var TDJCount := 0;
-  var DownloadJava: TProc := procedure begin
+  var DownloadJava: TMyProc := procedure begin
     while TDJCount < JavaFileJSON.Count do begin
       var sr := JavaFileJSON.Pairs[TDJCount];
       inc(TDJCount);
@@ -897,8 +915,14 @@ begin
       ShowCurrentProgress(TDJCount, JavaFileJSON.Count);
     end;
   end;
-  for var I := 0 to BiggestThread - 1 do DownloadJavaTask[I] := TTask.Run(DownloadJava);
-  TTask.WaitForAll(DownloadJavaTask);
+  for var I := 0 to BiggestThread - 1 do begin
+    DownloadJavaTask[I] := TMyThread.CreateAnonymousThread(DownloadJava);
+    DownloadJavaTask[I].Start;
+  end;
+  for var I := 0 to BiggestThread - 1 do begin
+    DownloadJavaTask[I].WaitFor;
+    DownloadJavaTask[I].Destroy;
+  end;
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.java.download_java_finish').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000)));
 end;
 //下载Forge
@@ -945,8 +969,6 @@ begin
   end;
   CopyFile(pchar(ProfilePath), pchar(Concat(savepath, '\install_profile.json')), false);
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.copy_installprofile_success_setup_mc'));
-//  url := output;
-//  DownloadMinecraft();
   DownloadStart(output, SavePath, RootPath, BiggestThread, SelectMode, 2, javapath, VanillaVersion, isShowList, isShowProgress);
   DeleteDirectory(Concat(TempPath, 'LLLauncher'));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_success').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000)));
@@ -954,7 +976,18 @@ end;
 //下载你可爱的整合包去罢！
 procedure TDownloadMethod.DownloadModpack;
 begin
+  var ttime := GetTickCount;
+  form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modpack.download_modpack_start'));
+  var dl := SplitString(url, '@');
+  if dl[0].Equals('Modrinth') then begin
 
+  end else if dl[0].Equals('MultiMC') then begin
+
+  end else if dl[0].Equals('MCBBS') then begin
+
+  end else if dl[0].Equals('CurseForge') then begin
+
+  end;
 end;
 //设置所有参数。
 constructor TDownloadMethod.InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);

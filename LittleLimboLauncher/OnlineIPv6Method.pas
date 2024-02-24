@@ -1,9 +1,9 @@
-unit OnlineIPv6Method;
+ï»¿unit OnlineIPv6Method;
 
 interface
 
 uses
-  Threading, StrUtils, SysUtils, Windows, ClipBrd;
+  StrUtils, SysUtils, Windows, ClipBrd, Classes;
 
 procedure InitIPv6Online;
 procedure ChangeIPv6List;
@@ -17,44 +17,44 @@ uses
 
 var
   mip: String;
-//µã»÷¿ªÊ¼¼ì²âIPv6¹«ÍøIPµÄ°´Å¥
+//ç‚¹å‡»å¼€å§‹æ£€æµ‹IPv6å…¬ç½‘IPçš„æŒ‰é’®
 procedure InitIPv6Online;
 begin
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     form_mainform.listbox_view_all_ipv6_ip.Items.Clear;
     form_mainform.label_online_ipv6_return_value.Caption := GetLanguage('label_online_ipv6_return_value.caption.check_ipv6_port');
-    var ipcfg := RunDosBack1('cmd.exe /c ipconfig'); //»ñÈ¡ipconfigÔÚÃüÁîĞĞÖĞµÄ»ØÏÔ
+    var ipcfg := RunDosBack1('cmd.exe /c ipconfig'); //è·å–ipconfigåœ¨å‘½ä»¤è¡Œä¸­çš„å›æ˜¾
     var cut: TArray<String>;
     cut := SplitString(ipcfg, #13);
     for var I in cut do begin
-      if (I.CountChar(':') = 8) and (I.ToLower.IndexOf('ipv6') <> -1) then begin //ÅĞ¶Ï×Ö·û´®ÖĞÃ°ºÅÊıÁ¿ÊÇ·ñÎª8
-        if (I.IndexOf('ÁÙÊ±') = -1) and (I.tolower.IndexOf('temp') = -1) then begin
-          var fp := I.Substring(I.IndexOf(':') + 2, I.Length); //ÅĞ¶ÏÊÇ·ñÎªÁÙÊ±IPv6µØÖ·
+      if (I.CountChar(':') = 8) and (I.ToLower.IndexOf('ipv6') <> -1) then begin //åˆ¤æ–­å­—ç¬¦ä¸²ä¸­å†’å·æ•°é‡æ˜¯å¦ä¸º8
+        if (I.IndexOf('ä¸´æ—¶') = -1) and (I.tolower.IndexOf('temp') = -1) then begin
+          var fp := I.Substring(I.IndexOf(':') + 2, I.Length); //åˆ¤æ–­æ˜¯å¦ä¸ºä¸´æ—¶IPv6åœ°å€
           var pg := RunDosBack1(Concat('ping -n 1 ', fp));
-          if (pg.IndexOf('³¬Ê±') <> -1) or (pg.tolower.IndexOf('timeout') <> -1) then begin
+          if (pg.IndexOf('è¶…æ—¶') <> -1) or (pg.tolower.IndexOf('timeout') <> -1) then begin
             form_mainform.listbox_view_all_ipv6_ip.Items.Add(Concat('[', GetLanguage('listbox_view_all_ipv6_ip.caption.forever'), '][', GetLanguage('listbox_view_all_ipv6_ip.caption.timeout'), ']', fp));
           end else begin
-            form_mainform.listbox_view_all_ipv6_ip.Items.Add(Concat('[', GetLanguage('listbox_view_all_ipv6_ip.caption.forever'), ']', fp));  //Èç¹û²»ÊÇÔòÌí¼ÓÎªÓÀ¾Ã
+            form_mainform.listbox_view_all_ipv6_ip.Items.Add(Concat('[', GetLanguage('listbox_view_all_ipv6_ip.caption.forever'), ']', fp));  //å¦‚æœä¸æ˜¯åˆ™æ·»åŠ ä¸ºæ°¸ä¹…
           end;
         end else begin
           var fp := I.Substring(I.IndexOf('2'), I.Length);
           var pg := RunDosBack1(Concat('ping -n 1 ', fp));
-          if (pg.IndexOf('³¬Ê±') <> -1) or (pg.tolower.IndexOf('timeout') <> -1) then begin
+          if (pg.IndexOf('è¶…æ—¶') <> -1) or (pg.tolower.IndexOf('timeout') <> -1) then begin
             form_mainform.listbox_view_all_ipv6_ip.Items.Add(Concat('[', GetLanguage('listbox_view_all_ipv6_ip.caption.temp'), '][', GetLanguage('listbox_view_all_ipv6_ip.caption.timeout'), ']', fp));
           end else begin
-            form_mainform.listbox_view_all_ipv6_ip.Items.Add(Concat('[', GetLanguage('listbox_view_all_ipv6_ip.caption.temp'), ']', fp));  //Èç¹û²»ÊÇÔòÌí¼ÓÎªÓÀ¾Ã
+            form_mainform.listbox_view_all_ipv6_ip.Items.Add(Concat('[', GetLanguage('listbox_view_all_ipv6_ip.caption.temp'), ']', fp));  //å¦‚æœä¸æ˜¯åˆ™æ·»åŠ ä¸ºæ°¸ä¹…
           end;
         end;
       end;
-    end; //ÅĞ¶ÏÊÇ·ñÎ´¼ì²âµ½IPv6¹«ÍøµØÖ·¡£
+    end; //åˆ¤æ–­æ˜¯å¦æœªæ£€æµ‹åˆ°IPv6å…¬ç½‘åœ°å€ã€‚
     if form_mainform.listbox_view_all_ipv6_ip.Items.Count = 0 then begin
       form_mainform.label_online_ipv6_return_value.Caption := GetLanguage('label_online_ipv6_return_value.caption.not_support_ipv6');
     end else begin
       form_mainform.label_online_ipv6_return_value.Caption := GetLanguage('label_online_ipv6_return_value.caption.check_ipv6_success');
     end;
-  end)
+  end).Start;
 end;
-//¸´ÖÆIPv6¹«ÍøIPÓë¶Ë¿Ú
+//å¤åˆ¶IPv6å…¬ç½‘IPä¸ç«¯å£
 procedure CopyIPv6Link;
 begin
   try
@@ -71,13 +71,13 @@ begin
   ClipBoard.SetTextBuf(pchar(Concat('[', mip, ']:', form_mainform.edit_online_ipv6_port.Text)));
   MyMessagebox(GetLanguage('messagebox_ipv6.copy_link_success.caption'), GetLanguage('messagebox_ipv6.copy_link_success.text'), MY_PASS, [mybutton.myOK]);
 end;
-//¶Ë¿ÚºÅ±»ĞŞ¸Ä
+//ç«¯å£å·è¢«ä¿®æ”¹
 procedure ChangeIPv6Port;
 begin
   if form_mainform.listbox_view_all_ipv6_ip.ItemIndex < 0 then exit;
   form_mainform.label_online_ipv6_return_value.Caption := Concat(GetLanguage('label_online_ipv6_return_value.caption.current_ipv6_ip').Replace('${ip}', mip), ':', form_mainform.edit_online_ipv6_port.Text);
 end;
-//ÁĞ±í¿òĞŞ¸Ä
+//åˆ—è¡¨æ¡†ä¿®æ”¹
 procedure ChangeIPv6List;
 begin
   if form_mainform.listbox_view_all_ipv6_ip.ItemIndex < 0 then exit;

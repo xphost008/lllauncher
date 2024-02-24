@@ -3,7 +3,7 @@
 interface
 
 uses
-  SysUtils, Forms, Dialogs, FileCtrl, ShellAPI, Windows, Threading, Winapi.msxml, Classes,
+  SysUtils, Forms, Dialogs, FileCtrl, ShellAPI, Windows, Winapi.msxml, Classes,
   Winapi.ActiveX, StrUtils, JSON, Generics.Collections;
 
 procedure InitCustomDl;
@@ -252,30 +252,20 @@ begin
       1: begin
         var dui := Concat('https://maven.minecraftforge.net/net/minecraftforge/forge/', ml, '/forge-', ml, '-installer.jar');
         form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-        TTask.Run(procedure begin
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Forge').Replace('${source}', '官方'));
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(dui, path, '', mbiggest_thread, 0, 1);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modloader.download_success'));
           MyMessagebox(GetLanguage('messagebox_modloader.download_modloader_success.caption'), GetLanguage('messagebox_modloader.download_modloader_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       end;
-      2..3: begin
+      2: begin
         var mcv := (loaderJSON[form_mainform.listbox_download_modloader_forge.ItemIndex] as TJSONObject).GetValue('mcversion').Value;
         var fov := (loaderJSON[form_mainform.listbox_download_modloader_forge.ItemIndex] as TJSONObject).GetValue('version').Value;
-        var dui := '';
-        var src := '';
-        case mdownload_source of
-          2: begin
-            dui := Concat('https://bmclapi2.bangbang93.com/forge/download?mcversion=', mcv, '&version=', fov, '&category=installer&format=jar');
-            src := 'BMCLAPI';
-          end;
-          3: begin
-            dui := Concat('https://download.mcbbs.net/forge/download?mcversion=', mcv, '&version=', fov, '&category=installer&format=jar');
-            src := 'MCBBS';
-          end;
-        end;
+        var dui := Concat('https://bmclapi2.bangbang93.com/forge/download?mcversion=', mcv, '&version=', fov, '&category=installer&format=jar');
+        var src := 'BMCLAPI';
         try
           var bch := (loaderJSON[form_mainform.listbox_download_modloader_forge.ItemIndex] as TJSONObject).GetValue('branch').Value;
           if bch <> 'null' then begin
@@ -283,14 +273,14 @@ begin
           end;
         except end;
         form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-        TTask.Run(procedure begin
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Forge').Replace('${source}', src));
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(dui, path, '', mbiggest_thread, 0, 1);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modloader.download_success'));
           MyMessagebox(GetLanguage('messagebox_modloader.download_modloader_success.caption'), GetLanguage('messagebox_modloader.download_modloader_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       end;
     end;
   end else if form_mainform.listbox_download_modloader_fabric.ItemIndex <> -1 then begin
@@ -311,20 +301,16 @@ begin
         dui := Concat('https://bmclapi2.bangbang93.com/maven/net/fabricmc/fabric-installer/', ml, '/fabric-installer-', ml, '.jar');
         src := 'BMCLAPI';
       end;
-      3: begin
-        dui := Concat('https://download.mcbbs.net/maven/net/fabricmc/fabric-installer/', ml, '/fabric-installer-', ml, '.jar');
-        src := 'MCBBS';
-      end;
     end;
     form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-    TTask.Run(procedure begin
+    TThread.CreateAnonymousThread(procedure begin
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Fabric').Replace('${source}', src));
       form_mainform.button_progress_clean_download_list.Enabled := false;
       DownloadStart(dui, path, '', mbiggest_thread, 0, 1);
       form_mainform.button_progress_clean_download_list.Enabled := true;
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modloader.download_success'));
       MyMessagebox(GetLanguage('messagebox_modloader.download_modloader_success.caption'), GetLanguage('messagebox_modloader.download_modloader_success.text'), MY_PASS, [mybutton.myOK]);
-    end);
+    end).Start;
   end else if form_mainform.listbox_download_modloader_quilt.ItemIndex <> -1 then begin
     var ml := form_mainform.listbox_download_modloader_quilt.Items[form_mainform.listbox_download_modloader_quilt.ItemIndex];
     if ml.Contains(GetLanguage('listbox_select_modloader.item.has_no_data')) then begin
@@ -343,20 +329,16 @@ begin
         dui := Concat('https://bmclapi2.bangbang93.com/maven/org/quiltmc/quilt-installer/', ml, '/quilt-installer-', ml, '.jar');
         src := 'BMCLAPI';
       end;
-      3: begin
-        dui := Concat('https://download.mcbbs.net/maven/org/quiltmc/quilt-installer/', ml, '/quilt-installer-', ml, '.jar');
-        src := 'MCBBS';
-      end;
     end;
     form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-    TTask.Run(procedure begin
+    TThread.CreateAnonymousThread(procedure begin
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Quilt').Replace('${source}', src));
       form_mainform.button_progress_clean_download_list.Enabled := false;
       DownloadStart(dui, path, '', mbiggest_thread, 0, 1);
       form_mainform.button_progress_clean_download_list.Enabled := true;
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modloader.download_success'));
       MyMessagebox(GetLanguage('messagebox_modloader.download_modloader_success.caption'), GetLanguage('messagebox_modloader.download_modloader_success.text'), MY_PASS, [mybutton.myOK]);
-    end);
+    end).Start;
   end else if form_mainform.listbox_download_modloader_neoforge.ItemIndex <> -1 then begin
     var ml := form_mainform.listbox_download_modloader_neoforge.Items[form_mainform.listbox_download_modloader_neoforge.ItemIndex];
     if ml.Contains(GetLanguage('listbox_select_modloader.item.has_no_data')) then begin
@@ -375,43 +357,33 @@ begin
           dui := Concat('https://maven.neoforged.net/releases/net/neoforged/neoforge/', ml, '/neoforge-', ml, '-installer.jar');
         end;
         form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-        TTask.Run(procedure begin
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'NeoForge').Replace('${source}', 'Official'));
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(dui, path, '', mbiggest_thread, 0, 1);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modloader.download_success'));
           MyMessagebox(GetLanguage('messagebox_modloader.download_modloader_success.caption'), GetLanguage('messagebox_modloader.download_modloader_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       end;
-      2..3: begin
-        var dui := '';
-        var src := '';
+      2: begin
         var path := '';
         if form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex] = '1.20.1' then begin
           path := Concat(mcustom_path, '\forge-', ml, '-installer.jar');
         end else begin
           path := Concat(mcustom_path, '\neoforge-', ml, '-installer.jar');
         end;
-        case mdownload_source of
-          2: begin
-            dui := Concat('https://bmclapi2.bangbang93.com/neoforge/version/', ml, '/download/installer.jar');
-            src := 'BMCLAPI';
-          end;
-          3: begin
-            dui := Concat('https://download.mcbbs.net/neoforge/version/', ml, '/download/installer.jar');
-            src := 'MCBBS';
-          end;
-        end;
+        var dui := Concat('https://bmclapi2.bangbang93.com/neoforge/version/', ml, '/download/installer.jar');
+        var src := 'BMCLAPI';
         form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-        TTask.Run(procedure begin
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'NeoForge').Replace('${source}', src));
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(dui, path, '', mbiggest_thread, 0, 1);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modloader.download_success'));
           MyMessagebox(GetLanguage('messagebox_modloader.download_modloader_success.caption'), GetLanguage('messagebox_modloader.download_modloader_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       end;
     end;
   end else begin
@@ -421,7 +393,7 @@ end;
 //刷新模组加载器版本
 procedure RefreshModLoader;
 var
-  it: array of ITask;
+  it: array of TMyThread;
 begin
   SetLength(it, 4);
   form_mainform.button_download_modloader_download.Enabled := false;
@@ -430,10 +402,10 @@ begin
   form_mainform.listbox_download_modloader_fabric.Items.Clear;
   form_mainform.listbox_download_modloader_quilt.Items.Clear;
   form_mainform.listbox_download_modloader_neoforge.Items.Clear;
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     case mdownload_source of
       1: begin
-        it[0] := TTask.Run(procedure begin
+        it[0] := TMyThread.CreateAnonymousThread(procedure begin
           try
             var mcver := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
             var forve := GetWebText('https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml');
@@ -442,15 +414,18 @@ begin
             form_mainform.listbox_download_modloader_forge.Items.Add(GetLanguage('listbox_select_modloader.item.has_no_data'));
           end;
         end);
-        it[1] := TTask.Run(procedure begin
+        it[0].Start;
+        it[1] := TMyThread.CreateAnonymousThread(procedure begin
           var fabve := GetWebText('https://maven.fabricmc.net/net/fabricmc/fabric-installer/maven-metadata.xml');
           SoluteFabricXML(fabve);
         end);
-        it[2] := TTask.Run(procedure begin
+        it[1].Start;
+        it[2] := TMyThread.CreateAnonymousThread(procedure begin
           var quive := GetWebText('https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-installer/maven-metadata.xml');
           SoluteQuiltXML(quive);
         end);
-        it[3] := TTask.Run(procedure begin
+        it[2].Start;
+        it[3] := TMyThread.CreateAnonymousThread(procedure begin
           try
             var mcver := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
             var tmp := SplitString(mcver, '.');
@@ -466,9 +441,10 @@ begin
             form_mainform.listbox_download_modloader_neoforge.Items.Add(GetLanguage('listbox_select_modloader.item.has_no_data'));
           end;
         end);
+        it[3].Start;
       end;
       2: begin
-        it[0] := TTask.Run(procedure begin
+        it[0] := TMyThread.CreateAnonymousThread(procedure begin
           try
             var mcver := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
             var forve := GetWebText(Concat('https://bmclapi2.bangbang93.com/forge/minecraft/', mcver));
@@ -477,15 +453,18 @@ begin
             form_mainform.listbox_download_modloader_forge.Items.Add(GetLanguage('listbox_select_modloader.item.has_no_data'));
           end;
         end);
-        it[1] := TTask.Run(procedure begin
+        it[0].Start;
+        it[1] := TMyThread.CreateAnonymousThread(procedure begin
           var fabve := GetWebText('https://bmclapi2.bangbang93.com/maven/net/fabricmc/fabric-installer/maven-metadata.xml');
           SoluteFabricXML(fabve);
         end);
-        it[2] := TTask.Run(procedure begin
+        it[1].Start;
+        it[2] := TMyThread.CreateAnonymousThread(procedure begin
           var quive := GetWebText('https://bmclapi2.bangbang93.com/maven/org/quiltmc/quilt-installer/maven-metadata.xml');
           SoluteQuiltXML(quive);
         end);
-        it[3] := TTask.Run(procedure begin
+        it[2].Start;
+        it[3] := TMyThread.CreateAnonymousThread(procedure begin
           try
             var mcver := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
             var forve := GetWebText(Concat('https://bmclapi2.bangbang93.com/neoforge/list/', mcver));
@@ -494,37 +473,15 @@ begin
             form_mainform.listbox_download_modloader_neoforge.Items.Add(GetLanguage('listbox_select_modloader.item.has_no_data'));
           end;
         end);
-      end;
-      3: begin
-        it[0] := TTask.Run(procedure begin
-          try
-            var mcver := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
-            var forve := GetWebText(Concat('https://download.mcbbs.net/forge/minecraft/', mcver));
-            CoInitialize(nil); SoluteForgeJSON(forve); CoUnInitialize;
-          except
-            form_mainform.listbox_download_modloader_forge.Items.Add(GetLanguage('listbox_select_modloader.item.has_no_data'));
-          end;
-        end);
-        it[1] := TTask.Run(procedure begin
-          var fabve := GetWebText('https://download.mcbbs.net/maven/net/fabricmc/fabric-installer/maven-metadata.xml');
-          SoluteFabricXML(fabve);
-        end);
-        it[2] := TTask.Run(procedure begin
-          var quive := GetWebText('https://download.mcbbs.net/maven/org/quiltmc/quilt-installer/maven-metadata.xml');
-          SoluteQuiltXML(quive);
-        end);
-        it[3] := TTask.Run(procedure begin
-          try
-            var mcver := form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex];
-            var forve := GetWebText(Concat('https://download.mcbbs.net/neoforge/list/', mcver));
-            CoInitialize(nil); SoluteNeoForgeJSON(forve); CoUnInitialize;
-          except
-            form_mainform.listbox_download_modloader_neoforge.Items.Add(GetLanguage('listbox_select_modloader.item.has_no_data'));
-          end;
-        end);
+        it[3].Start;
       end;
     end;
-    TTask.WaitForAll(it);
+    for var I := 0 to 3 do begin
+      if Assigned(it[I]) then begin
+        it[I].WaitFor;
+        it[I].Destroy;
+      end;
+    end;
     form_mainform.button_download_modloader_download.Enabled := true;
     form_mainform.button_download_modloader_refresh.Enabled := true;
   end);
@@ -550,7 +507,7 @@ begin
   form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
   if FileExists(path) then begin
     if MyMessagebox(GetLanguage('messagebox_customdl.file_is_exists.caption'), GetLanguage('messagebox_customdl.file_is_exists.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 2 then begin
-      TTask.Run(procedure begin
+      TThread.CreateAnonymousThread(procedure begin
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.customdl.start_custom_download'));
         DownloadStart(url, path, '', mbiggest_thread, 0, 1);
         if FileExists(path) then begin
@@ -566,10 +523,10 @@ begin
         end else begin
           MyMessagebox(GetLanguage('messagebox_customdl.custom_download_error.caption'), GetLanguage('messagebox_customdl.custom_download_error.text'), MY_ERROR, [mybutton.myOK]);
         end;
-      end);
+      end).Start;
     end;
   end else begin
-    TTask.Run(procedure begin
+    TThread.CreateAnonymousThread(procedure begin
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.customdl.start_custom_download'));
       DownloadStart(url, path, '', mbiggest_thread, 0, 1);
       if FileExists(path) then begin
@@ -585,7 +542,7 @@ begin
       end else begin
         MyMessagebox(GetLanguage('messagebox_customdl.custom_download_error.caption'), GetLanguage('messagebox_customdl.custom_download_error.text'), MY_ERROR, [mybutton.myOK]);
       end;
-    end);
+    end).Start;
   end;
 end;
 //保存路径编辑框输入
@@ -596,7 +553,7 @@ end;
 //打开下载路径
 procedure OpenSavePath;
 begin
-  if DirectoryExists(mcustom_path) then begin
+  if SysUtils.DirectoryExists(mcustom_path) then begin
     ShellExecute(Application.Handle, 'open', 'explorer.exe', pchar(mcustom_path), nil, SW_SHOWNORMAL);
   end else begin
     MyMessagebox(GetLanguage('messagebox_customdl.open_save_path_error.caption'), GetLanguage('messagebox_customdl.open_save_path_error.text'), MY_ERROR, [mybutton.myOK]);
@@ -613,7 +570,7 @@ end;
 procedure InitCustomDl;
 begin
   mcustom_path := LLLini.ReadString('Version', 'SelectSaveDirectory', '');
-  if (mcustom_path = '') or (not DirectoryExists(mcustom_path)) then begin
+  if (mcustom_path = '') or (not SysUtils.DirectoryExists(mcustom_path)) then begin
     mcustom_path := ExtractFileDir(Application.ExeName);
     LLLini.WriteString('Version', 'SelectSaveDirectory', mcustom_path)
   end;
@@ -622,7 +579,7 @@ end;
 //保存
 procedure SaveCustomDl;
 begin
-  if (mcustom_path = '') or (not DirectoryExists(mcustom_path)) then begin
+  if (mcustom_path = '') or (not SysUtils.DirectoryExists(mcustom_path)) then begin
     mcustom_path := '';
   end;
   LLLini.WriteString('Version', 'SelectSaveDirectory', mcustom_path)

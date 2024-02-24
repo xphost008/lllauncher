@@ -12,6 +12,7 @@ LittleLimboLauncher/*.local
 LittleLimboLauncher/*.identcache
 LittleLimboLauncher/*.res
 LittleLimboLauncher/*.bat
+LittleLimboLauncher/*.delphilsp.json
 
 # ignore my custom component
 # Because It is my experimental function

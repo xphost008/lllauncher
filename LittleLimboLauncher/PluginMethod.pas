@@ -11,14 +11,6 @@ uses
 
 
 procedure CreateFirstPluginForm(name, json: String);
-//type
-//  TPluginForm = class
-//  private
-//    procedure PluginButtonClick(Sender: TObject);
-//  public
-//    class procedure CreatePluginForm(nam: String; json: TJsonObject);
-//  end;
-
 
 implementation
 

@@ -3,10 +3,12 @@
 interface
 
 uses
-  Vcl.Controls, JSON, Windows, Math, SysUtils, Forms, Classes, IOUtils, Threading, StrUtils, Registry, Dialogs;
+  Vcl.Controls, JSON, Windows, Math, SysUtils, Forms, Classes, IOUtils, StrUtils, Registry,
+  Dialogs, Generics.Collections;
 
 var
-  mwindow_width, mwindow_height, mmax_memory: Integer;
+  mwindow_width, mwindow_height: Integer;
+  mmax_memory, mtotal_memory, mavail_memory: Integer;
   mjava_path, mcustom_info, mwindow_title: String;
   mpre_script, mafter_script, madd_jvm, madd_game: String;
   JavaJSON: TJSONObject;
@@ -73,7 +75,7 @@ var
 begin
   if MyMessagebox(GetLanguage('messagebox_launch.is_full_scan_java.caption'), GetLanguage('messagebox_launch.is_full_scan_java.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
   pan := TDirectory.GetLogicalDrives;
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     for var I in pan do begin
       form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_login.caption.full_scan_java').Replace('${drive}', LeftStr(I, 1));
       try
@@ -86,7 +88,7 @@ begin
     end;
     form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_login.caption.full_scan_java_success');
     MyMessagebox(GetLanguage('messagebox_launch.full_scan_java_success.caption'), GetLanguage('messagebox_launch.full_scan_java_success.text'), MY_PASS, [mybutton.myOK]);
-  end);
+  end).Start;
 end;
 //在注册表中扫描Java。。
 function SearchJavaOnRegedit: Boolean;
@@ -132,7 +134,7 @@ begin
   GetMem(buf, 255);
   ss := 255;
   GetUserName(buf, ss);
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_logic.caption.search_regedit');
     if not SearchJavaOnRegedit then begin
       form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_login.caption.basic_scan_java_search_regedit_error');
@@ -155,7 +157,7 @@ begin
     if DirectoryExists(Concat(AppData, '\LLLauncher\Java')) then SearchJava(Concat(AppData, '\LLLauncher\Java'));
     form_mainform.label_launch_java_logic.Caption := GetLanguage('label_launch_java_logic.caption.basic_scan_java_success');
     MyMessagebox(GetLanguage('messagebox_launch.basic_scan_java_success.caption'), GetLanguage('messagebox_launch.basic_scan_java_success.text'), MY_PASS, [mybutton.myOK])
-  end);
+  end).Start;
 end;
 //移除Java
 procedure RemoveJava();
@@ -180,7 +182,7 @@ begin
     3: ymeta := ymeta.Replace('https://piston-meta.mojang.com', 'https://download.mcbbs.net');
   end;
   form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     var jpath := Concat(AppData, '\LLLauncher\Java\', ver);
     if not DirectoryExists(jpath) then ForceDirectories(jpath);
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.java.get_java_metadata'));
@@ -208,7 +210,7 @@ begin
     DownloadStart(murl, jpath, '', mbiggest_thread, mdownload_source, 3);
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.java.download_java_success'));
     MyMessagebox(GetLanguage('messagebox_launch.download_java_success.caption'), GetLanguage('messagebox_launch.download_java_success.text'), MY_PASS, [mybutton.myOK]);
-  end);
+  end).Start;
 end;
 //手动导入Java
 procedure ManualImportJava();
@@ -293,7 +295,7 @@ begin
   form_mainform.scrollbar_launch_window_height.Position := mwindow_height;
   form_mainform.label_launch_window_height.Caption := GetLanguage('label_launch_window_height.caption').Replace('${window_height}', inttostr(mwindow_height));
   form_mainform.scrollbar_launch_max_memory.Position := mmax_memory;
-  form_mainform.label_launch_max_memory.Caption := GetLanguage('label_launch_max_memory.caption').Replace('${max_memory}', inttostr(mmax_memory));
+  form_mainform.label_launch_max_memory.Caption := GetLanguage('label_launch_max_memory.caption').Replace('${memory}', inttostr(mmax_memory)).Replace('${total_memory}', inttostr(mtotal_memory)).Replace('${avail_memory}', inttostr(mavail_memory));
   form_mainform.edit_launch_window_title.Text := mwindow_title;
   form_mainform.edit_launch_custom_info.Text := mcustom_info;
   form_mainform.edit_launch_pre_launch_script.Text := LLLini.ReadString('Version', 'Pre-LaunchScript', '');

@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, IOUtils, StrUtils, Winapi.Messages, ShellAPI, Windows, Forms, JSON,
-  pngimage, Threading, NetEncoding, Generics.Collections;
+  pngimage, NetEncoding, Generics.Collections;
 
 function InitManage: Boolean;
 procedure DragFileInWindow(var Msg: TMessage);
@@ -46,6 +46,7 @@ var
 //自制Ini读取
 function TIni2File.ReadInteger(key: String; default: Integer): Integer;
 begin
+  result := -1;
   var b := false;
   var c := false;
   for var I in rf do begin
@@ -65,6 +66,7 @@ begin
 end;
 function TIni2File.ReadString(key, default: String): String;
 begin
+  result := '';
   for var I in rf do begin
     if I.Trim.IndexOf('#') = 0 then continue;
     var ss := SplitString(I, '=');
@@ -164,12 +166,13 @@ begin
         var mcsp := Concat(mccp, '\versions\', JudgeException(1, 'name', false));
         if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
         ForceDirectories(mcsp);
-        TTask.Run(procedure begin
+        form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(Concat('Modrinth@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       except
         MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
         exit;
@@ -183,11 +186,7 @@ begin
     var ml := JudgeException(5, 'uid', true);
     var mlv := JudgeException(5, 'version', true);
     var pls := JudgeException(1, 'icon', true);
-    var ss: TStream := nil;
-    if not pls.IsEmpty then begin
-      var base := TNetEncoding.Base64.DecodeStringToBytes(pls);
-      ss := TBytesStream.Create(base);
-    end;
+    var ss := Base64ToStream(pls);
     if MyPicMsgBox(mo.ReadString('name', ''), GetLanguage('picturebox_manage.import_multimc_modpack.text')
       .Replace('${modpack_game}', 'MultiMC')
       .Replace('${modpack_name}', mo.ReadString('name', ''))
@@ -201,13 +200,14 @@ begin
         var mcsp := Concat(mccp, '\versions\', mo.ReadString('name', ''));
         if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
         ForceDirectories(mcsp);
-        TTask.Run(procedure begin
+        form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(Concat('MultiMC@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
           MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       except
         DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
         MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
@@ -218,11 +218,7 @@ begin
     var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\mcbbs.packmeta'));
     ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
     var pls := JudgeException(1, 'icon', true);
-    var ss: TStream := nil;
-    if not pls.IsEmpty then begin
-      var base := TNetEncoding.Base64.DecodeStringToBytes(pls);
-      ss := TBytesStream.Create(base);
-    end;
+    var ss := Base64ToStream(pls);
     var mcv := JudgeException(7, 'version', false);
     var ml := JudgeException(8, 'id', true);
     var mlv := JudgeException(8, 'version', true);
@@ -231,7 +227,7 @@ begin
       .Replace('${modpack_name}', JudgeException(1, 'name', false))
       .Replace('${modpack_version}', JudgeException(1, 'version', false))
       .Replace('${modpack_author}', JudgeException(1, 'author', false))
-      .Replace('${modpack_summary}', JudgeException(1, 'description', false).Replace(#13, #13#10).Replace(#10, #13#10))
+      .Replace('${modpack_summary}', Concat(#13#10, JudgeException(1, 'description', false).Replace(#13, #13#10).Replace(#10, #13#10)))
       .Replace('${modpack_update_url}', JudgeException(1, 'fileApi', false))
       .Replace('${modpack_official_url}', JudgeException(1, 'url', false))
       .Replace('${modpack_mcbbs}', IfThen(JudgeException(9, 'mcbbs', true).isEmpty, GetLanguage('picturebox_resource.has_no_data'), Concat('https://www.mcbbs.net/thread-', JudgeException(9, 'mcbbs', true), '-1-1.html')))
@@ -245,13 +241,14 @@ begin
         var mcsp := Concat(mccp, '\versions\', JudgeException(1, 'name', false));
         if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
         ForceDirectories(mcsp);
-        TTask.Run(procedure begin
+        form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(Concat('MCBBS@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
           MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       except
         DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
         MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
@@ -278,13 +275,14 @@ begin
         var mcsp := Concat(mccp, '\versions\', JudgeException(1, 'name', false));
         if DirectoryExists(mcsp) then DeleteDirectory(mcsp);
         ForceDirectories(mcsp);
-        TTask.Run(procedure begin
+        form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(Concat('CurseForge@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
           form_mainform.button_progress_clean_download_list.Enabled := true;
           DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
           MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       except
         DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
         MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);

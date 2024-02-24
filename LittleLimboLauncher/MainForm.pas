@@ -5,10 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
-  ExtCtrls, Controls, Vcl.MPlayer, Log4Delphi, Vcl.Imaging.jpeg, Generics.Collections, FileCtrl,
-  Vcl.Buttons, Threading, ClipBrd, RegularExpressions, IOUtils, System.StrUtils, Types,
-  IdBaseComponent, IdComponent, IdCustomTCPServer, IdCustomHTTPServer, NetEncoding,
-  IdHTTPServer;
+  ExtCtrls, Controls, MPlayer, Log4Delphi, Imaging.jpeg, Generics.Collections, FileCtrl,
+  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding;
 
 type
   Tform_mainform = class(TForm)
@@ -342,8 +340,6 @@ type
     edit_export_update_link: TEdit;
     label_export_official_website: TLabel;
     edit_export_official_website: TEdit;
-    label_export_mcbbs_tid: TLabel;
-    edit_export_mcbbs_tid: TEdit;
     label_export_authentication_server: TLabel;
     edit_export_authentication_server: TEdit;
     label_export_additional_game: TLabel;
@@ -368,6 +364,7 @@ type
     c1: TMenuItem;
     button_export_remove_icon: TButton;
     image_mainform_login_avatar: TImage;
+    timer_check_memory: TTimer;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -559,6 +556,7 @@ type
     procedure button_export_add_iconClick(Sender: TObject);
     procedure c1Click(Sender: TObject);
     procedure button_export_remove_iconClick(Sender: TObject);
+    procedure timer_check_memoryTimer(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -581,7 +579,7 @@ var
 var
   mopen_time: String;
   mopen_number, mlaunch_number: Integer;
-  mred, mgreen, mblue, mwindow_alpha, mcontrol_alpha: Integer;
+  mcolor, mwindow_alpha, mcontrol_alpha: Integer;
   mgradient_value, mgradient_step: Integer;
   mis_gradient: Boolean;
   mchoose_skin, mbiggest_thread, mdownload_source: Integer;
@@ -630,27 +628,49 @@ begin
           var f := GetFile(I);
           var ise := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
           try
-            f := GetWebText(ise.GetValue('url').Value);
-            if f = '' then begin
-              Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
-              messagebox(Handle, '获取的URL内容为空，请重新输入一个网址！', '获取的URL内容为空', MB_ICONERROR);
-              exit;
+            var s := ise.GetValue('suffix').Value;
+            if not s.Equals('json') then raise Exception.Create('Error from read suffix');
+            try
+              f := Base64ToStream(ise.GetValue('base64').Value).DataString;
+              if f.IsEmpty then begin
+                Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+                messagebox(Handle, '获取的Base64内容为空，请重新输入一个网址！', '获取的Base64内容为空', MB_ICONERROR);
+                exit;
+              end;
+            except
+              try
+                f := GetFile(ise.GetValue('path').Value);
+                if f.IsEmpty then begin
+                  Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+                  messagebox(Handle, '获取的Path内容为空，请重新输入一个网址！', '获取的Path内容为空', MB_ICONERROR);
+                  exit;
+                end;
+                ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
+              except
+                f := GetWebText(ise.GetValue('url').Value);
+                if f.IsEmpty then begin
+                  Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+                  messagebox(Handle, '获取的URL内容为空，请重新输入一个网址！', '获取的URL内容为空', MB_ICONERROR);
+                  exit;
+                end;
+                ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
+              end;
             end;
-            ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
-          except end;
+          except
+          end;
           try
-            if ise.GetValue('name').Value = '' then raise Exception.Create('Plugin Format Exception');
+            if ise.GetValue('plugin_name').Value = '' then raise Exception.Create('Plugin Format Exception');
           except
             Log.Write(Concat('插件加载失败'), LOG_ERROR, LOG_PLUGIN);
             MyMessagebox(GetLanguage('messagebox_plugin.plugin_grammar_error.caption'), GetLanguage('messagebox_plugin.plugin_grammar_error.text'), MY_ERROR, [mybutton.myOK]);
             exit;
           end;
           Log.Write('插件解析成功，开始执行！', LOG_INFO, LOG_PLUGIN);
-          CreateFirstPluginForm(ExtractFileName(I).Replace('.json', ''), f);
+          CreateFirstPluginForm(ChangeFileExt(ExtractFileName(I), ''), f);
           exit;
         end else continue;
       end else if RightStr(I, 4) = '.dll' then begin
-        if mic.IndexOf(ExtractFileName(I).Replace('&', '')) <> -1 then begin
+        if mic.IndexOf(ExtractFileName(I).Replace('&', '').Replace('[', '').Replace(']', '')) <> -1 then begin
           var inst := LoadLibrary(pchar(I));
           FreeLibrary(inst);
         end else continue;
@@ -920,7 +940,39 @@ end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 begin
-  showmessage(IntToStr(MyMultiButtonBox('Hello', MY_ERROR, ['World!', 'Who are you', 'you are pig!', 'good morning', 'nice to meet you', 'wtf you say!', 'are you crazy?', 'meow', 'hhhh'])));
+//  v.FileName := Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\BackgroundMusic\abc');
+//  showmessage(inttostr(ConvertHexToColor('#FF4455')));
+//  showmessage(inttostr(rgb(85, 68, 255)));
+//  showmessage(inttostr(rgb(255, 0, 0)));
+//  showmessage(inttostr(rgb(255, 255, 255)));
+//  showmessage(inttostr(rgb(240,240,240)));
+//  showmessage(inttostr(rgb(50,205,50)));
+//  showmessage(inttostr(rgb(255,215,0)));
+//  showmessage(inttostr(rgb(189,0,0)));
+//  showmessage(inttostr(rgb(0,191,255)));
+//  showmessage(inttostr(rgb(255,110,180)));
+//  form_mainform.scrollbox_isolation.Align := alClient;
+//  showmessage(Base64ToStream('5rWB6YeP5Y2h5aSN5Yi25Yiw5rWP6KeI5Zmo55yLIGh0dHBzOi8vc3VvLnl0LzBtUUpuNEE=').DataString);
+//  showmessage(GetFileHash('D:\Workspace\DelphiWork\DelphiWorkReset\README.md'));
+//  ClipBoard.SetTextBuf(pchar(inttostr(rgb(255, 10, 10))));
+//  showmessage(inttostr(rgb(255, 10, 10)));
+//  ClipBoard.SetTextBuf(pchar(inttostr(rgb(255, 215, 10))));
+//  showmessage(inttostr(rgb(255, 215, 10)));
+//  ClipBoard.SetTextBuf(pchar(inttostr(rgb(10, 10, 255))));
+//  showmessage(inttostr(rgb(10, 10, 255)));
+//  ClipBoard.SetTextBuf(pchar(inttostr(rgb(10, 192, 10))));
+//  showmessage(inttostr(rgb(10, 192, 10)));
+//  var ss := '{"f":1}';
+//  var j := TJSONObject.ParseJSONValue(ss) as TJSONObject;
+//  showmessage(j.GetValue('f').Value);
+//  showmessage(j.GetValue<String>('f'));
+//  var ss := 'aaasssbbb';
+//  var s := SplitString(ss, 's');
+//  for var I in s do showmessage(I);
+//  showmessage(IntToStr(MyMultiButtonBox('Hello', MY_ERROR, ['World!', 'Who are you', 'you are pig!', 'good morning', 'nice to meet you', 'wtf you say!', 'are you crazy?', 'meow', 'hhhh'])));
+//  label1.AutoSize := false;
+//  label1.WordWrap := true;
+//  label1.Caption := '1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111';
 end;
 //下载部分：查看MC版本信息
 procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
@@ -952,11 +1004,8 @@ procedure Tform_mainform.button_custom_colorClick(Sender: TObject);
 begin
   var CD := TColorDialog.Create(nil);
   if CD.Execute() then begin
-    var cor := CD.Color;
-    mred := cor and $FF;
-    mgreen := (cor and $FF00) shr 8;
-    mblue := (cor and $FF0000) shr 16;
-    self.Color := rgb(mred, mgreen, mblue);
+    mcolor := CD.Color;
+    self.Color := mcolor;
   end;
 end;
 //自定义下载：选择路径
@@ -1032,10 +1081,8 @@ end;
 //背景设置：可爱粉
 procedure Tform_mainform.button_cute_colorClick(Sender: TObject);
 begin
-  mred := 255;
-  mgreen := 110;
-  mblue := 180;
-  self.Color := rgb(mred, mgreen, mblue);
+  mcolor := 11824895;
+  self.Color := mcolor;
 end;
 //账号部分：删除账号
 procedure Tform_mainform.button_delete_accountClick(Sender: TObject);
@@ -1115,10 +1162,8 @@ end;
 //背景设置：小草绿
 procedure Tform_mainform.button_grass_colorClick(Sender: TObject);
 begin
-  mred := 50;
-  mgreen := 205;
-  mblue := 50;
-  self.Color := rgb(mred, mgreen, mblue);
+  mcolor := 3329330;
+  self.Color := mcolor;
 end;
 //独立设置：Java路径选择按钮
 procedure Tform_mainform.button_isolation_choose_javaClick(Sender: TObject);
@@ -1245,10 +1290,8 @@ end;
 //背景设置：默认白
 procedure Tform_mainform.button_normal_colorClick(Sender: TObject);
 begin
-  mred := 240;
-  mgreen := 240;
-  mblue := 240;
-  self.Color := rgb(mred, mgreen, mblue);
+  mcolor := 15790320;
+  self.Color := mcolor;
 end;
 //账号部分：通过正版用户名获取正版UUID
 procedure Tform_mainform.button_offline_name_to_uuidClick(Sender: TObject);
@@ -1259,9 +1302,9 @@ begin
     exit;
   end;
   label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.name_to_uuid_start');
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     edit_offline_uuid.Text := NameToUUID(e);
-  end);
+  end).Start;
 end;
 //账号部分：通过正版UUID获取正版用户名
 procedure Tform_mainform.button_offline_uuid_to_nameClick(Sender: TObject);
@@ -1272,9 +1315,9 @@ begin
     exit;
   end;
   label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.uuid_to_name_start');
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     edit_offline_name.Text := UUIDToName(e);
-  end);
+  end).Start;
 end;
 //IPv6联机：联机提示
 procedure Tform_mainform.button_online_ipv6_tipClick(Sender: TObject);
@@ -1422,26 +1465,20 @@ end;
 //背景设置：天空蓝
 procedure Tform_mainform.button_sky_colorClick(Sender: TObject);
 begin
-  mred := 0;
-  mgreen := 191;
-  mblue := 255;
-  self.Color := rgb(mred, mgreen, mblue);
+  mcolor := 16760576;
+  self.Color := mcolor;
 end;
 //背景设置：苏丹红
 procedure Tform_mainform.button_sultan_colorClick(Sender: TObject);
 begin
-  mred := 189;
-  mgreen := 0;
-  mblue := 0;
-  self.Color := rgb(mred, mgreen, mblue);
+  mcolor := 189;
+  self.Color := mcolor;
 end;
 //背景设置：日落黄
 procedure Tform_mainform.button_sun_colorClick(Sender: TObject);
 begin
-  mred := 255;
-  mgreen := 215;
-  mblue := 0;
-  self.Color := rgb(mred, mgreen, mblue);
+  mcolor := 55295;
+  self.Color := mcolor;
 end;
 //账号部分：检测Authlib是否有更新
 procedure Tform_mainform.button_thirdparty_check_authlib_updateClick(
@@ -1706,9 +1743,7 @@ begin
     LLLini.WriteInteger('Document', 'WindowsHeight', 480);
     LLLini.WriteInteger('Document', 'WindowsWidth', 854);
     LLLini.WriteInteger('Document', 'MaxMemory', 1024);
-    LLLini.WriteInteger('Misc', 'Red', 240);
-    LLLini.WriteInteger('Misc', 'Green', 240);
-    LLLini.WriteInteger('Misc', 'Blue', 240);
+    LLLini.WriteInteger('Misc', 'Color', 15790320);
     LLLini.WriteInteger('Misc', 'WindowAlpha', 255);
     LLLini.WriteInteger('Misc', 'ControlAlpha', 191);
     LLLini.WriteInteger('Misc', 'WindowControl', 2);
@@ -1841,29 +1876,13 @@ begin
     button_launch_game.Caption := GetLanguage('button_launch_game.caption.absence');
   end;
   Log.Write(Concat('开始判断窗口颜色。'), LOG_INFO, LOG_START);
-  try //判断RGBA
-    mred := LLLini.ReadInteger('Misc', 'Red', -1);
-    if (mred > 255) or (mred < 0) then raise Exception.Create('Format Exception');
+  try //判断颜色
+    mcolor := LLLini.ReadInteger('Misc', 'Color', -1);
+    if (mcolor > 16777215) or (mcolor < 0) then raise Exception.Create('Format Exception');
   except
-    Log.Write(Concat('窗口颜色有误，位置：Ini文件的Red红色位置。'), LOG_ERROR, LOG_START);
-    mred := 240;
-    LLLini.WriteInteger('Misc', 'Red', mred);
-  end;
-  try
-    mgreen := LLLini.ReadInteger('Misc', 'Green', -1);
-    if (mgreen > 255) or (mgreen < 0) then raise Exception.Create('Format Exception');
-  except
-    Log.Write(Concat('窗口颜色有误，位置：Ini文件的Green绿色位置。'), LOG_ERROR, LOG_START);
-    mgreen := 240;
-    LLLini.WriteInteger('Misc', 'Green', mgreen);
-  end;
-  try
-    mblue := LLLini.ReadInteger('Misc', 'Blue', -1);
-    if (mblue > 255) or (mblue < 0) then raise Exception.Create('Format Exception');
-  except
-    Log.Write(Concat('窗口颜色有误，位置：Ini文件的Blue蓝色位置。'), LOG_ERROR, LOG_START);
-    mblue := 240;
-    LLLini.WriteInteger('Misc', 'Blue', mblue);
+    Log.Write(Concat('窗口颜色有误，位置：Ini文件的Color蓝色位置。'), LOG_ERROR, LOG_START);
+    mcolor := 15790320;
+    LLLini.WriteInteger('Misc', 'Color', mcolor);
   end;
   Caption := LLLini.ReadString('Misc', 'LauncherName', '');
   try
@@ -1908,7 +1927,7 @@ begin
   end;
   try
     mdownload_source := LLLini.ReadInteger('Version', 'SelectDownloadSource', -1);
-    if (mdownload_source < 1) or (mdownload_source > 3) then raise Exception.Create('Format Exception');
+    if (mdownload_source < 1) or (mdownload_source > 2) then raise Exception.Create('Format Exception');
   except
     mdownload_source := 1;
     LLLini.WriteInteger('Version', 'SelectDownloadSource', 1);
@@ -1923,7 +1942,7 @@ begin
   SetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE, GetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE) or WS_EX_LAYERED);
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);
   Log.Write(Concat('已判断完成，开始应用窗口颜色。'), LOG_INFO, LOG_START);
-  Color := rgb(mred, mgreen, mblue); //实装RGBA。
+  Color := mcolor; //实装RGBA。
   ResetBackImage(false);
 end;
 //强制结束MC
@@ -2140,13 +2159,12 @@ begin
     0: begin
       if not mjudge_lang_chinese then begin
         MyMessagebox(GetLanguage('messagebox_export.area_not_chinese.caption'), GetLanguage('messagebox_export.area_not_chinese.text'), MY_ERROR, [mybutton.myOK]);
-        radiogroup_export_mode.ItemIndex := 0;
+        radiogroup_export_mode.ItemIndex := 1;
         radiogroup_export_modeClick(Sender);
         exit;
       end;
       self.edit_export_update_link.Enabled := true;
       self.edit_export_official_website.Enabled := true;
-      self.edit_export_mcbbs_tid.Enabled := true;
       self.edit_export_authentication_server.Enabled := true;
       self.edit_export_additional_game.Enabled := true;
       self.edit_export_additional_jvm.Enabled := true;
@@ -2154,7 +2172,6 @@ begin
     1: begin
       self.edit_export_update_link.Enabled := false;
       self.edit_export_official_website.Enabled := false;
-      self.edit_export_mcbbs_tid.Enabled := false;
       self.edit_export_authentication_server.Enabled := false;
       self.edit_export_additional_game.Enabled := false;
       self.edit_export_additional_jvm.Enabled := false;
@@ -2232,8 +2249,8 @@ end;
 //启动设置：游戏内存大小
 procedure Tform_mainform.scrollbar_launch_max_memoryChange(Sender: TObject);
 begin
-  mmax_memory := scrollbar_launch_max_memory.Position;        
-  label_launch_max_memory.Caption := GetLanguage('label_launch_max_memory.caption').Replace('${max_memory}', inttostr(mmax_memory));
+  mmax_memory := scrollbar_launch_max_memory.Position;
+  label_launch_max_memory.Caption := GetLanguage('label_launch_max_memory.caption').Replace('${memory}', inttostr(mmax_memory)).Replace('${total_memory}', inttostr(mtotal_memory)).Replace('${avail_memory}', inttostr(mavail_memory));
 end;
 //启动设置：游戏窗口大小：高度
 procedure Tform_mainform.scrollbar_launch_window_heightChange(Sender: TObject);
@@ -2367,6 +2384,16 @@ begin
     case mopen_number of
       100, 200, 300, 500, 700, 1000, 1300, 1800, 2400, 3000: Isafdian(false, mopen_number);
     end;
+    if OtherIni.ReadBool('Other', 'IsFirstOpen', true) then begin
+      OtherIni.WriteBool('Other', 'IsFirstOpen', false);
+      if MyMessagebox(GetLanguage('messagebox_open.is_open_document.caption'), GetLanguage('messagebox_open.is_open_document.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 2 then begin
+        if mjudge_lang_chinese then begin
+          ShellExecute(Application.Handle, nil, 'https://github.com/rechalow/lllauncher/blob/master/credits/Document_CN.md', nil, nil, SW_SHOWNORMAL);
+        end else begin
+          ShellExecute(Application.Handle, nil, 'https://github.com/rechalow/lllauncher/blob/master/credits/Document.md', nil, nil, SW_SHOWNORMAL);
+        end;
+      end;
+    end;
     Log.Write('开始判断插件是否存在于文件夹中，并且后缀为Json或dll。', LOG_START, LOG_INFO);
     var pdir := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
     if SysUtils.DirectoryExists(pdir) then begin
@@ -2432,7 +2459,7 @@ begin
           SetWindowText(find_sunawtframe, tile);
           SetWindowText(find_glfw30, tile);
         end;
-//        DeleteFile(Concat(JudgeIsolation(), '\logs\latest.log'));
+        DeleteFile(Concat(JudgeIsolation(), '\logs\latest.log'));
         if mwindow_control = 1 then self.Hide;//如果选中启动时隐藏启动器，则执行。隐藏主窗口
         if mwindow_control = 3 then Application.Terminate;
       end;
@@ -2483,6 +2510,16 @@ begin
       end;
     end;
   end;
+end;
+//实时检测内存
+procedure Tform_mainform.timer_check_memoryTimer(Sender: TObject);
+var
+  ms: TMemoryStatus;
+begin
+  GlobalMemoryStatus(ms);
+  mtotal_memory := ceil(ms.dwTotalPhys / 1024 / 1024);
+  mavail_memory := ceil(ms.dwAvailPhys / 1024 / 1024);
+  label_launch_max_memory.Caption := GetLanguage('label_launch_max_memory.caption').Replace('${memory}', inttostr(mmax_memory)).Replace('${total_memory}', inttostr(mtotal_memory)).Replace('${avail_memory}', inttostr(mavail_memory));
 end;
 //主窗口：窗口渐变产生计时器
 var mgradient_temp: Integer = 0;

@@ -210,7 +210,6 @@ begin
   form_mainform.radiogroup_choose_download_source.Caption := GetLanguage('radiogroup_choose_download_source.caption');
   form_mainform.radiogroup_choose_download_source.Items[0] := GetLanguage('radiogroup_choose_download_source.official.caption');
   form_mainform.radiogroup_choose_download_source.Items[1] := GetLanguage('radiogroup_choose_download_source.bmclapi.caption');
-  form_mainform.radiogroup_choose_download_source.Items[2] := GetLanguage('radiogroup_choose_download_source.mcbbs.caption');
   form_mainform.radiogroup_choose_mod_loader.Caption := GetLanguage('radiogroup_choose_mod_loader.caption');
   form_mainform.radiogroup_choose_mod_loader.Items[0] := GetLanguage('radiogroup_choose_mod_loader.forge.caption');
   form_mainform.radiogroup_choose_mod_loader.Items[1] := GetLanguage('radiogroup_choose_mod_loader.fabric.caption');
@@ -300,9 +299,6 @@ begin
   form_mainform.label_export_official_website.Caption := GetLanguage('label_export_official_website.caption');
   form_mainform.edit_export_official_website.TextHint := GetLanguage('edit_export_official_website.texthint');
   form_mainform.edit_export_official_website.Hint := GetLanguage('edit_export_official_website.hint');
-  form_mainform.label_export_mcbbs_tid.Caption := GetLanguage('label_export_mcbbs_tid.caption');
-  form_mainform.edit_export_mcbbs_tid.TextHint := GetLanguage('edit_export_mcbbs_tid.texthint');
-  form_mainform.edit_export_mcbbs_tid.Hint := GetLanguage('edit_export_mcbbs_tid.hint');
   form_mainform.label_export_authentication_server.Caption := GetLanguage('label_export_authentication_server.caption');
   form_mainform.edit_export_authentication_server.TextHint := GetLanguage('edit_export_authentication_server.texthint');
   form_mainform.edit_export_authentication_server.Hint := GetLanguage('edit_export_authentication_server.hint');
@@ -332,7 +328,6 @@ begin
     var zhcnjson := TJSONObject.Create
       .AddPair('file_language_title', '中文（简体）')
       //以下为页
-      .AddPair('__pagecontrol_comment', '（注解）以下是页面控件语言')
       .AddPair('tabsheet_mainpage_part.caption', '主界面')
       .AddPair('tabsheet_account_part.caption', '账号部分')
       .AddPair('tabsheet_resource_part.caption', '资源部分')
@@ -355,7 +350,6 @@ begin
       .AddPair('tabsheet_version_isolation_part.caption', '独立设置')
       .AddPair('tabsheet_version_export_part.caption', '导出整合包') 
       //以下为菜单栏
-      .AddPair('__mainmenu_comment', '（注解）以下是菜单栏语言')
       .AddPair('menu_misc.caption', '杂项')
       .AddPair('menu_misc_answer.caption', '答案之书')
       .AddPair('menu_misc_intro.caption', '自我介绍')
@@ -375,7 +369,6 @@ begin
       .AddPair('menu_manual_language.caption', '语言')
       .AddPair('menu_manual_plugin.caption', '插件')
       //以下为信息框
-      .AddPair('__messagebox_comment', '（注解）以下是所有信息框语言')
       .AddPair('messagebox_button_yes.caption', '是')
       .AddPair('messagebox_button_ok.caption', '确认')
       .AddPair('messagebox_button_no.caption', '否')
@@ -950,8 +943,9 @@ begin
               '是否继续安装？点是即安装。'))
       .AddPair('messagebox_manage.import_modpack_success.caption', '安装整合包成功！')
       .AddPair('messagebox_manage.import_modpack_success.text', '恭喜安装整合包成功了！现在你可以去玩了！')
+      .AddPair('messagebox_open.is_open_document.caption', '第一次打开启动器')
+      .AddPair('messagebox_open.is_open_document.text', '已检测出你目前是第一次打开该启动器，请问是否打开新手帮助文档来查看一些设置应该怎么设置？')
       //以下为下载进度列表框
-      .AddPair('__downloadlist_comment', '（注解）以下是下载进度列表框语言')
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
       .AddPair('downloadlist.custom.judge_can_multi_thread_download', '正在判断是否可以多线程下载。')
       .AddPair('downloadlist.custom.url_donot_support_download_in_launcher', '该网址不支持启动器下载，请使用浏览器下载吧！')
@@ -968,7 +962,6 @@ begin
       .AddPair('downloadlist.custom.download_finish', '下载已完成！耗时：${download_finish_time}秒。')
       .AddPair('downloadlist.judge.judge_source_official', '已检测出你的下载源为：官方')
       .AddPair('downloadlist.judge.judge_source_bmclapi', '已检测出你的下载源为：BMCLAPI')
-      .AddPair('downloadlist.judge.judge_source_mcbbs', '已检测出你的下载源为：MCBBS')
       .AddPair('downloadlist.mc.json_has_inheritsfrom', '你下载的版本json有inheritsFrom键')
       .AddPair('downloadlist.mc.get_vanilla_json_error', '获取原版MC版本失败')
       .AddPair('downloadlist.mc.get_vanilla_json_success', '获取原版MC版本成功')
@@ -1039,14 +1032,13 @@ begin
       .AddPair('downloadlist.modloader.download_success', '下载模组加载器手动安装包完成！现在可以去文件夹中查看了！')
       .AddPair('downloadlist.version.get_complete_version', '正在补全该版本的资源索引……')
       .AddPair('downloadlist.version.complete_version_success', '补全资源完成！')
+      .AddPair('downloadlist.modpack.download_modpack_start', '正在下载整合包中……')
       //以下为下载进度窗口
-      .AddPair('__progress_comment', '（注解）以下是下载进度窗口语言')
       .AddPair('button_progress_hide_show_details.caption.show', '显示详情')
       .AddPair('button_progress_hide_show_details.caption.hide', '隐藏详情')
       .AddPair('button_progress_clean_download_list.caption', '清空下载信息列表框')
       .AddPair('label_progress_tips.caption', '一旦开始下载就停止不了了！')
       //以下为主窗口
-      .AddPair('__mainform_comment', '（注解）以下是主窗口语言')
       .AddPair('groupbox_message_board.caption', '留言板（点我可以更换留言板噢！）')
       .AddPair('label_account_view.caption.absence', '你还暂未登录任何一个账号，登录后即可在这里查看欢迎语！')
       .AddPair('label_account_view.caption.have', '你好啊：${account_view}，祝你有个愉快的一天！')
@@ -1064,7 +1056,6 @@ begin
       .AddPair('image_open_download_prograss.hint', '打开下载进度界面')
       .AddPair('image_exit_running_mc.hint', '调用taskkill函数，强制结束你当前正在运行的MC')
       //以下为背景设置
-      .AddPair('__background_comment', '（注解）以下是背景设置语言')
       .AddPair('label_background_tip.caption', '这里是背景部分，你可以选择自己喜欢的背景颜色【说实话只是边框而已啦……】')
       .AddPair('label_standard_color.caption', '这里是标准配色，按一下直接应用')
       .AddPair('button_grass_color.caption', '小草绿')
@@ -1101,7 +1092,6 @@ begin
       .AddPair('label_background_gradient_step.caption', '渐变步长')
       .AddPair('label_background_gradient_current_step.caption', '当前选中：${gradient_step}')
       //以下为账号部分
-      .AddPair('__account_comment', '（注解）以下是账号部分语言')
       .AddPair('combobox_all_account.offline_tip', '（离线）')
       .AddPair('combobox_all_account.microsoft_tip', '（微软）')
       .AddPair('combobox_all_account.thirdparty_tip', '（外置）')
@@ -1166,7 +1156,6 @@ begin
       .AddPair('label_account_return_value.caption.uuid_to_name_error', '该用户不存在。')
       .AddPair('label_account_return_value.caption.uuid_to_name_success', '获取成功，名称已正确填写在栏中！')
       //以下是资源部分
-      .AddPair('__resource_comment', '（注解）以下是资源部分语言')
       .AddPair('label_resource_tip.caption', '此部分用于下载MC的附加资源，建议每次搜新资源时，都右击一次搜索版本框查看简介噢！')
       .AddPair('label_resource_search_name_tip.caption', '搜索名称')
       .AddPair('edit_resource_search_name.texthint', '输入搜索名称【只能输入英文】')
@@ -1450,7 +1439,6 @@ begin
       .AddPair('label_resource_search_name.caption.page', '搜索（名称）【第${page}页】')
       .AddPair('label_resource_search_version.caption.page', '搜索（版本）【第${page}页】')
       //资源管理界面
-      .AddPair('__manage_comment', '（注解）以下是资源管理部分语言')
       .AddPair('label_manage_import_modpack.caption', '整合包导入（暂未完成）')
       .AddPair('label_manage_import_mod.caption', '模组管理')
       .AddPair('label_manage_import_map.caption', '地图管理')
@@ -1476,10 +1464,9 @@ begin
       .AddPair('button_rename_choose_resource.hint', '重命名选中的资源，当地图与数据包同时选中时将会优先重命名数据包。')
       .AddPair('button_open_choose_resource.hint', '用资源管理器打开你所选择的资源。当地图与数据包同时选中时将会优先打开地图文件夹中的datapacks文件夹。')
       //启动设置界面
-      .AddPair('__launch_comment', '（注解）以下是启动设置部分语言')
       .AddPair('label_launch_window_height.caption', '高度，当前选中：${window_height}')
       .AddPair('label_launch_window_width.caption', '宽度，当前选中：${window_width}')
-      .AddPair('label_launch_max_memory.caption', '游戏内存大小，当前选中：${max_memory}')
+      .AddPair('label_launch_max_memory.caption', '游戏内存【系统总内存：${total_memory}，剩余内存：${avail_memory}，当前选中：${memory}】')
       .AddPair('label_launch_window_size.caption', '游戏窗口大小，默认854x480')
       .AddPair('label_launch_java_path.caption', 'Java路径')
       .AddPair('label_launch_java_logic.caption', 'Java逻辑')
@@ -1520,7 +1507,6 @@ begin
       .AddPair('label_launch_java.logic.caption.search_lllpath', 'Java逻辑，正在扫描LLL特定目录')
       .AddPair('label_launch_java_logic.caption.basic_scan_java_success', 'Java逻辑，特定扫描Java成功')
       //以下是下载部分
-      .AddPair('__download_comment', '（注解）以下是下载部分语言')
       .AddPair('label_download_return_value.caption.get_mc_web', '正在获取MC元数据……')
       .AddPair('label_downlaod_return_value.caption.get_mc_web_success', '初步导入MC元数据成功！')
       .AddPair('listbox_select_minecraft.item.get_mc_error', 'MC导入失败，请重试。')
@@ -1542,7 +1528,6 @@ begin
       .AddPair('radiogroup_choose_download_source.caption', '选择下载源')
       .AddPair('radiogroup_choose_download_source.official.caption', '官方下载源')
       .AddPair('radiogroup_choose_download_source.bmclapi.caption', 'BMCLAPI')
-      .AddPair('radiogroup_choose_download_source.mcbbs.caption', 'MCBBS')
       .AddPair('radiogroup_choose_mod_loader.caption', '选择模组加载器')
       .AddPair('radiogroup_choose_mod_loader.forge.caption', 'Forge')
       .AddPair('radiogroup_choose_mod_loader.fabric.caption', 'Fabric')
@@ -1554,7 +1539,6 @@ begin
       .AddPair('edit_minecraft_version_name.texthint', '请输入版本名称')
       .AddPair('button_download_start_download_minecraft.caption', '开始自动安装Minecraft❤点我自动安装❤')
       //以下是自定义下载部分
-      .AddPair('__customdl_comment', '（注解）以下是自定义下载部分语言')
       .AddPair('label_custom_download_url.caption', '下载网址输入（不支持百度网盘等）')
       .AddPair('edit_custom_download_url.texthint', '这里输入下载网址')
       .AddPair('label_custom_download_name.caption', '文件名称输入（可空，留空则默认为网址后缀名）')
@@ -1567,7 +1551,6 @@ begin
       .AddPair('button_custom_download_open_path.caption', '打开路径')
       .AddPair('button_custom_download_start.caption', '开始下载')
       //以下是模组加载器手动安装包
-      .AddPair('__modloader_comment', '（注解）以下是模组加载器手动安装包部分语言')
       .AddPair('label_download_modloader_forge.caption', 'Forge版本选择')
       .AddPair('label_download_modloader_fabric.caption', 'Fabric版本选择')
       .AddPair('label_download_modloader_quilt.caption', 'Quilt版本选择')
@@ -1575,7 +1558,6 @@ begin
       .AddPair('button_download_modloader_download.caption', '开始下载')
       .AddPair('button_download_modloader_refresh.caption', '刷新版本')
       //以下是版本设置部分
-      .AddPair('__version_comment', '（注解）以下是版本设置部分语言')
       .AddPair('label_version_current_path.caption', '当前选中版本：${current_path}')
       .AddPair('label_select_game_version.caption', '选择游戏版本')
       .AddPair('label_select_file_list.caption', '选择文件列表')
@@ -1594,7 +1576,6 @@ begin
       .AddPair('button_delete_game_version.caption', '删除游戏版本')
       .AddPair('label_version_tip.caption', '这里是版本部分，你可以操作游戏文件夹，还可以选择版本隔离，还可以为独立版本设计，甚至可以导出整合包噢！')
       //以下是独立设置部分
-      .AddPair('__isolation_comment', '（注解）以下是独立设置部分语言')
       .AddPair('label_isolation_current_version.caption', '当前选中版本：${current_version}')
       .AddPair('label_isolation_window_width.caption', '宽，当前选中：${current_width}')
       .AddPair('label_isolation_window_height.caption', '高，当前选中：${current_height}')
@@ -1627,7 +1608,6 @@ begin
       .AddPair('edit_isolation_after_launch_script.texthint', '输入后置启动脚本-非专业人士请勿修改【留空则全局应用】')
       .AddPair('label_isolation_tip.caption', '以上，只要是开启了全局应用开关，或者是修改了文本框内容【指不为空】，则默认应用全局设置噢！')
       //以下是整合包导出部分
-      .AddPair('__export_comment', '（注解）以下是整合包导出部分语言')
       .AddPair('label_export_current_version.caption', '当前选中版本：${current_version}')
       .AddPair('label_export_return_value.caption.initialize', '正在初始化整合包导出的文件树……')
       .AddPair('label_export_return_value.caption.init_success', '初始化文件树完成！')
@@ -1652,9 +1632,6 @@ begin
       .AddPair('label_export_official_website.caption', '整合包官方网站')
       .AddPair('edit_export_official_website.texthint', '此处输入你的整合包官方网站【选填项】')
       .AddPair('edit_export_official_website.hint', '此处填写你整合包的官方网址，例如curseforge就填网址。填全称。')
-      .AddPair('label_export_mcbbs_tid.caption', 'MCBBS——TID')
-      .AddPair('edit_export_mcbbs_tid.texthint', '此处输入你的整合包MCBBS-TID【选填项】')
-      .AddPair('edit_export_mcbbs_tid.hint', '如果已将整合包发布在MCBBS上，则这个地方填入你的帖子MCBBS-TID。如发布贴为【https://www.mcbbs.com/thread-114514-1-1.html】，则这个地方只需填入114514即可。')
       .AddPair('label_export_authentication_server.caption', '认证服务器')
       .AddPair('edit_export_authentication_server.texthint', '此处输入你的整合包认证服务器【选填项】')
       .AddPair('edit_export_authentication_server.hint', '此处仅限外置登录，如果你不确定，请留空。该处只能填入类似于【littleskin.cn】这种外置登录皮肤站根目录')
@@ -1670,7 +1647,6 @@ begin
       .AddPair('label_export_add_icon.caption', '为整合包添加图标（ps：允许任意像素，但建议200x200即可，仅限png，暂不支持jpg等）')
       .AddPair('button_export_add_icon.caption', '选择图标文件')
       //以下是联机IPv6部分
-      .AddPair('__online_comment', '（注解）以下是联机部分语言')
       .AddPair('label_online_ipv6_return_value.caption.check_ipv6_port', '正在检测你的IPv6公网IP中……')
       .AddPair('listbox_view_all_ipv6_ip.caption.timeout', '超时')
       .AddPair('listbox_view_all_ipv6_ip.caption.forever', '永久')
@@ -1684,7 +1660,6 @@ begin
       .AddPair('button_online_ipv6_tip.caption', 'IPv6联机提示')
       .AddPair('label_online_tip.caption', '这里是联机部分，你可以在这里找一个你所想要的联机方式进行联机噢！')
       //以下是启动游戏时的语言
-      .AddPair('__launcher_comment', '（注解）以下是启动游戏时的语言')
       .AddPair('label_mainform_tips.caption.judge_args', '正在开始判断配置文件是否有误……')
       .AddPair('label_mainform_tips.caption.not_choose_mc_version', 'MC版本判断失误，你还没有选择任一MC版本。')
       .AddPair('label_mainform_tips.caption.not_choose_java', 'Java判断失误，你还没有选择任一Java。')
@@ -1701,6 +1676,13 @@ begin
       .AddPair('label_mainform_tips.caption.wait_launch_game', '游戏启动成功！正在等待打开游戏窗口中……')
       .AddPair('label_mainform_tips.caption.launch_game_success', '窗口打开成功！可以开始玩游戏了！')
       .AddPair('label_mainform_tips.caption.cancel_launch', '取消启动。')
+      //以下是插件语言
+      .AddPair('plugin_tabsheet.get_plugin_info.hint', Concat(
+                  '插件名称；${plugin_caption}', #13#10,
+                  '插件版本：${plugin_version}', #13#10,
+                  '插件作者：${plugin_author}', #13#10,
+                  '插件更新时间：${plugin_update_time}', #13#10,
+                  '插件简介：${plugin_description}'))
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
   end;

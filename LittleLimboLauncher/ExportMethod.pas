@@ -3,7 +3,7 @@
 interface
 
 uses
-  Windows, SysUtils, Forms, IniFiles, WinXCtrls, Math, JSON, Classes, Threading, 
+  Windows, SysUtils, Forms, IniFiles, WinXCtrls, Math, JSON, Classes,
   ComCtrls, StrUtils, DateUtils, Dialogs, Zip, pngimage, NetEncoding, Generics.Collections;
 
 procedure InitIsolation;
@@ -30,19 +30,16 @@ var
 procedure ImportModPackIcon(path: String);
 begin
   if FileExists(path) then begin
-    var ss := TMemoryStream.Create;
-    var s2 := TStringStream.Create;
+    var ss := TStringStream.Create;
     var pg := TPngImage.Create;
     try
       ss.LoadFromFile(path);
       pg.LoadFromStream(ss);
       form_mainform.image_export_add_icon.Picture.Assign(pg);
       ss.Position := 0;
-      TNetEncoding.Base64.Encode(ss, s2);
-      mpicon := s2.DataString;
+      mpicon := StreamToBase64(ss);
     finally
       ss.Free;
-      s2.Free;
       pg.Free;
     end;
   end;
@@ -107,12 +104,6 @@ begin
         MyMessagebox(GetLanguage('messagebox_export.official_website_error.caption'), GetLanguage('messagebox_export.official_website_error.text'), MY_ERROR, [mybutton.myOK]);
         exit;
       end;
-      var tmp := 0;
-      var tid := form_mainform.edit_export_mcbbs_tid.Text;
-      if (tid <> '') and (not TryStrToInt(tid, tmp)) then begin
-        MyMessagebox(GetLanguage('messagebox_export.mcbbs_tid_error.caption'), GetLanguage('messagebox_export.mcbbs_tid_error.text'), MY_ERROR, [mybutton.myOK]);
-        exit;
-      end;
       if (form_mainform.edit_export_authentication_server.Text <> '') and (LeftStr(form_mainform.edit_export_authentication_server.Text, 7) <> 'http://') and (LeftStr(form_mainform.edit_export_authentication_server.Text, 8) <> 'https://') then begin
         MyMessagebox(GetLanguage('messagebox_export.authentication_server_error.caption'), GetLanguage('messagebox_export.authentication_server_error.text'), MY_ERROR, [mybutton.myOK]);
         exit;
@@ -166,12 +157,6 @@ begin
     .AddPair('origin', TJsonArray.Create);
   if mpicon <> '' then
     root.AddPair('icon', mpicon);
-  if form_mainform.edit_export_mcbbs_tid.Text <> '' then begin
-    (root.GetValue('origin') as TJSONArray)
-      .Add(TJSONObject.Create
-       .AddPair('type', 'mcbbs')
-       .AddPair('id', strtoint(form_mainform.edit_export_mcbbs_tid.Text)));
-  end;        
   if mexport_loader = 'vanilla' then begin
     root
       .AddPair('addons', TJsonArray.Create
@@ -371,11 +356,11 @@ begin
   form_mainform.label_export_memory.Caption := GetLanguage('label_export_memory.caption').Replace('${max_memory}', '1024');
   form_mainform.scrollbar_export_max_memory.Position := 1024;
   form_mainform.label_export_current_version.Caption := GetLanguage('label_export_current_version.caption').Replace('${current_version}', mexport_mcname);
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.initialize');
     ChooseDirectory(form_mainform.treeview_export_keep_file, mexport_mcpath, nil, true);                        
     form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.init_success');
-  end);
+  end).Start;
 end;     
 //初始化导出部分
 procedure InitIsolation;
@@ -607,7 +592,7 @@ end;
 //开始导出咯！
 procedure StartExport;
 begin
-  TTask.Run(procedure begin
+  TThread.CreateAnonymousThread(procedure begin
     if not PackCheckError() then exit;
     form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.scan_file');
     var NodeChecked := TStringList.Create;
@@ -647,16 +632,16 @@ begin
           MyMessagebox(GetLanguage('messagebox_export.export_file_exists.caption'), GetLanguage('messagebox_export.export_file_exists.text'), MY_ERROR, [mybutton.myOK]);
           exit;
         end;
-        TTask.Run(procedure begin
+        TThread.CreateAnonymousThread(procedure begin
           form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.is_export');
           TZipFile.ZipDirectoryContents(od.FileName, Concat(mexport_mcpath, '\===zip==='));
           DeleteDirectory(Concat(mexport_mcpath, '\===zip==='));                                 
           form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.export_success');
           MyMessagebox(GetLanguage('messagebox_export.export_success.caption'), GetLanguage('messagebox_export.export_success.text'), MY_PASS, [mybutton.myOK]);
-        end);
+        end).Start;
       end;
     end);
-  end);
+  end).Start;
 end;
 
 end.

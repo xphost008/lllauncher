@@ -3,7 +3,7 @@
 interface         
 
 uses
-  Classes, Windows, IOUtils, StrUtils, JSON, Forms, JPEG, PngImage, GIFImg, RegularExpressions, Math, IdHashSHA, ShellAPI, Dialogs,
+  Classes, Windows, IOUtils, StrUtils, JSON, Forms, JPEG, PngImage, GIFImg, RegularExpressions, Math, Hash, ShellAPI, Dialogs,
   System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent, SysUtils, NetEncoding, Generics.Collections,
   Tlhelp32;
 
@@ -33,6 +33,10 @@ function RunDOSAndGetPID(FileName, Parameters, dir: string): Integer;
 function IPv4ToInt(ipv4: String): UInt;
 function getMCRealDir(path, suffix: String): String;
 function DeleteRetain(N, suffix: String): Boolean;
+function Base64ToStream(base64: String): TStringStream;
+function StreamToBase64(pStream: TStringStream): String;
+function TextToMD5(text: String): String;
+function ConvertHexToColor(color: String): Integer;
 
 var
   MCRootJSON: TJSONObject;
@@ -43,7 +47,23 @@ implementation
 
 uses
   MainForm, Log4Delphi, LanguageMethod, MyCustomWindow, AccountMethod;
-
+//颜色RGB转换为Color数字
+function ConvertHexToColor(color: String): Integer;
+begin
+  color := color.Substring(1);
+  if (color.Length <> 6) or (not TRegex.IsMatch(color, '^[a-fA-F0-9]{6}')) then
+    raise Exception.Create('invalid Color value');
+  result := rgb(
+    strtoint(Concat('$', color.Substring(4, 2))),
+    strtoint(Concat('$', color.Substring(2, 2))),
+    strtoint(Concat('$', color.Substring(0, 2))));
+end;
+//获取文本的MD5值，该方法用于生成离线模式UUID。
+function TextToMD5(text: String): String;
+begin
+  if text = '' then result := '';
+  result := THashMD5.GetHashString(text);
+end;
 //运行进程，但是可以得到进程的PID。
 function RunDOSAndGetPID(FileName, Parameters, dir: string): Integer;
 var
@@ -163,6 +183,23 @@ begin
   inS.Free;
   CloseHandle(HRead);
   CloseHandle(HWrite);
+end;
+//将流转成Base64返回
+function StreamToBase64(pStream: TStringStream): String;
+begin
+  if pStream = nil then exit;
+  var res := TStringStream.Create('', TEncoding.UTF8, False);
+  TNetEncoding.Base64.Encode(pStream, res);
+  result := res.DataString;
+end;
+//将Base64转成流返回
+function Base64ToStream(base64: String): TStringStream;
+begin
+  if base64 = '' then begin result := nil; exit; end;
+  result := TStringStream.Create('', TEncoding.UTF8, False);
+  var source := TStringStream.Create(base64);
+  TNetEncoding.Base64.Decode(source, result);
+  result.Position := 0;
 end;
 //将IPv4地址转成Integer数字
 function IPv4ToInt(ipv4: String): UInt;
@@ -391,18 +428,17 @@ begin
 end;
 //获取文件hash值
 function GetFileHash(filename: String): String;
-var
-  psha : TIdHashSha1;
-  pStream : TFileStream;
+//var
+//  psha : TIdHashSha1;
+//  pStream : TFileStream;
 begin
-  psha := TIdHashSha1.Create;
-  pStream := TFileStream.Create(filename, fmOpenRead or fmShareDenyWrite);
-  try
-    result := string(pSHA.HashStreamAsHex(pStream)).ToLower;
-  finally
-    psha.Free;
-    pStream.Free;
+  if not FileExists(filename) then begin
+    result := '';
+    exit;
   end;
+  var pStream := TFileStream.Create(filename, fmOpenRead or fmShareDenyWrite);
+  var ss := THashSha1.GetHashString(pStream);
+  result := ss;
 end;
 //用UUID强转成HashCode。
 function UUIDToHashCode(UUID: String): Int64;

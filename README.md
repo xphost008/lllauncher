@@ -3,7 +3,7 @@
 > Even though this launcher is mainly designed for the Chinese, it provides vast numbers of functions, which is suitable and useful for everyone. 
 [Click me for a Chinese README | 中文文档](./README_CN.md)
 
-#### Introduction
+### Introduction
 
  **This is an easy-to-use Launcher for Minecraft. Lightweight, Simple and fast.**
 
@@ -25,22 +25,26 @@ This launcher call name "Little Limbo Launcher", You also can call it "LaLaLa La
 
 For further information related to the license, see [LICENSE](./LICENSE)
 
-#### Author contact information by QQ
+### Author contact information by QQ
 
 My QQ group id is 792484446, If you have any question, please tell me about it. 
 This Repository is published under GNU-GPL License, if you know less about this license, Check it [Click me](https://choosealicense.com/licenses/lgpl-2.1/) in GitHub Issue.
 
 As soon as I have some snapshot version, I will release it in my group that not in my LANZOU drive.
 
-#### Installation tutorial
+### Installation tutorial
 ~
 - Maybe this is a green software, you just need to download it and double click this file.
 ~
-#### Contributor
+### Contributor
 
 [Click me](./CONTRIBUTOR.md)
 
-#### Download link
+### Use Tutorial
+
+[Click me](./credits/Document.md)
+
+### Download link
 
 (Release version): [lanzou click me](https://wwdy.lanzouj.com/b023j206d) password: 90y9
 
