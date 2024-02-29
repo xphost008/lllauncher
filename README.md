@@ -28,6 +28,7 @@ For further information related to the license, see [LICENSE](./LICENSE)
 ### Author contact information by QQ
 
 My QQ group id is 792484446, If you have any question, please tell me about it. 
+
 This Repository is published under GNU-GPL License, if you know less about this license, Check it [Click me](https://www.gnu.org/licenses/gpl-3.0.html) in GitHub Issue.
 
 As soon as I have some snapshot version, I will release it in my group that not in my LANZOU drive.
