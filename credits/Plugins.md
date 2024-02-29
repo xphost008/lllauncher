@@ -104,4 +104,4 @@ end.
 - **大家如果有任何bug反馈，或者任何新功能建议，都可以和我提出哦！**
 - 但是Dll这一部分的插件我是再也不会修改了的，因为就是调用一个Delphi内置函数读取主方法的过程，除非是你要求我修改主方法的识别名称，否则一切免谈。json倒是可以接受一下反馈。因为这玩意我还没移除，就是为了让那些不会编程的人们能够感受制作插件的快乐。
 
-### 插件市场：[点我进入](https://gitcode.net/rechalow/lllauncher/-/blob/master/credits/PluginMarket.md)
+### 插件市场：[点我进入](https://github.com/rechalow/lllauncher/blob/master/credits/PluginMarket.md)
