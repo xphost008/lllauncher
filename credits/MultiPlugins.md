@@ -792,6 +792,7 @@
 #### 颜色默认值：
 
 |属性名称|键名称|键值|
+|----|----|----|
 |messagebox|warning|rgb(255, 215, 10)|
 |messagebox|information|rgb(10, 10, 255)|
 |messagebox|error|rgb(255, 10, 10)|
@@ -805,6 +806,7 @@
 #### 文字默认值
 
 |属性名称|键名称|键值|
+|----|----|----|
 |messagebox|yes|Language-messagebox_button_yes.caption|
 |messagebox|no|Language-messagebox_button_no.caption|
 |messagebox|ok|Language-messagebox_button_ok.caption|
