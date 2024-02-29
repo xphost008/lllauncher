@@ -182,6 +182,11 @@ begin
           result := I;
           exit;
         end;
+      end else if suffix.IndexOf('.') <> 0 then begin
+        if GetFileHash(I).Equals(suffix) then begin
+          result := I;
+          exit;
+        end;
       end;
     end;
   end;
@@ -226,18 +231,9 @@ begin
           Files := TDirectory.GetFiles(I);
           for var J in Files do begin
             if RightStr(J, 5) = '.json' then begin
-              try
-                var Rt2 := TJsonObject.ParseJSONValue(GetFile(J)) as TJsonObject;
-                var jid := Rt2.GetValue('id').Value;
-                var tmp := Rt2.GetValue('libraries').ToString;
-                var ttt := Rt2.GetValue('mainClass').Value;
-                if jid = ihtf then begin
-                  result := I;
-                  exit;
-                end;
-                continue;
-              except
-                continue;
+              if GetVanillaVersion(GetFile(J)).Equals(ihtf) then begin
+                result := I;
+                exit;
               end;
             end;
           end;
@@ -414,11 +410,15 @@ begin
       end;
     end;
     for var I in NoRe do sb.Append(Concat(path, '\libraries\', ConvertNameToPath(I), ';'));
-    var tmp := GetMCRealPath(relpath, '.jar');
-    if tmp = '' then begin
+    if Rt.ToString.ToLower.Contains('forge') then begin
       sb.Remove(sb.Length - 1, 1);
     end else begin
-      sb.Append(tmp);
+      var tmp := GetMCRealPath(GetMCInheritsFrom(relpath, 'inheritsFrom'), ((Rt.GetValue('downloads') as TJSONObject).GetValue('client') as TJSONObject).GetValue('sha1').Value);
+      if tmp = '' then begin
+        sb.Remove(sb.Length - 1, 1);
+      end else begin
+        sb.Append(tmp);
+      end;
     end;
 //    var tmp1 := GetMCInheritsFrom(relpath, 'jar');
 //    var tmp3 := getMCRealPath(tmp1, '.jar');

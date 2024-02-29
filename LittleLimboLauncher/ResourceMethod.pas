@@ -26,7 +26,8 @@ procedure resourceDownload;
 
 implementation
 uses
-  PrivacyMethod, MainForm, LanguageMethod, MyCustomWindow, MainMethod, ProgressMethod;
+  PrivacyMethod, MainForm, LanguageMethod, MyCustomWindow, 
+  MainMethod, ProgressMethod;
 
 const
   BaseCURL = 'https://api.curseforge.com/v1';
@@ -45,6 +46,8 @@ var
   SelectRoot: TJsonObject;
   ChooseRoot: TJsonObject;
 //获取CurseForge的专属网页请求。
+
+
 function GetCF(web: String): String;
 begin
   var http := TNetHTTPClient.Create(nil);

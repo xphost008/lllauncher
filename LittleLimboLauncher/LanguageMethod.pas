@@ -320,6 +320,8 @@ begin
   form_mainform.button_online_ipv6_tip.Caption := GetLanguage('button_online_ipv6_tip.caption');
   form_mainform.label_online_ipv6_return_value.Caption := GetLanguage('label_online_ipv6_return_value.caption.current_ipv6_ip').Replace('${ip}', '');
   form_mainform.label_online_tip.Caption := GetLanguage('label_online_tip.caption');
+  //插件部分
+  form_mainform.tabsheet_plugin_part.Caption := GetLanguage('tabsheet_version_plugin_part.caption');
 end;
 //初始化语言
 procedure InitLanguage();
@@ -348,7 +350,8 @@ begin
       .AddPair('tabsheet_online_octo_part.caption', 'Octo联机')
       .AddPair('tabsheet_version_control_part.caption', '版本控制')
       .AddPair('tabsheet_version_isolation_part.caption', '独立设置')
-      .AddPair('tabsheet_version_export_part.caption', '导出整合包') 
+      .AddPair('tabsheet_version_export_part.caption', '导出整合包')
+      .AddPair('tabsheet_version_plugin_part.caption', '插件部分')
       //以下为菜单栏
       .AddPair('menu_misc.caption', '杂项')
       .AddPair('menu_misc_answer.caption', '答案之书')
@@ -367,7 +370,7 @@ begin
       .AddPair('menu_manual_optimize.caption', '内存清理')
       .AddPair('menu_manual_test.caption', '测试按钮')
       .AddPair('menu_manual_language.caption', '语言')
-      .AddPair('menu_manual_plugin.caption', '插件')
+      .AddPair('menu_manual_plugin.caption', 'DLL插件')
       //以下为信息框
       .AddPair('messagebox_button_yes.caption', '是')
       .AddPair('messagebox_button_ok.caption', '确认')
@@ -812,8 +815,6 @@ begin
       .AddPair('messagebox_export.official_website_error.text', '整合包官方网站输入错误，请重新输入后再尝试！')
       .AddPair('messagebox_export.authentication_server_error.caption', '整合包认证服务器输入错误')
       .AddPair('messagebox_export.authentication_server_error.text', '整合包认证服务器输入错误，请重新输入后再尝试！')
-      .AddPair('messagebox_export.mcbbs_tid_error.caption', 'MCBBS-tid输入错误')
-      .AddPair('messagebox_export.mcbbs_tid_error.text', 'MCBBS-tid输入错误，请重新输入后再尝试！')
       .AddPair('messagebox_export.no_export_file.caption', '暂未选中任一导出文件')
       .AddPair('messagebox_export.no_export_file.text', '暂未选中任一导出文件，你必须至少选择一个文件后再进行导出，请重试！')
       .AddPair('savedialog_export.choose_export_path', '请选择整合包导出的保存路径')
@@ -922,7 +923,6 @@ begin
               '整合包简介：${modpack_summary}', #13#10,
               '整合包更新链接：${modpack_update_url}', #13#10,
               '整合包官方网站：${modpack_official_url}', #13#10,
-              '整合包MCBBS发布贴：${modpack_mcbbs}', #13#10,
               '整合包外置登录服务器官网：${modpack_server}', #13#10,
               '-----------------------------------------------------------------------------------------------------------------------', #13#10,
               '整合包MC版本：${modpack_mcversion}', #13#10,
@@ -1683,6 +1683,7 @@ begin
                   '插件作者：${plugin_author}', #13#10,
                   '插件更新时间：${plugin_update_time}', #13#10,
                   '插件简介：${plugin_description}'))
+      .AddPair('plugin_menu_back.caption', '回退')
       ;
     SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
   end;

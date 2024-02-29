@@ -20,7 +20,7 @@ procedure PlayMusic;
 function UUIDToHashCode(UUID: String): Int64;
 function DeleteDirectory(N: String): Boolean;
 function GetFileHash(filename: String): String;
-procedure RunDOSOnlyWait(CommandLine: string);
+procedure RunDOSOnlyWait(CommandLine: string; second: Integer = Integer.MaxValue);
 procedure Isafdian(IsStart: Boolean; awa: Integer);
 function RenDirectory(const OldName, NewName: string): boolean;
 function GetFileBits(FileName: String): String;
@@ -29,14 +29,15 @@ function GetVanillaVersion(json: String): String;
 function RunDOSBack1(CommandLine: string): string;
 function JudgeCountry: Boolean;
 function ProcessExists(PID: DWORD): Boolean;
-function RunDOSAndGetPID(FileName, Parameters, dir: string): Integer;
+function RunDOSAndGetPID(FileName, Parameters: string; dir: string = ''): Integer;
 function IPv4ToInt(ipv4: String): UInt;
 function getMCRealDir(path, suffix: String): String;
 function DeleteRetain(N, suffix: String): Boolean;
 function Base64ToStream(base64: String): TStringStream;
 function StreamToBase64(pStream: TStringStream): String;
-function TextToMD5(text: String): String;
+function NameToDefaultUUID(text: String): String;
 function ConvertHexToColor(color: String): Integer;
+procedure SearchDirProc(path: String; isReadDir: Boolean; isOnly: Boolean; proc: TProc<String>);
 
 var
   MCRootJSON: TJSONObject;
@@ -47,6 +48,46 @@ implementation
 
 uses
   MainForm, Log4Delphi, LanguageMethod, MyCustomWindow, AccountMethod;
+//搜索文件夹函数。
+//1. 文件夹路径
+//2. 要搜索的后缀
+//3. 是否为遍历文件夹
+//4. 是否只遍历外层
+//5. 执行函数【内含有一个参数，参数为搜索出的文件路径。】
+procedure SearchDirProc(path: String; isReadDir: Boolean; isOnly: Boolean; proc: TProc<String>);
+var
+  F: TSearchRec;
+begin
+  if path = '' then exit;
+  if path.IndexOf('\') = -1 then exit;
+  if FindFirst(Concat(path, '\*.*'), faAnyFile, F) = 0 then begin //查找文件并赋值
+    try
+      repeat  //此处调用了API函数。
+        var S: String := F.Name;
+        if (F.Attr and faDirectory) > 0 then //查找是否为文件夹，如果是则执行
+        begin
+          if isReadDir then begin
+            if (S <> '.') and (S <> '..') then begin
+              proc(Concat(path, '\', S));
+              if isOnly then continue;
+              SearchDirProc(Concat(path, '\', S), isOnly, isReadDir, proc);
+            end;
+          end else begin
+            if isOnly then continue;
+            if (S <> '.') and (S <> '..') then
+              SearchDirProc(Concat(path, '\', S), isOnly, isReadDir, proc);
+          end;
+        end
+        else begin
+          if isReadDir then continue;
+          proc(Concat(path, '\', S)); //直接执行。
+        end;
+      until SysUtils.FindNext(F) <> 0; //查询下一个。
+    finally
+      FindClose(F); //关闭文件查询。
+    end;
+  end;
+end;
 //颜色RGB转换为Color数字
 function ConvertHexToColor(color: String): Integer;
 begin
@@ -58,27 +99,19 @@ begin
     strtoint(Concat('$', color.Substring(2, 2))),
     strtoint(Concat('$', color.Substring(0, 2))));
 end;
-//获取文本的MD5值，该方法用于生成离线模式UUID。
-function TextToMD5(text: String): String;
+//该方法用于生成离线模式UUID，但是按照Bukkit方式生成。
+//参考网址：https://github.com/PrismarineJS/node-minecraft-protocol/blob/21240f8ab2fd41c76f50b64e3b3a945f50b25b5e/src/datatypes/uuid.js#L14
+function NameToDefaultUUID(text: String): String;
 begin
-  if text = '' then result := '';
-  result := THashMD5.GetHashString(text);
-end;
-//运行进程，但是可以得到进程的PID。
-function RunDOSAndGetPID(FileName, Parameters, dir: string): Integer;
-var
-  StartupInfo:TStartupInfo;
-  ProcessInfo:TProcessInformation;
-begin
-  FillChar(ProcessInfo, sizeof(ProcessInfo), 0);
-  FillChar(StartupInfo, Sizeof(StartupInfo), 0);
-  StartupInfo.cb := Sizeof(TStartupInfo);
-  StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
-  StartupInfo.wShowWindow := SW_SHOW;
-  if CreateProcess(pchar(FileName), pchar(Parameters), nil, nil, False, NORMAL_PRIORITY_CLASS,
-    nil, pchar(dir), StartupInfo, ProcessInfo) then
-    result := ProcessInfo.dwProcessId //这里就是创建进程的PID值
-  else result := 0;
+  if text.IsEmpty then result := '';
+  var byt := THashMD5.GetHashBytes(Concat('OfflinePlayer:', text));
+  byt[6] := (byt[6] and $0f) or $30;
+  byt[8] := (byt[8] and $3f) or $80;
+  var res := '';
+  for var I in byt do begin
+    res := Concat(res, inttohex(I));
+  end;
+  result := res.ToLower;
 end;
 //获取MC真实的文件夹路径
 function getMCRealDir(path, suffix: String): String;
@@ -202,7 +235,7 @@ begin
   result.Position := 0;
 end;
 //将IPv4地址转成Integer数字
-function IPv4ToInt(ipv4: String): UInt;
+function IPv4ToInt(ipv4: String): UInt; deprecated;
 begin
   var spl := SplitString(ipv4, '.');
   result := 0;
@@ -217,7 +250,7 @@ begin
   var jsonRoot := TJSONObject.ParseJSONValue(json.ToLower) as TJSONObject;
   var mcid := '';
   try
-    mcid := jsonRoot.GetValue('inheritsfrom').Value;
+    mcid := jsonRoot.GetValue('inheritsFrom').Value;
     if mcid = '' then raise Exception.Create('Not Support!');
   except
     try
@@ -236,7 +269,7 @@ begin
         try
           var game := (jsonRoot.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
           for var I := 0 to game.Count - 1 do begin
-            if game[I].Value = '--fml.mcversion'.ToLower then begin
+            if game[I].Value.ToLower = '--fml.mcversion'.ToLower then begin
               mcid := game[I + 1].Value;
             end;
           end;
@@ -247,7 +280,6 @@ begin
             case mdownload_source of
               1: Vv := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
               2: Vv := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
-              3: Vv := 'https://download.mcbbs.net/mc/game/version_manifest.json';
               else exit;
             end;
             if MCRootJSON = nil then begin
@@ -381,7 +413,7 @@ end;
 //运行DOS命令，仅等待。
 //应用于插件执行、启动前执行命令、Forge安装Processors（实验性）。
 //参数1：命令行。参数2：等待时间【以毫秒做单位。】
-procedure RunDOSOnlyWait(CommandLine: string);
+procedure RunDOSOnlyWait(CommandLine: string; second: Integer = Integer.MaxValue);
 var
   HRead, HWrite: THandle;
   StartInfo: TStartupInfo;
@@ -423,14 +455,29 @@ begin
     ProceInfo);
   if not b then
     raise Exception.Create(SysErrorMessage(GetLastError));
-  WaitForSingleObject(ProceInfo.hProcess, Integer.MaxValue); //这里并不会使用等待命令行执行完毕，直接使用参数等待。
+  WaitForSingleObject(ProceInfo.hProcess, second); //这里并不会使用等待命令行执行完毕，直接使用参数等待。
   CloseHandle(HWrite);
+end;
+//运行进程，但是可以得到进程的PID。
+function RunDOSAndGetPID(FileName, Parameters: string; dir: string = ''): Integer;
+var
+  StartupInfo:TStartupInfo;
+  ProcessInfo:TProcessInformation;
+begin
+  if dir.IsEmpty then
+    dir := Concat(ExtractFileDir(Application.ExeName));
+  FillChar(ProcessInfo, sizeof(ProcessInfo), 0);
+  FillChar(StartupInfo, Sizeof(StartupInfo), 0);
+  StartupInfo.cb := Sizeof(TStartupInfo);
+  StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
+  StartupInfo.wShowWindow := SW_SHOW;
+  if CreateProcess(pchar(filename), pchar(Parameters), nil, nil, False, NORMAL_PRIORITY_CLASS,
+    nil, pchar(dir), StartupInfo, ProcessInfo) then
+    result := ProcessInfo.dwProcessId //这里就是创建进程的PID值
+  else result := -1;
 end;
 //获取文件hash值
 function GetFileHash(filename: String): String;
-//var
-//  psha : TIdHashSha1;
-//  pStream : TFileStream;
 begin
   if not FileExists(filename) then begin
     result := '';
@@ -438,7 +485,7 @@ begin
   end;
   var pStream := TFileStream.Create(filename, fmOpenRead or fmShareDenyWrite);
   var ss := THashSha1.GetHashString(pStream);
-  result := ss;
+  result := ss.ToLower;
 end;
 //用UUID强转成HashCode。
 function UUIDToHashCode(UUID: String): Int64;

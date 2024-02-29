@@ -15,7 +15,6 @@ type
   public
     constructor Create(CreateSuspended: Boolean; MyProc: TMyProc);
     procedure Execute; override;
-    destructor Destroy; override;
     class function CreateAnonymousThread(AProc: TMyProc): TMyThread;
   end;
 
@@ -66,10 +65,6 @@ end;
 procedure TMyThread.Execute;
 begin
   MyProc;
-end;
-destructor TMyThread.Destroy;
-begin
-  inherited
 end;
 class function TMyThread.CreateAnonymousThread(AProc: TMyProc): TMyThread;
 begin
@@ -651,14 +646,14 @@ begin
     if spf = savepath then raise Exception.Create('No InheritsFrom');
     if spf = '' then begin
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.json_has_inheritsfrom'));
-      var VanillaVersion := '';
+      var VanillaVer := '';
       case SelectMode of
-        1: VanillaVersion := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
-        2..3: VanillaVersion := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
+        1: VanillaVer := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
+        2: VanillaVer := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
         else abort;
       end;
       if MCRootJSON = nil then begin
-        var VanillaJSON := GetWebText(VanillaVersion);
+        var VanillaJSON := GetWebText(VanillaVer);
         if VanillaJSON = '' then begin
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.get_vanilla_json_error'));
           abort;
@@ -719,35 +714,26 @@ begin
   SetLength(DownloadLibraries, BiggestThread);
   SetLength(DownloadResource, BiggestThread);
   SourceJSON := TJsonObject.ParseJSONValue(url) as TJsonObject;
-  if VanillaPath = '' then VanillaPath := SavePath;
+  if VanillaPath = '' then VanillaPath := tmp1;
   var AssetPath := Concat(RootPath, '\assets\indexes\', (SourceJSON.GetValue('assetIndex') as TJsonObject).GetValue('id').Value, '.json');
-  var ClientVersion := VanillaVersion;
-  if ClientVersion = '' then begin
-    ClientVersion := GetVanillaVersion(url);
-  end;
-  if ClientVersion = '' then begin
-    form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.mc_vanilla_id_not_found'));
-    abort;
-  end;
-  var ClientPath := Concat(VanillaPath, '\', ClientVersion, '.jar');
   var ClientJSON := (SourceJSON.GetValue('downloads') as TJsonObject).GetValue('client') as TJsonObject;
   var JARURL := ClientJSON.GetValue('url').Value;
   var SHA := ClientJSON.GetValue('sha1').Value;
   var AssetURL := (SourceJSON.GetValue('assetIndex') as TJsonObject).GetValue('url').Value;
-  if not FileExists(ClientPath) then begin
+  var bo := true;
+  SearchDirProc(VanillaPath, false, true, procedure(T: String) begin
+    if RightStr(T, 4).Equals('.jar') then begin
+      if GetFileHash(T).Equals(SHA) then begin
+        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.main_version_jar_exists'));
+        bo := false;
+      end;
+    end;
+  end);
+  if bo then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_main_version_jar'));
-    DownloadStart(JARURL, ClientPath, '', BiggestThread, 0, 1, '', '', false);
+    DownloadStart(JARURL, Concat(VanillaPath, '\', ExtractFileName(VanillaPath), '.jar'), '', BiggestThread, 0, 1, '', '', false);
     form_mainform.button_progress_clean_download_list.Enabled := false;
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.download_main_version_jar_finish'));
-  end else begin
-    if GetFileHash(ClientPath).Equals(sha) then begin
-      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.main_version_jar_exists'));
-    end else begin
-      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_main_version_jar'));
-      DownloadStart(JARURL, ClientPath, '', BiggestThread, 0, 1, '', '', false);
-      form_mainform.button_progress_clean_download_list.Enabled := false;
-      form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.download_main_version_jar_finish'));
-    end;
   end;
   if not FileExists(AssetPath) then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_asset_index_json'));
@@ -1023,7 +1009,7 @@ end;
 //第二个SavePath是保存路径。当LoadSource为2、4、5的时候，需要为该Minecraft的version文件夹。
 //第三个RootPath是根路径，只有LoadSource为2、4、5的时候，则需要指定对应的.minecraft文件夹。否则为空。
 //第四个BiggestThread是最大线程。
-//第五个SelectMode是下载源，只有1、2、3，如果为1，则是官方下载源，2为bmclapi，3为MCBBS。如果是国外则默认全部都是1，无法使用2、3，如果是下载自定义文件，则指定0即可！
+//第五个SelectMode是下载源，只有1、2，如果为1，则是官方下载源，2为bmclapi。如果是国外则默认全部都是1，无法使用2，如果是下载自定义文件，则指定0即可！
 //第六个LoadSource是加载顺序，1为下载自定义文件，2为下载Minecraft，3为下载Java，4为下载Forge，5是导入整合包。
 //第七个javapath是本地Java路径，只有LoadSource为4、5时才需要，并且5还必须是整合包模组加载器为Forge时才必须指定，否则为空。
 //第八个VanillaVersion是将要下载的MC原版名称，只有LoaderSource为2、4、5时才需要，否则为空。当补全文件时可以为空。

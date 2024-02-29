@@ -23,8 +23,6 @@ uses
 
 //选择版本
 procedure SelVer();
-var
-  Dir: TArray<String>;
 begin
   form_mainform.combobox_select_game_version.Items.Clear;
   MCVersionSelect.Clear;
@@ -35,8 +33,7 @@ begin
     form_mainform.label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', path);
     var ver := Concat(path, '\versions');
     if DirectoryExists(ver) then begin
-      Dir := TDirectory.GetDirectories(ver);
-      for var T in Dir do begin
+      SearchDirProc(ver, true, true, procedure(T: String) begin
         var ccf := ExtractFileName(T);
         if IsVersionError(T) then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.error.cannot_find_json'))
         else if GetMCInheritsFrom(T, 'inheritsFrom') = '' then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.error.missing_inherits_version'));
@@ -60,7 +57,7 @@ begin
         MCVersionSelect.Add(T);
         (MCSelJSON.GetValue('mcsel') as TJSONArray).Add(TJSONObject.Create.AddPair('name', ExtractFileName(T)).AddPair('path', T));
         form_mainform.combobox_select_game_version.Items.Add(ccf);
-      end;
+      end);
       form_mainform.combobox_select_game_version.ItemIndex := mselect_ver;
       LLLini.WriteString('MC', 'SelectMC', inttostr(mselect_mc + 1));
       LLLini.WriteString('MC', 'SelectVer', inttostr(mselect_ver + 1));

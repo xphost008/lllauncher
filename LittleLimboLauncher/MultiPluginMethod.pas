@@ -7,14 +7,8 @@ uses
   Vcl.Forms, Vcl.StdCtrls, Vcl.MPlayer, Generics.Collections,
   System.JSON, Vcl.ExtCtrls, Winapi.ShellAPI, ComCtrls,
   System.StrUtils, SysUtils, System.RegularExpressions,
-  Vcl.Buttons, JPEG, pngimage, GIFImg, Vcl.Controls;
+  Vcl.Buttons, JPEG, pngimage, GIFImg, Vcl.Controls, Vcl.Menus;
 
-procedure CreateFirstPluginForm(name, json: String);
-
-implementation
-
-uses
-  Log4Delphi, MainForm, MainMethod, MyCustomWindow, LanguageMethod;
 type
   TPluginForm = class
   private
@@ -24,6 +18,7 @@ type
     PluginButton: TList<TBitBtn>;
     PluginLabel: TList<TLabel>;
     PluginMemo: TList<TMemo>;
+    PluginEdit: TList<TEdit>;
     PluginScrollBar: TList<TScrollBar>;
     PluginSpeedButton: TList<TSpeedButton>;
     PluginImage: TList<TImage>;
@@ -33,20 +28,32 @@ type
     constructor ConstructorPluginForm(name, json: String);
     procedure ShowTabSheet;
     procedure PluginControlClick(Sender: TObject);
+    procedure PluginControlChange(Sender: TObject);
     procedure PluginControlMouseMove(Sender: TObject;
       Shift: TShiftState; X, Y: Integer);
     procedure PluginControlMouseLeave(Sender: TObject);
+    procedure PluginControlScroll(Sender: TObject;
+      ScrollCode: TScrollCode; var ScrollPos: Integer);
     function VaribaleToValue(text: String): String;
   end;
+  
+var
+  PluginIndex: Integer;
+  PluginFormList: TList<TPluginForm>;
+
+procedure CreateFirstPluginForm(name, json: String);
+
+implementation
+
+uses
+  Log4Delphi, MainForm, MainMethod, MyCustomWindow, LanguageMethod;
 var
   temp: String;
-  PluginFormList: TList<TPluginForm>;
-  index: Integer;
 //插件变量换成值（在文本的任意位置，将所有变量转换成值）
 function TPluginForm.VaribaleToValue(text: String): String;
 begin
   for var I in PluginVariableDic do begin
-    text := text.Replace(I.Key, I.Value);
+    text := text.Replace(Concat('${', I.Key, '}'), I.Value);
   end;
   result := text;
 end;
@@ -66,6 +73,16 @@ procedure TPluginForm.PluginControlMouseLeave(Sender: TObject);
 begin
   //
 end;
+//控件改变事件
+procedure TPluginForm.PluginControlChange(Sender: TObject);
+begin
+  //
+end;
+procedure TPluginForm.PluginControlScroll(Sender: TObject;
+  ScrollCode: TScrollCode; var ScrollPos: Integer);
+begin
+
+end;
 //创建插件窗口
 constructor TPluginForm.ConstructorPluginForm(name, json: String);
 begin
@@ -74,20 +91,21 @@ begin
   PluginVariableDic := TDictionary<string, string>.Create;
   PluginButton := TList<TBitBtn>.Create;
   PluginLabel := TList<TLabel>.Create;
+  PluginEdit := TList<TEdit>.Create;
   PluginMemo := TList<TMemo>.Create;
+  PluginCombobox := TList<TCombobox>.Create;
   PluginScrollBar := TList<TScrollBar>.Create;
   PluginSpeedButton := TList<TSpeedButton>.Create;
   PluginImage := TList<TImage>.Create;
-  PluginCombobox := TList<TCombobox>.Create;
-  PluginTabSheet := TTabSheet.Create(form_mainform.pagecontrol_mainpage);
-  PluginTabSheet.Parent := form_mainform.pagecontrol_mainpage;
+  PluginTabSheet := TTabSheet.Create(form_mainform.pagecontrol_all_plugin_part);
+  PluginTabSheet.Parent := form_mainform.pagecontrol_all_plugin_part;
+  PluginTabSheet.PageControl := form_mainform.pagecontrol_all_plugin_part;
   try
     PluginTabSheet.Name := PluginJSON.GetValue('plugin_name').Value;
   except
     MyMessagebox(GetLanguage('messagebox_plugin.lose_form_name.caption'), GetLanguage('messagebox_plugin.lose_form_name.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
-  PluginTabSheet.ShowHint := true;
   var desc := '';
   var upt := '';
   var ver := '';
@@ -105,7 +123,6 @@ begin
                         .Replace('${plugin_update_time}', upt)
                         .Replace('${plugin_description}', desc);
   with PluginTabSheet do begin
-    Hint := all;
     Caption := cap;
     TabVisible := false;
   end;
@@ -115,6 +132,8 @@ begin
     Parent := PluginTabSheet;
     ParentColor := false;
     Align := alClient;
+    ShowHint := true;
+    Hint := all;
     HorzScrollBar.Tracking := true;
     VertScrollBar.Tracking := true;
   end;
@@ -132,9 +151,11 @@ begin
         Top := strtoint(pos[1].Value);
         Width := strtoint(pos[2].Value);
         Height := strtoint(pos[3].Value);
+        try Enabled := strtobool(obj.GetValue('enabled').Value); except Enabled := true; end;
+        try Visible := strtobool(obj.GetValue('visible').Value); except Visible := true; end;
         try Caption := obj.GetValue('caption').Value; except Caption := ''; end;
         try Font.Color := ConvertHexToColor(obj.GetValue('font_color').Value); except Font.Color := 0; end;
-        try Font.Size := obj.GetValue<Integer>('font_size'); except Font.Size := 9 end;
+        try Font.Size := strtoint(obj.GetValue('font_size').Value); except Font.Size := 9 end;
         try Font.Name := obj.GetValue('font_style').Value; except Font.Name := '宋体' end;
         try Hint := obj.GetValue('hint').Value; except Hint := '' end;
         OnClick := PluginControlClick;
@@ -154,9 +175,11 @@ begin
         Width := strtoint(pos[2].Value);
         Height := strtoint(pos[3].Value);
         Transparent := false;
+        try Enabled := strtobool(obj.GetValue('enabled').Value); except Enabled := true; end;
+        try Visible := strtobool(obj.GetValue('visible').Value); except Visible := true; end;
         try Caption := obj.GetValue('caption').Value; except Caption := ''; end;
         try Font.Color := ConvertHexToColor(obj.GetValue('font_color').Value); except Font.Color := 0; end;
-        try Font.Size := obj.GetValue<Integer>('font_size'); except Font.Size := 9 end;
+        try Font.Size := strtoint(obj.GetValue('font_size').Value); except Font.Size := 9 end;
         try Font.Name := obj.GetValue('font_style').Value; except Font.Name := '宋体' end;
         try Hint := obj.GetValue('hint').Value; except Hint := '' end;
         try Color := ConvertHexToColor(obj.GetValue('back_color').Value); except Color := rgb(255, 255, 255) end;
@@ -176,6 +199,9 @@ begin
         Top := strtoint(pos[1].Value);
         Width := strtoint(pos[2].Value);
         Height := strtoint(pos[3].Value);
+        try Hint := obj.GetValue('hint').Value; except Hint := '' end;
+        try Enabled := strtobool(obj.GetValue('enabled').Value); except Enabled := true; end;
+        try Visible := strtobool(obj.GetValue('visible').Value); except Visible := true; end;
         var imgc := obj.GetValue('image') as TJSONObject;
         try
           var f := imgc.GetValue('base64').Value;
@@ -274,6 +300,188 @@ begin
             end;
           end;
         end;
+        OnClick := PluginControlClick;
+        OnMouseMove := PluginControlMouseMove;
+        OnMouseLeave := PluginControlMouseLeave;
+      end;
+    end else if obj.GetValue('type').Value.Equals('edit') then begin
+      PluginEdit.Add(TEdit.Create(PluginScrollBox));
+      with PluginEdit[PluginEdit.Count - 1] do begin
+        Parent := PluginScrollBox;
+        Name := obj.GetValue('name').Value;
+        ShowHint := true;
+        var pos := obj.GetValue('position') as TJSONArray;
+        Left := strtoint(pos[0].Value);
+        Top := strtoint(pos[1].Value);
+        Width := strtoint(pos[2].Value);
+        Height := strtoint(pos[3].Value);
+        try Enabled := strtobool(obj.GetValue('enabled').Value); except Enabled := true; end;
+        try Visible := strtobool(obj.GetValue('visible').Value); except Visible := true; end;
+        try TextHint := obj.GetValue('texthint').Value; except TextHint := '' end;
+        try Hint := obj.GetValue('hint').Value; except Hint := '' end;
+        try Text := obj.GetValue('text').Value; except Text := '' end;
+        try PluginVariableDic.Add(obj.GetValue('result').Value, Text) except end;
+        try Font.Color := ConvertHexToColor(obj.GetValue('font_color').Value); except Font.Color := 0; end;
+        try Font.Size := strtoint(obj.GetValue('font_size').Value); except Font.Size := 9 end;
+        try Font.Name := obj.GetValue('font_style').Value; except Font.Name := '宋体' end;
+        OnClick := PluginControlClick;
+        OnChange := PluginControlChange;
+        OnMouseMove := PluginControlMouseMove;
+        OnMouseLeave := PluginControlMouseLeave;
+      end;
+    end else if obj.GetValue('type').Value.Equals('combobox') then begin
+      PluginCombobox.Add(TComboBox.Create(PluginScrollBox));
+      with PluginCombobox[PluginCombobox.Count - 1] do begin
+        Parent := PluginScrollBox;
+        Name := obj.GetValue('name').Value;
+        ShowHint := true;
+        var pos := obj.GetValue('position') as TJSONArray;
+        Left := strtoint(pos[0].Value);
+        Top := strtoint(pos[1].Value);
+        Width := strtoint(pos[2].Value);
+        Height := strtoint(pos[3].Value);
+        try Enabled := strtobool(obj.GetValue('enabled').Value); except Enabled := true; end;
+        try Visible := strtobool(obj.GetValue('visible').Value); except Visible := true; end;
+        try Font.Color := ConvertHexToColor(obj.GetValue('font_color').Value); except Font.Color := 0; end;
+        try Font.Size := strtoint(obj.GetValue('font_size').Value); except Font.Size := 9 end;
+        try Font.Name := obj.GetValue('font_style').Value; except Font.Name := '宋体' end;
+        try
+          var item := obj.GetValue('items') as TJSONArray;
+          for var O in item do
+            Items.Add(O.Value);
+        except end;
+        try ItemIndex := strtoint(obj.GetValue('itemindex').Value); except ItemIndex := -1 end;
+        try PluginVariableDic.Add(obj.GetValue('result').Value, inttostr(ItemIndex)) except end;
+        OnDropDown := PluginControlClick;
+        OnSelect := PluginControlChange;
+      end;
+    end else if obj.GetValue('type').Value.Equals('scrollbar') then begin
+      PluginScrollBar.Add(TScrollBar.Create(PluginScrollBox));
+      with PluginScrollBar[PluginScrollBar.Count - 1] do begin
+        Parent := PluginScrollBox;
+        Name := obj.GetValue('name').Value;
+        ShowHint := true;
+        var pos := obj.GetValue('position') as TJSONArray;
+        Left := strtoint(pos[0].Value);
+        Top := strtoint(pos[1].Value);
+        Width := strtoint(pos[2].Value);
+        Height := strtoint(pos[3].Value);
+        try Enabled := strtobool(obj.GetValue('enabled').Value); except Enabled := true; end;
+        try Visible := strtobool(obj.GetValue('visible').Value); except Visible := true; end;
+        try Min := strtoint(obj.GetValue('min').Value); except Min := 0; end;
+        try Max := strtoint(obj.GetValue('max').Value); except Max := 100; end;
+        try Position := strtoint(obj.GetValue('current').Value); except Position := Min; end;
+        try 
+          var kd := obj.GetValue('kind').Value;
+          if(kd.Equals('horz')) then Kind := sbHorizontal
+          else if(kd.Equals('vert')) then Kind := sbVertical
+          else raise Exception.Create(Concat(kd, ' is not a valid value in here!'));
+        except Kind := sbHorizontal end;
+        try PluginVariableDic.Add(obj.GetValue('result').Value, inttostr(Position)) except end;
+        OnScroll := PluginControlScroll;
+      end;
+    end else if obj.GetValue('type').Value.Equals('memo') then begin
+      PluginMemo.Add(TMemo.Create(PluginScrollBox));
+      with PluginMemo[PluginMemo.Count - 1] do begin
+        Parent := PluginScrollBox;
+        Name := obj.GetValue('name').Value;
+        ShowHint := true;
+        var pos := obj.GetValue('position') as TJSONArray;
+        Left := strtoint(pos[0].Value);
+        Top := strtoint(pos[1].Value);
+        Width := strtoint(pos[2].Value);
+        Height := strtoint(pos[3].Value);
+        try Enabled := strtobool(obj.GetValue('enabled').Value); except Enabled := true; end;
+        try Visible := strtobool(obj.GetValue('visible').Value); except Visible := true; end;
+        try ReadOnly := strtobool(obj.GetValue('readonly').Value); except ReadOnly := false; end;
+        try Font.Color := ConvertHexToColor(obj.GetValue('font_color').Value); except Font.Color := 0; end;
+        try Font.Size := strtoint(obj.GetValue('font_size').Value); except Font.Size := 9 end;
+        try Font.Name := obj.GetValue('font_style').Value; except Font.Name := '宋体' end;
+        var L := '';
+        try
+          var lne := obj.GetValue('lines') as TJSONArray;
+          for var O in lne do begin
+            Lines.Add(O.Value);
+            L := Concat(O.Value, #13#10);
+          end;
+        except end;
+        try PluginVariableDic.Add(obj.GetValue('result').Value, L) except end;
+        OnMouseMove := PluginControlMouseMove;
+        OnMouseLeave := PluginControlMouseLeave;
+        OnClick := PluginControlClick;
+        OnChange := PluginControlChange;
+      end;
+    end else if obj.GetValue('type').Value.Equals('speedbutton') then begin
+      PluginSpeedButton.Add(TSpeedButton.Create(PluginScrollBox));
+      with PluginSpeedButton[PluginSpeedButton.Count - 1] do begin
+        Parent := PluginScrollBox;
+        Name := obj.GetValue('name').Value;
+        ShowHint := true;
+        var pos := obj.GetValue('position') as TJSONArray;
+        Left := strtoint(pos[0].Value);
+        Top := strtoint(pos[1].Value);
+        Width := strtoint(pos[2].Value);
+        Height := strtoint(pos[3].Value);
+        try Enabled := strtobool(obj.GetValue('enabled').Value); except Enabled := true; end;
+        try Visible := strtobool(obj.GetValue('visible').Value); except Visible := true; end;
+        try Font.Color := ConvertHexToColor(obj.GetValue('font_color').Value); except Font.Color := 0; end;
+        try Font.Size := strtoint(obj.GetValue('font_size').Value); except Font.Size := 9 end;
+        try Font.Name := obj.GetValue('font_style').Value; except Font.Name := '宋体' end;
+        var imgc := obj.GetValue('image') as TJSONObject;
+        try
+          var f := imgc.GetValue('base64').Value;
+          var s := imgc.GetValue('suffix').Value;
+          if s.Equals('bmp') then begin
+            try
+              Glyph.LoadFromStream(Base64ToStream(f));
+            except
+              Glyph := nil;
+            end;
+          end else Glyph := nil;
+        except
+          try
+            var f := imgc.GetValue('path').Value;
+            var s := imgc.GetValue('suffix').Value;
+            if f.IndexOf('.') = 0 then begin
+              f := Concat(ExtractFileDir(Application.ExeName), f.Substring(1));
+            end;
+            if FileExists(f) then begin
+              if s.Equals('bmp') then begin
+                try
+                  Glyph.LoadFromFile(f);
+                except
+                  Glyph := nil;
+                end;
+              end else Glyph := nil;
+            end else Glyph := nil;
+          except
+            try
+              var f := imgc.GetValue('url').Value;
+              var s := imgc.GetValue('suffix').Value;
+              var g := GetWebStream(f);
+              if s.Equals('bmp') then begin
+                try
+                  Glyph.LoadFromStream(g);
+                except
+                  Glyph := nil;
+                end;
+              end else Glyph := nil;
+            except
+              Glyph := nil;
+            end;
+          end;
+        end;
+        try
+          var lo := obj.GetValue('layout').Value;
+          if lo.Equals('left') then Layout := blGlyphLeft
+          else if lo.Equals('right') then Layout := blGlyphRight
+          else if lo.Equals('top') then Layout := blGlyphTop
+          else if lo.Equals('bottom') then Layout := blGlyphBottom
+          else raise Exception.Create(Concat(lo, ' is not a valid value in here!'));
+        except Layout := blGlyphLeft end;
+        OnClick := PluginControlClick;
+        OnMouseMove := PluginControlMouseMove;
+        OnMouseLeave := PluginControlMouseLeave;
       end;
     end;
   end;
@@ -281,18 +489,20 @@ end;
 //显示窗口
 procedure TPluginForm.ShowTabSheet;
 begin
-
 end;
+var
+  f: Boolean = true;
 //创建首个插件窗口
 procedure CreateFirstPluginForm(name, json: String);
 var
   TempDir: array[0..255] of char;
 begin
-  GetTempPath(255, @TempDir);
-  temp := strpas(TempDir);
-  index := 0;
+  if f then begin
+    GetTempPath(255, @TempDir);
+    temp := strpas(TempDir);
+    f := false;
+  end;
   PluginFormList := TList<TPluginForm>.Create;
   PluginFormList.Add(TPluginForm.ConstructorPluginForm(name, json));
-  PluginFormList[0].ShowTabSheet;
 end;
 end.

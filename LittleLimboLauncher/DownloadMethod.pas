@@ -245,7 +245,7 @@ begin
               MyMessagebox(GetLanguage('messagebox_download.download_forge_success.caption'), GetLanguage('messagebox_download.download_forge_success.text'), MY_PASS, [mybutton.myOK]);
             end).Start;
           end;
-          2: begin //Forge BMCLAPI MCBBS
+          2: begin //Forge BMCLAPI
             var lv := loaderJSON[form_mainform.listbox_select_modloader.ItemIndex] as TJSONObject;
             var lov := lv.GetValue('version').Value;
             var mcv := lv.GetValue('mcversion').Value;
@@ -293,8 +293,8 @@ begin
             form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Fabric').Replace('${source}', 'Official'));
             dul := Concat('https://meta.fabricmc.net/v2/versions/loader/', ver, '/', fver, '/profile/json');
           end;
-          2..3: begin
-            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Fabric').Replace('${source}', IfThen(mdownload_source = 2, 'BMCLAPI', 'CUSTOM')));
+          2: begin
+            form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Fabric').Replace('${source}', 'BMCLAPI'));
             dul := Concat('https://bmclapi2.bangbang93.com/fabric-meta/v2/versions/loader/', ver, '/', fver, '/profile/json');
           end;
         end;
@@ -400,7 +400,7 @@ begin
               end;
             end;
             TThread.CreateAnonymousThread(procedure begin
-              form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'NeoForge').Replace('${source}', IfThen(mdownload_source = 2, 'BMCLAPI', 'CUSTOM')));
+              form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'NeoForge').Replace('${source}', 'BMCLAPI'));
               form_mainform.button_progress_clean_download_list.Enabled := false;
               DownloadStart(dul, mcspath, mcpath, mbiggest_thread, mdownload_source, 4, sjpth, mcvname, false);
               form_mainform.button_progress_clean_download_list.Enabled := true;
@@ -421,7 +421,7 @@ begin
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Vanilla').Replace('${source}', 'Official'));
       end;
       2: begin
-        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Vanilla').Replace('${source}', IfThen(mdownload_source = 2, 'BMCLAPI', 'CUSTOM')));
+        form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.download.start_download').Replace('${version}', 'Vanilla').Replace('${source}', 'BMCLAPI'));
         jurl := jurl.Replace('https://piston-meta.mojang.com', 'https://bmclapi2.bangbang93.com');
       end;
     end;

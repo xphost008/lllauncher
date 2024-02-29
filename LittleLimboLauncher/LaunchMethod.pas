@@ -179,7 +179,6 @@ begin
   var ymeta := 'https://piston-meta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json';
   case mdownload_source of
     2: ymeta := ymeta.Replace('https://piston-meta.mojang.com', 'https://bmclapi2.bangbang93.com');
-    3: ymeta := ymeta.Replace('https://piston-meta.mojang.com', 'https://download.mcbbs.net');
   end;
   form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_download_progress_part;
   TThread.CreateAnonymousThread(procedure begin
@@ -198,7 +197,6 @@ begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.java.get_java_manifest').Replace('${java_version}', jver));
     case mdownload_source of
       2: mani := mani.Replace('https://piston-meta.mojang.com', 'https://bmclapi2.bangbang93.com');
-      3: mani := mani.Replace('https://piston-meta.mojang.com', 'https://download.mcbbs.net');
     end;
     var murl := GetWebText(mani);
     if murl = '' then begin

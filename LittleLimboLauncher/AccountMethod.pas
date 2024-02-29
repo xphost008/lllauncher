@@ -591,9 +591,7 @@ begin
   end;
   offline_uuid := offline_uuid.ToLower;
   if offline_uuid = '' then begin
-    offline_uuid := TextToMD5(offline_name);
-//    CreateGuid(uid);
-//    offline_uuid := GuidToString(uid).Replace('{', '').Replace('}', '').Replace('-', '').ToLower;
+    offline_uuid := NameToDefaultUUID(offline_name);
   end;
   if not TRegex.IsMatch(offline_uuid, '^[a-f0-9]{32}') then begin
     MyMessagebox(GetLanguage('messagebox_account_offline_error.cannot_uuid.caption'), GetLanguage('messagebox_account_offline_error.cannot_uuid.text'), MY_ERROR, [mybutton.myOK]);
@@ -1047,9 +1045,8 @@ begin
   end;
   try
     Log.Write('判断下载源以下载Authlib-Injector', LOG_INFO, LOG_START);
-    var ds := LLLini.ReadInteger('Version', 'SelectDownloadSouece', -1);
-    if ds = 1 then mauthlib_download := 'https://authlib-injector.yushi.moe/'
-    else if (ds = 2) or (ds = 3) then mauthlib_download := 'https://bmclapi2.bangbang93.com/mirrors/authlib-injector/'
+    if mdownload_source = 1 then mauthlib_download := 'https://authlib-injector.yushi.moe/'
+    else if (mdownload_source = 2) then mauthlib_download := 'https://bmclapi2.bangbang93.com/mirrors/authlib-injector/'
     else raise Exception.Create('Format Exception');
   except
     Log.Write('下载源判断失败，已自动重置为官方下载源。', LOG_ERROR, LOG_START);

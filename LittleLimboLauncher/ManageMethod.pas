@@ -109,15 +109,6 @@ begin
         var ml := dep[index - 7] as TJSONObject;
         result := ml.GetValue(key).Value;
       end;
-      9: begin
-        var dep := ModPackMetadata.GetValue('origin') as TJSONArray;
-        for var I in dep do begin
-          var J := I as TJSONObject;
-          if J.GetValue('type').Value.Equals(key) then begin
-            result := J.GetValue<String>('id');
-          end;
-        end;
-      end;
       10: begin
         var dep := ModPackMetadata.GetValue('serverInfo') as TJSONObject;
         result := dep.GetValue(key).Value;
@@ -230,7 +221,6 @@ begin
       .Replace('${modpack_summary}', Concat(#13#10, JudgeException(1, 'description', false).Replace(#13, #13#10).Replace(#10, #13#10)))
       .Replace('${modpack_update_url}', JudgeException(1, 'fileApi', false))
       .Replace('${modpack_official_url}', JudgeException(1, 'url', false))
-      .Replace('${modpack_mcbbs}', IfThen(JudgeException(9, 'mcbbs', true).isEmpty, GetLanguage('picturebox_resource.has_no_data'), Concat('https://www.mcbbs.net/thread-', JudgeException(9, 'mcbbs', true), '-1-1.html')))
       .Replace('${modpack_server}', JudgeException(10, 'authlibInjectorServer', false))
       .Replace('${modpack_mcversion}', mcv)
       .Replace('${modpack_modloader}', ml)
@@ -328,12 +318,6 @@ begin
 end;
 //查询玩法文件夹，然后添加到列表框。
 procedure SelectresourceDir();
-var
-  ModFiles: TArray<String>;
-  ResFiles: TArray<String>;
-  SavFiles: TArray<String>;
-  PluFiles: TArray<String>;
-  ShaFiles: TArray<String>;
 begin
   form_mainform.listbox_manage_import_mod.Clear;
   ModSelect.Clear;
@@ -350,8 +334,7 @@ begin
   try //模组
     var rpath := Concat(mcrlpth, '\mods');
     if DirectoryExists(rpath) then begin
-      ModFiles := TDirectory.GetFiles(rpath);
-      for var T in ModFiles do begin
+      SearchDirProc(rpath, false, true, procedure(T: String) begin
         var ex := ExtractFileName(T);
         if (RightStr(ex, 4) = '.jar') or (RightStr(ex, 4) = '.zip') then begin
           ModSelect.Add(T);
@@ -360,50 +343,46 @@ begin
           ModSelect.Add(T);
           form_mainform.listbox_manage_import_mod.Items.Add(Concat('[禁用]', ex.Substring(0, ex.Length - 13)));
         end;
-      end;
+      end);
     end;
   except end;
   try //地图
     var rpath := Concat(mcrlpth, '\saves');
     if DirectoryExists(rpath) then begin
-      SavFiles := TDirectory.GetDirectories(rpath);
-      for var T in SavFiles do begin
+      SearchDirProc(rpath, true, true, procedure(T: String) begin
         SavSelect.Add(T);
         form_mainform.listbox_manage_import_map.Items.Add(ExtractFilename(T));
-      end;
+      end);
     end;
   except end;
   try //纹理
     var rpath := Concat(mcrlpth, '\resourcepacks');
     if DirectoryExists(rpath) then begin
-      ResFiles := TDirectory.GetFiles(rpath);
-      for var T in ResFiles do begin
+      SearchDirProc(rpath, false, true, procedure(T: String) begin
         var ex := ExtractFileName(T);
         if (RightStr(ex, 4) = '.zip') then begin
           ResSelect.Add(T);
           form_mainform.listbox_manage_import_resourcepack.Items.Add(ex.Substring(0, ex.Length - 4));
         end;
-      end;
+      end);
     end;
   except end;
   try //光影
     var rpath := Concat(mcrlpth, '\shaderpacks');
     if DirectoryExists(rpath) then begin
-      ShaFiles := TDirectory.GetFiles(rpath);
-      for var T in ShaFiles do begin
+      SearchDirProc(rpath, false, true, procedure(T: String) begin
         var ex := ExtractFileName(T);
         if (RightStr(ex, 4) = '.zip') then begin
           ShaSelect.Add(T);
           form_mainform.listbox_manage_import_shader.Items.Add(ex.Substring(0, ex.Length - 4));
         end;
-      end;
+      end);
     end;
   except end;
   try //插件
     var rpath := Concat(mcrlpth, '\plugins');
     if DirectoryExists(rpath) then begin
-      PluFiles := TDirectory.GetFiles(rpath);
-      for var T in PluFiles do begin
+      SearchDirProc(rpath, false, true, procedure(T: String) begin
         var ex := ExtractFileName(T);
         if (RightStr(ex, 4) = '.jar') or (RightStr(ex, 4) = '.zip') then begin
           PluSelect.Add(T);
@@ -412,7 +391,7 @@ begin
           PluSelect.Add(T);
           form_mainform.listbox_manage_import_plugin.Items.Add(Concat('[禁用]', ex.Substring(0, ex.Length - 13)));
         end;
-      end;
+      end);
     end;
   except end;
 end;
@@ -774,18 +753,16 @@ begin
 end;
 //点击地图列表框事件
 procedure ManageChangeMap;
-var
-  dpk: TArray<String>;
 begin
   DatSelect.Clear;
   try
-    dpk := TDirectory.GetFiles(Concat(SavSelect[form_mainform.listbox_manage_import_map.ItemIndex], '\datapacks\'));
-    for var I in dpk do begin
-      if RightStr(I, 4) = '.zip' then begin
-        DatSelect.Add(I);
-        form_mainform.listbox_manage_import_datapack.Items.Add(ChangeFileExt(ExtractFileName(I), ''));
+    var rpath := Concat(SavSelect[form_mainform.listbox_manage_import_map.ItemIndex], '\datapacks\');
+    SearchDirProc(rpath, false, true, procedure(T: String) begin
+      if RightStr(T, 4) = '.zip' then begin
+        DatSelect.Add(T);
+        form_mainform.listbox_manage_import_datapack.Items.Add(ChangeFileExt(ExtractFileName(T), ''));
       end;
-    end;
+    end);
   except end;
 end;
 //初始化玩法管理界面方法

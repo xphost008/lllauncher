@@ -9,7 +9,6 @@ uses
   System.StrUtils, SysUtils, System.RegularExpressions,
   Vcl.Buttons, JPEG, pngimage, GIFImg;
 
-
 procedure CreateFirstPluginForm(name, json: String);
 
 implementation
