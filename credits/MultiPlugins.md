@@ -840,13 +840,15 @@
 			}
 		},
 		{
-			"type": "switch_page",
-			"page": "${my_random_result}"
+			"type": "change",
+			"name": "my_edit",
+			"readonly": "${my_random_result}"
 		}
 	]
 }
 ```
 2. 可以看见，random变量存起来其实是一个字符串，但是使用的时候，却可以将其当成int来使用！但是如果要当作int来使用的话，只能将其单独作为一个变量，周围不能加入任何一个字符！否则会直接报错！
+3. 但是下面我们可以直接改变my_edit的readonly为5，为啥呢？因为在程序中，只要是非0值，都会被默认成true噢！
 
 #### 有关窗口默认属性
 
