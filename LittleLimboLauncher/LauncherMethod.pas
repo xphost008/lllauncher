@@ -766,7 +766,9 @@ begin
   except
     form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.not_choose_account');
     Log.Write('账号判断失误，你还没有选择任何一个账号。', LOG_ERROR, LOG_LAUNCH);
-    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_account.caption'), GetLanguage('messagebox_launcher.not_choose_account.text'), MY_ERROR, [mybutton.myOK]);
+    form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_account_part;
+    form_mainform.pagecontrol_mainpageChange(nil);
+//    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_account.caption'), GetLanguage('messagebox_launcher.not_choose_account.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   try
@@ -782,7 +784,9 @@ begin
   except
     form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.not_choose_mc_version');
     Log.Write('MC版本判断失误，你还没有选择任何一个MC版本。', LOG_ERROR, LOG_LAUNCH);
-    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_mc_version.caption'), GetLanguage('messagebox_launcher.not_choose_mc_version.text'), MY_ERROR, [mybutton.myOK]);
+    form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_version_part;
+    form_mainform.pagecontrol_mainpageChange(nil);
+//    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_mc_version.caption'), GetLanguage('messagebox_launcher.not_choose_mc_version.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   try
@@ -798,7 +802,9 @@ begin
   except
     form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.not_choose_java');
     Log.Write('Java判断失误，你还没有选择任何一个Java。', LOG_ERROR, LOG_LAUNCH);
-    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_java.caption'), GetLanguage('messagebox_launcher.not_choose_java.text'), MY_ERROR, [mybutton.myOK]);
+    form_mainform.pagecontrol_mainpage.ActivePage := form_mainform.tabsheet_launch_part;
+    form_mainform.pagecontrol_mainpageChange(nil);
+//    MyMessagebox(GetLanguage('messagebox_launcher.not_choose_java.caption'), GetLanguage('messagebox_launcher.not_choose_java.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
   try

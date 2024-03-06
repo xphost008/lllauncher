@@ -7,7 +7,7 @@ uses
 
 procedure InitVersion;
 procedure SaveVersion;
-procedure ChooseVersionDir(name, path: String);
+procedure ChooseVersionDir(name, path: String; isShow: Boolean);
 procedure SelVer();
 procedure CompleteVersion;
 
@@ -89,7 +89,7 @@ begin
   end).Start;
 end;
 //选择版本文件夹方法
-procedure ChooseVersionDir(name, path: String);
+procedure ChooseVersionDir(name, path: String; isShow: Boolean);
 begin
   MCVersionList.Add(path);
   MCVersionName.Add(name);
@@ -101,7 +101,7 @@ begin
   mselect_mc := form_mainform.combobox_select_file_list.ItemIndex;
   mselect_ver := -1;
   SelVer;
-  MyMessagebox(GetLanguage('messagebox_version.select_mc_success.caption'), GetLanguage('messagebox_version.select_mc_success.text'), MY_PASS, [mybutton.myOK]);
+  if isshow then MyMessagebox(GetLanguage('messagebox_version.select_mc_success.caption'), GetLanguage('messagebox_version.select_mc_success.text'), MY_PASS, [mybutton.myOK]);
 end;
 //初始化版本部分
 var f: Boolean = false;
@@ -146,10 +146,12 @@ begin
     end else raise Exception.Create('Format Exception');
     form_mainform.label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', MCVersionList[mselect_mc]);
   except
-    LLLini.WriteInteger('MC', 'SelectMC', 0); //如果没有，则赋值重新写入文件
-    form_mainform.combobox_select_file_list.ItemIndex := -1;
+    ChooseVersionDir(GetLanguage('combobox_version.current_directory.text'), Concat(ExtractFileDir(Application.ExeName), '\.minecraft'), false);
+    ChooseVersionDir(GetLanguage('combobox_version.official_directory.text'), Concat(AppData, '\.minecraft'), false);
+    LLLini.WriteInteger('MC', 'SelectMC', 1); //如果没有，则赋值重新写入文件
+    form_mainform.combobox_select_file_list.ItemIndex := -0;
     form_mainform.label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', '');
-    mselect_mc := -1;
+    mselect_mc := -0;
   end;
   try //添加版本选择，并判断游戏Version文件的规范性，如果规范，则正常输出。
     mselect_ver := LLLini.ReadInteger('MC', 'SelectVer', -1) - 1;
@@ -159,7 +161,7 @@ begin
     LLLini.WriteInteger('MC', 'SelectVer', 0); //如果没有，则赋值重新写入文件
     mselect_ver := -1;
   end;
-  try
+  try //判断版本隔离（
     misolation_mode := LLLini.ReadInteger('Version', 'SelectIsolation', -1);
     if (misolation_mode < 1) or (misolation_mode > 4) then raise Exception.Create('No Isolation Choose');
     form_mainform.radiogroup_partition_version.ItemIndex := misolation_mode - 1;

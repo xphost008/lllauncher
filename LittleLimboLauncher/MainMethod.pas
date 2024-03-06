@@ -698,8 +698,8 @@ begin
   end else if suffix = '.gif' then begin
     var gif := TGifImage.Create;
     gif.LoadFromFile(imgpth);
-//    gif.Animate := true;
-//    gif.Transparent := true;
+    gif.Animate := true;
+    gif.Transparent := true;
     form_mainform.image_mainpage_background_image.Picture.Assign(gif);
     gif.Free;
   end;

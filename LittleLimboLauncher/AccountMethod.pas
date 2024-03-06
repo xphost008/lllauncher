@@ -44,6 +44,13 @@ type
     class function GetHttph(key, web: String): String;
   end;
 
+const
+  NoAccount =
+'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsEAAA7BAbiRa+0AAAJfSURBVHhe7ZuLToIxDIXR938YTTTEp1O7/CWj6bpLT8cG/5cQBNlpz9mNxPh2qfN7PPNn+TWz+vv8WuX9eNYgASm+I6YPLR' +
+'35YTPBDTD9SHP5h6ONzw5a9ZZvgTDz318/pC0fktrvveSebvram0jzKCMRPSVNFl7ZPBMSQkQAlvFWfYSGxV0AM8yPaqP1cpK29T2gF61ZatTTbGl8KZhuEEkSJfNIQmogV0AO2jwRoZlEOdnRAnJmQhrNQNVLOugVEG2egNbwBqDty9m4ekCugBmzz8BqeYRm730JpH7ULbANFAAl' +
+'6d3Ls2ef8NZMvs8VcDy/LC8fAOoWeMQZQLh7OLfA/wNxC3jHj4Do+bwFzgCO5xHkoTNzG8haw4ew9/SGNdLJMgEQs0OA1kPdAjlILQm6T8gtoM1ARAiapnu1oW6B6BBCzBPIazAqhDDzBEwoo2S6txZKxyQiAKJl5mXtkTFuSJALo8VbDPUQ0h/yDNiSiAAoWfTsEyG6yC3Q0lxrDa' +
+'RWiVQDta+shiODdfe/dHOCkFo0kIV7RUoNoY1LUHWTzughqDVBDUSbJ0p1SsGYjARQMj8bSAiIa/AR5hl37V4BmfAjzecM99VjYFXzzFB/tAVooBz8CiTfrWfA6rNPyJ6aJhVxCG5NSwA7zD7TvQpazOwUANHVb+8WWN080dVj7RaoLqENsLydfx2mAHjJmLP98Xk9ftqC2jZgr9X/' +
+'GMlD6dpbC2D1fvPLW0AG8czcTbZ2BvAHnimMoqdnWvI1VG+aSZnS7kGYfixzpYG7v3+H9T2ABqiDNsPwcbn8AehEoX8FqAS1AAAAAElFTkSuQmCC';
 var
   AccountJSON: TJsonObject;
 
@@ -573,7 +580,15 @@ begin
     (AccountJson.GetValue('account') as TJsonArray).Remove(form_mainform.combobox_all_account.ItemIndex);
     form_mainform.combobox_all_account.Items.Delete(form_mainform.combobox_all_account.ItemIndex);
     form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.not_login');
-    form_mainform.image_login_avatar.Picture := nil;
+    var base := Base64ToStream(NoAccount);
+    var png := TPngImage.Create;
+    try
+      png.LoadFromStream(base);
+      form_mainform.image_login_avatar.Picture.Assign(png);
+      form_mainform.image_mainform_login_avatar.Picture.Assign(png);
+    finally
+      png.Free;
+    end;
     LLLini.WriteString('Account', 'SelectAccount', '0');
   end;
 end;

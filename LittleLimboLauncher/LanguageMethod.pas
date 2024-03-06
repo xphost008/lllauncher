@@ -883,8 +883,8 @@ begin
       .AddPair('messagebox_plugin.lose_content_value.text', '该插件于content中缺失了某个必要值，请尝试修改后再点击！')
       .AddPair('messagebox_plugin.lose_form_name.caption', '窗口缺少了name值')
       .AddPair('messagebox_plugin.lose_form_name.text', '该插件在窗口处缺失了name值，请尝试修改后再点击！')
-      .AddPair('messagebox_plugin.plugin_grammar_error.caption', '窗口缺失了name值')
-      .AddPair('messagebox_plugin.plugin_grammar_error.text', '该插件在窗口处缺失了name值，请尝试修改后再点击！')
+      .AddPair('messagebox_plugin.plugin_grammar_error.caption', '窗口缺失了plugin_name值')
+      .AddPair('messagebox_plugin.plugin_grammar_error.text', '该插件在窗口处缺失了plugin_name值，请尝试修改后再点击！')
       .AddPair('messagebox_manage.drag_modpack_only_one_file.caption', '无法拖入多个文件')
       .AddPair('messagebox_manage.drag_modpack_only_one_file.text', '无法在导入整合包的时候拖入多个文件，你只能拖入一个！')
       .AddPair('messagebox_manage.drag_modpack_format_error.caption', '整合包格式不符')
@@ -945,6 +945,8 @@ begin
       .AddPair('messagebox_manage.import_modpack_success.text', '恭喜安装整合包成功了！现在你可以去玩了！')
       .AddPair('messagebox_open.is_open_document.caption', '第一次打开启动器')
       .AddPair('messagebox_open.is_open_document.text', '已检测出你目前是第一次打开该启动器，请问是否打开新手帮助文档来查看一些设置应该怎么设置？')
+      .AddPair('messagebox_plugin.plugin_suffix_error.caption', '插件部分加载失败')
+      .AddPair('messagebox_plugin.plugin_suffix_error.text', '插件部分检测到suffix值。但是似乎suffix值不是json，于是加载失败啦！')
       //以下为下载进度列表框
       .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
       .AddPair('downloadlist.custom.judge_can_multi_thread_download', '正在判断是否可以多线程下载。')
@@ -1575,6 +1577,8 @@ begin
       .AddPair('button_rename_game_version.caption', '重命名游戏版本')
       .AddPair('button_delete_game_version.caption', '删除游戏版本')
       .AddPair('label_version_tip.caption', '这里是版本部分，你可以操作游戏文件夹，还可以选择版本隔离，还可以为独立版本设计，甚至可以导出整合包噢！')
+      .AddPair('combobox_version.current_directory.text', '当前文件夹')
+      .AddPair('combobox_version.official_directory.text', '官方文件夹')
       //以下是独立设置部分
       .AddPair('label_isolation_current_version.caption', '当前选中版本：${current_version}')
       .AddPair('label_isolation_window_width.caption', '宽，当前选中：${current_width}')

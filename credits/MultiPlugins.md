@@ -29,7 +29,7 @@
 			"font_size": 18,
 			"font_style": "等线",
 			"hint": "将鼠标移到我上面可以看到提示哦！如果enabled为false的话，on_click里面的不会执行，同时该提示信息也不会显示哦！",
-			"position": [0,0,50,50],
+			"position": [0,0,500,500],
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -80,7 +80,7 @@
 				"path": ".\\LLLauncher\\BackgroundImage\\something.png",
 				"suffix": "png"
 			},
-			"position": [58,0,50,50],
+			"position": [508,0,500,500],
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -103,7 +103,7 @@
 			"font_size": 20,
 			"font_color": "#0000FF",
 			"back_color": "#FF0000",
-			"position": [0,58,50,50],
+			"position": [0,508,500,500],
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -136,7 +136,7 @@
 			"font_style": "黑体",
 			"font_size": 20,
 			"font_color": "#111111",
-			"position": [58,58,50,50],
+			"position": [508,508,500,500],
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -168,7 +168,7 @@
 			"font_style": "黑体",
 			"font_size": 20,
 			"font_color": "#111111",
-			"position": [0,116,50,50],
+			"position": [0,1016,500,500],
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -192,7 +192,7 @@
 			"font_style": "微软雅黑",
 			"font_size": 9,
 			"font_color": "#000000",
-			"position": [0,174,100,23],
+			"position": [0,1074,1000,523],
 			"result": "my_edit_result"
 		},
 		{
@@ -203,7 +203,7 @@
 			"font_style": "黑体",
 			"font_size": 18,
 			"font_color": "#101010",
-			"position": [58,116,50,50],
+			"position": [508,1016,500,500],
 			"on_click": [
 				{
 					"if":{
@@ -243,7 +243,7 @@
 			"font_style": "黑体",
 			"font_size": 18,
 			"font_color": "#101010",
-			"position": [0,205,100,23],
+			"position": [0,2005,1000,203],
 			"items": [
 				"你好世界",
 				"我爱你",
@@ -262,7 +262,7 @@
 			"type": "scrollbar",
 			"name": "my_local_scrollbar_name_1",
 			"hint": "这个是滑动条控件示例呢！其中min和max和current我觉得大家都应该懂是什么意思吧！记住，这个区间是左闭右闭的，不想Python那种左闭右开，这个确实是左闭右闭。。也就是min和max都包含进去了（",
-			"position": [0, 236, 100, 23],
+			"position": [0, 2036, 1000, 523],
 			"min": 10,
 			"max": 100,
 			"current": 30,
@@ -281,13 +281,13 @@
 			"name": "my_local_label_name_2",
 			"caption": "滑动条滑动：0",
 			"hint": "这个是滑动条改变该数据值的示例！我觉得我不需要信息框你也应该懂的！",
-			"position": [0, 267, 100, 20]
+			"position": [0, 2067, 1000, 520]
 		},
 		{
 			"type": "memo",
 			"name": "my_local_memo_name_1",
 			"hint": "这是一个多行的编辑框捏！",
-			"position": [58, 292, 50, 50],
+			"position": [508, 2092, 500, 500],
 			"font_style": "微软雅黑",
 			"font_size": 9,
 			"readonly": false,
@@ -307,7 +307,7 @@
 			"font_style": "黑体",
 			"font_size": 18,
 			"font_color": "#101010",
-			"position": [0, 292, 50, 50],
+			"position": [0, 2092, 500, 500],
 			"layout": "left",
 			"image": {
 				"path": ".\\LLLauncher\\BackgroundImage\\something.bmp",
@@ -756,7 +756,6 @@
 |random|min|随机数最小值|0|
 |random|max|随机数最大值|100|
 |random|result|随机数返回值，左闭右闭区间|无|
-|switch_page|page|数值，跳转到总窗口的界面的索引，例如主界面是0，版本设置是7|无|
 |open|json|对象，见（标准输出）一栏|空|
 |variable|value|主动定义变量值。|无|
 |variable|result|主动定义变量名。|无|

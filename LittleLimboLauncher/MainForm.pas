@@ -7,7 +7,7 @@ uses
   StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
   ExtCtrls, Controls, MPlayer, Log4Delphi, Imaging.jpeg, Generics.Collections, FileCtrl,
   ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding,
-  Vcl.Buttons;
+  Vcl.Buttons, Vcl.Mask;
 
 type
   Tform_mainform = class(TForm)
@@ -561,6 +561,7 @@ type
     procedure button_export_remove_iconClick(Sender: TObject);
     procedure timer_check_memoryTimer(Sender: TObject);
     procedure pagecontrol_all_plugin_partChange(Sender: TObject);
+    procedure image_mainform_login_avatarClick(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -612,7 +613,7 @@ implementation
 uses
   MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow, ExportMethod,
   PluginMethod, resourceMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod,
-  OnlineIPv6Method;
+  OnlineIPv6Method, MultiPluginMethod;
 
 //var
 //  Cave, Answer, Lucky: array of String;
@@ -638,72 +639,72 @@ end;
 //点击插件部分页的加载事件
 procedure Tform_mainform.PluginPageChange;
 begin
-//  var mi := Sender as TMenuItem;
-//  var mic := '';
-//  Log.Write(Concat('你点击了', mic, '语言文件，开始加载！'), LOG_START, LOG_INFO);
-//  var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
-//  if SysUtils.DirectoryExists(ld) then begin
-//    var Files := TDirectory.GetFiles(ld);
-//    for var I in Files do begin
-//      if RightStr(I, 5) = '.json' then begin //如果文件后缀为.json，则执行。
-//        if mic.IndexOf(ExtractFileName(I).Replace('&', '').Replace('[', '').Replace(']', '')) <> -1 then begin
-//          var f := GetFile(I);
-//          var ise := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
-//          try
-//            var s := ise.GetValue('suffix').Value;
-//            if not s.Equals('json') then raise Exception.Create('Error from read suffix');
-//            try
-//              f := Base64ToStream(ise.GetValue('base64').Value).DataString;
-//              if f.IsEmpty then begin
-//                Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
-////                messagebox(Handle, '获取的Base64内容为空，请重新输入一个网址！', '获取的Base64内容为空', MB_ICONERROR);
-//                exit;
-//              end;
-//            except
-//              try
-//                f := GetFile(ise.GetValue('path').Value);
-//                if f.IsEmpty then begin
-//                  Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
-////                  messagebox(Handle, '获取的Path内容为空，请重新输入一个网址！', '获取的Path内容为空', MB_ICONERROR);
-//                  exit;
-//                end;
-//                ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
-//              except
-//                f := GetWebText(ise.GetValue('url').Value);
-//                if f.IsEmpty then begin
-//                  Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
-////                  messagebox(Handle, '获取的URL内容为空，请重新输入一个网址！', '获取的URL内容为空', MB_ICONERROR);
-//                  exit;
-//                end;
-//                ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
-//              end;
-//            end;
-//          except
-//          end;
-//          try
-//            if ise.GetValue('plugin_name').Value = '' then raise Exception.Create('Plugin Format Exception');
-//          except
-//            Log.Write(Concat('插件加载失败'), LOG_ERROR, LOG_PLUGIN);
-//            MyMessagebox(GetLanguage('messagebox_plugin.plugin_grammar_error.caption'), GetLanguage('messagebox_plugin.plugin_grammar_error.text'), MY_ERROR, [mybutton.myOK]);
-//            exit;
-//          end;
-//          Log.Write('插件解析成功，开始执行！', LOG_INFO, LOG_PLUGIN);
-//          CreateFirstPluginForm(ChangeFileExt(ExtractFileName(I), ''), f);
-//          exit;
-//        end else continue;
-//      end else if RightStr(I, 4) = '.dll' then begin
-//        if mic.IndexOf(ExtractFileName(I).Replace('&', '').Replace('[', '').Replace(']', '')) <> -1 then begin
-//          var inst := LoadLibrary(pchar(I));
-//          FreeLibrary(inst);
-//        end else continue;
-//      end else continue;
-//    end;
-//  end;
+  Log.Write('你点击了插件部分，现在立刻开始加载插件！', LOG_INFO, LOG_PLUGIN);
+  var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
+  PluginFormList := TList<TPluginForm>.Create;
+  InitPluginTemp;
+  SearchDirProc(ld, false, true, procedure(T: String) begin
+    if RightStr(T, 5).Equals('.json') then begin
+      var f := GetFile(T);
+      var ise := TJSONObject.ParseJSONValue(f) as TJSONObject;
+      try
+        var suf := ise.GetValue('suffix').Value;
+        if suf.Equals('json') then begin
+          try
+            f := Base64ToStream(ise.GetValue('base64').Value).DataString;
+            if f.IsEmpty then begin
+              Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+//              messagebox(Handle, '获取的Base64内容为空，请重新输入一个网址！', '获取的Base64内容为空', MB_ICONERROR);
+              exit;
+            end;
+            ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
+          except
+            try
+              f := GetFile(ise.GetValue('path').Value);
+              if f.IsEmpty then begin
+                Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+//                messagebox(Handle, '获取的Path内容为空，请重新输入一个网址！', '获取的Path内容为空', MB_ICONERROR);
+                exit;
+              end;
+              ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
+            except
+              f := GetWebText(ise.GetValue('url').Value);
+              if f.IsEmpty then begin
+                Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+//                messagebox(Handle, '获取的URL内容为空，请重新输入一个网址！', '获取的URL内容为空', MB_ICONERROR);
+                exit;
+              end;
+              ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
+            end;
+          end;
+        end else begin
+          Log.Write('插件部分suffix填的不是json，加载失败！', LOG_ERROR, LOG_PLUGIN);
+          MyMessagebox(GetLanguage('messagebox_plugin.plugin_suffix_error.caption'), GetLanguage('messagebox_plugin.plugin_suffix_error.text'), MY_ERROR, [mybutton.myOK]);
+          exit;
+        end;
+      except end;
+      var nme := '';
+      try
+        nme := ise.GetValue('plugin_name').Value;
+        if nme.IsEmpty then raise Exception.Create('Plugin Format Exception');
+      except
+        Log.Write(Concat('插件加载失败'), LOG_ERROR, LOG_PLUGIN);
+        MyMessagebox(GetLanguage('messagebox_plugin.plugin_grammar_error.caption'), GetLanguage('messagebox_plugin.plugin_grammar_error.text'), MY_ERROR, [mybutton.myOK]);
+        PluginPageDestory();
+        pagecontrol_mainpage.ActivePage := tabsheet_mainpage_part;
+        exit;
+      end;
+      PluginFormList.Add(TPluginForm.ConstructorPluginForm(nme, f))
+    end;
+  end);
 end;
 //点击插件以外部分页的销毁事件
 procedure Tform_mainform.PluginPageDestory;
 begin
-  //
+  for var I := 0 to form_mainform.pagecontrol_all_plugin_part.PageCount - 1 do begin
+    form_mainform.pagecontrol_all_plugin_part.Pages[0].Destroy;
+  end;
+  PluginFormList.Destroy;
 end;
 //插件页切换！
 procedure Tform_mainform.pagecontrol_all_plugin_partChange(Sender: TObject);
@@ -972,7 +973,12 @@ end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 begin
-  RunDOSOnlyWait('notepad.exe D:\Workspace\DelphiWork\DelphiWorkReset\LittleLimboLauncher\Win64\Debug\LLLauncher\configs\LittleLimboLauncher.ini');
+//  var tab := TTabSheet.Create(form_mainform.pagecontrol_mainpage);
+//  tab.PageControl := form_mainform.pagecontrol_mainpage;
+//  tab.Parent := form_mainform.pagecontrol_mainpage;
+//  tab.Name := 'ww';
+//  tab.Caption := 'love';
+//  RunDOSOnlyWait('notepad.exe D:\Workspace\DelphiWork\DelphiWorkReset\LittleLimboLauncher\Win64\Debug\LLLauncher\configs\LittleLimboLauncher.ini');
 //  RunDOSAndGetPID('explorer.exe', 'explorer.exe https://rechalow.github.io', '');
 //  RunDOSOnlyWait('explorer.exe https://rechalow.github.io');
 //  shellexecute(Application.Handle, 'open', nil, 'explorer.exe https://rechalow.github.io', nil, SW_SHOWNORMAL);
@@ -1214,7 +1220,7 @@ end;
 //特定扫描Java
 procedure Tform_mainform.button_launch_basic_scan_javaClick(Sender: TObject);
 begin
-  BasicScanJava();
+  BasicScanJava(true);
 end;
 //启动设置：默认JVM参数
 procedure Tform_mainform.button_launch_default_jvmClick(Sender: TObject);
@@ -1518,7 +1524,7 @@ begin
     end;
     name := MyInputBox(GetLanguage('inputbox_version.select_mc_name.caption'), GetLanguage('inputbox_version.select_mc_name.text'), MY_INFORMATION);
     if name = '' then exit;
-    ChooseVersionDir(name, path);
+    ChooseVersionDir(name, path, true);
   end;
 end;
 //版本设置：手动补全版本类库
@@ -1543,7 +1549,7 @@ begin
     MyMessagebox(GetLanguage('messagebox_version.create_minecraft_dir.caption'), GetLanguage('messagebox_version.create_minecraft_dir.text'), MY_INFORMATION, [mybutton.myOK]);
     SysUtils.ForceDirectories(path);
   end;
-  ChooseVersionDir(name, path);
+  ChooseVersionDir(name, path, true);
 end;
 //重设语言为中文
 procedure Tform_mainform.c1Click(Sender: TObject);
@@ -1578,7 +1584,18 @@ end;
 //账号部分：所有账号下拉框改变事件
 procedure Tform_mainform.combobox_all_accountChange(Sender: TObject);
 begin
-  if combobox_all_account.ItemIndex = -1 then exit;
+  if combobox_all_account.ItemIndex = -1 then begin
+    var base := Base64ToStream(NoAccount);
+    var png := TPngImage.Create;
+    try
+      png.LoadFromStream(base);
+      form_mainform.image_login_avatar.Picture.Assign(png);
+      form_mainform.image_mainform_login_avatar.Picture.Assign(png);
+    finally
+      png.Free;
+    end;
+    exit;
+  end;
   var pla := ((AccountJson.Values['account'] as TJsonArray)[combobox_all_account.ItemIndex] as TJsonObject);
   JudgeJSONSkin(combobox_all_account.ItemIndex);
   label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.logined').Replace('${player_name}', pla.GetValue('name').Value);
@@ -1856,10 +1873,9 @@ begin
     var acv := (((TJsonObject.ParseJSONValue(json) as TJsonObject).GetValue('account') as TJsonArray)[s] as TJsonObject);
     var acn := acv.GetValue('name').Value;
     var aca := acv.GetValue('head_skin').Value;
-    var base := TNetEncoding.Base64.DecodeStringToBytes(aca);
     var png := TPngImage.Create;
     try
-      png.LoadFromStream(TBytesStream.Create(base));
+      png.LoadFromStream(Base64ToStream(aca));
       image_mainform_login_avatar.Picture.Assign(png);
     finally
       png.Free;
@@ -1869,6 +1885,13 @@ begin
   except
     Log.Write(Concat('账号判断失败，宁还暂未登录一个账号。'), LOG_ERROR, LOG_START);
     label_account_view.Caption := GetLanguage('label_account_view.caption.absence');
+    var png := TPngImage.Create;
+    try
+      png.LoadFromStream(Base64ToStream(NoAccount));
+      image_mainform_login_avatar.Picture.Assign(png);
+    finally
+      png.Free;
+    end;
   end;
   try  //查询版本是否有误，如果找不到，则暂未选择版本。
     Log.Write('开始判断游戏版本。', LOG_INFO, LOG_START);
@@ -1972,6 +1995,11 @@ begin
     Log.Write('宁结束了MC的运行。', LOG_INFO, LOG_LAUNCH);
     MyMessagebox(GetLanguage('messagebox_launcher.exit_mc_success.caption'), GetLanguage('messagebox_launcher.exit_mc_success.text'), MY_PASS, [mybutton.myOK]);
   end;
+end;
+//主界面头像点击
+procedure Tform_mainform.image_mainform_login_avatarClick(Sender: TObject);
+begin
+  pagecontrol_mainpage.ActivePage := tabsheet_account_part;
 end;
 //打开下载界面
 procedure Tform_mainform.image_open_download_prograssClick(Sender: TObject);

@@ -131,7 +131,7 @@ object form_mainform: Tform_mainform
     Top = 8
     Width = 838
     Height = 464
-    ActivePage = tabsheet_mainpage_part
+    ActivePage = tabsheet_version_part
     TabOrder = 0
     OnChange = pagecontrol_mainpageChange
     OnChanging = pagecontrol_mainpageChanging
@@ -508,6 +508,7 @@ object form_mainform: Tform_mainform
         Width = 64
         Height = 64
         Stretch = True
+        OnClick = image_mainform_login_avatarClick
       end
       object button_launch_game: TButton
         Left = 3
@@ -2468,7 +2469,7 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_version_export_part
+        ActivePage = tabsheet_version_isolation_part
         TabOrder = 0
         OnChange = pagecontrol_version_partChange
         object tabsheet_version_control_part: TTabSheet
@@ -2479,7 +2480,6 @@ object form_mainform: Tform_mainform
             Top = 0
             Width = 816
             Height = 377
-            VertScrollBar.Position = 35
             VertScrollBar.Tracking = True
             Align = alClient
             Color = clBtnFace
@@ -2488,35 +2488,35 @@ object form_mainform: Tform_mainform
             OnMouseWheel = scrollbox_versionMouseWheel
             object label_select_game_version: TLabel
               Left = 3
-              Top = -28
+              Top = 7
               Width = 78
               Height = 15
               Caption = #36873#25321#28216#25103#29256#26412
             end
             object label_select_file_list: TLabel
               Left = 3
-              Top = 22
+              Top = 57
               Width = 78
               Height = 15
               Caption = #36873#25321#25991#20214#21015#34920
             end
             object label_version_add_mc_path: TLabel
               Left = 3
-              Top = 72
+              Top = 107
               Width = 71
               Height = 15
               Caption = #28155#21152'MC'#36335#24452
             end
             object label_version_current_path: TLabel
               Left = 3
-              Top = 139
+              Top = 174
               Width = 109
               Height = 15
               Caption = #24403#21069#36873#20013#36335#24452#65306'000'
             end
             object combobox_select_game_version: TComboBox
               Left = 3
-              Top = -7
+              Top = 28
               Width = 780
               Height = 23
               Style = csDropDownList
@@ -2525,7 +2525,7 @@ object form_mainform: Tform_mainform
             end
             object combobox_select_file_list: TComboBox
               Left = 3
-              Top = 43
+              Top = 78
               Width = 780
               Height = 23
               Style = csDropDownList
@@ -2534,7 +2534,7 @@ object form_mainform: Tform_mainform
             end
             object button_version_choose_any_directory: TButton
               Left = 3
-              Top = 93
+              Top = 128
               Width = 387
               Height = 40
               Hint = #28857#20987#25105#30452#25509#28155#21152#25991#20214#22841#36335#24452#33267#25991#20214#21015#34920#20013#22114#65281
@@ -2546,7 +2546,7 @@ object form_mainform: Tform_mainform
             end
             object button_version_create_minecraft: TButton
               Left = 396
-              Top = 93
+              Top = 128
               Width = 387
               Height = 40
               Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
@@ -2558,7 +2558,7 @@ object form_mainform: Tform_mainform
             end
             object radiogroup_partition_version: TRadioGroup
               Left = 3
-              Top = 160
+              Top = 195
               Width = 780
               Height = 121
               Caption = #29256#26412#38548#31163
@@ -2572,7 +2572,7 @@ object form_mainform: Tform_mainform
             end
             object button_version_complete: TButton
               Left = 3
-              Top = 287
+              Top = 322
               Width = 780
               Height = 40
               Caption = #25163#21160#34917#20840#35813#29256#26412#30340#31867#24211
@@ -2582,7 +2582,7 @@ object form_mainform: Tform_mainform
             end
             object button_remove_version_list: TButton
               Left = 200
-              Top = 333
+              Top = 368
               Width = 190
               Height = 40
               Caption = #31227#38500#25991#20214#21015#34920
@@ -2592,7 +2592,7 @@ object form_mainform: Tform_mainform
             end
             object button_delete_game_version: TButton
               Left = 593
-              Top = 333
+              Top = 368
               Width = 190
               Height = 40
               Caption = #21024#38500#28216#25103#29256#26412
@@ -2602,7 +2602,7 @@ object form_mainform: Tform_mainform
             end
             object button_rename_version_list: TButton
               Left = 3
-              Top = 333
+              Top = 368
               Width = 191
               Height = 40
               Caption = #37325#21629#21517#25991#20214#21015#34920
@@ -2612,7 +2612,7 @@ object form_mainform: Tform_mainform
             end
             object button_rename_game_version: TButton
               Left = 396
-              Top = 333
+              Top = 368
               Width = 191
               Height = 40
               Caption = #37325#21629#21517#28216#25103#29256#26412

@@ -6,8 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Forms, Vcl.StdCtrls, Vcl.MPlayer, Generics.Collections,
   System.JSON, Vcl.ExtCtrls, Winapi.ShellAPI, ComCtrls,
-  System.StrUtils, SysUtils, System.RegularExpressions,
-  Vcl.Buttons, JPEG, pngimage, GIFImg, Vcl.Controls, Vcl.Menus;
+  System.StrUtils, SysUtils, Vcl.Buttons, JPEG, pngimage, GIFImg, Vcl.Controls, Vcl.Menus;
 
 type
   TPluginForm = class
@@ -26,7 +25,6 @@ type
     PluginVariableDic: TDictionary<string, string>;
   public
     constructor ConstructorPluginForm(name, json: String);
-    procedure ShowTabSheet;
     procedure PluginControlClick(Sender: TObject);
     procedure PluginControlChange(Sender: TObject);
     procedure PluginControlMouseMove(Sender: TObject;
@@ -35,20 +33,23 @@ type
     procedure PluginControlScroll(Sender: TObject;
       ScrollCode: TScrollCode; var ScrollPos: Integer);
     function VaribaleToValue(text: String): String;
+    procedure PluginScrollBoxMouseWheel(Sender: TObject;
+      Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+      var Handled: Boolean);
   end;
-  
+
 var
   PluginIndex: Integer;
   PluginFormList: TList<TPluginForm>;
 
-procedure CreateFirstPluginForm(name, json: String);
+procedure InitPluginTemp;
 
 implementation
 
 uses
   Log4Delphi, MainForm, MainMethod, MyCustomWindow, LanguageMethod;
 var
-  temp: String;
+  temp: String = '';
 //插件变量换成值（在文本的任意位置，将所有变量转换成值）
 function TPluginForm.VaribaleToValue(text: String): String;
 begin
@@ -60,7 +61,7 @@ end;
 //控件点击事件
 procedure TPluginForm.PluginControlClick(Sender: TObject);
 begin
-  //
+//  
 end;
 //控件鼠标移动事件
 procedure TPluginForm.PluginControlMouseMove(Sender: TObject;
@@ -81,7 +82,7 @@ end;
 procedure TPluginForm.PluginControlScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-
+  //
 end;
 //创建插件窗口
 constructor TPluginForm.ConstructorPluginForm(name, json: String);
@@ -122,20 +123,21 @@ begin
                         .Replace('${plugin_author}', atr)
                         .Replace('${plugin_update_time}', upt)
                         .Replace('${plugin_description}', desc);
-  with PluginTabSheet do begin
-    Caption := cap;
-    TabVisible := false;
-  end;
+  PluginTabSheet.Caption := cap;
   PluginScrollBox := TScrollBox.Create(PluginTabSheet);
   with PluginScrollBox do begin
     Name := 'PluginScrollBox';
     Parent := PluginTabSheet;
     ParentColor := false;
+    ParentCtl3D := false;
+    Ctl3D := true;
+    Color := clBtnFace;
     Align := alClient;
     ShowHint := true;
     Hint := all;
     HorzScrollBar.Tracking := true;
     VertScrollBar.Tracking := true;
+    OnMouseWheel := PluginScrollBoxMouseWheel;
   end;
   var content := PluginJSON.GetValue('content') as TJSONArray;
   for var I in content do begin
@@ -146,6 +148,7 @@ begin
         Parent := PluginScrollBox;
         Name := obj.GetValue('name').Value;
         ShowHint := true;
+        WordWrap := true;
         var pos := obj.GetValue('position') as TJSONArray;
         Left := strtoint(pos[0].Value);
         Top := strtoint(pos[1].Value);
@@ -168,6 +171,7 @@ begin
         Parent := PluginScrollBox;
         Name := obj.GetValue('name').Value;
         ShowHint := true;
+        WordWrap := true;
         AutoSize := false;
         var pos := obj.GetValue('position') as TJSONArray;
         Left := strtoint(pos[0].Value);
@@ -309,6 +313,7 @@ begin
       with PluginEdit[PluginEdit.Count - 1] do begin
         Parent := PluginScrollBox;
         Name := obj.GetValue('name').Value;
+        AutoSize := false;
         ShowHint := true;
         var pos := obj.GetValue('position') as TJSONArray;
         Left := strtoint(pos[0].Value);
@@ -336,6 +341,7 @@ begin
         Name := obj.GetValue('name').Value;
         ShowHint := true;
         var pos := obj.GetValue('position') as TJSONArray;
+        Style := csDropDownList;
         Left := strtoint(pos[0].Value);
         Top := strtoint(pos[1].Value);
         Width := strtoint(pos[2].Value);
@@ -386,6 +392,7 @@ begin
         Parent := PluginScrollBox;
         Name := obj.GetValue('name').Value;
         ShowHint := true;
+        WordWrap := true;
         var pos := obj.GetValue('position') as TJSONArray;
         Left := strtoint(pos[0].Value);
         Top := strtoint(pos[1].Value);
@@ -486,23 +493,38 @@ begin
     end;
   end;
 end;
-//显示窗口
-procedure TPluginForm.ShowTabSheet;
-begin
-end;
+//插件部分：滑动条框
+procedure TPluginForm.PluginScrollBoxMouseWheel(Sender: TObject;
+  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
+  var Handled: Boolean);
 var
-  f: Boolean = true;
+  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
+  LPoint: TPoint;
+  ScrollBox: TScrollBox;
+begin
+  ScrollBox := TScrollBox(Sender);
+  LPoint := ScrollBox.ClientToScreen(Point(0,0));
+  LTopLeft := LPoint.X;
+  LTopRight := LTopLeft + ScrollBox.ClientWidth;
+  LBottomLeft := LPoint.Y;
+  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
+  if (MousePos.X >= LTopLeft) and
+    (MousePos.X <= LTopRight) and
+    (MousePos.Y >= LBottomLeft) and
+    (MousePos.Y <= LBottomRight) then
+  begin
+    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
+    Handled := True;
+  end;
+end;
 //创建首个插件窗口
-procedure CreateFirstPluginForm(name, json: String);
+procedure InitPluginTemp;
 var
   TempDir: array[0..255] of char;
 begin
-  if f then begin
+  if temp.IsEmpty then begin
     GetTempPath(255, @TempDir);
     temp := strpas(TempDir);
-    f := false;
   end;
-  PluginFormList := TList<TPluginForm>.Create;
-  PluginFormList.Add(TPluginForm.ConstructorPluginForm(name, json));
 end;
 end.

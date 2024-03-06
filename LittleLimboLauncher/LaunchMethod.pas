@@ -17,7 +17,7 @@ var
 procedure InitLaunch;
 procedure SaveLaunch;
 procedure FullScanJava();
-procedure BasicScanJava();
+procedure BasicScanJava(sm: Boolean);
 procedure ManualImportJava();
 procedure RemoveJava();
 procedure DownloadJava(ver: String);
@@ -125,12 +125,12 @@ begin
   end;
 end;
 //特定扫描Java
-procedure BasicScanJava();
+procedure BasicScanJava(sm: Boolean);
 var
   ss: DWORD;
   buf: pchar;
 begin
-  if MyMessagebox(GetLanguage('messagebox_launch.is_basic_scan_java.caption'), GetLanguage('messagebox_launch.is_basic_scan_java.text'), MY_INFORMATION, [mybutton.myNO, mybutton.myYes]) = 1 then exit;
+  if sm then if MyMessagebox(GetLanguage('messagebox_launch.is_basic_scan_java.caption'), GetLanguage('messagebox_launch.is_basic_scan_java.text'), MY_INFORMATION, [mybutton.myNO, mybutton.myYes]) = 1 then exit;
   GetMem(buf, 255);
   ss := 255;
   GetUserName(buf, ss);
@@ -304,6 +304,9 @@ begin
   madd_jvm := form_mainform.edit_launch_additional_jvm.Text;
   form_mainform.edit_launch_additional_game.Text := LLLini.ReadString('Version', 'AdditionalGame', '');
   madd_game := form_mainform.edit_launch_additional_game.Text;
+  if mcurrent_java < 0 then begin
+    BasicScanJava(false);
+  end;
 end;
 //保存启动设置
 procedure SaveLaunch;
