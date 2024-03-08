@@ -30,7 +30,7 @@ type
   TDownloadMethod = class
   private
     var
-      url, SavePath, RootPath, TempPath: String;
+      url, SavePath, RootPath: String;
       BiggestThread, SelectMode: Integer;
       isShowList, isShowProgress: Boolean;
       javapath, VanillaVersion: String;
@@ -80,7 +80,7 @@ end;
 //提取主类
 function TDownloadMethod.ExtractMainClass(jarpath: String): String;
 begin
-  var rdp := Concat(TempPath, 'LLLauncher\', inttostr(random(99999)));
+  var rdp := Concat(LocalTemp, 'LLLauncher\', inttostr(random(99999)));
   Unzip(jarpath, rdp);
   var cot := TStringList.Create;
   cot.LoadFromFile(Concat(rdp, '\META-INF\MANIFEST.MF'));
@@ -349,7 +349,7 @@ begin
       dic.Add(Concat('{', L, '}'), rp);
     end else begin
       if cet.IndexOf('lzma') <> -1 then begin
-        dic.Add(Concat('{', L, '}'), Concat('"', TempPath, 'LLLauncher\forgetmp\data\client.lzma"'));
+        dic.Add(Concat('{', L, '}'), Concat('"', LocalTemp, 'LLLauncher\forgetmp\data\client.lzma"'));
       end else begin
         dic.Add(Concat('{', L, '}'), cet);
       end;
@@ -374,24 +374,24 @@ begin
     end;
   end;
   try
-    dic['{INSTALLER}'] := Concat('"', TempPath, 'LLLauncher\tmp.jar"');
+    dic['{INSTALLER}'] := Concat('"', LocalTemp, 'LLLauncher\tmp.jar"');
   except
-    dic.Add('{INSTALLER}', Concat('"', TempPath, 'LLLauncher\tmp.jar"'));
+    dic.Add('{INSTALLER}', Concat('"', LocalTemp, 'LLLauncher\tmp.jar"'));
   end;
-  if FileExists(Concat(TempPath, 'LLLauncher\forgetmp\data\client.lzma')) then begin
+  if FileExists(Concat(LocalTemp, 'LLLauncher\forgetmp\data\client.lzma')) then begin
     try
-      dic['{BINPATCH}'] := Concat('"', TempPath, 'LLLauncher\forgetmp\data\client.lzma"');
+      dic['{BINPATCH}'] := Concat('"', LocalTemp, 'LLLauncher\forgetmp\data\client.lzma"');
     except
-      dic.Add('{BINPATCH}', Concat('"', TempPath, 'LLLauncher\forgetmp\data\client.lzma"'));
+      dic.Add('{BINPATCH}', Concat('"', LocalTemp, 'LLLauncher\forgetmp\data\client.lzma"'));
     end;
   end else begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.cannot_extra_lzma'));
     exit;
   end;
   try
-    dic['{ROOT}'] := Concat('"', TempPath, 'LLLauncher\', inttostr(random(100000)), '"');
+    dic['{ROOT}'] := Concat('"', LocalTemp, 'LLLauncher\', inttostr(random(100000)), '"');
   except
-    dic.Add('{ROOT}', Concat('"', TempPath, 'LLLauncher\', inttostr(random(100000)), '"'));
+    dic.Add('{ROOT}', Concat('"', LocalTemp, 'LLLauncher\', inttostr(random(100000)), '"'));
   end;
   try
     dic['{SIDE}'] := 'client';
@@ -567,18 +567,18 @@ begin
   var fileavg := trunc(filesize / BiggestThread); //记录网络文件除以最大线程后的平均值。
   var sc := 0;
   var sf := 0;
-  if not DirectoryExists(Concat(TempPath, 'LLLauncher\downloadtmp')) then
-    ForceDirectories(Concat(TempPath, 'LLLauncher\downloadtmp'));
+  if not DirectoryExists(Concat(LocalTemp, 'LLLauncher\downloadtmp')) then
+    ForceDirectories(Concat(LocalTemp, 'LLLauncher\downloadtmp'));
   var DownloadProc := procedure(dt, tstart, tend: Integer)
   label
     Retry;
   begin
-    var TempSavePath := Concat(TempPath, 'LLLauncher\downloadtmp', ChangeFileExt(ExtractFileName(savepath), ''), '-', inttostr(dt), '.tmp');
+    var TempSavePath := Concat(LocalTemp, 'LLLauncher\downloadtmp', ChangeFileExt(ExtractFileName(savepath), ''), '-', inttostr(dt), '.tmp');
     Retry: ;
     var stt: TStringStream := GetHttpRange(url, tstart, tend, false); //Get特定位置的流。
     if stt = nil then begin
       if IsShowList then form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.cut_download_error'));
-      DeleteDirectory(Concat(TempPath, 'LLLauncher\downloadtmp')); //删掉所有tmp文件
+      DeleteDirectory(Concat(LocalTemp, 'LLLauncher\downloadtmp')); //删掉所有tmp文件
       abort;
     end else begin
       stt.SaveToFile(TempSavePath);
@@ -611,7 +611,7 @@ begin
   var mStream2 := TMemoryStream.Create;
   try
     for var I := 1 to BiggestThread do begin
-      var tmpfile := Concat(TempPath, 'LLLauncher\downloadtmp', ChangeFileExt(ExtractFileName(savepath), ''), '-', inttostr(i), '.tmp');
+      var tmpfile := Concat(LocalTemp, 'LLLauncher\downloadtmp', ChangeFileExt(ExtractFileName(savepath), ''), '-', inttostr(i), '.tmp');
       if not FileExists(tmpfile) then begin
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.cut_download_join_error'));
         mStream1.Free;
@@ -628,7 +628,7 @@ begin
     mStream1.Free; //释放资源
     mStream2.Free;
   end;
-  DeleteDirectory(Concat(TempPath, 'LLLauncher\downloadtmp'));
+  DeleteDirectory(Concat(LocalTemp, 'LLLauncher\downloadtmp'));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.download_finish').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000))); //这里记录了耗时【但是这里不是很必要，除非你需要耗时。】
 end;
 //下载Minecraft
@@ -917,46 +917,46 @@ begin
   var ttime := GetTickCount;
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_installer_start'));
   try
-    DownloadStart(url, Concat(TempPath, 'LLLauncher\tmp.jar'), '', BiggestThread, 0, 1);
+    DownloadStart(url, Concat(LocalTemp, 'LLLauncher\tmp.jar'), '', BiggestThread, 0, 1);
   except
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.forge_version_not_allow_install'));
     abort;
   end;
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_installer_success'));
-  if not Unzip(Concat(TempPath, 'LLLauncher\tmp.jar'), Concat(TempPath, '\LLLauncher\forgetmp')) then begin
+  if not Unzip(Concat(LocalTemp, 'LLLauncher\tmp.jar'), Concat(LocalTemp, '\LLLauncher\forgetmp')) then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.unzip_installer_error'));
     abort;
   end;
-  var p1 := Concat(TempPath, 'LLLauncher\forgetmp\version.json');
-  var p2 := Concat(TempPath, 'LLLauncher\forgetmp2\version.json');
+  var p1 := Concat(LocalTemp, 'LLLauncher\forgetmp\version.json');
+  var p2 := Concat(LocalTemp, 'LLLauncher\forgetmp2\version.json');
   var output := '';
   if FileExists(p1) then begin
     var sh := TJSonObject.ParseJSONValue(GetFile(p1)) as TJsonObject;
     CopyFile(pchar(p1), pchar(Concat(savepath, '\', sh.GetValue('id').Value, '.json')), false);
     output := GetFile(Concat(savepath, '\', sh.GetValue('id').Value, '.json'));
   end else begin
-    Unzip(GetMCRealPath(Concat(TempPath, 'LLLauncher\forgetmp'), '.jar'), Concat(TempPath, '\LLLauncher\forgetmp2'));
+    Unzip(GetMCRealPath(Concat(LocalTemp, 'LLLauncher\forgetmp'), '.jar'), Concat(LocalTemp, '\LLLauncher\forgetmp2'));
     if FileExists(p2) then begin
       var sh := TJSonObject.ParseJSONValue(GetFile(p2)) as TJsonObject;
       CopyFile(pchar(p2), pchar(Concat(savepath, '\', sh.GetValue('id').Value, '.json')), false);
       output := GetFile(Concat(savepath, '\', sh.GetValue('id').Value, '.json'));
     end else begin
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add('downloadlist.forge.cannot_find_version_json');
-      DeleteDirectory(Concat(TempPath, 'LLLauncher'));
+      DeleteDirectory(Concat(LocalTemp, 'LLLauncher'));
       abort;
     end;
   end;
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.get_forge_json'));
-  var ProfilePath := Concat(TempPath, 'LLLauncher\forgetmp\install_profile.json');
+  var ProfilePath := Concat(LocalTemp, 'LLLauncher\forgetmp\install_profile.json');
   if not FileExists(ProfilePath) then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add('downloadlist.forge.cannot_find_installprofile_json');
-    DeleteDirectory(Concat(TempPath, 'LLLauncher'));
+    DeleteDirectory(Concat(LocalTemp, 'LLLauncher'));
     exit;
   end;
   CopyFile(pchar(ProfilePath), pchar(Concat(savepath, '\install_profile.json')), false);
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.copy_installprofile_success_setup_mc'));
   DownloadStart(output, SavePath, RootPath, BiggestThread, SelectMode, 2, javapath, VanillaVersion, isShowList, isShowProgress);
-  DeleteDirectory(Concat(TempPath, 'LLLauncher'));
+  DeleteDirectory(Concat(LocalTemp, 'LLLauncher'));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_success').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000)));
 end;
 //下载你可爱的整合包去罢！
@@ -989,8 +989,6 @@ begin
   self.VanillaVersion := VanillaVersion;
   self.isShowList := isShowList;
   self.isShowProgress := isShowProgress;
-  GetTempPath(255, @TempPath);
-  self.TempPath := strpas(TempPath);
 end;
 //通过LoadSource开启对应的下载操作
 procedure TDownloadMethod.StartDownload(LoadSource: Integer);

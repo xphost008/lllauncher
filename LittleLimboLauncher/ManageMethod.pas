@@ -40,7 +40,6 @@ var
   DatSelect: TStringList;
   PluSelect: TStringList;
   mcrlpth: String;
-  temp: String;
 var
   ModPackMetadata: TJSONObject;
 //自制Ini读取
@@ -133,12 +132,12 @@ end;
 //导入整合包函数
 procedure ImportModPack(path: String);
 begin
-  if not Unzip(path, Concat(temp, 'LLLauncher\importmodpack')) then begin
+  if not Unzip(path, Concat(LocalTemp, 'LLLauncher\importmodpack')) then begin
     MyMessagebox(GetLanguage('messagebox_manage.cannot_unzip_modpack.caption'), GetLanguage('messagebox_manage.cannot_unzip_modpack.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
-  if FileExists(Concat(temp, 'LLLauncher\importmodpack\modrinth.index.json')) then begin
-    var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\modrinth.index.json'));
+  if FileExists(Concat(LocalTemp, 'LLLauncher\importmodpack\modrinth.index.json')) then begin
+    var mi := GetFile(Concat(LocalTemp, 'LLLauncher\importmodpack\modrinth.index.json'));
     ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
     var mcv := JudgeException(2, 'minecraft', false);
     var ml := JudgeException(3, '1', true);
@@ -169,9 +168,9 @@ begin
         exit;
       end;
     end else exit;
-  end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\mmc-pack.json')) and FileExists(Concat(temp, 'LLLauncher\importmodpack\instance.cfg')) then begin
-    var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\mmc-pack.json'));
-    var mo := TIni2File.Create(Concat(temp, 'LLLauncher\importmodpack\instance.cfg'));
+  end else if FileExists(Concat(LocalTemp, 'LLLauncher\importmodpack\mmc-pack.json')) and FileExists(Concat(LocalTemp, 'LLLauncher\importmodpack\instance.cfg')) then begin
+    var mi := GetFile(Concat(LocalTemp, 'LLLauncher\importmodpack\mmc-pack.json'));
+    var mo := TIni2File.Create(Concat(LocalTemp, 'LLLauncher\importmodpack\instance.cfg'));
     ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
     var mcv := JudgeException(4, 'version', false);
     var ml := JudgeException(5, 'uid', true);
@@ -196,17 +195,17 @@ begin
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(Concat('MultiMC@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
           form_mainform.button_progress_clean_download_list.Enabled := true;
-          DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+          DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
           MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
         end).Start;
       except
-        DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+        DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
         MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
         exit;
       end;
-    end else DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
-  end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\mcbbs.packmeta')) then begin
-    var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\mcbbs.packmeta'));
+    end else DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
+  end else if FileExists(Concat(LocalTemp, 'LLLauncher\importmodpack\mcbbs.packmeta')) then begin
+    var mi := GetFile(Concat(LocalTemp, 'LLLauncher\importmodpack\mcbbs.packmeta'));
     ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
     var pls := JudgeException(1, 'icon', true);
     var ss := Base64ToStream(pls);
@@ -236,17 +235,17 @@ begin
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(Concat('MCBBS@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
           form_mainform.button_progress_clean_download_list.Enabled := true;
-          DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+          DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
           MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
         end).Start;
       except
-        DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+        DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
         MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
         exit;
       end;
-    end else DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
-  end else if FileExists(Concat(temp, 'LLLauncher\importmodpack\manifest.json')) then begin
-    var mi := GetFile(Concat(temp, 'LLLauncher\importmodpack\manifest.json'));
+    end else DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
+  end else if FileExists(Concat(LocalTemp, 'LLLauncher\importmodpack\manifest.json')) then begin
+    var mi := GetFile(Concat(LocalTemp, 'LLLauncher\importmodpack\manifest.json'));
     ModPackMetadata := TJSONObject.ParseJSONValue(mi) as TJSONObject;
     var mcv := JudgeException(11, 'version', false);
     var ml := JudgeException(12, 'modLoaders', true);
@@ -270,17 +269,17 @@ begin
           form_mainform.button_progress_clean_download_list.Enabled := false;
           DownloadStart(Concat('CurseForge@', mcv, '@', ml, '@', mlv), mcsp, mccp, mbiggest_thread, mdownload_source, 5, jpth, mcv);
           form_mainform.button_progress_clean_download_list.Enabled := true;
-          DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+          DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
           MyMessagebox(GetLanguage('messagebox_manage.import_modpack_success.caption'), GetLanguage('messagebox_manage.import_modpack_success.text'), MY_PASS, [mybutton.myOK]);
         end).Start;
       except
-        DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+        DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
         MyMessagebox(GetLanguage('messagebox_manage.read_config_error.caption'), GetLanguage('messagebox_manage.read_config_error.text'), MY_ERROR, [mybutton.myYes]);
         exit;
       end;
-    end else DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+    end else DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
   end else begin
-    DeleteDirectory(Concat(temp, 'LLLauncher\importmodpack'));
+    DeleteDirectory(Concat(LocalTemp, 'LLLauncher\importmodpack'));
     MyMessagebox(GetLanguage('messagebox_manage.not_support_modpack_type.caption'), GetLanguage('messagebox_manage.not_support_modpack_type.text'), MY_ERROR, [mybutton.myYes]);
     exit;
   end;
@@ -768,12 +767,8 @@ end;
 //初始化玩法管理界面方法
 var f: Boolean = false;
 function InitManage: Boolean;
-var
-  p: array [0..255] of char;
 begin
   result := true;
-  GetTempPath(255, @p);
-  temp := strpas(p);
   if f then begin
     try
       mcrlpth := JudgeIsolation;

@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Forms, Vcl.StdCtrls, Vcl.MPlayer, Generics.Collections,
-  System.JSON, Vcl.ExtCtrls, Winapi.ShellAPI, ComCtrls,
+  System.JSON, Vcl.ExtCtrls, Winapi.ShellAPI, ComCtrls, Types,
   System.StrUtils, SysUtils, Vcl.Buttons, JPEG, pngimage, GIFImg, Vcl.Controls, Vcl.Menus;
 
 type
@@ -32,24 +32,19 @@ type
     procedure PluginControlMouseLeave(Sender: TObject);
     procedure PluginControlScroll(Sender: TObject;
       ScrollCode: TScrollCode; var ScrollPos: Integer);
-    function VaribaleToValue(text: String): String;
     procedure PluginScrollBoxMouseWheel(Sender: TObject;
       Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
       var Handled: Boolean);
+    function VaribaleToValue(text: String): String;
   end;
 
 var
-  PluginIndex: Integer;
   PluginFormList: TList<TPluginForm>;
-
-procedure InitPluginTemp;
 
 implementation
 
 uses
   Log4Delphi, MainForm, MainMethod, MyCustomWindow, LanguageMethod;
-var
-  temp: String = '';
 //插件变量换成值（在文本的任意位置，将所有变量转换成值）
 function TPluginForm.VaribaleToValue(text: String): String;
 begin
@@ -61,7 +56,20 @@ end;
 //控件点击事件
 procedure TPluginForm.PluginControlClick(Sender: TObject);
 begin
-//  
+  var nme: String := (Sender as TControl).Name;
+  var cont := PluginJSON.GetValue('content') as TJSONArray;
+  for var I in cont do begin
+    var J := I as TJSONObject;
+    if J.GetValue('name').Value.Equals(nme) then begin
+      var oc := J.GetValue('on_click') as TJSONArray;
+      try
+        for var K in oc do begin
+          var L := K as TJSONObject;
+          
+        end;
+      except end;
+    end;
+  end;
 end;
 //控件鼠标移动事件
 procedure TPluginForm.PluginControlMouseMove(Sender: TObject;
@@ -87,7 +95,7 @@ end;
 //创建插件窗口
 constructor TPluginForm.ConstructorPluginForm(name, json: String);
 begin
-  if not DirectoryExists(Concat(temp, 'LLLauncher\song')) then ForceDirectories(Concat(temp, 'LLLauncher\song'));
+  if not DirectoryExists(Concat(LocalTemp, 'LLLauncher\song')) then ForceDirectories(Concat(LocalTemp, 'LLLauncher\song'));
   PluginJSON := TJSONObject.ParseJSONValue(json) as TJSONObject;
   PluginVariableDic := TDictionary<string, string>.Create;
   PluginButton := TList<TBitBtn>.Create;
@@ -515,16 +523,6 @@ begin
   begin
     ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
     Handled := True;
-  end;
-end;
-//创建首个插件窗口
-procedure InitPluginTemp;
-var
-  TempDir: array[0..255] of char;
-begin
-  if temp.IsEmpty then begin
-    GetTempPath(255, @TempDir);
-    temp := strpas(TempDir);
   end;
 end;
 end.

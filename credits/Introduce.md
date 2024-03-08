@@ -1,10 +1,6 @@
 # 大家好，这里是Little Limbo Launcher的介绍界面！！！
 
-![标题图](标题图.png)
-![主界面图](主界面图.png)
-![介绍图](介绍图.png)
-![功能预览图](功能预览图.png)
-![备注图片](备注图片.png)
+![宣传图](xuanchuantu.png)
 
 - 开源以及下载地址：[点我](https://gitcode.net/rechalow/lllauncher)
 - 如果你觉得作者辛苦了，欢迎来给他发电哦！爱发电【以及重要事件诉说】地址：[点我](https://afdian.net/a/Rechalow)

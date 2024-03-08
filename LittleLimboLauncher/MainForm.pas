@@ -286,7 +286,6 @@ type
     combobox_select_file_list: TComboBox;
     label_version_add_mc_path: TLabel;
     button_version_choose_any_directory: TButton;
-    button_version_create_minecraft: TButton;
     label_version_current_path: TLabel;
     radiogroup_partition_version: TRadioGroup;
     button_version_complete: TButton;
@@ -511,7 +510,6 @@ type
     procedure listbox_download_modloader_neoforgeClick(Sender: TObject);
     procedure radiogroup_partition_versionClick(Sender: TObject);
     procedure button_version_choose_any_directoryClick(Sender: TObject);
-    procedure button_version_create_minecraftClick(Sender: TObject);
     procedure combobox_select_file_listChange(Sender: TObject);
     procedure combobox_select_game_versionChange(Sender: TObject);
     procedure button_rename_version_listClick(Sender: TObject);
@@ -579,6 +577,7 @@ var
   form_mainform: Tform_mainform;
   LLLini, OtherIni: TIniFile;
   AppData: String;
+  LocalTemp: String;
   Log: Log4D;
   crash_count: Integer = 0;
   mcpid: Integer = 0;
@@ -642,7 +641,6 @@ begin
   Log.Write('你点击了插件部分，现在立刻开始加载插件！', LOG_INFO, LOG_PLUGIN);
   var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
   PluginFormList := TList<TPluginForm>.Create;
-  InitPluginTemp;
   SearchDirProc(ld, false, true, procedure(T: String) begin
     if RightStr(T, 5).Equals('.json') then begin
       var f := GetFile(T);
@@ -704,6 +702,7 @@ begin
   for var I := 0 to form_mainform.pagecontrol_all_plugin_part.PageCount - 1 do begin
     form_mainform.pagecontrol_all_plugin_part.Pages[0].Destroy;
   end;
+  DeleteDirectory(Concat(LocalTemp, 'LLLauncher\song'));
   PluginFormList.Destroy;
 end;
 //插件页切换！
@@ -1532,25 +1531,6 @@ procedure Tform_mainform.button_version_completeClick(Sender: TObject);
 begin
   CompleteVersion;
 end;
-//新建.minecraft文件夹按钮
-procedure Tform_mainform.button_version_create_minecraftClick(Sender: TObject);
-var
-  path: String;
-  name: String;
-begin
-  path := Concat(ExtractFileDir(Application.ExeName), '\.minecraft');
-  if MCVersionList.Contains(path) then begin
-    MyMessagebox(GetLanguage('messagebox_version.path_is_exists.caption'), GetLanguage('messagebox_version.path_is_exists.text'), MY_ERROR, [mybutton.myOK]);
-    exit;
-  end;
-  name := MyInputBox(GetLanguage('inputbox_version.select_new_mc_name.caption'), GetLanguage('inputbox_version.select_new_mc_name.text'), MY_INFORMATION);
-  if name = '' then exit;
-  if not SysUtils.DirectoryExists(path) then begin
-    MyMessagebox(GetLanguage('messagebox_version.create_minecraft_dir.caption'), GetLanguage('messagebox_version.create_minecraft_dir.text'), MY_INFORMATION, [mybutton.myOK]);
-    SysUtils.ForceDirectories(path);
-  end;
-  ChooseVersionDir(name, path, true);
-end;
 //重设语言为中文
 procedure Tform_mainform.c1Click(Sender: TObject);
 begin
@@ -1806,7 +1786,11 @@ begin
 end;
 //主界面：窗口展示事件
 procedure Tform_mainform.FormShow(Sender: TObject);
+var
+  tempdir: array [0..255] of char;
 begin
+  GetTempPath(255, @tempdir);
+  LocalTemp := strpas(tempdir);
   pagecontrol_mainpage.ActivePage := tabsheet_mainpage_part;
   pagecontrol_account_part.ActivePage := tabsheet_account_microsoft_part;
   pagecontrol_resource_part.ActivePage := tabsheet_resource_download_part;

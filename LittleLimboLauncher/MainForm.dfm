@@ -2469,7 +2469,7 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_version_isolation_part
+        ActivePage = tabsheet_version_control_part
         TabOrder = 0
         OnChange = pagecontrol_version_partChange
         object tabsheet_version_control_part: TTabSheet
@@ -2535,7 +2535,7 @@ object form_mainform: Tform_mainform
             object button_version_choose_any_directory: TButton
               Left = 3
               Top = 128
-              Width = 387
+              Width = 780
               Height = 40
               Hint = #28857#20987#25105#30452#25509#28155#21152#25991#20214#22841#36335#24452#33267#25991#20214#21015#34920#20013#22114#65281
               Caption = #35831#36873#25321#20219#19968#25991#20214#22841
@@ -2543,18 +2543,6 @@ object form_mainform: Tform_mainform
               ShowHint = True
               TabOrder = 2
               OnClick = button_version_choose_any_directoryClick
-            end
-            object button_version_create_minecraft: TButton
-              Left = 396
-              Top = 128
-              Width = 387
-              Height = 40
-              Hint = #30452#25509#36873#20013#24403#21069'exe'#30446#24405#19979#30340'.minecraft'#25991#20214#22841#65292#22914#26524#19981#23384#22312#21017#26032#24314#19968#20010
-              Caption = #26032#24314#12304'.minecraft'#12305
-              ParentShowHint = False
-              ShowHint = True
-              TabOrder = 3
-              OnClick = button_version_create_minecraftClick
             end
             object radiogroup_partition_version: TRadioGroup
               Left = 3
@@ -2567,7 +2555,7 @@ object form_mainform: Tform_mainform
                 #38548#31163#12304#27491#24335#29256'/'#24555#29031#29256'/'#36828#21476'Beta'#29256'/'#36828#21476'Alpha'#29256#12305
                 #38548#31163#12304'Forge/Fabric/Quilt/NeoForge'#12305#31561#29256
                 #38548#31163#20840#37096#29256#26412)
-              TabOrder = 4
+              TabOrder = 3
               OnClick = radiogroup_partition_versionClick
             end
             object button_version_complete: TButton
@@ -2576,7 +2564,7 @@ object form_mainform: Tform_mainform
               Width = 780
               Height = 40
               Caption = #25163#21160#34917#20840#35813#29256#26412#30340#31867#24211
-              TabOrder = 5
+              TabOrder = 4
               WordWrap = True
               OnClick = button_version_completeClick
             end
@@ -2586,7 +2574,7 @@ object form_mainform: Tform_mainform
               Width = 190
               Height = 40
               Caption = #31227#38500#25991#20214#21015#34920
-              TabOrder = 6
+              TabOrder = 5
               WordWrap = True
               OnClick = button_remove_version_listClick
             end
@@ -2596,7 +2584,7 @@ object form_mainform: Tform_mainform
               Width = 190
               Height = 40
               Caption = #21024#38500#28216#25103#29256#26412
-              TabOrder = 7
+              TabOrder = 6
               WordWrap = True
               OnClick = button_delete_game_versionClick
             end
@@ -2606,7 +2594,7 @@ object form_mainform: Tform_mainform
               Width = 191
               Height = 40
               Caption = #37325#21629#21517#25991#20214#21015#34920
-              TabOrder = 8
+              TabOrder = 7
               WordWrap = True
               OnClick = button_rename_version_listClick
             end
@@ -2616,7 +2604,7 @@ object form_mainform: Tform_mainform
               Width = 191
               Height = 40
               Caption = #37325#21629#21517#28216#25103#29256#26412
-              TabOrder = 9
+              TabOrder = 8
               WordWrap = True
               OnClick = button_rename_game_versionClick
             end

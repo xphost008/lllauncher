@@ -623,7 +623,7 @@ var
 begin
   result := false;
   if (N = '') then exit;
-  if N.IndexOf('\') = -1 then N := Concat(N, '\/"*}{:D:D:DCC:');
+  if N.IndexOf('\') = -1 then N := Concat(N, ':\:\:');
   if not DirectoryExists(N) then begin
     result := true;
     exit;

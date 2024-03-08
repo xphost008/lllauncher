@@ -244,7 +244,6 @@ begin
   form_mainform.label_select_file_list.Caption := GetLanguage('label_select_file_list.caption');
   form_mainform.label_version_add_mc_path.Caption := GetLanguage('label_version_add_mc_path.caption');
   form_mainform.button_version_choose_any_directory.Caption := GetLanguage('button_version_choose_any_directory.caption');
-  form_mainform.button_version_create_minecraft.Caption := GetLanguage('button_version_create_minecraft.caption');
   form_mainform.radiogroup_partition_version.Caption := GetLanguage('radiogroup_partition_version.caption');
   form_mainform.radiogroup_partition_version.Items[0] := GetLanguage('radiogroup_partition_version.not_isolation.caption');
   form_mainform.radiogroup_partition_version.Items[1] := GetLanguage('radiogroup_partition_version.isolate_version.caption');
@@ -1565,7 +1564,6 @@ begin
       .AddPair('label_select_file_list.caption', '选择文件列表')
       .AddPair('label_version_add_mc_path.caption', '添加MC路径')
       .AddPair('button_version_choose_any_directory.caption', '请选择任一文件夹')
-      .AddPair('button_version_create_minecraft.caption', '新建【.minecraft】')
       .AddPair('radiogroup_partition_version.caption', '版本隔离')
       .AddPair('radiogroup_partition_version.not_isolation.caption', '不使用版本隔离')
       .AddPair('radiogroup_partition_version.isolate_version.caption', '隔离【正式版/快照版/远古Beta版/远古Alpha版】')
