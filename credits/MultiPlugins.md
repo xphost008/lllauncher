@@ -29,7 +29,12 @@
 			"font_size": 18,
 			"font_style": "等线",
 			"hint": "将鼠标移到我上面可以看到提示哦！如果enabled为false的话，on_click里面的不会执行，同时该提示信息也不会显示哦！",
-			"position": [0,0,500,500],
+			"position": {
+				"left": 0,
+				"top": 0,
+				"width": 500,
+				"height": 500
+			},
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -45,14 +50,18 @@
 				},
 				{
 					"if": {
-						"my_custom_value": 1,
+						"ifvariable": "my_custom_value",
+						"ifvalue": 1,
+						"ifjudge": "equal",
 						"type": "messagebox",
 						"title": "来点小提示1！",
 						"context": "这里写当按下yes时执行的shell语法\n这里的my_custom_value指的是按下第几个按钮。依然是按照从右往左的顺序。例如按下了yes按钮则返回值是1。\n如果未指定color或者button属性，则默认color是information，且button默认只有一个[ok]。\n如果不定义result，则默认忽略返回值！\n如果该if语句里没有【变量】:【值】，则默认这个if将一直为false。。"
 					},
 					"else": {
 						"if": {
-							"my_custom_value": 2,
+							"ifvariable": "my_custom_value",
+							"ifvalue": 2,
+							"ifjudge": "equal",
 							"type": "messagebox",
 							"title": "来点小提示2！",
 							"context": "这里写当按下no时执行的shell语法\n如果有两个或以上的信息框，则可以定义一大堆的type，一大堆的result变量，你甚至可以以此写一个视觉小说！\n你甚至可以在这里的result定义，然后后期再点击其他的按钮时触发！\n如果定义了result，但是没有定义button，则默认返回值永远都是1！因为只有一个默认button为ok……\n如果叉掉信息框，则默认该返回值为0，也就是说你可能需要判断返回值为0的情况（如果返回值变量与其他控件变量冲突了，则会共享一个变量，且不会发生任何报错哦！",
@@ -80,7 +89,12 @@
 				"path": ".\\LLLauncher\\BackgroundImage\\something.png",
 				"suffix": "png"
 			},
-			"position": [508,0,500,500],
+			"position": {
+				"left": 500,
+				"top": 0,
+				"width": 500,
+				"height": 500
+			},
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -103,7 +117,12 @@
 			"font_size": 20,
 			"font_color": "#0000FF",
 			"back_color": "#FF0000",
-			"position": [0,508,500,500],
+			"position": {
+				"left": 0,
+				"top": 500,
+				"width": 500,
+				"height": 500
+			},
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -136,7 +155,12 @@
 			"font_style": "黑体",
 			"font_size": 20,
 			"font_color": "#111111",
-			"position": [508,508,500,500],
+			"position": {
+				"left": 500,
+				"top": 500,
+				"width": 500,
+				"height": 500
+			},
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -156,7 +180,7 @@
 				{
 					"type": "messagebox",
 					"title": "下下一个提示。。。",
-					"context": "随后是position属性，这个属性用来描述该控件的位置，缺一不可！缺了一个就报错！多了会忽略。【第1个值为Left，也就是该控件距离左侧的位置。第2个值为Top，也就是该控件距离顶侧的位置。第3个值为Width，也就是该控件的宽度。第4个值为Height，也就是该控件的高度。】，最后嘛，就是事件属性啦！第一个是【on_click】，这个属性用于控制该控件点击事件！，还有一个是【on_mousemove】，这个是当鼠标滑动到该控件上时执行，一般写change。。最后一个是【on_mouseleave】，该事件是鼠标移出该控件时执行。谁会在里面写messagebox啊喂！"
+					"context": "随后是position属性，这个属性用来描述该控件的位置，缺一不可！缺了一个就报错！多了会忽略。可以自己根据理解来填写该对象了的值。最后嘛，就是事件属性啦！第一个是【on_click】，这个属性用于控制该控件点击事件！，还有一个是【on_mousemove】，这个是当鼠标滑动到该控件上时执行，一般写change。。最后一个是【on_mouseleave】，该事件是鼠标移出该控件时执行。谁会在里面写messagebox啊喂！"
 				}
 			]
 		},
@@ -168,7 +192,12 @@
 			"font_style": "黑体",
 			"font_size": 20,
 			"font_color": "#111111",
-			"position": [0,1016,500,500],
+			"position": {
+				"left": 0,
+				"top": 1016,
+				"width": 500,
+				"height": 500
+			},
 			"on_click": [
 				{
 					"type": "messagebox",
@@ -192,7 +221,12 @@
 			"font_style": "微软雅黑",
 			"font_size": 9,
 			"font_color": "#000000",
-			"position": [0,1074,1000,523],
+			"position": [0,1074,1000,523]{
+				"left": 0,
+				"top": 1074,
+				"width": 1000,
+				"height": 523
+			},
 			"result": "my_edit_result"
 		},
 		{
@@ -203,11 +237,18 @@
 			"font_style": "黑体",
 			"font_size": 18,
 			"font_color": "#101010",
-			"position": [508,1016,500,500],
+			"position": {
+				"left": 508,
+				"top": 1016,
+				"width": 500,
+				"height": 500
+			},
 			"on_click": [
 				{
 					"if":{
-						"my_edit_result": "",
+						"ifvariable": "my_edit_result",
+						"ifvalue": "",
+						"ifjudge": "equal",
 						"type": "inputbox",
 						"title": "你的值为空呢！",
 						"context": "你的值为空，所以你现在要自己输入一个值来为该控件的返回值赋值！同时这也是输入框的示例噢！如果输入框的信息为空的话，则你信息也为空噢！同时这也算作变量共享的示例。",
@@ -217,7 +258,9 @@
 				},
 				{
 					"if":{
-						"my_edit_result": "",
+						"ifvariable": "my_edit_result",
+						"ifvalue": "",
+						"ifjudge": "equal",
 						"type": "messagebox",
 						"title": "为什么你的值还是空啊！",
 						"context": "好了，现在你来说说看，我刚刚让你输入一个值，为什么现在那个值还是空呢？",
@@ -243,7 +286,12 @@
 			"font_style": "黑体",
 			"font_size": 18,
 			"font_color": "#101010",
-			"position": [0,2005,1000,203],
+			"position": {
+				"left": 0,
+				"top": 2005,
+				"width": 1000,
+				"height": 203
+			},
 			"items": [
 				"你好世界",
 				"我爱你",
@@ -262,7 +310,12 @@
 			"type": "scrollbar",
 			"name": "my_local_scrollbar_name_1",
 			"hint": "这个是滑动条控件示例呢！其中min和max和current我觉得大家都应该懂是什么意思吧！记住，这个区间是左闭右闭的，不想Python那种左闭右开，这个确实是左闭右闭。。也就是min和max都包含进去了（",
-			"position": [0, 2036, 1000, 523],
+			"position": {
+				"left": 0,
+				"top": 2036,
+				"width": 1000,
+				"height": 523
+			},
 			"min": 10,
 			"max": 100,
 			"current": 30,
@@ -281,13 +334,23 @@
 			"name": "my_local_label_name_2",
 			"caption": "滑动条滑动：0",
 			"hint": "这个是滑动条改变该数据值的示例！我觉得我不需要信息框你也应该懂的！",
-			"position": [0, 2067, 1000, 520]
+			"position": {
+				"left": 0,
+				"top": 2067,
+				"width": 1000,
+				"height": 520
+			}
 		},
 		{
 			"type": "memo",
 			"name": "my_local_memo_name_1",
 			"hint": "这是一个多行的编辑框捏！",
-			"position": [508, 2092, 500, 500],
+			"position": {
+				"left": 508,
+				"top": 2092,
+				"width": 500,
+				"height": 500
+			},
 			"font_style": "微软雅黑",
 			"font_size": 9,
 			"readonly": false,
@@ -307,7 +370,12 @@
 			"font_style": "黑体",
 			"font_size": 18,
 			"font_color": "#101010",
-			"position": [0, 2092, 500, 500],
+			"position": {
+				"left": 0,
+				"top": 2092,
+				"width": 500,
+				"height": 500
+			},
 			"layout": "left",
 			"image": {
 				"path": ".\\LLLauncher\\BackgroundImage\\something.bmp",
@@ -322,19 +390,22 @@
 				{
 					"type": "shell",
 					"implement": [
-						"explorer.exe https://www.afdian.net/a/Rechalow"
+						"explorer.exe",
+						"https://www.afdian.net/a/Rechalow"
 					]
 				},
 				{
 					"type": "shell",
 					"implement": [
-						"notepad.exe .\\LLLauncher\\configs\\LittleLimboLauncher.ini"
+						"notepad.exe",
+						".\\LLLauncher\\configs\\LittleLimboLauncher.ini"
 					]
 				},
 				{
 					"type": "shell",
 					"implement": [
-						"mspaint.exe .\\LLLauncher\\BackgroundImage\\something.png"
+						"mspaint.exe",
+						".\\LLLauncher\\BackgroundImage\\something.png"
 					]
 				},
 				{
@@ -370,11 +441,12 @@
 #### 关于通用属性的详解
 
 1. 在所有控件中，如果你要创建控件，请确保每个控件的Name值不一样，且当中以【字母或下划线开头】，否则会报错。同时，Name键作为事件change中的必要属性，只有写了name，change才知道是要修改哪个控件（
-2. 在所有控件中，你必须指定position属性，这个属性是一个列表，第一个值是【控件距离窗口左边距离】，第二个值是【控件距离窗口上面距离】，第三个值是【控件宽度】，第四个值是【控件高度】。
+2. 在所有控件中，你必须指定position属性，这个属性是一个列表，可以自行根据理解来填写值，这里不在多说。
 3. 每个控件都有visible和enabled属性，这些属性分别控制【该窗口是否能在窗口中显示】和【该控件是否能在窗口中可用】，各位可以自行去实验一下。如果设置了之后，后面只能通过按钮的change事件将这两个给修回来。默认或不填则均为是【true】，也就是既可见，又可使用。
 4. 还有hint，这个是将鼠标移动到控件上时，控件会给出一个悬停文本给你提示。
 5. 部分上面有文字的控件，都要求指定caption或者text，与此同时还有【font_size】、【font_style】、【font_color】，这几个属性我就不多说了（各位懂得都懂。。
 6. 几乎所有的控件都有【on_click】、【on_mousemove】、【on_mouseleave】事件（但是不排除有个别没有，例如滑动条（主要是Delphi不支持给滑动条上on_mouse啥啥的事件啊！！
+7. 其中，有关于font_color属性的详解，可以看看【颜色默认值】这一部分。里面的text都可以当作默认值填入！
 
 #### 关于Button的详解
 
@@ -393,6 +465,7 @@
 1. Delphi里有普通Label和LinkLabel，其中LinkLabel就是一个可以打开链接的Label，只需要在Caption里写a标签，里面有href属性，然后再写个介绍就好了（
 2. 但是我没用LinkLabel，原因其实很简单，普通的Label已经可以打开网址了！只需要在on_click事件里面写shell，然后implement写【explorer.exe <网址>】即可！具体详见事件。
 3. Label里面也与Button几乎一致，哦对了！Label标签的AutoSize属性默认是关闭的！也就是说，你的Label的长宽不会自动调整，而是根据position进行改动！因此请记住！
+4. Label里面有个back_color属性，这个属性是表示这个label的背景色。当然也可以用【颜色默认值】来代替啦！
 
 #### 关于Image的详解
 
@@ -418,7 +491,7 @@
 #### 关于ScrollBar的详解
 
 1. 这也是个很神奇的控件，它可以使滑动改变变量。里面有3个新增属性，分别是min、max和current，控制了滑动条的最小值、最大值和当前值。
-2. 它只有1个事件，就是on_scroll，这个事件是在玩家改变【滑动条上的滑块】使立即触发！
+2. 它只有1个事件，就是on_scroll，这个事件是在玩家改变【滑动条上的滑块】时立即触发！
 3. 当然，它还有一个kind属性，这个属性控制了该滑动条是【横着滑】还是【竖着滑】，如果是【横着滑】，则值只能填入【horz】，如果是竖着滑，值只能填入【vert】（填入别的值一律无效。如果不填或填错则默认是【horz】横着滑。
 4. 它的result，很简单嘛，返回当前滑块位置！
 
@@ -452,42 +525,50 @@
 2. change：
 	- 修改控件属性与事件。
 	1. name：填入你需要修改的元素的唯一标识符name。
-	2. 没了，往下直接写，你要修改的元素里有什么属性直接改就好了！【可以用${变量名}来引用变量】。当然，变量池的值永远是由字符串！因此你可以直接使用字符串来给元素赋值。这也代表了你可以在position里直接写[${变量名}, ${变量名}, ${变量名}, ${变量名}]。
+	2. 没了，往下直接写，你要修改的元素里有什么属性直接改就好了！【可以用${变量名}来引用变量】。当然，变量池的值永远是由字符串！因此你可以直接使用字符串来给元素赋值。这也代表了你可以在position里直接写"Width": "${my_value}"
 	3. 小提示：你甚至可以直接在change里修改任何元素的事件！但是无法修改自身的！你可以在change里写【"on_click": {}】都是可以的！
 	4. 这里面也可以填入空，也就是连name也不填，那这样的话程序会默认这个是一个占位符。既然是占位符……就肯定啥也不会执行，接着往下执行啦！
 3. shell：
 	- 执行一段shell语法。
-	1. implement：在里面按行写你要执行的Shell字段。好吧，你可以在里面写explorer.exe https啥啥的来打开网址啦！
+	1. implement：在里面按行写你要执行的Shell字段。好吧，你可以在里面写explorer.exe来打开网址啦！
 	2. 小提示：此时此刻会直接执行，不会停滞掉主线程！
 	3. 默认执行的Directory在LLL启动器当前目录下（
+	4. 与Python的subprocess差不多一致，使用列表分割所有执行段，这样可以免于输入空格。所以如果想执行【两个shell语句段】的话，则需要写两个shell大代码块了。一个代码块只允许写一个shell段！
 4. inputbox：
 	- 输入框！
 	1. title：标题
 	2. context：内容
 	3. color：一个16进制的RGB符号，有默认值，如果填入默认值，则会按照默认值来判断，不填或填错则默认为information（蓝色）【error：红色、information：蓝色、pass：绿色、warning：黄色】
 	4. result：返回输入的文本。（就这么简单！！
-5. copy：
+5. multibuttonbox：
+	- 多重按钮框！可以有无限的按钮供选择！
+	1. title：标题
+	2. button：一个列表，可以填入很多的按钮。没有默认值，即兴发挥！里面必须至少有一个按钮，否则会报错！
+	3. color：一个16进制的RGB符号，有默认值，如果填入默认值，则会按照默认值来判断，不填或填错则默认为information（蓝色）【error：红色、information：蓝色、pass：绿色、warning：黄色】
+	4. result：返回按下的按钮索引，但是请记住，这里有个判空，如果你直接点击右上角叉叉，则会返回0，否则会按照索引值来判定，第一个按钮返回1，其余依旧如此。（就这么简单！！
+6. copy：
 	- 复制文本。
 	1. value：里面填入复制的值。可以用变量池里的变量替换噢！用${变量名}就可以了！
-6. song：
+7. song：
 	- 播放音乐！
 	1. song：里面依旧的，可以直接填入【base64、url、path】，也依旧会按照上述的image里面说的来噢！
 	2. 小提示：该音乐会按照主界面的TMediaPlayer进行调用并播放，因此后缀suffix只能填入mp3或者wav，如果你装了解码器你还可以填入m4a。但是不支持flac等别的音乐！
 	3. 在这里面播放音乐后，会强制性关闭主界面此时正在播放的音乐，然后在这里播放。
-7. memory_free：
+8. memory_free：
 	- 无参执行函数，可以直接实行内存清理！
 	1. 需要以管理员打开该启动器！
-8. random：
+9. random：
 	- 实现一个随机数
 	1. min：最小值
 	2. max：最大值
 	3. result：将随机数存到变量池里！
 	4. 小提示：这个随机数是左闭右闭的！也就是说【min】和【max】都会包含到里面！
-9. variable：
+10. variable：
 	- 手动定义一个变量。
 	1. value：写值。
 	2. result：写存到变量池中的变量名。
-10. open：
+	3. kind：这里是一个新的值，参见下方variable属性详解。
+11. open：
 	- 打开一个新的插件
 	1. json：里面填入插件基本信息。
 	2. json -> path、base64、url：都是可以填哒！
@@ -524,7 +605,7 @@
 	```
 	7. 上述只是个示例！各位千万不要这么写！
 	8. 这个里面如果是空的话，就会直接break掉下面语句的执行噢！也就是说下面语句都不会执行啦！
-11. 主对象：
+12. 主对象：
 	- 这里是在外面的主对象！
 	1. 可以直接填入一个url、path、base64，然后直接导入！
 	2. plugin_name：插件名称。【只能英文或下划线开头！并且只能填纯英文。并且所有插件的该值都必须不一样！建议取一点有特殊含义的！】
@@ -534,7 +615,7 @@
 	6. plugin_version：插件版本。
 	7. form_caption：插件在窗口中的名称显示。
 	8. content：代码池！
-12. if-else：
+13. if-else：
 	- 一个简单的判断！
 	1. 请看下面的示例！
 
@@ -543,7 +624,9 @@
 		"on_click":[
 			{
 				"if": {
-					"my_variable": 1,
+					"ifvariable": "my_variable",
+					"ifvalue": 1,
+					"ifjudge": "more",
 					"type": "change"
 				},
 				"else": {
@@ -553,18 +636,23 @@
 			{
 				"type": "messagebox",
 				"title": "点",
-				"context": "如果上述，my_variable不为1，则"
+				"context": "如果上述，my_variable大于1，则"
 			}
 		]
 	}
 	```
-	2. if里面必须有一个变量池中含有的【变量名:值】，如果不填或者变量池里没有，则会直接忽略if语句中的块，会当作false执行。其中，if下面的type是可以直接写的！直接写type！如果my_variable不符合条件，将直接break掉整个代码块，因为下面有一个空的open语句。空的open语句会直接当作break执行，将会忽略下列语句。而空的change则默认为啥也不执行。
+	2. if里面必须有一个变量池中含有的【ifvariable】和【ifvalue】，如果不填或者变量池里没有，则会直接忽略if语句中的块，会当作false执行。其中，if下面的type是可以直接写的！直接写type！如果my_variable不符合条件，将直接break掉整个代码块，因为下面有一个空的open语句。空的open语句会直接当作break执行，将会忽略下列语句。而空的change则默认为啥也不执行。
 	3. 这就是我要设置占位符的原因啦！当然，占位符嘛，open语句依旧不能在on_scroll、on_select、on_mousemove、on_mouseleave语句中执行。因为我搞不懂为什么会有人在这三个事件里写break（
 	4. 但是上述几个等事件中，是可以直接写change当作占位符的！
+	5. 一个代码块里有且只能有一个if语句，也就是说if可以代替type来单独作为一个代码块。但是一个代码语句里不允许只存在一个else而没有if，否则会直接略过该代码块！
+	6. if语句里，如果你非常确信值为Integer类型的话，其实是可以判断大小的！只需要将ifjudge键值换成more或者less即可！more表示大于，less表示小于。如果省略了ifjudge不写，则默认以equal【相等】作为判断。
+	7. 如果非要填more或者less的话，则值必须只能为integer类型的，否则会转换Intetege报错！你可以使用滑动条的result来当作判断条件，然后取more和less。
+	8. 由于上面介绍了copy和定义变量的variable需要用到value这个字段，所以上述所有关于if判断的，都在前面加上了if语句。
+	9. 自然，有大于，有小于，肯定得有大于等于和小于等于啦！只需要把judge字段替换成【more_equal】和【less_equal】即可！
 
 #### 其他需要注意的地方
 
-1. 如果在程序里遇到了任何一个不合规的值，将会直接忽略而不是抛出报错！如果你在某一个信息框或者某一个事件里，使用了美元符号-大括号的形式引用了某个变量，但是**这个变量不存在于常量池种**，这个变量将保留原值。也就是美元符号+大括号。如果是change改变了position的话，将直接抛出报错！
+1. 如果在程序里遇到了任何一个不合规的值，将会直接忽略而不是抛出报错！如果你在某一个信息框或者某一个事件里，使用了美元符号-大括号的形式引用了某个变量，但是**这个变量不存在于常量池种**，这个变量将保留原值。也就是美元符号+大括号。如果是change改变了position等本身无法修改的值的话，将直接抛出报错！
 2. 执行到open语句的时候，下面的所有语句都将被忽略。因此你当然可以只写个空的open来强制break掉程序。该种方式多半用在if-else代码块中。
 3. 在插件中，我秉持着任何属性均可以为变量的规则，在image的url、base64啥啥中，是可以直接引用变量的！也就是如下
 
@@ -641,7 +729,7 @@
 |button|font_size|定义按钮文字大小|9|
 |button|enabled|是否可用|true|
 |button|visible|是否可见|true|
-|button|position|列表，四个值【0：距离窗口顶部，1：距离窗口左侧，2：控件宽度，3：控件高度】|无|
+|button|position|列表，自己理解|无|
 |button|on_click|列表，点击事件，详见（事件）|空|
 |button|on_mousemove|列表，鼠标移上事件，详见（事件）|空|
 |button|on_mouseleave|列表，鼠标移走事件，详见（事件）|空|
@@ -654,7 +742,7 @@
 |label|back_color|定义标签背景色|#F0F0F0|
 |label|enabled|是否可用|true|
 |label|visible|是否可见|true|
-|label|position|列表，四个值【0：距离窗口顶部，1：距离窗口左侧，2：控件宽度，3：控件高度】|无|
+|label|position|列表，自己理解|无|
 |label|on_click|列表，点击事件，详见（事件）|空|
 |label|on_mousemove|列表，鼠标移上事件，详见（事件）|空|
 |label|on_mouseleave|列表，鼠标移走事件，详见（事件）|空|
@@ -662,7 +750,7 @@
 |image|hint|定义图片浮动提示文字|空|
 |image|enabled|是否可用|true|
 |image|visible|是否可见|true|
-|image|position|列表，四个值【0：距离窗口顶部，1：距离窗口左侧，2：控件宽度，3：控件高度】|无|
+|image|position|列表，自己理解|无|
 |image|image|对象，见（标准输出）一栏|空|
 |image|on_click|列表，点击事件，详见（事件）|空|
 |image|on_mousemove|列表，鼠标移上事件，详见（事件）|空|
@@ -677,7 +765,7 @@
 |edit|font_size|定义编辑框文字大小|9|
 |edit|enabled|是否可用|true|
 |edit|visible|是否可见|true|
-|edit|position|列表，四个值【0：距离窗口顶部，1：距离窗口左侧，2：控件宽度，3：控件高度】|无|
+|edit|position|列表，自己理解|无|
 |edit|on_click|列表，点击事件，详见（事件）|空|
 |edit|on_mousemove|列表，鼠标移上事件，详见（事件）|空|
 |edit|on_mouseleave|列表，鼠标移走事件，详见（事件）|空|
@@ -690,10 +778,9 @@
 |combobox|font_size|定义下拉框文字大小|9|
 |combobox|enabled|是否可用|true|
 |combobox|visible|是否可见|true|
-|combobox|position|列表，四个值【0：距离窗口顶部，1：距离窗口左侧，2：控件宽度，3：控件高度】|无|
+|combobox|position|列表，自己理解|无|
 |combobox|items|列表，定义下拉框里的元素|空|
 |combobox|itemindex|定义此时下拉框里的元素索引|-1|
-|combobox|on_click|列表，点击事件，详见（事件）|空|
 |combobox|on_dropdown|列表，拉下下拉框事件，详见（事件）|空|
 |combobox|on_select|列表，内容修改事件，详见（事件）|空|
 |combobox|result|下拉框的索引返回值，存入变量池中|空|
@@ -701,7 +788,7 @@
 |scrollbar|hint|定义滑动条浮动提示文字|空|
 |scrollbar|enabled|是否可用|true|
 |scrollbar|visible|是否可见|true|
-|scrollbar|position|列表，四个值【0：距离窗口顶部，1：距离窗口左侧，2：控件宽度，3：控件高度】|无|
+|scrollbar|position|列表，自己理解|无|
 |scrollbar|min|滑动条最小值|0|
 |scrollbar|max|滑动条最大值|100|
 |scrollbar|current|滑动条当前值，最大最小值为左闭右闭规则|min|
@@ -710,7 +797,7 @@
 |scrollbar|result|返回当前数值|空|
 |memo|name|定义所有控件唯一标识符|无|
 |memo|hint|定义多行编辑框浮动提示文字|空|
-|memo|position|列表，四个值【0：距离窗口顶部，1：距离窗口左侧，2：控件宽度，3：控件高度】|无|
+|memo|position|列表，自己理解|无|
 |memo|font_style|定义多行编辑框文字样式|宋体|
 |memo|font_color|定义多行编辑框文字颜色|black|
 |memo|font_size|定义多行编辑框文字大小|9|
@@ -731,7 +818,8 @@
 |speedbutton|enabled|是否可用|true|
 |speedbutton|visible|是否可见|true|
 |speedbutton|image|对象，见（标准输出）一栏|空|
-|speedbutton|position|列表，四个值【0：距离窗口顶部，1：距离窗口左侧，2：控件宽度，3：控件高度】|无|
+|speedbutton|layout|设置显示方向，有left、right、top、bottom四个值|left|
+|speedbutton|position|列表，自己理解|无|
 |speedbutton|on_click|列表，点击事件，详见（事件）|空|
 |speedbutton|on_mousemove|列表，鼠标移上事件，详见（事件）|空|
 |speedbutton|on_mouseleave|列表，鼠标移走事件，详见（事件）|空|
@@ -747,6 +835,9 @@
 |messagebox|color|定义信息框颜色，可以用16进制RGB，也可以【参见（颜色默认值）】。|information|
 |messagebox|button|定义信息框按钮文字。可以使用自定义文字，也可以【参见（文字默认值），最多有4个按钮。】|yes|
 |messagebox|result|定义信息框返回值，最多能返回到4。可空|空|
+|inputbox|title|定义输入框标题|空|
+|inputbox|context|定义输入框文本|空|
+|inputbox|color|定义输入框颜色，可以用16进制RGB，也可以【参见（颜色默认值）】。|information|
 |change|name|需要改变的控件名称|无|
 |change|剩下的|需要改哪个控件的属性就改|可以全空|
 |shell|implement|执行的shell语句，是个列表，每次执行一行。|键不可空，列表可空|
@@ -759,6 +850,7 @@
 |open|json|对象，见（标准输出）一栏|空|
 |variable|value|主动定义变量值。|无|
 |variable|result|主动定义变量名。|无|
+|variable|kind|该变量要做的事。（见variable事属性详解）|无|
 
 - 其中，上面的部分事件，类似于messagebox、change、copy、shell等一堆事件，都可以使用（${变量名}）来获取到变量值。
 
@@ -784,11 +876,16 @@
 
 #### 标准输出：
 
+- 按照从上到下的顺序依次解析。
+
 |键|值|
 |----|----|
+|base64|可以是一个base64编码后的文件。暂不支持别的种类的base64编码。|
 |path|路径，可以是绝对路径也可以是相对exe的路径|
 |url|可以是网址，但是仅支持http和https，不支持ftp等|
-|base64|可以是一个base64编码后的文件。记住！【图片】默认当作png处理、【音乐】默认当作mp3处理、【插件】默认当作json处理。暂不支持别的种类的base64编码。|
+|suffix|指定文件后缀，需要按照实际情况填写。|
+
+- 其中，speedbutton的suffix只能填入【bmp】位图后缀，我也不知道为什么（
 
 #### 颜色默认值：
 
@@ -801,6 +898,9 @@
 |text|blue|rgb(10, 10, 255)|
 |text|red|rgb(255, 10, 10)|
 |text|green|rgb(10, 255, 10)|
+|text|purple|rgb(255, 10, 255)|
+|text|yellow|rgb(255, 255, 10)|
+|text|cyan|rgb(10, 255, 255)|
 |text|black|rgb(10, 10, 10)|
 |text|white|rgb(255, 255, 255)|
 
@@ -816,6 +916,32 @@
 |messagebox|retry|Language-messagebox_button_retry.caption|
 |messagebox|abort|Language-messagebox_button_abort.caption|
 
+#### variable属性详解
+
+- 这里主要是记录variable的事件详解。该事件既可以改变对应的变量，也可以直接新增变量。但是很多值样式多半是int类型的。
+- 这里记录了kind属性的详解。
+|kind名称|kind功能|适用范围|
+|----|----|----|
+|set|直接将该变量值设置成value，如果变量池没有该变量则新建一个变量。|字符串或数字|
+|add|加法功能，可以将两个数字类型的变量相加，也可以拼接两个字符串。如果变量池没有该变量则新建一个变量。|字符串与数字|
+|minus|减法功能。仅能减去两个数字类型的变量变量。如果变量池没有该变量则跳过该事件。|数字|
+|multiply|乘法功能，可以将两个数字类型的变量相乘，也可以重复一个字符串。如果变量池中没有该变量则新建一个变量。|字符串或数字|、
+|divide|除法功能，可以将两个数字类型的变量相除，最后向下取整为整数，如果变量池中没有该变量则跳过该事件。|数字|
+|mod|取模功能，可以将两个数字类型的变量做取模，也就是取除法的余数。如果变量池中没有该变量则跳过该事件。|数字|
+|and|且功能，可以将两个数字类型的变量做【且】处理。相当于Java中的&功能。如果变量池中没有该变量则跳过该事件。|数字|
+|or|或功能，可以将两个数字类型的变量做【或】处理。如果变量池中没有该变量则跳过该事件。|数字|
+|xor|异或功能，可以将两个数字类型的变量做【异或】处理。如果变量池中没有该变量则跳过该事件。|数字|
+|not|非功能，仅对result进行【非】处理，此时与value值无关了。|数字|
+|shl|左位移功能，可以将两个数字类型的变量左位移处理。如果变量池中没有该变量则跳过该事件。|数字|
+|shr|右位移功能，可以将两个数字类型的变量右位移处理。如果变量池中没有该变量则跳过该事件。|数字|
+
+- 其中，value表示的是右操作数，result表示的是左操作数，其两边都可以使用变量代替。或者直接用数字或字符串代替。
+- value仅能填入数字类的，除了在kind为add和set中可以使用字符串外。包括multiply也只是代表了左result操作数可以为字符串罢了。
+- 该事件最终会把计算出的值赋值给result，然后你就可以用result进行判断了。然后其value值会被抛弃。除非value使用的也是变量。
+- 这也是唯一一个你能够对变量进行运算的地方。
+- 如果不填该kind值，则默认算作set，直接将value值赋值给result变量。
+- 除了set、add和multiply以外，以上所有功能均建立在result变量已经存在的情况下执行。否则将会报错！
+
 #### 事件中的if-else
 
 1. 这个我要单独拿出来讲一下，首先，对于if语句块，可以当作总事件触发器。一旦if出现在事件里面，则里面则必须含有一个【变量名】:【值】的这么一个键值，如果没有，或者变量池里找不到该变量，或者值不符合预期，则该if语句默认为false。讲自动查询该事件下是否含有else。
@@ -830,7 +956,12 @@
 {
 	"type": "button",
 	"name": "my_local_button_name_5",
-	"position": [0, 0, 0, 0],
+	"position": {
+		"left": 0,
+		"top": 0,
+		"width": 100,
+		"height": 100
+	},
 	"on_click": [
 		{
 			"if": {
@@ -861,8 +992,6 @@
 |plugin_update_time|该插件更新时间|非必须|
 |plugin_version|该插件版本号|非必须|
 |form_caption|该插件标题|非必须|
-|form_show|插件显示事件|非必须|
-|form_close|插件关闭事件|非必须|
 |content|插件总控件列表|必须|
 
 - 上述只有两个是必须的，那就是插件总名字，这也算是一个默认唯一标识符之一，所有控件都不可以与该窗口的name重合。

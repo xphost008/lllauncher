@@ -450,8 +450,7 @@ begin
         accesstoken := 'noneaccount';
         exit;
       end;
-      var sa := input - 1;
-      var j2 := r1[sa] as TJsonObject;
+      var j2 := r1[input - 1] as TJsonObject;
       self.uuid := j2.GetValue('id').Value;
       self.username := j2.GetValue('name').Value;
       self.accesstoken := j1.GetValue('accessToken').Value;

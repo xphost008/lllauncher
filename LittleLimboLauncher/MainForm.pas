@@ -6,8 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
   ExtCtrls, Controls, MPlayer, Log4Delphi, Imaging.jpeg, Generics.Collections, FileCtrl,
-  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding,
-  Vcl.Buttons, Vcl.Mask;
+  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding, Vcl.Buttons;
 
 type
   Tform_mainform = class(TForm)
@@ -860,28 +859,6 @@ procedure Tform_mainform.listbox_view_all_ipv6_ipClick(Sender: TObject);
 begin
   ChangeIPv6List;
 end;
-//高危系统库ntdll.dll
-function NtSetSystemInformation(SystemInformationClass: DWORD; SystemInformation: Pointer; SystemInformationLength: ULONG): NTSTATUS; stdcall; external 'ntdll.dll';
-//提取权限
-function TiQuan(uzp: pansichar): Bool;
-var
-  hToken: THandle;
-  ld: TLargeInteger;
-  tkp: TOKEN_PRIVILEGES;
-  Pre: DWORD;
-begin
-  result := false;
-  if OpenProcessToken(GetCurrentProcess, TOKEN_QUERY or TOKEN_ADJUST_PRIVILEGES, hToken) then begin
-    if LookupPrivilegeValueA(nil, uzp, &ld) then begin
-      tkp.PrivilegeCount := 1;
-      tkp.Privileges[0].Luid := ld;
-      tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
-      if AdjustTokenPrivileges(hToken, false, &tkp, 16, nil, pre) then begin
-        if GetLastError = ERROR_SUCCESS then result := true;
-      end;
-    end;
-  end;
-end;
 //检查更新
 procedure Tform_mainform.n_check_updateClick(Sender: TObject);
 begin
@@ -908,70 +885,16 @@ begin
 end;
 //内存清理按钮
 procedure Tform_mainform.n_memory_optimizeClick(Sender: TObject);
-type
-  s1 = record
-    CurrentSize: ULONG_PTR;
-    PeakSize: ULONG_PTR;
-    PageFaultCount: ULONG;
-    MinimunWorkingSet: ULONG_PTR;
-    MaximunWorkingSet: ULONG_PTR;
-    CurrentSizeIncludingTransitionInPages: ULONG_PTR;
-    PeakSizeIncludingTransitionInPages: ULONG_PTR;
-    TransitionRePurposeCount: ULONG;
-    Flags: ULONG;
-  end;
-var
-  status: TMemoryStatus;
 begin
-  if MyMessagebox(GetLanguage('messagebox_mainform.release_memory_optimize_warning.caption'), GetLanguage('messagebox_mainform.release_memory_optimize_warning.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
-  if TiQuan(SE_PROF_SINGLE_PROCESS_NAME) then begin
-    if TiQuan(SE_INCREASE_QUOTA_NAME) then begin
-      GlobalMemoryStatus(status);
-      var cm := status.dwAvailPhys;
-      var i2 := 2;
-      var i3 := 3;
-      var i4 := 4;
-      var i5 := 5;
-      var i1: s1;
-      i1.MinimunWorkingSet := (Integer.MaxValue) - 1;
-      i1.MaximunWorkingSet := (Integer.MaxValue) - 1;
-      var re1 := NtSetSystemInformation(21, @i1, sizeof(i1));
-      if re1 <> 0 then begin
-        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_first_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_first_memory.text'), MY_ERROR, [mybutton.myOK]);
-//        exit;
-      end;
-      var re2 := NtSetSystemInformation(80, @i2, sizeof(i2));
-      if re2 <> 0 then begin
-        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_second_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_second_memory.text'), MY_ERROR, [mybutton.myOK]);
-//        exit;
-      end;
-      var re3 := NtSetSystemInformation(80, @i3, sizeof(i3));
-      if re3 <> 0 then begin
-        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_third_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_third_memory.text'), MY_ERROR, [mybutton.myOK]);
-//        exit;
-      end;
-      var re4 := NtSetSystemInformation(80, @i4, sizeof(i4));
-      if re4 <> 0 then begin
-        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_forth_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_forth_memory.text'), MY_ERROR, [mybutton.myOK]);
-//        exit;
-      end;
-      var re5 := NtSetSystemInformation(80, @i5, sizeof(i5));
-      if re5 <> 0 then begin
-        MyMessagebox(GetLanguage('messagebox_mainform.cannot_release_fifth_memory.caption'), GetLanguage('messagebox_mainform.cannot_release_fifth_memory.text'), MY_ERROR, [mybutton.myOK]);
-//        exit;
-      end;
-      GlobalMemoryStatus(status);
-      MyMessagebox(GetLanguage('messagebox_mainform.release_memory_success.caption'), GetLanguage('messagebox_mainform.release_memory_success.text').Replace('${release_memory_value}', floattostr(SimpleRoundTo((status.dwAvailPhys - cm) / 1024 / 1024))), MY_INFORMATION, [mybutton.myOK]);
-    end else begin
-      MyMessagebox(GetLanguage('messagebox_mainform.cannot_root_seIncreaseQuotaPrivilege.caption'), GetLanguage('messagebox_mainform.cannot_root_seIncreaseQuotaPrivilege.text'), MY_ERROR, [mybutton.myOK]);
-    end;
-  end else begin
-    MyMessagebox(GetLanguage('messagebox_mainform.cannot_root_seProfileSingleProcessPrivilege.caption'), GetLanguage('messagebox_mainform.cannot_root_seProfileSingleProcessPrivilege.text'), MY_ERROR, [mybutton.myOK]);
-  end;
+  MemoryReduct(true);
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 begin
+  var json := '["Hello","World","Nihao"]';
+  var arr := TJSONArray.ParseJSONValue(json) as TJSONArray;
+  showmessage(arr.ToString);
+
 //  var tab := TTabSheet.Create(form_mainform.pagecontrol_mainpage);
 //  tab.PageControl := form_mainform.pagecontrol_mainpage;
 //  tab.Parent := form_mainform.pagecontrol_mainpage;
