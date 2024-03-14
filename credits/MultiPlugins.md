@@ -1006,7 +1006,7 @@
 - 目前总共更新了8个控件，也许未来会更新更多控件呢（也说不定呀（欢迎各位给我提出issue！！
 - 已经爆更了……将来很长一段时间我都不想碰这玩意了（
 
-### 插件市场：[点我进入](https://github.com/rechalow/lllauncher/blob/master/credits/PluginMarket.md)
+### 插件市场：[点我进入](https://gitcode.net/rechalow/lllpluginmarket)
 
 ### 小道爆料消息：
 

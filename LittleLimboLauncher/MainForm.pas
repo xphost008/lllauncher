@@ -570,7 +570,7 @@ type
   end;
 
 const
-  LauncherVersion = '1.0.0-Beta-NewPluginTest';
+  LauncherVersion = '1.0.0-Beta-NewPluginTest-Unrelease-1';
 
 var
   form_mainform: Tform_mainform;
