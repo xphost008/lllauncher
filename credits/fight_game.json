@@ -368,7 +368,7 @@
 				{
 					"type": "shell",
 					"implement": [
-						"https://gitcode.net/rechalow/lll-plugin-fight-game"
+						"https://github.com/rechalow/lllauncher/blob/master/credits/fight_game.json"
 					]
 				}
 			]
