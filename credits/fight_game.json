@@ -1,0 +1,1185 @@
+{
+	"plugin_name": "fight_game",
+	"plugin_description": "LLL插件款的对战游戏！",
+	"plugin_author": "砖需",
+	"plugin_copyright": "MIT",
+	"plugin_update_time": "2024-3-12",
+	"plugin_version": "1.0",
+	"form_caption": "对战游戏",
+	"content": [
+		{
+			"type": "label",
+			"name": "player1_name",
+			"position": {
+				"top": 0,
+				"left": 0,
+				"width": 400,
+				"height": 100
+			},
+			"font_color": "black",
+			"font_size": 40,
+			"font_style": "仿宋",
+			"caption": "玩家1"
+		},
+		{
+			"type": "label",
+			"name": "player2_name",
+			"position": {
+				"top": 0,
+				"left": 800,
+				"width": 400,
+				"height": 100
+			},
+			"font_color": "black",
+			"font_size": 40,
+			"font_style": "仿宋",
+			"caption": "玩家2"
+		},
+		{
+			"type": "label",
+			"name": "round",
+			"position": {
+				"top": 0,
+				"left": 500,
+				"width": 200,
+				"height": 60
+			},
+			"font_color": "black",
+			"font_size": 24,
+			"font_style": "仿宋",
+			"caption": "回合："
+		},
+		{
+			"type": "button",
+			"name": "start_game",
+			"position": {
+				"top": 68,
+				"left": 500,
+				"width": 200,
+				"height": 60
+			},
+			"font_color": "black",
+			"font_size": 20,
+			"font_style": "黑体",
+			"caption": "开始游戏",
+			"on_click": [
+				{
+					"type": "inputbox",
+					"title": "请输入玩家1名称：",
+					"context": "请输入玩家1名称。",
+					"result": "v_player1_name"
+				},
+				{
+					"type": "change",
+					"name": "player1_name",
+					"caption": "${v_player1_name}"
+				},
+				{
+					"type": "inputbox",
+					"title": "请输入玩家2名称：",
+					"context": "请输入玩家2名称。",
+					"result": "v_player2_name"
+				},
+				{
+					"type": "change",
+					"name": "player2_name",
+					"caption": "${v_player2_name}"
+				},
+				{
+					"if": {
+						"ifvariable": "v_player1_name",
+						"ifjudge": "equal",
+						"ifvalue": "${v_player2_name}",
+						"type": "messagebox",
+						"title": "输入了一样的值",
+						"context": "玩家1和玩家2的名称不能一样！请重新输入！",
+						"color": "error"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "v_player1_name",
+						"ifjudge": "equal",
+						"ifvalue": "${v_player2_name}",
+						"type": "open"
+					}
+				},
+				{
+					"type": "inputbox",
+					"title": "请输入设置的血量",
+					"context": "请输入你要为双方设置的血量（只能输入数字）：",
+					"result": "v_player1_health"
+				},
+				{
+					"type": "variable",
+					"value": "${v_player1_health}",
+					"kind": "set",
+					"result": "v_player2_health"
+				},
+				{
+					"type": "change",
+					"name": "player1_health",
+					"text": "血量：${v_player1_health}"
+				},
+				{
+					"type": "change",
+					"name": "player2_health",
+					"text": "血量：${v_player2_health}"
+				},
+				{
+					"type": "inputbox",
+					"title": "请输入设置的能量",
+					"context": "请输入你要为双方设置的能量（只能输入数字）：",
+					"result": "v_player1_energy"
+				},
+				{
+					"type": "variable",
+					"value": "${v_player1_energy}",
+					"kind": "set",
+					"result": "v_player2_energy"
+				},
+				{
+					"type": "change",
+					"name": "player1_energy",
+					"text": "能量：${v_player1_energy}"
+				},
+				{
+					"type": "change",
+					"name": "player2_energy",
+					"text": "能量：${v_player2_energy}"
+				},
+				{
+					"type": "change",
+					"name": "player1_fight",
+					"enabled": true
+				},
+				{
+					"type": "change",
+					"name": "player2_fight",
+					"enabled": true
+				},
+				{
+					"type": "variable",
+					"value": 1,
+					"result": "v_round"
+				},
+				{
+					"type": "change",
+					"name": "round",
+					"caption": "回合：${v_round}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player1_poison"
+				},
+				{
+					"type": "change",
+					"name": "player1_poison",
+					"caption": "中毒效果：${vi_player1_poison}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player2_posion"
+				},
+				{
+					"type": "change",
+					"name": "player2_poison",
+					"caption": "中毒效果：${vi_player2_posion}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player1_protection"
+				},
+				{
+					"type": "change",
+					"name": "player1_protection",
+					"caption": "保护效果：${vi_player1_protection}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player2_protection"
+				},
+				{
+					"type": "change",
+					"name": "player2_protection",
+					"caption": "保护效果：${vi_player2_protection}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player1_multihurt"
+				},
+				{
+					"type": "change",
+					"name": "player1_multihurt",
+					"caption": "伤害增多：${vi_player1_multihurt}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player2_multihurt"
+				},
+				{
+					"type": "change",
+					"name": "player2_multihurt",
+					"caption": "伤害增多：${vi_player2_multihurt}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player1_blood"
+				},
+				{
+					"type": "change",
+					"name": "player1_blood",
+					"caption": "嗜血效果：${vi_player1_blood}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player2_blood"
+				},
+				{
+					"type": "change",
+					"name": "player2_blood",
+					"caption": "嗜血效果：${vi_player2_blood}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player1_rebound"
+				},
+				{
+					"type": "change",
+					"name": "player1_rebound",
+					"caption": "反弹效果：${vi_player1_rebound}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player2_rebound"
+				},
+				{
+					"type": "change",
+					"name": "player2_rebound",
+					"caption": "反弹效果：${vi_player1_rebound}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player1_restore"
+				},
+				{
+					"type": "change",
+					"name": "player1_restore",
+					"caption": "生命恢复：${vi_player1_restore}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player2_restore"
+				},
+				{
+					"type": "change",
+					"name": "player2_restore",
+					"caption": "生命恢复：${vi_player2_restore}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player1_life"
+				},
+				{
+					"type": "change",
+					"name": "player1_life",
+					"caption": "加一条命：${vi_player1_life}"
+				},
+				{
+					"type": "variable",
+					"value": 0,
+					"result": "vi_player2_life"
+				},
+				{
+					"type": "change",
+					"name": "player2_life",
+					"caption": "加一条命：${vi_player2_life}"
+				},
+				{
+					"type": "variable",
+					"value": true,
+					"result": "vo_player1_life"
+				},
+				{
+					"type": "variable",
+					"value": true,
+					"result": "vo_player2_life"
+				},
+				{
+					"type": "variable",
+					"value": true,
+					"result": "v_player1_round"
+				},
+				{
+					"type": "variable",
+					"value": true,
+					"result": "v_player2_round"
+				}
+			]
+		},
+		{
+			"type": "button",
+			"name": "game_rule",
+			"position": {
+				"top": 136,
+				"left": 500,
+				"width": 200,
+				"height": 60
+			},
+			"font_color": "black",
+			"font_size": 20,
+			"font_style": "黑体",
+			"caption": "游戏规则",
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "游戏规则",
+					"context": "1. 回合制游戏——每回合的结束判定为【当双方玩家都攻击了一次】。即算一回合结束。用通俗的话来说，就是每个玩家都有个bool值变量，当每个玩家的bool都变成true，则实现了一回合的过度。即回合+1，同时每个玩家的bool都变成false。\r\n2. 每一回合之后，都会有25%概率神之降临。神之降临为特殊判定，可能会随机给某位玩家一点特殊的小福利，同时也有可能会给点惩罚！具体什么奖励或者惩罚，得等玩家自己体验过才知道。\r\n3. 本游戏暂未有重置按钮。在点击开始游戏之后，启动游戏按钮会自动消失，同时会要求玩家输入玩家1、2姓名。输入完成之后还要选择血量和能量初始值。之后fight图片框会解锁，玩家就可以战斗啦！\r\n4. 按下对应的技能图片框，即可查看对应属性的技能简介。玩家如果在按下了fight图片框之后，不知道应该出什么技能，可以直接点击右上角x按钮来返回主界面。重新查看技能说明。\r\n5. 当某位玩家出技能之后，会将该玩家的fight图片框给锁住，直到敌人出技能后，会将二者的fight图片框都给解锁。让玩家自行决定下一回合应该由谁先出技能，谁后出。\r\n6. 该插件为https://gitee.com/rechalow/games中的对战游戏的启动器json插件复刻版，总体版权还是在我，各位自行游玩啦！"
+				}
+			]
+		},
+		{
+			"type": "button",
+			"name": "open_url",
+			"position": {
+				"top": 204,
+				"left": 500,
+				"width": 200,
+				"height": 60
+			},
+			"font_color": "black",
+			"font_size": 20,
+			"font_style": "黑体",
+			"caption": "打开官网",
+			"on_click": [
+				{
+					"type": "shell",
+					"implement": [
+						"https://gitcode.net/rechalow/lll-plugin-fight-game"
+					]
+				}
+			]
+		},
+		{
+			"type": "edit",
+			"name": "player1_health",
+			"position": {
+				"top": 108,
+				"left": 8,
+				"width": 300,
+				"height": 36
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"text": "血量：",
+			"readonly": true
+		},
+		{
+			"type": "edit",
+			"name": "player1_energy",
+			"position": {
+				"top": 152,
+				"left": 8,
+				"width": 300,
+				"height": 36
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"text": "能量：",
+			"readonly": true
+		},
+		{
+			"type": "edit",
+			"name": "player2_health",
+			"position": {
+				"top": 108,
+				"left": 808,
+				"width": 300,
+				"height": 36
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"text": "血量：",
+			"readonly": true
+		},
+		{
+			"type": "edit",
+			"name": "player2_energy",
+			"position": {
+				"top": 152,
+				"left": 808,
+				"width": 300,
+				"height": 36
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"text": "能量：",
+			"readonly": true
+		},
+		{
+			"type": "label",
+			"name": "player1_protection",
+			"position": {
+				"top": 196,
+				"left": 8,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "保护效果："
+		},
+		{
+			"type": "label",
+			"name": "player1_multihurt",
+			"position": {
+				"top": 196,
+				"left": 196,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "伤害增多："
+		},
+		{
+			"type": "label",
+			"name": "player1_poison",
+			"position": {
+				"top": 240,
+				"left": 8,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "中毒效果："
+		},
+		{
+			"type": "label",
+			"name": "player1_blood",
+			"position": {
+				"top": 240,
+				"left": 196,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "嗜血效果："
+		},
+		{
+			"type": "label",
+			"name": "player1_rebound",
+			"position": {
+				"top": 284,
+				"left": 8,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "反弹效果："
+		},
+		{
+			"type": "label",
+			"name": "player1_restore",
+			"position": {
+				"top": 284,
+				"left": 196,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "生命恢复："
+		},
+		{
+			"type": "label",
+			"name": "player1_life",
+			"position": {
+				"top": 328,
+				"left": 8,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "加一条命："
+		},
+		{
+			"type": "label",
+			"name": "player2_protection",
+			"position": {
+				"top": 196,
+				"left": 808,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "保护效果："
+		},
+		{
+			"type": "label",
+			"name": "player2_multihurt",
+			"position": {
+				"top": 196,
+				"left": 996,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "伤害增多："
+		},
+		{
+			"type": "label",
+			"name": "player2_poison",
+			"position": {
+				"top": 240,
+				"left": 808,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "中毒效果："
+		},
+		{
+			"type": "label",
+			"name": "player2_blood",
+			"position": {
+				"top": 240,
+				"left": 996,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "嗜血效果："
+		},
+		{
+			"type": "label",
+			"name": "player2_rebound",
+			"position": {
+				"top": 284,
+				"left": 808,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "反弹效果："
+		},
+		{
+			"type": "label",
+			"name": "player2_restore",
+			"position": {
+				"top": 284,
+				"left": 996,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "生命恢复："
+		},
+		{
+			"type": "label",
+			"name": "player2_life",
+			"position": {
+				"top": 328,
+				"left": 996,
+				"width": 180,
+				"height": 28
+			},
+			"font_color": "black",
+			"font_size": 14,
+			"font_style": "黑体",
+			"caption": "加一条命："
+		},
+		{
+			"type": "image",
+			"name": "player1_fight",
+			"position": {
+				"top": 328,
+				"left": 196,
+				"width": 220,
+				"height": 84
+			},
+			"enabled": false,
+			"image": {
+				"base64": "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",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "multibuttonbox",
+					"title": "有请“${player1_name}”出手：",
+					"button": [
+						"技能1——金刚护体",
+						"技能2——至上一击",
+						"技能3——剧毒喷雾",
+						"技能4——物极必反",
+						"技能5——力挽狂澜",
+						"技能6——乘胜追击",
+						"技能7——续命精华",
+						"技能8——嗜血成性",
+						"技能9——将士之誓",
+						"技能10——至暗时刻",
+						"技能11——普通攻击"
+					],
+					"result": "v_player1_skill"
+				},
+				{
+					"if": {
+						"ifvariable": "v_player1_skill",
+						"ifjudge": "equal",
+						"ifvalue": 0,
+						"type": "open"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "vi_player1_poison",
+						"ifjudge": "more",
+						"ifvalue": 0,
+						"type": "random",
+						"min": 200,
+						"max": 400,
+						"result": "vr_player1_poison"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "vi_player1_poison",
+						"ifjudge": "more",
+						"ifvalue": 0,
+						"type": "messagebox",
+						"title": "你中毒了",
+						"context": "你中毒了！克除了${vr_player1_poison}的血量。"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "player1_health",
+						"ifjudge": "less_equal",
+						"ifvalue": 0,
+						"type": "messagebox",
+						"title": "你中毒了",
+						"context": "你中毒了！克除了${vr_player1_poison}的血量。"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "vi_player1_poison",
+						"ifjudge": "more",
+						"ifvalue": 0,
+						"type": "variable",
+						"value": "${vr_player1_poison}",
+						"kind": "minus",
+						"result": "v_player1_health"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "vi_player1_poison",
+						"ifjudge": "more",
+						"ifvalue": 0,
+						"type": "change",
+						"name": "player1_health",
+						"text": "血量：${v_player1_health}"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "vi_player1_poison",
+						"ifjudge": "more",
+						"ifvalue": 0,
+						"type": "variable",
+						"value": 1,
+						"kind": "minus",
+						"result": "vi_player1_poison"
+					}
+				},
+				{
+					"type": "change",
+					"name": "player1_poison",
+					"caption": "中毒效果：${vi_player1_poison}"
+				},
+				{
+					"if": {
+						"ifvariable": "v_player1_skill",
+						"ifjudge": "equal",
+						"ifvalue": 1,
+						"type": "variable",
+						"value": 2,
+						"kind": "set",
+						"result": "vi_player1_protection"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "v_player1_skill",
+						"ifjudge": "equal",
+						"ifvalue": 1,
+						"type": "messagebox",
+						"title": "金刚护体。",
+						"context": "你使用了金刚护体技能，在接下来的两回合中，你受到的伤害减少15%~45%，并且免疫了所有负面效果。"
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "v_player1_skill",
+						"ifjudge": "equal",
+						"ifvalue": 1,
+						"type": "variable",
+						"result": "vi_player1_poison",
+						"value": 0
+					}
+				},
+				{
+					"if": {
+						"ifvariable": "v_player1_skill",
+						"ifjudge": "equal",
+						"ifvalue": 1,
+						"type": "change",
+						"name": "player1_poison",
+						"caption": "中毒效果：${vi_player1_poison}"
+					}
+				}
+			]
+		},
+		{
+			"type": "image",
+			"name": "player2_fight",
+			"position": {
+				"top": 328,
+				"left": 768,
+				"width": 220,
+				"height": 84
+			},
+			"enabled": false,
+			"image": {
+				"base64": "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",
+				"suffix": "png"
+			}
+		},
+		{
+			"type": "label",
+			"name": "skill1_label",
+			"position": {
+				"top": 465,
+				"left": 8,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "1金刚护体"
+		},
+		{
+			"type": "image",
+			"name": "skill1_image",
+			"position": {
+				"top": 490,
+				"left": 8,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "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",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能1简介——金刚护体",
+					"context": "你以最快的速度穿上盔甲，以抵御敌人的攻击。立刻解除自身的不良状态，同时解除敌人的【嗜血】、【反弹】效果。但是无法解除敌人的【伤害增多】。并且在接下来的回合里，你无法受到敌人的任何debuff攻击。而且都会减免15%~45%的伤害。\r\n持续2回合，消耗50能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill2_label",
+			"position": {
+				"top": 465,
+				"left": 116,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "2至上一击"
+		},
+		{
+			"type": "image",
+			"name": "skill2_image",
+			"position": {
+				"top": 490,
+				"left": 116,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOvAAADrwBlbxySQAABVNJREFUeF7tnNtOG1cYhbnsVUUPooeEFijiJIzBDhgIxo4xgRgTcEI4taBIiSBUSUvUQltxAVd5rTxKHoFH2F0/GiJl9nJsBNb+sf8lfTfO4D2zvtnSnoPTZrl+SoP598DdBNFXWq4TFGlCNAVFmhBNQZEmRFNQpAnRFBRpQkIEhUnxHn9s/37+z97frl52yxsu0dFJiYay1BOUT89qKfndybu6efP8wP3S/jUlGspST5gMwYQECpMhmJBAYTIEExIoTIZgQhoYFNwFzhivnrxwjOODI3fy9sTj7PjMhFw3KD4P6Exg5QpHr4/c4f6hh0hh25uQKwTFmxBNQfEmRFNQvAnRFBRvQkIEBctqSsr/hKfjpcOtbMUx/nvzL+X49fGFlDhv9/68KD/O7urmOcp/z4h2r/WC8mUp680CKZ6d1UKl+JgiUtj2a/NlOgtA6xZfLSjfhGgKyjchmoLyTYimoHwToiko34SECEqWx6xe8TuLm/Ta4dXuPi1dYNsLE32DrHThNNoNy2VQvgnRFJRvQjQF5ZsQTUH5JkRTUL4JCRGULMV7PCtWzjeX1p1Hed1tLfv8Vtl225UtihTPGLn78yHKzxO6ot1rvaB8bxYIUv7O+o7HxvIzOgvWFp/Q7QUUXI18tBuWyzAZggkJFCZDMCGBwmQIJiRQmAyh6YXgIOVRp9yYq5voT68dfFfVl9iWJxYc49HMnFuYLXiUc0W3mn/oUc4WXD6doaD40yqEW01FBdCzsRrRn147+C45GegY7GwXpkfGXKq/3yM/lnIrM7MexbF0/Oz/SLQbuoKDNyGagoM3IZqCgzchmoKDNyGagoOnQpaGC27l3gIF/y5FMtqjr/0k+Jy+xLaUKByWR+cc41G2SMmOpt3UcMIjlxy9KD9Odmj4dr3EhmKoECmerd0Ftn0EXb/jczqGFM9mgcBmgbCYmaQzYapvgM4CcLued6MYE6IpKMaEaAqKMSGagmJMiKagGBNyG4LCZGnqlSiw59DC08ky3b6cytESpVxWusC2F0budLLSheZ+3o0iTYimoEgToiko0oRoCoo0IZqCIk2IpqDIKws5+HXf7W289FgtLNIbgnKHVqQwpHjGYMf3rfkSG4q/spBqVBaW6CwQKWwWCCi4GvRap+mD4k2IpqB4E6IpKN6EaAqKNyGaguLlsespQ36LwXi59cLt7e55rJVW3YPxaY9cauLipiADxcdfXrukdX8SUC2QQmfOVV/znM/k4mf/R6KhLPWEyRBMSKAwGYIJCRQmQzAhgcJkCCakgUl297SDPGNleMZRZhfc42LJY2Wu5FYLPg8zWdff8R0FUtj9KoG+jNf0icp3jOf3UpTUDz96Z7ogy1h2rSE3Edn1icC+J6I1r0NQvAnRFBRvQjQFxZsQTUHxJkRTULwJCREUfBYvXMgPDbm/5ucopKRLaFn4/Cy2XU2YJCFaEjOa45k6yjchmoLyTYimoHwToiko34RoCso3IY1MifwvbJ8jn5z+MJked3FSg0Mu0/kTBQfPbvoJ9MYfPu+KbVcTKZ7R+9U3cRGXqBVCb41XozCWdfen7nuMJ8fYQV8QDdXQsHFrYEIaGTZuDUxII8PGrYEJaWTYuDUwIY0MG7cGt0vIg4GMmx1Ie0z0JVyyt88j0dP7QQ6SEQ3V0LBxa0CX3MHDZAiT/Qm6rh+6c5edbUJz/Jw4dJgMwYQECpMhmJBAYTIEExIoTIZgQgIl2z3uGKnufjfS3eMxWOWxKzAhN5GOL751jK4vaemfw4TcRJgMwYQECpMhmJBAYTIEExIoTIZgQgKFyRBMSIi0tf0PDAkPabHaTeEAAAAASUVORK5CYII=",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能2简介——至上一击",
+					"context": "你发出了一阵强大的光波，击向对方。对方克除600~1000的血量。但是会有30%概率反弹自己，使自己克除200~400随机伤害。\r\n一次性技能，消耗30能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill3_label",
+			"position": {
+				"top": 465,
+				"left": 224,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "3剧毒喷雾"
+		},
+		{
+			"type": "image",
+			"name": "skill3_image",
+			"position": {
+				"top": 490,
+				"left": 224,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "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",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能3简介——剧毒喷雾",
+					"context": "你拔出一个喷雾，在敌人不解的情况下向敌人喷去。立即克除敌人400~800血量，并且敌人在下次每回合使用任意技能后，都会被克除200~400的血量。\r\n持续3回合，消耗40能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill4_label",
+			"position": {
+				"top": 465,
+				"left": 332,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "4物极必反"
+		},
+		{
+			"type": "image",
+			"name": "skill4_image",
+			"position": {
+				"top": 490,
+				"left": 332,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "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",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能4简介——物极必反",
+					"context": "你手持盾牌，准备与敌人拼死一战。敌人下一回合每次使用攻击技能攻击你，都会反弹克除你自己本身克除血量的40%。\r\n持续3回合，消耗40能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill5_label",
+			"position": {
+				"top": 465,
+				"left": 440,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "5力挽狂澜"
+		},
+		{
+			"type": "image",
+			"name": "skill5_image",
+			"position": {
+				"top": 490,
+				"left": 440,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOvAAADrwBlbxySQAABVRJREFUeF7tnG1IXmUcxqWaos509qEFvRAse4WkbTVYkB/KUR9qhBLEIgn7ZNHAXkaOTbJvvdgmFUg0msRWBMNg0UJ4siBGW7NgA2MvYiOzadnQLdugu///cJ4v932dM8+Tj/ftvC74fdq9c+7/9TsPnOd5jk8JwzAMwzAMw2TPS7dd0S3kAC3xEmYhE5dvANvjJcxCRoqnkJAixVNISJHiKSSkSPEU4iOft67oRGy+u2yktW6ZAVBIMSPlG0TbmkrTtKocQSHFDJKhUIinIBkKhXgKkqFQiKcgGQqFeEpfc5VBPLe6YkjKzwH4WVYxA95n5GmIlzALGSAiD4X4CBCRh0J8BIjIQyE+AkTkoRAfASLyUMhcI+8Tcvb7hjT0NhYUHiG3sZDnb70Krk8hF29v6UVKppCQIiVTSEiRkikkpEjJFBJSpGQKKVaksAZBC3Y4vvsayPgPO6YmhvuNzan9z5ifdtY67GuvMZtuKYP0NlVDBrvvNEd2r3E42HOzGeySf7fY+2xFJCUj9XEN4USKVyHwypbyIefG+82/Zsxh8setcP2B12rgq0BB51VO9q8zk4cecjj9xV3wHCpFCs5KeO91ZHgKCSkyPIWEFBmeQkKKDE8hPiJDavHOA2lfbV6x67uuWoP45eBayMxUr7lwccBheuyDSIrNicEO88mOVyDD/R2QiWMvmLOjbQ5njm2Eezq6747oTgsBROTZJXQCii8qFuBciQPtya+EM38+AZk+12XOz+50UCnolVMIsxf2wHP8Nf0i3NPY8UY4gyIFZ6X4D1JI+RQydyjEhkIAaHCFQuYhUj6FzJ3FJeTszJZIis352T7zz8Vv5oWZv3vgOab+kDutXx93+O3nDWZk/yrI242lkI76K5EMZXEJ8cnEiUfh+5OJow/D9QqaTVEpQIZCIXOFQgKDQgKDQgKDQgJjSQtBgyvRrSYYvJCy0PpCKOQcrzasNE215QgK+b9QCBicQjJEyqcQCwoBoPWFQCFgcArJkNfvK+0UjM2HzRVQhjLy2U2Q8e8fiAqwmRzaAAcfH1wHP/SLAMdXfv/2fnissYF74PrTuXooQ0HHUbwKkXtr/a7YuefWe3EkIw0tGA2YhK5Hx0kj6RxJDzmoXCRDQcdRKCQDFJIBCpmHSPkUYkEhGaCQDIz210XFzBVdj46joPVp6B0VOk6aEHQcZcv6WiRDWVxC5hN05SpJxSeRJgStV16+txLJUCjEhkI8gWQoFOIJJEOhEE8gGcpSENIiOH/4+OaDpUP6txUINEQaJ/dcFxVpc+rT6+F6RW9vEUn/J+kco1/eHj29iDiwrQbSvrpySMrPAfz9ap1IaRCcV46CCklDbyXR1a4Fo/WFUMg5pOAkwvsLKimeQkKKFE8hIUWKp5CQIsVTSEiR4ikkpEjxiULQd/CK/n4JGrwQULlpqBB0HN0T2qsCROShEBtUehoUAqCQIkaKp5CQIsVTSEiR4ikktEj5KsWhra7SIPa21ERPPNocfgOL0rLQeuXrbTdChj9yP0BUjryzEh7n46er4V4VLT6BmriCxRHZsH1FRfQ+Vg2vRP3BmiQhaH0aSa9CPQdar3tCe1XicRZ/0HAKhXgKGk6hEE9BwykU4iloOIVCPEWG2Y7Yunb5SNf6KmPz7sbl8Bfd+p6qMD2N5Zl4r7nKvP/k1Q5vPeKeV9E9ob0q8TiXb2RI/d7ZuRJbb1gG388UwqZry5zjX4Kl+1PjOrxVRgSFeIoOb5URQSGeosNbZURQiKfo8FYZERTiKTJ8txZgI0KcB/EKRYQ4x78E3fH2GIZhGIZhmMskJSX/Af7t07q/vfYWAAAAAElFTkSuQmCC",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能5简介——力挽狂澜",
+					"context": "在敌人即将杀死你的时候，往地上砸了一瓶生命恢复药水。立即恢复自己700~1200血量，但与此同时，敌人可能会蹭走你的一点药水，敌人恢复200~400血量。\r\n一次性技能，消耗45能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill6_label",
+			"position": {
+				"top": 465,
+				"left": 548,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "6乘胜追击"
+		},
+		{
+			"type": "image",
+			"name": "skill6_image",
+			"position": {
+				"top": 490,
+				"left": 548,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOvAAADrwBlbxySQAABLNJREFUeF7tnc9q1FAYxbsXQUVREaSIohuxLqz/NUrBiiKKCrWIVhCsdqM7cWFHXEkX7rrtM/QJ5hG67a4P0Ie4ni/cDvTmpEwmyeSrPQd+G5nOvTm/CSQ3f5xQFEVRFEVRFEVRFEVRlIOWEMIk6DHiR1rN4+kTvX3EQpx2e0HxGaCJH2k12Miwj+jHabcX9C4hwyMhzpAQZ0iIM9oXsr29nYHA2NzczEo4Ev98VzDhSZBV4c3D04Hx8t6p8OLOyQKv75+inx+FqmPg3zcunT2UMWIF9bO+vp6BwEDxZdAJoGA7NGS/rFL+fLpI+fpqMiw+O1vg+/w5+vlRqDrGt9eTAeVTYgX1g+IlZMgxJKRCWaMgIQS24YaEEIiIHSQkIVZQPyheQoYcYyxC9gob2LCJsQn/+Pw4LC0tFfjycY5uuMG+3zHtn4fsFTKhHAnpKGRCORLSUciEciSko5AJ5UhIRyETypGQjvJg6lhgZCV8eHoh/Fq8UcBEmRQGNpIu1nXJzWuX1+7emg4pt69f7VYIO28wps4fTn85OXMPT9M9x6SwPceIQ7nKzMxMDwSChHQRFC8hnoLiJcRTULyEeAqK704ICrbLrrYoWGD+eRYY7+aehvfzzwu8fXYtl5JiR192pMWI03AVFN+pELu2TfcE9os2VlZWwurqagGTwvYcOyRme44Rp+EqKF5CPAXFS4inoHgJ8RQULyGeguJ9CmFrT8bvXz9zKSkf3r7agoB+yr0rRzdsQZIBKVkJ9Ga8JoOCp0BGMCF9wt/4p+0FxZcKYauzhklhew5Yjl+7K5Bii3Z070HxZdDr9k0mlsz2BLodYwmKlxAJkZDSoHgJkRAJKQ2Kl5AuhKBgWzAslG7PPZAycliBkcbKIt+dEw+JGY2VheIlJA357hwJIbCiIhJSNyhfQpKgeAlJQ747R0IIrKiIhNQNyqdC7KlTe06CwYqKNCnEDokL2IKkrRKnvJ89swUpfULld7OgeJ9C2LmGgWLKaExIWTCGrRQXxrZr9CifUXlpHMVLyLDBGBKSwgqJSEjdoHwJSYLiJWTYYIyDKcTe62FPnTJYIZFxCFkAyymz08f7JiUlHn31GPErC0Hx/oR0fR5SNRi7l8wlxw6J2TYY8U8LQfESUjcYW0IIElI3KF9CkqB4CakbjC0hhC6F2NGXHRLvYpSb8Z48erCG8k1KSvvv50X5/4WQstickjkOYNsW6W47UL6EFJGQtmJzSuY4gG1bRELais0pmeMAtm0RCWkrNqdkjgPYtkUkpK3YnJI5DmDbFpGQtoJDVXuug51TlJ6HdBqULyGegvIlxFNQvoR4CsqXEE9B+RLiKSifCrFr6uwmOYOI2KGSEJRiZbFFvCaxJ2dtnAJxGr6C8kuFsBscDCJih1GE0F9vg1S+yaHToHwJ8RSULyGegvIlxFNQvoR4CsqnQka5Uc7ea4sC7KimCsst0/5l1yaD8qmQUc5D7KXCKKAK++vXO46gfAnxFJQvIZ6C8iXEU1C+hHgKyl8A/RT770TZzWUGyi/ckGZACFtL2ov238T2vwQFl16Ljh9RxhkULyGeguIlxFNQvIR4CoqXEE9B8RJSOxMT/wBOmaJEgwx1KwAAAABJRU5ErkJggg==",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能6简介——乘胜追击",
+					"context": "在敌人濒死的时候，给敌人致命一击！立即克除敌人400~800血量，同时在下回合每次使用攻击技能，都会使得该攻击血量增多35%，如果使用恢复技能，则恢复的血量也增多35%。\r\n持续3回合，消耗50能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill7_label",
+			"position": {
+				"top": 465,
+				"left": 656,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "7续命精华"
+		},
+		{
+			"type": "image",
+			"name": "skill7_image",
+			"position": {
+				"top": 490,
+				"left": 656,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "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",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能7简介——续命精华",
+					"context": "手持不死图腾！在死亡后，也就是血量降到0或以下时，血量会自动恢复1000~2000的血量。但是如果克除的血量超过了恢复的随机数血量，则依然死亡。每局游戏只能使用一次。\r\n一次性技能，消耗75能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill8_label",
+			"position": {
+				"top": 465,
+				"left": 764,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "8嗜血成性"
+		},
+		{
+			"type": "image",
+			"name": "skill8_image",
+			"position": {
+				"top": 490,
+				"left": 764,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOvAAADrwBlbxySQAABDxJREFUeF7tnUFLVGEYhf0d5uioM446o46jZlDBbFr0E9q56RcELYLQIIoiKkgMF2aIFJFEERZRMESLghZGBBEE/ZTbee2bhfeea1ybnJfreeDsPu/93vPcgW/gMvYIIYQQQgiRzkz9fCsl9bBEHCYoPkpJMywRhwkR0Y6EdAMioh0J6QZERDsS0g2IiHYk5F+5O1hsIkvxLA8VlzYqQzRExG4uVk+vs/WrpcHE9UMWwjZEm1BMFA+ERCiThsmwXBuboeshJHH9kFbYhmiDUiTEEyhFQjyBUiTEEyhFQroBhq8jdqLak/ulofXVMkqL5UFlOHpWLdNM1s7R3K426PrN0VLi+iE7bE+WsO38giFbSOIp3RgrRdvTY4m8mxmPvp6YpBksztI8akzR9R9mq/QeWxOVxH7aCdvOLxhSQjyBISXEExhSQjyBISXEExhSQjyBIamQF7UKLXG/sHItn49P0PVped8YT+ynnbDt/IIhJcQTGFJCPIEhJcQTGFJCPIEhJcQTGJIK2Z6ZjH6cOZnI9+Y8LdFixbN8IWstH+dqu8foeLYmRqJLfcdowrbzC8qnQl7N1aOfZ5uJmBRW7kGS9j1ks1qOLvT20oRt5xeULyGeQPkS4gmULyGeQPkS4gmUT4W8nK7unqg6kU/zf8qP53V9NHpaKyeyVhmmMixh2/kF5VMhad9Dvp1q0E/OfmnNT9FPgpXPXn5YKRWpDEvYdn5B+RLiCZQvIZ5A+RLiCZQvIZ5A+R0TYkdilreztej5ZCWRJzjeSkgMlN8xIWy9xd5SZMWnRUIkxA8oX0I8gfIlxBMoX0I8gfIlxBMonwpJe3PRvlMwGRa23vIY12LFp0VCJMQPKF9CPIHyJcQTKF9CPIHyJcQTKD+TEHuRzY6+LGy9RUIygPIzC2HfNSxsvUVCMoDyJcQTKF9CPIHyJcQTKF9CPIHyMwl50xinL71Z2HqLhGQA5WcScpBISAZQvoR4AuVLiCdQvoR4AuVLiCduDPS3kCie9dH/L+ThyFC0Vh5M5N7wERaCIVvxoS3LKIaVe5CkCUn7zUV7INieLGHb+QVDSognMKSEeAJDSognMKSEeAJDSognMCQVcrPYT0u0clnp+8V+HJkVnxYJIYNLSJfAkBLiCQwpIZ7AkBLiCQwpIZ7AkFTI1f7C7v8KiceOqiYlS1aG+fE2LRJCBr9SKNCyTAr75OwX+xt2rbRICBlcQroEhpQQT2BICfEEhpQQT2DIBWQxnst9fS2TEs91lGUnLRYmw5ImxIpn91gsFH6xPVnCto8eGH4JSTyh9mPGrFwLk2FJE2Lls3sg+j+GcVCKhHgCpUiIJ1CKhHgCpUiIJ1CKnb7sSLwnELJjpyMWe+OQ5VZxgK4Pp6nEPZA7YRvib6CsJsKe6oPk6B5jOwVKlBBPoEQJ8QRKlBBPoEQJ8QRKzLmQnp7fR08BnPK2tTcAAAAASUVORK5CYII=",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能8简介——嗜血成性",
+					"context": "长出尖锐的獠牙，并咬向敌人。你可以立即克除敌人400~800血量，但是在下回合使用任何攻击手段的技能，都会使自身恢复敌人克除的血量的30%。如果出击的招数不是攻击性技能，则不克除回合数。\r\n持续3回合，消耗40能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill9_label",
+			"position": {
+				"top": 465,
+				"left": 872,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "9将士之誓"
+		},
+		{
+			"type": "image",
+			"name": "skill9_image",
+			"position": {
+				"top": 490,
+				"left": 872,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOvAAADrwBlbxySQAABRRJREFUeF7tnd1qXFUcxaNYTGOTZj7SztDUpKmJSezF1H4YkpIOpdULP0qrWK1tjRURwYtgKaigMyjohYgXglfKIOgT+ACDXnhb3yCP4CNs1z9uke69ZjrnzGmzjesHv7vOOf+z1hnYs+dMMyKEEEIIIYQQQgghhMjPezNHmrBdkLP+sCIvPkhXkE1/WJEXhKhCUgIhqpCUQIgqJCUQogrZCRBWwwILbT95svPF0ooL/Xy+4T6s1zP5wfT0JjsH1OorBKF0YXRX//T0Rbf17KeRf5y+4X5+dCSTVgo7B2z5McQ/IBQVkhIIRYWkBEJRISmBUFRISiAUFZISCIUW8mVlkobbz88e20N9pVxyF6pTzMyFsFnv4X+rdAysQlICA6uQlMDAKiQlMLAKSQkMrEKGZelyYwN2I6+c6i7ebFL9SyMwMC3k42rZfTX2SCZZGWbWQnB+23i0uSJ/PfOuY/5Yn3XfjY9G3pqc2MJ5usS2P93wIPw2dJGvnnQIn+pfGuEvNCrk9lSFhpvHnIVEM5nss5H5y8EZ+q69PT7Gzmv2vEkzg/BVSKAKyaAKIfqXRuAiVciwIHwVErijhSxeXWlDF3ltlZZhojArMfL1Y/MtXGjkO1PV7tv7x10RXiqXOwigFbpeKrdXJvZHvjB1oIMZaCG/LZyldibL7tu9D0e+P7GPlWEWWMjNZjsM/F4i/F7SBxAwcDu4gGGk5/AFuNDz5Qotw2TvArPXsttuCDKPqUJCEL4KIaqQYUHAKiRQhWTzf1rIW2fd4o0z1IXnj/WyVyEbNnTo+erUnXMILItYTW0i6GboiQOVzvFa1YWuHa45rP6oX4/toX60b9TdGt8b+Wbvvaxv/KUOD8LnhSB48g7Y9vDKXC9pIb3wYUZ3dR6Xj9bYPG52fZ5eg4kgs0o/6xQKwlchg6tCBlWFcFXIsCB8FTK4KmRQd00hGMw2BqNhbRnLLrCftsxkYeXRjxeB2ewr5mjenvbZtab//m8z3ViFgpOrkFgVEurHi8BsKmRQVUgB4OQqJFaFhPrxIjDbri9k1gYIbTRmWhZwFterVbohePFgzV0/NJ1JLDHZJl73mRNz9mBfNO/itdWOLdWppAwTr6MeaS7cwQ3WJW742B48uEszf0aw8BFa5JX6Ibr93U92HC+9exEw/zzVR1aGaZ9dED7z/n8O6QUCViEq5F/ZcbwqZFBVyH0EAauQnSjELhDad9532SxXOix0b4v5cq2+ZeGHfrJwavuXuKE/PNXc/u0I054SZL5WKtmDctG8p9eWWwg5cuHqamfuxeOOefTCEvXxtSdYGeYDKcQuKLoT7W5HyFT/0gjc2fRRUgufPbKZ52fR10uT0axeGhZCbAahDqMKCVUhRP/SCISvQoYFF6JCBleFhO6aQjBwA9qK6i7PVaodCz8Uq6w/EX6X6Q8ZgfBpIbaasvBDf19+joZufj/6EPWN7IU0INuXymNxe1kY2DbnogtZL5XpuwBmfjwS4dNCbBnLQu8ne5TTzPqDnWTBwCokJTCwCkkJDKxCUgIDq5CUwMAqJCUwMC0EFnYhOBY9h20KstBtGctC76cKyQCOpUIGBQOrkJTAwCokJTCwCkkJDKxCUgID081FWNifecCx6Dnsa1fbpWVawFl8qVLZZOeA+nMVg4Kw6BZ/TulDDiIDCFGFpARCVCEpgRBVSEogRBWSEhYijP4XuJxqNSWEEEIIIYQQQgghROGMjPwF+7v3ZJoRydEAAAAASUVORK5CYII=",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能9简介——将士之誓",
+					"context": "坚定自己的决心，并让自己获得一个生命恢复的效果。第一次使用该技能时将恢复400~800血量，之后每回合都恢复200~400的血量。\r\n持续3回合，消耗50能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill10_label",
+			"position": {
+				"top": 465,
+				"left": 980,
+				"width": 100, 
+				"height": 20
+			},
+			"font_color": "black", 
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "10至暗时刻"
+		},
+		{
+			"type": "image",
+			"name": "skill10_image",
+			"position": {
+				"top": 490,
+				"left": 980,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOvAAADrwBlbxySQAABItJREFUeF7tm11LFFEcxvcj9BH8CH0Ev0QXQRBUd5IJxoZ0seaC1oXlhS8lYl24WIggGUaKrS9gaJTlgkGv4geoLrroJqb/s8wgnH1mbG3HOY7PA7+7w86c5zcDZ2bOFhRFURRFURRFURRFURRFOd5cGRrqjaEtHKIcZ6z4IIb2cIhynCEiIiQkixARERKSRYiICAnJIkREhISkFSv3DApmXB0ZCRiXy+Wucx0d7QStvv43YfnsLghuT01RLvX0BFY+oxT+rHLUWPES4lOseAnxKVa8hPgUK15CfIoVLyFZxArGS8GG0rGMZaWDj/v7lIn5eTq+c2CASQLV8DSUKFa+hPgUK19CfIqVLyE+xcqXEJ9i5UuIT7HyqZCeyclgdmWF8uv3AqX6dpmOv2VyiQwgIW6s/FghLzY3KX+Cx5St3VU6fmB8nMkAEuLGypcQn2LlS4hPsfIlxKdY+RKSZqxMFPzPdI2NVYtWmMud6elgbXubwmSA95826Pj7MzP1pa9LR7n8zaT0NsnJ+hxsJTdc7UmgfPbs8GBuLni9u0thMsCHvS06/snyMj3GzdFRdtccxsnaSMFKT0JCUg4rPQkJSTms9CQkJOWw0pOQkBbEimx6E1txYqK+lHXBagrlu1QWF2m5gMkAcUKerq/TY9ytVILOvj4KPgczLnR3+7cZLyyfXvHsSgR4yceeEbAsZSUmwWSAOCFxbNRq9JwAmwOAFCufkd13eyteQiTkACYDSAiBTQJISIqx4iVEQg5gMkDuhVjBeAHYUDqWsexkAfvWDfCJlZV4FHZ2CpTPX88He/s3Gvj+8x79nSSYJDA8O0vnjZeVRBJo3RtlK19CHCSEwGQACSEwGUBCWhArX0IcJITAZIDTIKTNwBLXpQQpDOweZGATG755u+CzK5arLrUvr+h4gOIZm7XJYH37WQMbtSX6Oy/fPA8qSxUKimd09vfXl74uF4vFh1Y+e+mY/tvhUErDnQPY1QOafQ5JekZgdwFA+Wx8HDgndq5JoHwrmZHvB0MJaSJWvIRIyAFMBpAQApsEkJAUY8Vj9VViYPnHwF8CsIPQBZvY8M3bZW5trS6LgWUsA6upuOIfLSw0MByzgS6JcDVVIvi5+cFOjF09sWCS7ErEN2925wD23ACwlGVCUD47xqnYdUImkIiEpBwygUQkJOWQCSQiISmHTCARCUk5dsLVZsBfAlCMCzaxYenLYDLA6rvF+orKBaspdozrg4M/2DkdwtlwqvmMTRD/uWi4ErF7kF3tgMkAeCnI7gTchewYRuvexOYlVoqE+BQrRUJ8ipUiIT7FSpEQn2KlSIhPsVKoELxVZeUC9mwC8OzCxktIE7FSJMSnWCkS4lOsFAnxKVaKhPgUK0VCfIqV0mawDWYlSGGgeMY1K56Nz3QTW14SFsauanoXAJTPxhvZbUDIS6xECfEpVqKE+BQrUUJ8ipUoIT7FSsTqi21Ii92Md+I2seUlVjC7C4CKzyJERISEZBEiIkJCsggRESEhWYSIiJCQLGLFsw1sIN+b2BRFURRFUZRDUyj8BXRfgTo03uO5AAAAAElFTkSuQmCC",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能10简介——至暗时刻（大招）",
+					"context": "你发动一次巨型黑洞攻击，将敌人置身于黑暗之中。克除对手1000~1800伤害。但与此同时会有50%概率反噬自己，克除自己相对于克除对手的70%血量。\r\n一次性技能，消耗50能量。"
+				}
+			]
+		},
+		{
+			"type": "label",
+			"name": "skill11_label",
+			"position": {
+				"top": 465,
+				"left": 1088,
+				"width": 100,
+				"height": 20
+			},
+			"font_color": "black",
+			"font_size": 10,
+			"font_style": "黑体",
+			"caption": "11普通攻击"
+		},
+		{
+			"type": "image",
+			"name": "skill11_image",
+			"position": {
+				"top": 490,
+				"left": 1088,
+				"width": 100,
+				"height": 100
+			},
+			"image": {
+				"base64": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAABbmlDQ1BpY2MAACiRdZE7SwNBFIU/E0XRiIIWIhYpVCwMiIJYSgRt1CJG8NUk424iJOuymyDBVrCxECxEG1+F/0BbwVZBEBRBxNLaVyNhveMGEiSZZfZ+nJlzuXsWAtMZlXXrxyFr5ZzYVDS8sLgUbnwjSIh2xmhOKNeemZuMU3N9P1Cn631E96p9r+pqWTVcBXVNwqPKdnLCMg3TGzlb845wp0onVoWPhQcdGVD4RutJn181p3z+1OzEYxMQ0D3DqQpOVrBKO1nhAeHebCavSvPoLwkZ1vyc1G7ZPbjEmCJKmCR51siQIyLVksyq+4b+fLOsi0fJ26aAI44UafEOipqXroZUU3RDngwFnfv/PF1zZNjvHopCw4vnffRB4x4Udz3v58TziqcQfIYrq+xfl5zGvkTfLWu9R9C2BRfXZS25D5fb0PVkJ5zEnxSUHTBNeD+H1kXouIPmZT+r0jlnjxDflF90CweH0C/321Z+ASPaaBqbvj3yAAAACXBIWXMAAA7DAAAOwwHHb6hkAAADqElEQVR4Xu2dsW4aQRRFTeQmKSNFAhqXNDRpUgOiSct/8Df0+QJL6VKAoE8NUnBpRYgfSJMmyUop583uHd87IXBd4rf37Z6zYz3NYujd+efFBObz+a8Xh/wNeMUKcg6HgIVwONJSLISGkhNkIRyOtBQLoaHkBPU4MbeREk1T6/UaBjAYDJLHeIXAKLUHWIiWL5xuITAy7QEWouULp1sIjEx7gIVo+cLp9/ARN3AAOt7udruQynQ6hYh5hUC49MUWomcMdbAQCJe+2EL0jKEOFgLh0hff9OYia5rKTVLRJuL5fE6y9wrR3/RQBwuBcOmLLUTPGOpgIRAufbGF6BlDHa5+Lyv3Jrbo0Wu0NzUcDpNwo0mqKY6mqciSVwh0/+qLLUTPGOpgIRAufbGF6BlDHSwEwqUvvpq9LHRfqkGLTlOTySRpBJ2kclq9QvQ3PdTBQiBc+mIL0TOGOlgIhEtfbCF6xlAHC4Fw6YuLxl70v043m01Rn9TlR71Xq1WS1ul0CilGm4U1xltvLupvbkoH/8miYOSFWAiPJSXJQigYeSEWwmNJSaI+wh2NRtFJJT8LJDd9saapaJJqTvRfTlOesij3rz7Ef7L0jKEOFgLh0hdbiJ4x1MFCIFz64qIpKzMdJaepxWKRvJL9fh9+Elu0N7XdbpNZs9ks+Xo0STXFzEevLFVeISySpBwLIYFkxVgIiyQpx0JIIFkxFsIiScqhPclrzifaf4qmrNw1HA6H5K+XyyU0TV3iJJW7bq8Q0p3NirEQFklSjoWQQLJiLIRFkpRjISSQrBgLYZEk5VDH3uiconE488j37ng8JuP+bEgmX//fxtuIlVcI6c5mxVgIiyQpx0JIIFkxFsIiScqxEBJIVgx1yvr44V3ykexD/3XyfD9//Rlex3g8hq7xWqYvrxBIu77YQvSMoQ4WAuHSF1uInjHUwUIgXPriojfKRdPU5P3b5Bl/+vI92H/6kZvyoK8zzUxlYc4l7n95hehveqiDhUC49MUWomcMdbAQCJe+2EL0jKEO9+jHZDTpD2+eoGnq23N2mgomsPS3B2SuDprKIEoVi71CKsLu0spCulCqWGMhFWF3aWUhXShVrLGQirC7tLKQLpQq1oSbi7k3sT0+Rm9Ww8db1rVe4kZhybV5hZRQEx5jIUK4JdEWUkJNeIyFCOGWRFtICTXhMb1+v0/blLuWSUfIuzXaK6QVUd0CC6nLu7WbhbQiqltgIXV5t3azkFZEdQt+A3U6mM1YsqjHAAAAAElFTkSuQmCC",
+				"suffix": "png"
+			},
+			"on_click": [
+				{
+					"type": "messagebox",
+					"title": "技能11简介——普通攻击",
+					"context": "你拔出宝剑，击向敌人。给对手造成300~500伤害。无任何特殊buff。\r\n一次性技能，消耗0能量。"
+				}
+			]
+		}
+	]
+}

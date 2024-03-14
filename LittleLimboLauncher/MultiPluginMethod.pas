@@ -1369,17 +1369,20 @@ begin
   var upt := '';
   var ver := '';
   var atr := '';
+  var cpy := '';
   var cap := '';
   try desc := PluginJSON.GetValue('plugin_description').Value; except end;
   try upt := PluginJSON.GetValue('plugin_update_time').Value; except end;
   try ver := PluginJSON.GetValue('plugin_version').Value; except end;
   try atr := PluginJSON.GetValue('plugin_author').Value; except end;
+  try cpy := PluginJSON.GetValue('plugin_copyright').Value; except end;
   try cap := PluginJSON.GetValue('form_caption').Value; except end;
   var all := GetLanguage('plugin_tabsheet.get_plugin_info.hint')
                         .Replace('${plugin_caption}', cap)
                         .Replace('${plugin_version}', ver)
                         .Replace('${plugin_author}', atr)
                         .Replace('${plugin_update_time}', upt)
+                        .Replace('${plugin_copyright}', cpy)
                         .Replace('${plugin_description}', desc);
   PluginTabSheet.Caption := cap;
   PluginScrollBox := TScrollBox.Create(PluginTabSheet);

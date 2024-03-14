@@ -19,6 +19,7 @@
 	"plugin_update_time": "my_plugin_update_time",
 	"plugin_description": "my_plugin_description",
 	"plugin_version": "my_plugin_version",
+	"plugin_copyright": "MIT/GPL/Apache...",
 	"form_caption": "插件在Tabsheet中的名称显示！",
 	"content": [
 		{
@@ -991,12 +992,14 @@
 |plugin_author|该插件作者|非必须|
 |plugin_description|该插件简介|非必须|
 |plugin_update_time|该插件更新时间|非必须|
+|plugin_copyright|该插件版权信息|非必须|
 |plugin_version|该插件版本号|非必须|
 |form_caption|该插件标题|非必须|
 |content|插件总控件列表|必须|
 
 - 上述只有两个是必须的，那就是插件总名字，这也算是一个默认唯一标识符之一，所有控件都不可以与该窗口的name重合。
 - 然后第二个就是content，这个是和很神奇的东西！即使你窗体上一个控件也没有，也必须写这个代码块哦！
+- 上述信息会在窗口以hint形式出现，也就是鼠标移到插件窗体上就会自动显示hint。
 
 ### 将来还会有更新吗？
 

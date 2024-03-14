@@ -1683,6 +1683,7 @@ begin
                   '插件名称；${plugin_caption}', #13#10,
                   '插件版本：${plugin_version}', #13#10,
                   '插件作者：${plugin_author}', #13#10,
+                  '插件版权：${plugin_copyright}', #13#10,
                   '插件更新时间：${plugin_update_time}', #13#10,
                   '插件简介：${plugin_description}'))
       .AddPair('plugin_menu_back.caption', '回退')
@@ -3048,6 +3049,7 @@ begin
                   '插件名称；${plugin_caption}', #13#10,
                   '插件版本：${plugin_version}', #13#10,
                   '插件作者：${plugin_author}', #13#10,
+                  '插件版权：${plugin_copyright}', #13#10,
                   '插件更新时间：${plugin_update_time}', #13#10,
                   '插件简介：${plugin_description}'))
       .AddPair('plugin_menu_back.caption', '回退')
