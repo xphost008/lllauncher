@@ -60,12 +60,12 @@ begin
   try
     var jif := json.GetValue('if') as TJSONObject;
     var jva := jif.GetValue('ifvariable').Value;
-    var jvl := jif.GetValue('ifvalue').Value;
+    var jvl := VariableToValue(jif.GetValue('ifvalue').Value);
     jif.RemovePair('ifvariable');
     jif.RemovePair('ifvalue');
     var jeq := '';
     try
-      var jjd := jif.GetValue('ifjudge').Value;
+      var jjd := VariableToValue(jif.GetValue('ifjudge').Value);
       jif.RemovePair('ifjudge');
       if jjd.Equals('less') then jeq := 'less'
       else if jjd.Equals('more') then jeq := 'more'
@@ -73,54 +73,87 @@ begin
       else if jjd.Equals('more_equal') then jeq := 'more_equal'
       else if jjd.Equals('less_equal') then jeq := 'less_equal'
       else raise Exception.Create('cannot solve judge!');
-    except  
-      jeq := 'equal';
-    end;
+    except jeq := 'equal'; end;
     var jyb := VariableToValue(Concat('${', jva, '}'));
     if jeq.Equals('equal') then begin
-      if jyb.Equals(jvl) then JudgeEvent(jif) else begin
+      if jyb.Equals(jvl) then begin 
+        if JudgeEvent(jif) then begin 
+          result := true; 
+          exit; 
+        end; 
+      end else begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          JudgeEvent(jel);
-        except
-        end;
+          if JudgeEvent(jel) then begin
+            result := true;
+            exit;
+          end;
+        except end;
       end;    
     end else if jeq.Equals('less') then begin
-      if strtoint(jyb) < strtoint(jvl) then JudgeEvent(jif) else begin
+      if strtoint(jyb) < strtoint(jvl) then begin 
+        if JudgeEvent(jif) then begin 
+          result := true; 
+          exit; 
+        end; 
+      end else begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          JudgeEvent(jel);
-        except
-        end;
+          if JudgeEvent(jel) then begin
+            result := true;
+            exit;
+          end;
+        except end;
       end;
     end else if jeq.Equals('more') then begin
-      if strtoint(jyb) > strtoint(jvl) then JudgeEvent(jif) else begin
+      if strtoint(jyb) > strtoint(jvl) then begin 
+        if JudgeEvent(jif) then begin 
+          result := true; 
+          exit; 
+        end; 
+      end else begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          JudgeEvent(jel);
-        except
-        end;
+          if JudgeEvent(jel) then begin
+            result := true;
+            exit;
+          end;
+        except end;
       end;
     end else if jeq.Equals('more_equal') then begin
-      if strtoint(jyb) >= strtoint(jvl) then JudgeEvent(jif) else begin
+      if strtoint(jyb) >= strtoint(jvl) then begin 
+        if JudgeEvent(jif) then begin  
+          result := true; 
+          exit; 
+        end; 
+      end else begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          JudgeEvent(jel);
-        except
-        end;
+          if JudgeEvent(jel) then begin
+            result := true;
+            exit;
+          end;
+        except end;
       end;
     end else if jeq.Equals('less_equal') then begin
-      if strtoint(jyb) <= strtoint(jvl) then JudgeEvent(jif) else begin
+      if strtoint(jyb) <= strtoint(jvl) then begin 
+        if JudgeEvent(jif) then begin 
+          result := true; 
+          exit; 
+        end; 
+      end else begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          JudgeEvent(jel);
-        except
-        end;
+          if JudgeEvent(jel) then begin
+            result := true;
+            exit;
+          end;
+        except end;
       end;
     end;
   except
@@ -423,6 +456,7 @@ begin
         except end;
       end;
       result := true;
+      exit;
     end else if jtype.Equals('change') then begin
       try
         var nme := json.GetValue('name').Value;
@@ -1280,8 +1314,8 @@ begin
       var oc := J.GetValue('on_click') as TJSONArray;
       try
         for var K in oc do begin
-          var L := K as TJSONObject;
-          if JudgeEvent(L) then break;
+          var L := K.Clone as TJSONObject;
+          if JudgeEvent(L) then exit;
         end;
       except end;
     end;
