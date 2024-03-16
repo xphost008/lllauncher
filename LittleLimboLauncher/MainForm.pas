@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
   ExtCtrls, Controls, MPlayer, Log4Delphi, Imaging.jpeg, Generics.Collections, FileCtrl,
-  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding, Vcl.Buttons;
+  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding, Vcl.Buttons,
+  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent;
 
 type
   Tform_mainform = class(TForm)
@@ -891,10 +892,18 @@ end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 begin
-  var json := '["Hello","World","Nihao"]';
-  var arr := TJSONArray.ParseJSONValue(json) as TJSONArray;
-  showmessage(arr.ToString);
-
+//  var json := '["Hello","World","Nihao"]';
+//  var arr := TJSONArray.ParseJSONValue(json) as TJSONArray;
+//  showmessage(arr.ToString);
+//  var sp := 'C:\Users\Rechalow\AppData\Roaming\.minecraft\libraries\com\ibm\icu\icu4j\73.2\icu4j-73.2.jar';
+//  if deletefile(pchar(sp)) then begin
+//    showmessage('1');
+//  end else begin
+//    showmessage('2');
+//  end;
+//  var a := 'https://libraries.minecraft.net/it/unimi/dsi/fastutil/8.5.12/fastutil-8.5.12.jar';
+//  var b := GetWebStream(a);
+//  b.SaveToFile('D:\lib.jar')
 //  var tab := TTabSheet.Create(form_mainform.pagecontrol_mainpage);
 //  tab.PageControl := form_mainform.pagecontrol_mainpage;
 //  tab.Parent := form_mainform.pagecontrol_mainpage;

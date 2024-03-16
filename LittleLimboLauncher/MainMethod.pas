@@ -336,12 +336,12 @@ begin
   var jsonRoot := TJSONObject.ParseJSONValue(json.ToLower) as TJSONObject;
   var mcid := '';
   try
-    mcid := jsonRoot.GetValue('inheritsFrom').Value;
-    if mcid = '' then raise Exception.Create('Not Support!');
+    mcid := jsonRoot.GetValue('inheritsfrom').Value;
+    if mcid.IsEmpty then raise Exception.Create('Not Support!');
   except
     try
       mcid := jsonRoot.GetValue('clientversion').Value;
-      if mcid = '' then raise Exception.Create('Not Support!');
+      if mcid.IsEmpty then raise Exception.Create('Not Support!');
     except
       try
         var patch := jsonRoot.GetValue('patches') as TJsonArray;
@@ -351,6 +351,7 @@ begin
             mcid := I.GetValue<String>('version');
           end;
         end;
+        if mcid.IsEmpty then raise Exception.Create('Cannot get hmcl vanilla key');
       except
         try
           var game := (jsonRoot.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
@@ -359,9 +360,10 @@ begin
               mcid := game[I + 1].Value;
             end;
           end;
+          if mcid.IsEmpty then raise Exception.Create('Cannot get forge vanilla key');
         except
           try
-            var releaseTime := jsonRoot.GetValue('releaseTime').Value;
+            var releaseTime := jsonRoot.GetValue('releasetime').Value;
             var Vv := '';
             case mdownload_source of
               1: Vv := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
@@ -374,13 +376,15 @@ begin
             for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
               var J := I as TJsonObject;
               var release := J.GetValue('releaseTime').Value;
-              if release = releaseTime then begin
+              if release.Equals(releaseTime) then begin
                 mcid := J.GetValue('id').Value;
               end;
             end;
+            if mcid.IsEmpty then raise Exception.Create('Cannot get releaseTime vanilla key');
           except
             try
               mcid := jsonRoot.GetValue('id').Value;
+              if mcid.IsEmpty then raise Exception.Create('Cannot get hmcl vanilla key');
             except
               MyMessagebox(GetLanguage('messagebox_export.cannot_find_vanilla_key.caption'), GetLanguage('messagebox_export.cannot_find_vanilla_key.text'), MY_ERROR, [mybutton.myOK]);
               exit;
@@ -570,8 +574,12 @@ begin
     exit;
   end;
   var pStream := TFileStream.Create(filename, fmOpenRead or fmShareDenyWrite);
-  var ss := THashSha1.GetHashString(pStream);
-  result := ss.ToLower;
+  try
+    var ss := THashSha1.GetHashString(pStream);
+    result := ss.ToLower;
+  finally
+    pStream.Free;
+  end;
 end;
 //用UUID强转成HashCode。
 function UUIDToHashCode(UUID: String): Int64;
@@ -656,9 +664,9 @@ begin
       AcceptCharSet := 'utf-8';
       AcceptEncoding := '65001';
       AcceptLanguage := 'en-US';
-      ResponseTimeout := 200000;
-      ConnectionTimeout := 200000;
-      SendTimeout := 200000;
+      ResponseTimeout := 300000;
+      ConnectionTimeout := 300000;
+      SendTimeout := 300000;
       ContentType := 'text/html';
       SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
       HandleRedirects := True;  //可以网址重定向

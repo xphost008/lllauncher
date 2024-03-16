@@ -228,14 +228,10 @@ begin
         var vdir := ExtractFileDir(selpath);
         Dirs := TDirectory.GetDirectories(vdir);
         for var I in Dirs do begin
-          Files := TDirectory.GetFiles(I);
-          for var J in Files do begin
-            if RightStr(J, 5) = '.json' then begin
-              if GetVanillaVersion(GetFile(J)).Equals(ihtf) then begin
-                result := I;
-                exit;
-              end;
-            end;
+          var vpth := GetMCRealPath(I, '.json');
+          if GetVanillaVersion(GetFile(vpth)).Equals(ihtf) then begin
+            result := I;
+            exit;
           end;
         end;
       except

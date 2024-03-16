@@ -53,6 +53,9 @@ type
     procedure DownloadModpack;
     constructor InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);
     procedure StartDownload(LoadSource: Integer);
+{$IFDEF DEBUG}
+    procedure ReceverError(const Sender: TObject; const AError: String);
+{$ENDIF}
     procedure DownloadAsWindow(SavePath, DownloadURL, FileHash, ViewName: String; isLibraries: Boolean; SelectMode: Integer);
   end;
 //新的线程模式！
@@ -114,7 +117,10 @@ begin
   var ret := 0;
   if FileExists(SavePath) then begin
     if FileHash = '' then raise Exception.Create('Is Exists');
-    if GetFileHash(SavePath).ToLower <> FileHash then goto Retry;
+    if GetFileHash(SavePath).ToLower <> FileHash then begin
+      deletefile(pchar(SavePath));
+      goto Retry;
+    end;
     if isShowList then form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.file_is_exists').Replace('${file_exists_name}', ViewName));
     raise Exception.Create('Is Exists');
   end;
@@ -172,12 +178,21 @@ begin
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.download_success').Replace('${file_success_name}', ViewName));
   srr.SaveToFile(SavePath);
 end;
+//下载MC资源时显示下载进度
 procedure TDownloadMethod.ShowCurrentProgress(current, mmax: Integer);
 begin
   form_mainform.progressbar_progress_download_bar.Position := current;
-  var jd: Currency := 100 * current / mmax;
+  var jd: Currency := current / mmax * 100;
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(current)).Replace('${download_all_count}', inttostr(mmax));
 end;
+{$IFDEF DEBUG}
+//显示某些奇怪的错误……
+procedure TDownloadMethod.ReceverError(const Sender: TObject; const AError: String);
+begin
+  ClipBoard.SetTextBuf(pchar(AError));
+  messagebox(0, pchar(AError), '', 0);
+end;
+{$ENDIF}
 //在单线程下载的时候，这里会显示下载进度。
 procedure TDownloadMethod.ReceiveData(const Sender: TObject;
   AContentLength, AReadCount: Int64; var AAbort: Boolean);
@@ -198,9 +213,9 @@ begin
       AcceptCharSet := 'utf-8';
       AcceptEncoding := '65001';
       AcceptLanguage := 'en-US';
-      ResponseTimeout := 200000;
-      ConnectionTimeout := 200000;
-      SendTimeout := 200000;
+      ResponseTimeout := 300000;
+      ConnectionTimeout := 300000;
+      SendTimeout := 300000;
       SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
       HandleRedirects := True;
       if showProg then OnReceiveData := ReceiveData;
@@ -223,13 +238,16 @@ begin
       AcceptCharSet := 'utf-8';
       AcceptEncoding := '65001';
       AcceptLanguage := 'en-US';
-      ResponseTimeout := 200000;
-      ConnectionTimeout := 200000;
-      SendTimeout := 200000;
+      ResponseTimeout := 300000;
+      ConnectionTimeout := 300000;
+      SendTimeout := 300000;
       ContentType := 'text/html';
       SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
       HandleRedirects := True;  //可以网址重定向
       OnReceiveData := ReceiveData;
+{$IFDEF DEBUG}
+      OnRequestError := ReceverError;
+{$ENDIF}
     end;
     try
       var h := http.Get(url, strt);  //获取网络文本
@@ -251,9 +269,9 @@ begin
       AcceptCharSet := 'utf-8'; //设置传输编码为utf-8
       AcceptEncoding := '65001'; //设置传输编码代号为65501
       AcceptLanguage := 'en-US'; //设置传输语言为英语【当然也可以为中文zh-CN，但是不建议。】
-      ResponseTimeout := 200000; //设置传输超时为3分20秒。其实就是20万毫秒。
-      ConnectionTimeout := 200000; //设置连接超时为3分20秒
-      SendTimeout := 200000; //设置发送超时为3分20秒【这里其实不必要设置，因为我们只是获取大小，并不是使用Put传输。Post和Get均不需要设置这个。这里可选哦！】
+      ResponseTimeout := 300000; //设置传输超时为3分20秒。其实就是20万毫秒。
+      ConnectionTimeout := 300000; //设置连接超时为3分20秒
+      SendTimeout := 300000; //设置发送超时为3分20秒【这里其实不必要设置，因为我们只是获取大小，并不是使用Put传输。Post和Get均不需要设置这个。这里可选哦！】
       SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13]; //设置传输协议，可以写很多个，甚至可以写完！
       HandleRedirects := True;  //可以网址重定向
     end;

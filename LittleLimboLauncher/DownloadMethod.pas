@@ -50,8 +50,8 @@ begin
     form_mainform.listbox_select_minecraft.Items.Add(GetLanguage('listbox_select_minecraft.item.get_mc_error'));
     exit;
   end;
-  var Rt := TJsonObject.ParseJSONValue(webjson) as TJsonObject;
-  var JArr := (Rt.GetValue('versions') as TJsonArray); //获取versions下的所有元素
+  MCRootJSON := TJSONObject.ParseJSONValue(webjson) as TJSONObject;
+  var JArr := (MCRootJSON.GetValue('versions') as TJsonArray); //获取versions下的所有元素
   form_mainform.listbox_select_minecraft.Items.BeginUpdate;
   for var I := 0 to JArr.Count - 1 do begin //以下皆为判断版本
     var JTmp := JArr[I].GetValue<String>('type');

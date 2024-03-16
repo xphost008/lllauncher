@@ -153,7 +153,7 @@ begin
     form_mainform.label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', '');
     mselect_mc := -0;
   end;
-  try //添加版本选择，并判断游戏Version文件的规范性，如果规范，则正常输出。
+  try //添加版本选择
     mselect_ver := LLLini.ReadInteger('MC', 'SelectVer', -1) - 1;
     if (mselect_ver < 0) and not (mselect_ver >= (MCSelJson.GetValue('mcsel') as TJsonArray).Count) then  //如果账号不为空，
       raise Exception.Create('Format Exception');
