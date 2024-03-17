@@ -27,6 +27,8 @@ type
     constructor ConstructorPluginForm(name, json: String);
     procedure PluginControlClick(Sender: TObject);
     procedure PluginControlChange(Sender: TObject);
+    procedure PluginControlSelect(Sender: TObject);
+    procedure PluginControlDropdown(Sender: TObject);
     procedure PluginControlMouseMove(Sender: TObject;
       Shift: TShiftState; X, Y: Integer);
     procedure PluginControlMouseLeave(Sender: TObject);
@@ -36,7 +38,7 @@ type
       Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
       var Handled: Boolean);
     function VariableToValue(text: String): String;
-    function JudgeEvent(json: TJSONObject): Boolean;
+    function JudgeEvent(json: TJSONObject; isFant: Boolean): Boolean;
   end;
 
 var
@@ -54,7 +56,7 @@ begin
   end;
   result := text;
 end;
-function TPluginForm.JudgeEvent(json: TJSONObject): Boolean;
+function TPluginForm.JudgeEvent(json: TJSONObject; isFant: Boolean): Boolean;
 begin
   result := false;
   try
@@ -77,7 +79,7 @@ begin
     var jyb := VariableToValue(Concat('${', jva, '}'));
     if jeq.Equals('equal') then begin
       if jyb.Equals(jvl) then begin 
-        if JudgeEvent(jif) then begin 
+        if JudgeEvent(jif, isFant) then begin 
           result := true; 
           exit; 
         end; 
@@ -85,7 +87,7 @@ begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          if JudgeEvent(jel) then begin
+          if JudgeEvent(jel, isFant) then begin
             result := true;
             exit;
           end;
@@ -93,7 +95,7 @@ begin
       end;    
     end else if jeq.Equals('less') then begin
       if strtoint(jyb) < strtoint(jvl) then begin 
-        if JudgeEvent(jif) then begin 
+        if JudgeEvent(jif, isFant) then begin 
           result := true; 
           exit; 
         end; 
@@ -101,7 +103,7 @@ begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          if JudgeEvent(jel) then begin
+          if JudgeEvent(jel, isFant) then begin
             result := true;
             exit;
           end;
@@ -109,7 +111,7 @@ begin
       end;
     end else if jeq.Equals('more') then begin
       if strtoint(jyb) > strtoint(jvl) then begin 
-        if JudgeEvent(jif) then begin 
+        if JudgeEvent(jif, isFant) then begin 
           result := true; 
           exit; 
         end; 
@@ -117,7 +119,7 @@ begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          if JudgeEvent(jel) then begin
+          if JudgeEvent(jel, isFant) then begin
             result := true;
             exit;
           end;
@@ -125,7 +127,7 @@ begin
       end;
     end else if jeq.Equals('more_equal') then begin
       if strtoint(jyb) >= strtoint(jvl) then begin 
-        if JudgeEvent(jif) then begin  
+        if JudgeEvent(jif, isFant) then begin  
           result := true; 
           exit; 
         end; 
@@ -133,7 +135,7 @@ begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          if JudgeEvent(jel) then begin
+          if JudgeEvent(jel, isFant) then begin
             result := true;
             exit;
           end;
@@ -141,7 +143,7 @@ begin
       end;
     end else if jeq.Equals('less_equal') then begin
       if strtoint(jyb) <= strtoint(jvl) then begin 
-        if JudgeEvent(jif) then begin 
+        if JudgeEvent(jif, isFant) then begin 
           result := true; 
           exit; 
         end; 
@@ -149,7 +151,7 @@ begin
         try
           var jel := json.GetValue('else') as TJSONObject;
           jel.ToString;
-          if JudgeEvent(jel) then begin
+          if JudgeEvent(jel, isFant) then begin
             result := true;
             exit;
           end;
@@ -159,6 +161,7 @@ begin
   except
     var jtype := json.GetValue('type').Value;
     if jtype.Equals('messagebox') then begin
+      if isFant then exit;
       var title := '';
       var context := '';
       var color := 16714250;
@@ -232,6 +235,7 @@ begin
         end;
       except end;
     end else if jtype.Equals('inputbox') then begin
+      if isFant then exit;
       var title := '';
       var context := '';
       var color := 16714250;
@@ -263,6 +267,7 @@ begin
         end;
       except end;
     end else if jtype.Equals('multibuttonbox') then begin
+      if isFant then exit;
       var title := '';
       var color := 16714250;
       var button: TArray<String> := [];
@@ -297,21 +302,18 @@ begin
       except end;
     end else if jtype.Equals('shell') then begin
       var lpexecute := '';
-      var lpcommand := '';
       try
         var impl := json.GetValue('implement') as TJSONArray;
-        lpexecute := impl[0].Value;
-        if impl.Count > 1 then begin
-          for var I := 1 to impl.Count - 1 do begin
-            lpcommand := Concat(impl[I].Value, ' ');
-          end;
+        for var I in impl do begin
+          lpexecute := Concat(lpexecute, VariableToValue(I.Value), ' ');
         end;
-        ShellExecute(Application.Handle, 'open', pchar(lpexecute), pchar(lpcommand), pchar(ExtractFileDir(Application.ExeName)), SW_SHOWNORMAL);
+        ShellExecute(Application.Handle, 'open', pchar('cmd.exe'), pchar(Concat('/c ', lpexecute)), pchar(ExtractFileDir(Application.ExeName)), SW_SHOWNORMAL);
       except end;
     end else if jtype.Equals('copy') then begin
       var value := VariableToValue(json.GetValue('value').Value);
       Clipboard.SetTextBuf(pchar(value));
     end else if jtype.Equals('song') then begin
+      if isFant then exit;
       var sg := json.GetValue('song') as TJSONObject;
       try
         var suffix := sg.GetValue('suffix').Value;
@@ -345,6 +347,7 @@ begin
         end;
       except end;
     end else if jtype.Equals('memory_free') then begin
+      if isFant then exit;
       MemoryReduct(false);
     end else if jtype.Equals('random') then begin
       randomize;
@@ -410,6 +413,7 @@ begin
         PluginVariableDic.Add(res, resu);
       end;
     end else if jtype.Equals('open') then begin
+      if isFant then exit;
       json.RemovePair('type');
       try
         var nme := json.GetValue('plugin_name').Value;
@@ -425,6 +429,7 @@ begin
               f := Base64ToStream(json.GetValue('base64').Value).DataString;
               if f.IsEmpty then begin
                 Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+                MyMessageBox(GetLanguage('messagebox_plugin.plugin_context_error.caption'), GetLanguage('messagebox_plugin.plugin_context_error.text'), MY_ERROR, [mybutton.myOK]);
                 exit;
               end;
             except
@@ -432,12 +437,14 @@ begin
                 f := GetFile(json.GetValue('path').Value);
                 if f.IsEmpty then begin
                   Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+                  MyMessageBox(GetLanguage('messagebox_plugin.plugin_context_error.caption'), GetLanguage('messagebox_plugin.plugin_context_error.text'), MY_ERROR, [mybutton.myOK]);
                   exit;
                 end;
               except
                 f := GetWebText(json.GetValue('url').Value);
                 if f.IsEmpty then begin
                   Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
+                  MyMessageBox(GetLanguage('messagebox_plugin.plugin_context_error.caption'), GetLanguage('messagebox_plugin.plugin_context_error.text'), MY_ERROR, [mybutton.myOK]);
                   exit;
                 end;
               end;
@@ -1315,7 +1322,7 @@ begin
       try
         for var K in oc do begin
           var L := K.Clone as TJSONObject;
-          if JudgeEvent(L) then exit;
+          if JudgeEvent(L, false) then exit;
         end;
       except end;
     end;
@@ -1325,22 +1332,149 @@ end;
 procedure TPluginForm.PluginControlMouseMove(Sender: TObject;
       Shift: TShiftState; X, Y: Integer);
 begin
-  //
+  var nme: String := (Sender as TControl).Name;
+  var cont := PluginJSON.GetValue('content') as TJSONArray;
+  for var I in cont do begin
+    var J := I as TJSONObject;
+    if J.GetValue('name').Value.Equals(nme) then begin
+      var oc := J.GetValue('on_mousemove') as TJSONArray;
+      try
+        for var K in oc do begin
+          var L := K.Clone as TJSONObject;
+          if JudgeEvent(L, true) then exit;
+        end;
+      except end;
+    end;
+  end;
 end;
 //控件鼠标离开事件
 procedure TPluginForm.PluginControlMouseLeave(Sender: TObject);
 begin
-  //
+  var nme: String := (Sender as TControl).Name;
+  var cont := PluginJSON.GetValue('content') as TJSONArray;
+  for var I in cont do begin
+    var J := I as TJSONObject;
+    if J.GetValue('name').Value.Equals(nme) then begin
+      var oc := J.GetValue('on_mouseleave') as TJSONArray;
+      try
+        for var K in oc do begin
+          var L := K.Clone as TJSONObject;
+          if JudgeEvent(L, true) then exit;
+        end;
+      except end;
+    end;
+  end;
 end;
 //控件改变事件
 procedure TPluginForm.PluginControlChange(Sender: TObject);
 begin
-  //
+  var nme: String := (Sender as TControl).Name;
+  var cont := PluginJSON.GetValue('content') as TJSONArray;
+  for var I in cont do begin
+    var J := I as TJSONObject;
+    if J.GetValue('name').Value.Equals(nme) then begin
+      var oc := J.GetValue('on_change') as TJSONArray;
+      try
+        for var K in oc do begin
+          var L := K.Clone as TJSONObject;
+          if JudgeEvent(L, true) then exit;
+        end;
+      except end;
+      var ote := J.GetValue('type').Value;
+      if ote.Equals('edit') then begin
+        var et := (Sender as TEdit).Text;
+        var er := J.GetValue('result').Value;
+        try
+          PluginVariableDic[er] := et;
+        except
+          PluginVariableDic.Add(er, et);
+        end;
+      end else if ote.Equals('memo') then begin
+        var et := (Sender as TMemo).Text;
+        var er := J.GetValue('result').Value;
+        try
+          PluginVariableDic[er] := et;
+        except
+          PluginVariableDic.Add(er, et);
+        end;
+      end;
+    end;
+  end;
 end;
+//控件滑动事件
 procedure TPluginForm.PluginControlScroll(Sender: TObject;
   ScrollCode: TScrollCode; var ScrollPos: Integer);
 begin
-  //
+  var nme: String := (Sender as TControl).Name;
+  var cont := PluginJSON.GetValue('content') as TJSONArray;
+  for var I in cont do begin
+    var J := I as TJSONObject;
+    if J.GetValue('name').Value.Equals(nme) then begin
+      var oc := J.GetValue('on_scroll') as TJSONArray;
+      try
+        for var K in oc do begin
+          var L := K.Clone as TJSONObject;
+          if JudgeEvent(L, true) then exit;
+        end;
+      except end;
+      var ote := J.GetValue('type').Value;
+      if ote.Equals('scrollbar') then begin
+        var et := (Sender as TScrollBar).Position;
+        var er := J.GetValue('result').Value;
+        try
+          PluginVariableDic[er] := inttostr(et);
+        except
+          PluginVariableDic.Add(er, inttostr(et));
+        end;
+      end;
+    end;
+  end;
+end;
+//控件选择事件
+procedure TPluginForm.PluginControlSelect(Sender: TObject);
+begin
+  var nme: String := (Sender as TControl).Name;
+  var cont := PluginJSON.GetValue('content') as TJSONArray;
+  for var I in cont do begin
+    var J := I as TJSONObject;
+    if J.GetValue('name').Value.Equals(nme) then begin
+      var oc := J.GetValue('on_select') as TJSONArray;
+      try
+        for var K in oc do begin
+          var L := K.Clone as TJSONObject;
+          if JudgeEvent(L, true) then exit;
+        end;
+      except end;
+      var ote := J.GetValue('type').Value;
+      if ote.Equals('combobox') then begin
+        var et := (Sender as TComboBox).ItemIndex;
+        var er := J.GetValue('result').Value;
+        try
+          PluginVariableDic[er] := inttostr(et);
+        except
+          PluginVariableDic.Add(er, inttostr(et));
+        end;
+      end;
+    end;
+  end;
+end;
+//控件拉下事件
+procedure TPluginForm.PluginControlDropdown(Sender: TObject);
+begin
+  var nme: String := (Sender as TControl).Name;
+  var cont := PluginJSON.GetValue('content') as TJSONArray;
+  for var I in cont do begin
+    var J := I as TJSONObject;
+    if J.GetValue('name').Value.Equals(nme) then begin
+      var oc := J.GetValue('on_dropdown') as TJSONArray;
+      try
+        for var K in oc do begin
+          var L := K.Clone as TJSONObject;
+          if JudgeEvent(L, true) then exit;
+        end;
+      except end;
+    end;
+  end;
 end;
 //创建插件窗口
 constructor TPluginForm.ConstructorPluginForm(name, json: String);
@@ -1681,8 +1815,8 @@ begin
         except end;
         try ItemIndex := strtoint(obj.GetValue('itemindex').Value); except ItemIndex := -1 end;
         try PluginVariableDic.Add(obj.GetValue('result').Value, inttostr(ItemIndex)) except end;
-        OnDropDown := PluginControlClick;
-        OnSelect := PluginControlChange;
+        OnDropDown := PluginControlDropdown;
+        OnSelect := PluginControlSelect;
       end;
     end else if obj.GetValue('type').Value.Equals('scrollbar') then begin
       PluginScrollBar.Add(TScrollBar.Create(PluginScrollBox));

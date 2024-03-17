@@ -571,7 +571,7 @@ type
   end;
 
 const
-  LauncherVersion = '1.0.0-Beta-NewPluginTest-Unrelease-1';
+  LauncherVersion = '1.0.0-Alpha-NewPluginTest-3';
 
 var
   form_mainform: Tform_mainform;
@@ -652,7 +652,7 @@ begin
             f := Base64ToStream(ise.GetValue('base64').Value).DataString;
             if f.IsEmpty then begin
               Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
-//              messagebox(Handle, '获取的Base64内容为空，请重新输入一个网址！', '获取的Base64内容为空', MB_ICONERROR);
+              MyMessageBox(GetLanguage('messagebox_plugin.plugin_context_error.caption'), GetLanguage('messagebox_plugin.plugin_context_error.text'), MY_ERROR, [mybutton.myOK]);
               exit;
             end;
             ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
@@ -661,7 +661,7 @@ begin
               f := GetFile(ise.GetValue('path').Value);
               if f.IsEmpty then begin
                 Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
-//                messagebox(Handle, '获取的Path内容为空，请重新输入一个网址！', '获取的Path内容为空', MB_ICONERROR);
+                MyMessageBox(GetLanguage('messagebox_plugin.plugin_context_error.caption'), GetLanguage('messagebox_plugin.plugin_context_error.text'), MY_ERROR, [mybutton.myOK]);
                 exit;
               end;
               ise := TJsonObject.ParseJSONValue(f) as TJsonObject;
@@ -669,7 +669,7 @@ begin
               f := GetWebText(ise.GetValue('url').Value);
               if f.IsEmpty then begin
                 Log.Write('插件加载失败', LOG_ERROR, LOG_PLUGIN);
-//                messagebox(Handle, '获取的URL内容为空，请重新输入一个网址！', '获取的URL内容为空', MB_ICONERROR);
+                MyMessageBox(GetLanguage('messagebox_plugin.plugin_context_error.caption'), GetLanguage('messagebox_plugin.plugin_context_error.text'), MY_ERROR, [mybutton.myOK]);
                 exit;
               end;
               ise := TJsonObject.ParseJSONValue(f) as TJsonObject;

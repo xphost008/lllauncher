@@ -131,7 +131,7 @@ object form_mainform: Tform_mainform
     Top = 8
     Width = 838
     Height = 464
-    ActivePage = tabsheet_version_part
+    ActivePage = tabsheet_mainpage_part
     TabOrder = 0
     OnChange = pagecontrol_mainpageChange
     OnChanging = pagecontrol_mainpageChanging

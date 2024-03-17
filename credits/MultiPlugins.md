@@ -771,7 +771,7 @@
 |edit|on_mousemove|列表，鼠标移上事件，详见（事件）|空|
 |edit|on_mouseleave|列表，鼠标移走事件，详见（事件）|空|
 |edit|on_change|列表，内容修改事件，详见（事件）|空|
-|edit|result|文字返回值，存入变量池中|空|
+|edit|result|文字返回值，实时存入变量池中|空|
 |combobox|name|定义所有控件唯一标识符|无|
 |combobox|hint|定义下拉框浮动提示文字|空|
 |combobox|font_style|定义下拉框文字样式|宋体|
@@ -784,7 +784,7 @@
 |combobox|itemindex|定义此时下拉框里的元素索引|-1|
 |combobox|on_dropdown|列表，拉下下拉框事件，详见（事件）|空|
 |combobox|on_select|列表，内容修改事件，详见（事件）|空|
-|combobox|result|下拉框的索引返回值，存入变量池中|空|
+|combobox|result|下拉框的索引返回值，实时存入变量池中|空|
 |scrollbar|name|定义所有控件唯一标识符|无|
 |scrollbar|hint|定义滑动条浮动提示文字|空|
 |scrollbar|enabled|是否可用|true|
@@ -795,7 +795,7 @@
 |scrollbar|current|滑动条当前值，最大最小值为左闭右闭规则|min|
 |scrollbar|kind|滑动条是竖着滑还是横着滑|horz|
 |scrollbar|on_scroll|列表，长度修改事件，详见（事件）|空|
-|scrollbar|result|返回当前数值|空|
+|scrollbar|result|返回当前数值，实时存入变量池中|空|
 |memo|name|定义所有控件唯一标识符|无|
 |memo|hint|定义多行编辑框浮动提示文字|空|
 |memo|position|列表，自己理解|无|
@@ -810,6 +810,7 @@
 |memo|on_mousemove|列表，鼠标移上事件，详见（事件）|空|
 |memo|on_mouseleave|列表，鼠标移走事件，详见（事件）|空|
 |memo|on_change|列表，内容修改事件，详见（事件）|空|
+|memo|result|返回memo内容，实时存入变量池中，并且会附带换行符\r\n。|空|
 |speedbutton|name|定义所有控件唯一标识符|无|
 |speedbutton|caption|定义按钮显示文字|空|
 |speedbutton|hint|定义按钮浮动提示文字|空|
