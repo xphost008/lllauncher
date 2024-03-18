@@ -46,7 +46,7 @@
 
 ### 插件教程
 
-[点我](./credits/MultiPlugins.md)
+[点我](./credits/JSONPlugin.md)
 
 ### 下载链接
 

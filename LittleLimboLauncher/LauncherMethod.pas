@@ -215,7 +215,6 @@ end;
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
 var
   Dirs: TArray<String>;
-  Files: TArray<String>;
 begin
   result := '';
   if DirectoryExists(selpath) then begin

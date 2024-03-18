@@ -1318,8 +1318,8 @@ begin
   for var I in cont do begin
     var J := I as TJSONObject;
     if J.GetValue('name').Value.Equals(nme) then begin
-      var oc := J.GetValue('on_click') as TJSONArray;
       try
+        var oc := J.GetValue('on_click') as TJSONArray;
         for var K in oc do begin
           var L := K.Clone as TJSONObject;
           if JudgeEvent(L, false) then exit;
@@ -1337,8 +1337,8 @@ begin
   for var I in cont do begin
     var J := I as TJSONObject;
     if J.GetValue('name').Value.Equals(nme) then begin
-      var oc := J.GetValue('on_mousemove') as TJSONArray;
       try
+        var oc := J.GetValue('on_mousemove') as TJSONArray;
         for var K in oc do begin
           var L := K.Clone as TJSONObject;
           if JudgeEvent(L, true) then exit;
@@ -1355,8 +1355,8 @@ begin
   for var I in cont do begin
     var J := I as TJSONObject;
     if J.GetValue('name').Value.Equals(nme) then begin
-      var oc := J.GetValue('on_mouseleave') as TJSONArray;
       try
+        var oc := J.GetValue('on_mouseleave') as TJSONArray;
         for var K in oc do begin
           var L := K.Clone as TJSONObject;
           if JudgeEvent(L, true) then exit;
@@ -1373,31 +1373,33 @@ begin
   for var I in cont do begin
     var J := I as TJSONObject;
     if J.GetValue('name').Value.Equals(nme) then begin
-      var oc := J.GetValue('on_change') as TJSONArray;
       try
+        var ote := J.GetValue('type').Value;
+        if ote.Equals('edit') then begin
+          var et := (Sender as TEdit).Text;
+          var er := J.GetValue('result').Value;
+          try
+            PluginVariableDic[er] := et;
+          except
+            PluginVariableDic.Add(er, et);
+          end;
+        end else if ote.Equals('memo') then begin
+          var et := (Sender as TMemo).Text;
+          var er := J.GetValue('result').Value;
+          try
+            PluginVariableDic[er] := et;
+          except
+            PluginVariableDic.Add(er, et);
+          end;
+        end;
+      except end;
+      try
+        var oc := J.GetValue('on_change') as TJSONArray;
         for var K in oc do begin
           var L := K.Clone as TJSONObject;
           if JudgeEvent(L, true) then exit;
         end;
       except end;
-      var ote := J.GetValue('type').Value;
-      if ote.Equals('edit') then begin
-        var et := (Sender as TEdit).Text;
-        var er := J.GetValue('result').Value;
-        try
-          PluginVariableDic[er] := et;
-        except
-          PluginVariableDic.Add(er, et);
-        end;
-      end else if ote.Equals('memo') then begin
-        var et := (Sender as TMemo).Text;
-        var er := J.GetValue('result').Value;
-        try
-          PluginVariableDic[er] := et;
-        except
-          PluginVariableDic.Add(er, et);
-        end;
-      end;
     end;
   end;
 end;
@@ -1410,23 +1412,25 @@ begin
   for var I in cont do begin
     var J := I as TJSONObject;
     if J.GetValue('name').Value.Equals(nme) then begin
-      var oc := J.GetValue('on_scroll') as TJSONArray;
       try
+        var ote := J.GetValue('type').Value;
+        if ote.Equals('scrollbar') then begin
+          var et := (Sender as TScrollBar).Position;
+          var er := J.GetValue('result').Value;
+          try
+            PluginVariableDic[er] := inttostr(et);
+          except
+            PluginVariableDic.Add(er, inttostr(et));
+          end;
+        end;
+      except end;
+      try
+        var oc := J.GetValue('on_scroll') as TJSONArray;
         for var K in oc do begin
           var L := K.Clone as TJSONObject;
           if JudgeEvent(L, true) then exit;
         end;
       except end;
-      var ote := J.GetValue('type').Value;
-      if ote.Equals('scrollbar') then begin
-        var et := (Sender as TScrollBar).Position;
-        var er := J.GetValue('result').Value;
-        try
-          PluginVariableDic[er] := inttostr(et);
-        except
-          PluginVariableDic.Add(er, inttostr(et));
-        end;
-      end;
     end;
   end;
 end;
@@ -1438,23 +1442,25 @@ begin
   for var I in cont do begin
     var J := I as TJSONObject;
     if J.GetValue('name').Value.Equals(nme) then begin
-      var oc := J.GetValue('on_select') as TJSONArray;
       try
+        var ote := J.GetValue('type').Value;
+        if ote.Equals('combobox') then begin
+          var et := (Sender as TComboBox).ItemIndex;
+          var er := J.GetValue('result').Value;
+          try
+            PluginVariableDic[er] := inttostr(et);
+          except
+            PluginVariableDic.Add(er, inttostr(et));
+          end;
+        end;
+      except end;
+      try
+        var oc := J.GetValue('on_select') as TJSONArray;
         for var K in oc do begin
           var L := K.Clone as TJSONObject;
           if JudgeEvent(L, true) then exit;
         end;
       except end;
-      var ote := J.GetValue('type').Value;
-      if ote.Equals('combobox') then begin
-        var et := (Sender as TComboBox).ItemIndex;
-        var er := J.GetValue('result').Value;
-        try
-          PluginVariableDic[er] := inttostr(et);
-        except
-          PluginVariableDic.Add(er, inttostr(et));
-        end;
-      end;
     end;
   end;
 end;
@@ -1466,8 +1472,8 @@ begin
   for var I in cont do begin
     var J := I as TJSONObject;
     if J.GetValue('name').Value.Equals(nme) then begin
-      var oc := J.GetValue('on_dropdown') as TJSONArray;
       try
+        var oc := J.GetValue('on_dropdown') as TJSONArray;
         for var K in oc do begin
           var L := K.Clone as TJSONObject;
           if JudgeEvent(L, true) then exit;
