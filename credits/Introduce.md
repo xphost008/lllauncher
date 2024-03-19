@@ -16,17 +16,17 @@
 
 # 这里是Little Limbo Launcher的下载须知：
 
-### 该杀毒报告的启动器版本为：1.0.0-Beta-5
+### 该杀毒报告的启动器版本为：1.0.0-Beta-6
 
 - 以下是杀毒报告：
 - 【64-bit】
 - 原始文件名：LittleLimboLauncher.exe
-- SHA256：bbe38b50bff34a5e7109c499d7214dfdd895f73c17215efbabd07bef82021cf6
-- SHA1：b97c70ed6c823cd3f87aa499acf76373b49c7d9b
-- MD5：3d03d27ce75a14c9b5ca8e6cf7209935
-- 微步云沙箱：[点我](https://s.threatbook.com/report/file/bbe38b50bff34a5e7109c499d7214dfdd895f73c17215efbabd07bef82021cf6)
-- VirScan：[点我](https://www.virscan.org/report/bbe38b50bff34a5e7109c499d7214dfdd895f73c17215efbabd07bef82021cf6)
-- VirusTotal：[点我](https://www.virustotal.com/gui/file/bbe38b50bff34a5e7109c499d7214dfdd895f73c17215efbabd07bef82021cf6?nocache=1)
+- SHA256：1fc2e27cb90d216ce45b40ecf7749b4fabefd13e1b77f9e6b9f3d6f7e795da95
+- SHA1：99653956ce3a987b9a82b9387163772ab8005e47
+- MD5：8ba20c1beb4de5d181d980a31baf569b
+- 微步云沙箱：[点我](https://s.threatbook.com/report/file/1fc2e27cb90d216ce45b40ecf7749b4fabefd13e1b77f9e6b9f3d6f7e795da95)
+- VirScan：[点我](https://www.virscan.org/report/1fc2e27cb90d216ce45b40ecf7749b4fabefd13e1b77f9e6b9f3d6f7e795da95)
+- VirusTotal：[点我](https://www.virustotal.com/gui/file/1fc2e27cb90d216ce45b40ecf7749b4fabefd13e1b77f9e6b9f3d6f7e795da95?nocache=1)
 
 - 32位下载链接已失效
 
@@ -39,4 +39,4 @@
 - 已经尽可能的去除了程序内所有可能导致系统崩溃或者内存泄漏导致的程序未响应等bug，现在应该没什么问题了吧（
 - 本软件仅适用于Windows-64系统，暂不考虑支持其他系统。。
 
-- 目前最新版本：1.0.0-Beta-5
+- 目前最新版本：1.0.0-Beta-6
