@@ -4,7 +4,7 @@
         <ProjectVersion>20.1</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -147,7 +147,6 @@
         <DCCReference Include="AccountMethod.pas"/>
         <DCCReference Include="ProgressMethod.pas"/>
         <DCCReference Include="PrivacyMethod.pas"/>
-        <DCCReference Include="PluginMethod.pas"/>
         <DCCReference Include="ResourceMethod.pas"/>
         <DCCReference Include="ManageMethod.pas"/>
         <DCCReference Include="LauncherMethod.pas"/>
@@ -194,12 +193,6 @@
                 <DeployFile LocalName="Win64\Debug\LittleLimboLauncher.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>LittleLimboLauncher.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Win64\Debug\LittleLimboLauncher.rsm" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="Win64">
-                        <RemoteName>LittleLimboLauncher.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

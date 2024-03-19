@@ -12,7 +12,6 @@ uses
   AccountMethod in 'AccountMethod.pas',
   ProgressMethod in 'ProgressMethod.pas',
   PrivacyMethod in 'PrivacyMethod.pas',
-  PluginMethod in 'PluginMethod.pas',
   ResourceMethod in 'ResourceMethod.pas',
   ManageMethod in 'ManageMethod.pas',
   LauncherMethod in 'LauncherMethod.pas',
