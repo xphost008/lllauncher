@@ -373,8 +373,8 @@ begin
     form_mainform.pagecontrol_version_part.ActivePage := form_mainform.tabsheet_version_control_part;
     exit;
   end;
-  var sv := MCVersionSelect[mselect_ver];
-  form_mainform.label_isolation_current_version.Caption := GetLanguage('label_isolation_current_version.caption').Replace('${current_version}', ExtractFileName(MCVersionSelect[mselect_ver]));
+  var sv := ((MCSelJSON.GetValue('mcsel') as TJSONArray)[mselect_ver] as TJSONObject).GetValue('path').Value;
+  form_mainform.label_isolation_current_version.Caption := GetLanguage('label_isolation_current_version.caption').Replace('${current_version}', ExtractFileName(sv));
   IsoIni := TIniFile.Create(Concat(sv, '\LLLauncher.ini'));
   form_mainform.scrollbar_isolation_window_width.Max := GetSystemMetrics(SM_CXSCREEN) - 1;
   form_mainform.scrollbar_isolation_window_height.Max := GetSystemMetrics(SM_CYSCREEN) - 1;
@@ -506,25 +506,27 @@ begin
     NodePath := TStringList.Create;
   end;
   f := false;
-  var json := GetFile(GetMCRealPath(MCVersionSelect[mselect_ver], '.json')).ToLower;
+  var mcselp := ((MCSelJSON.GetValue('mcsel') as TJSONArray)[mselect_ver] as TJSONObject).GetValue('path').Value;
+  var mcyp := ((MCJSON.GetValue('mc') as TJSONArray)[mselect_mc] as TJSONObject).GetValue('path').Value;
+  var json := GetFile(GetMCRealPath(mcselp, '.json')).ToLower;
   var jsonRoot := TJSONObject.ParseJSONValue(json) as TJSONObject;
-  var cname := ExtractFileName(MCVersionSelect[mselect_ver]);
+  var cname := ExtractFileName(((MCSelJSON.GetValue('mcsel') as TJSONArray)[mselect_ver] as TJSONObject).GetValue('path').Value);
   var rcth: String;
   var pand: Boolean := (json.IndexOf('com.mumfrey:liteloader:') <> -1) or (json.IndexOf('org.quiltmc:quilt-loader:') <> -1) or (json.IndexOf('net.fabricmc:fabric-loader:') <> -1) or (json.IndexOf('net.minecraftforge') <> -1) or (json.IndexOf('net.neoforged') <> -1);
-  if misolation_mode = 4 then rcth := MCVersionSelect[mselect_ver]
+  if misolation_mode = 4 then rcth := mcselp
   else if misolation_mode = 3 then begin
-    if pand then rcth := MCVersionSelect[mselect_ver]
-    else rcth := MCVersionList[mselect_mc];
+    if pand then rcth := mcselp
+    else rcth := mcyp;
   end else if misolation_mode = 2 then begin
-    if not pand then rcth := MCVersionSelect[mselect_ver]
-    else rcth := MCVersionList[mselect_mc];
-  end else rcth := MCVersionList[mselect_mc];
-  var IltIni := TIniFile.Create(Concat(MCVersionSelect[mselect_ver], '\LLLauncher.ini'));
+    if not pand then rcth := mcselp
+    else rcth := mcyp;
+  end else rcth := mcyp;
+  var IltIni := TIniFile.Create(Concat(mcselp, '\LLLauncher.ini'));
   var isoz := IltIni.ReadString('Isolation', 'IsIsolation', '').ToLower;
   var isol := IltIni.ReadString('Isolation', 'Partition', '').ToLower;
   if isoz = 'true' then
     if isol = 'true' then
-      rcth := MCVersionSelect[mselect_ver];
+      rcth := mcselp;
   var mcid := '';
   var isloader := '';
   var islver := '';

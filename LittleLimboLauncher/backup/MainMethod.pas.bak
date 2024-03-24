@@ -387,7 +387,7 @@ begin
               if mcid.IsEmpty then raise Exception.Create('Cannot get hmcl vanilla key');
             except
               MyMessagebox(GetLanguage('messagebox_export.cannot_find_vanilla_key.caption'), GetLanguage('messagebox_export.cannot_find_vanilla_key.text'), MY_ERROR, [mybutton.myOK]);
-              mcid := '';
+              exit;
             end;
           end;
         end;
@@ -395,7 +395,6 @@ begin
     end;
   end;
   result := mcid;
-  jsonRoot.Free;
 end;
 //此处可以用获取exe的版本信息。
 function GetFileVersion(AFileName: string): string;
@@ -837,25 +836,28 @@ begin
 end;
 //判断版本是否有误
 function IsVersionError(path: String): Boolean;
+var
+  Files: TArray<String>;
 begin
-  var widres := true;
+  result := true;
   if DirectoryExists(path) then // 判断文件夹是否存在
   begin
-    SearchDirProc(path, false, true, procedure(I: String) begin
+    Files := TDirectory.GetFiles(path); // 找到所有文件
+    for var I in Files do begin // 遍历文件
       if I.IndexOf('.json') <> -1 then begin
         var god := GetFile(I);
         try
           var Root := TJsonObject.ParseJSONValue(god) as TJsonObject;
-          Root.GetValue('id').Value;
-          Root.GetValue('libraries').ToString;
-          Root.GetValue('mainClass').Value;
-          widres := false;
+          Root.GetValue('id');
+          Root.GetValue('libraries');
+          result := false;
           exit;
-        except end;
+        except
+          continue;
+        end;
       end;
-    end);
+    end;
   end;
-  result := widres;
 end;
 //去除字符串空格
 function TrimStrM(str: String): String;

@@ -159,37 +159,34 @@ begin
 end;
 // 获取MC的真实文件路径。
 function GetMCRealPath(path, suffix: string): String;
-var
-  Files: TArray<String>;
 begin
-  result := '';
+  var widres := '';
   if DirectoryExists(path) then begin // 判断文件夹是否存在
-    Files := TDirectory.GetFiles(path); // 找到所有文件
-    for var I in Files do begin // 遍历文件
+    SearchDirProc(path, false, true, procedure(I: String) begin
       if I.IndexOf(suffix) <> -1 then begin // 是否符合条件
-        if suffix = '.json' then begin
+        if suffix.Equals('.json') then begin
           var god := GetFile(I);
           try
             var Root := TJsonObject.ParseJSONValue(god) as TJsonObject;
-            var tmp := Root.GetValue('libraries').ToString;
-            var ttt := Root.GetValue('mainClass').Value;
-            result := I;
+            Root.GetValue('libraries').ToString;
+            Root.GetValue('mainClass').Value;
+            Root.GetValue('id').Value;
+            widres := I;
             exit;
-          except
-            continue;
-          end;
+          except end;
         end else begin
-          result := I;
+          widres := I;
           exit;
         end;
       end else if suffix.IndexOf('.') <> 0 then begin
         if GetFileHash(I).Equals(suffix) then begin
-          result := I;
+          widres := I;
           exit;
         end;
       end;
-    end;
+    end);
   end;
+  result := widres;
 end;
 // 将字符串里的所有数字/非数字提取出来（如果bo为真，则摘取数字，如果为假，则摘取字符。）
 function ExtractNumber(str: String; bo: Boolean): String;
@@ -213,32 +210,31 @@ begin
 end;
 //获取MC的InheritsFrom或jar键，所对应的MC文件夹。【如果MC不存在InheritsFrom或jar键，则返回原本参数值。如果找不到Json文件，则返回空。如果找到了InheritsFrom键但是却找不到原本的文件夹，则也同样返回空。当一切都满足的时候，则返回找到后的Json文件地址。】
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
-var
-  Dirs: TArray<String>;
 begin
-  result := '';
+  var widres := '';
   if DirectoryExists(selpath) then begin
     var ph := GetMCRealPath(selpath, '.json');
-    if FileExists(ph) then begin
-      var Rt := TJsonObject.ParseJSONValue(GetFile(ph)) as TJsonObject;
-      try
-        var ihtf := Rt.GetValue(inheritsorjar).Value;
-        if ihtf = '' then raise Exception.Create('Judge Json Error');
-        var vdir := ExtractFileDir(selpath);
-        Dirs := TDirectory.GetDirectories(vdir);
-        for var I in Dirs do begin
-          var vpth := GetMCRealPath(I, '.json');
-          if GetVanillaVersion(GetFile(vpth)).Equals(ihtf) then begin
-            result := I;
-            exit;
-          end;
+    var Rt := TJsonObject.ParseJSONValue(GetFile(ph)) as TJsonObject;
+    try
+      var ihtf := Rt.GetValue(inheritsorjar).Value;
+      if ihtf.IsEmpty then raise Exception.Create('Judge Json Error');
+      var vdir := ExtractFileDir(selpath);
+      SearchDirProc(vdir, true, true, procedure(J: String) begin
+        var vpth := GetMCRealPath(J, '.json');
+        if GetVanillaVersion(GetFile(vpth)).Equals(ihtf) then begin
+          widres := J;
+          exit;
         end;
-      except
-        result := selpath;
-        if inheritsorjar = 'jar' then result := '';
-      end;
+      end);
+    except
+      result := selpath;
+      if inheritsorjar = 'jar' then result := '';
+      Rt.Free;
+      exit;
     end;
+    Rt.Free;
   end;
+  result := widres;
 end;
 var
   //非必需参数: javapath、accname、accuuid、accat、acctype、basecode, serpath
@@ -409,7 +405,7 @@ begin
       sb.Remove(sb.Length - 1, 1);
     end else begin
       var tmp := GetMCRealPath(GetMCInheritsFrom(relpath, 'inheritsFrom'), ((Rt.GetValue('downloads') as TJSONObject).GetValue('client') as TJSONObject).GetValue('sha1').Value);
-      if tmp = '' then begin
+      if tmp.IsEmpty then begin
         sb.Remove(sb.Length - 1, 1);
       end else begin
         sb.Append(tmp);

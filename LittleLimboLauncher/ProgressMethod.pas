@@ -772,6 +772,7 @@ begin
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(LibrariesJSONRoot.Count));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.current_download_library'));
   var TDLCount := 0;
+  var TVLCount := 0;
   var DownloadLibrariesTask: TMyProc := procedure begin
     while TDLCount < LibrariesJSONRoot.Count do begin
       var RealJSON := LibrariesJSONRoot[TDLCount] as TJSONObject;
@@ -824,7 +825,8 @@ begin
         RealURL := Concat(lul, ConvertNameToPath(RealJSON.GetValue('name').Value).Replace('\', '/'));
       except end;
       try DownloadAsWindow(RealSave, RealURL, '', ExtractFileName(RealSave), true, SelectMode); except end;
-      ShowCurrentProgress(TDLCount, LibrariesJSONRoot.Count);
+      inc(TVLCount);
+      ShowCurrentProgress(TVLCount, LibrariesJSONRoot.Count);
     end;
   end;
   for var I := 0 to BiggestThread - 1 do begin
@@ -843,6 +845,7 @@ begin
   form_mainform.progressbar_progress_download_bar.Max := AssetsJSONRoot.Count;
   form_mainform.progressbar_progress_download_bar.Position := 0;
   var TDACount := 0;
+  var TVACount := 0;
   var DownloadAssetsTask: TMyProc := procedure begin
     while TDACount < AssetsJSONRoot.Count do begin
       var sr := AssetsJSONRoot.Pairs[TDACount];
@@ -856,7 +859,8 @@ begin
       var bfs := Concat(RootPath, '\assets\virtual\legacy\', er.Replace('/', '\'));
       try DownloadAsWindow(svp, lu, hs, er, false, SelectMode); except end;
       BackupFile(svp, bfs);
-      ShowCurrentProgress(TDACount, AssetsJSONRoot.Count);
+      inc(TVACount);
+      ShowCurrentProgress(TVACount, AssetsJSONRoot.Count);
     end;
   end;
   for var I := 0 to BiggestThread - 1 do begin
@@ -900,6 +904,7 @@ begin
   form_mainform.progressbar_progress_download_bar.Position := 0;
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(JavaFileJSON.Count));
   var TDJCount := 0;
+  var TVJCount := 0;
   var DownloadJava: TMyProc := procedure begin
     while TDJCount < JavaFileJSON.Count do begin
       var sr := JavaFileJSON.Pairs[TDJCount];
@@ -916,7 +921,8 @@ begin
           DownloadAsWindow(svp, rurl, rsha, er, false, SelectMode);
         except end;
       end;
-      ShowCurrentProgress(TDJCount, JavaFileJSON.Count);
+      inc(TVJCount);
+      ShowCurrentProgress(TVJCount, JavaFileJSON.Count);
     end;
   end;
   for var I := 0 to BiggestThread - 1 do begin
@@ -995,8 +1001,6 @@ begin
 end;
 //设置所有参数。
 constructor TDownloadMethod.InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);
-var
-  TempPath: array [0..255] of char;
 begin
   self.url := url;
   self.SavePath := SavePath;

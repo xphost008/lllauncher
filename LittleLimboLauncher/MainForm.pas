@@ -360,13 +360,14 @@ type
     label_export_add_icon: TLabel;
     image_export_add_icon: TImage;
     button_export_add_icon: TButton;
-    c1: TMenuItem;
     button_export_remove_icon: TButton;
     image_mainform_login_avatar: TImage;
     timer_check_memory: TTimer;
     tabsheet_plugin_part: TTabSheet;
     pagecontrol_all_plugin_part: TPageControl;
     n_plugins: TMenuItem;
+    timer_eggshell: TTimer;
+    tabsheet_help_part: TTabSheet;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -555,11 +556,11 @@ type
     procedure pagecontrol_account_partChange(Sender: TObject);
     procedure image_exit_running_mcClick(Sender: TObject);
     procedure button_export_add_iconClick(Sender: TObject);
-    procedure c1Click(Sender: TObject);
     procedure button_export_remove_iconClick(Sender: TObject);
     procedure timer_check_memoryTimer(Sender: TObject);
     procedure pagecontrol_all_plugin_partChange(Sender: TObject);
     procedure image_mainform_login_avatarClick(Sender: TObject);
+    procedure timer_eggshellTimer(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -611,7 +612,7 @@ implementation
 
 uses
   MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow, ExportMethod,
-  PluginMethod, resourceMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod,
+  resourceMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod,
   OnlineIPv6Method, MultiPluginMethod;
 
 //var
@@ -619,6 +620,12 @@ uses
 //  Intro: array of array of String;
 
 {$R *.dfm}
+
+{$IFDEF LCL}
+
+{$ELSE}
+
+{$ENDIF}
 //DLL插件点击事件
 procedure Tform_mainform.PluginMenuClick(Sender: TObject);
 begin
@@ -714,25 +721,10 @@ end;
 procedure Tform_mainform.LanguageMenuClick(Sender: TObject);
 begin
   var mi := Sender as TMenuItem;
-  Log.Write(Concat('你点击了', mi.Caption, '语言文件，开始加载！'), LOG_START, LOG_INFO);
-  var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\lang');
-  if SysUtils.DirectoryExists(ld) then begin
-    var Files := TDirectory.GetFiles(ld);
-    for var I in Files do begin
-      if RightStr(I, 5) = '.json' then begin //如果文件后缀为.json，则执行。
-        var lj := TJSONObject.ParseJSONValue(GetFile(I)) as TJsonObject;
-        try
-          var title := lj.GetValue('file_language_title').Value;
-          if mi.Caption.Replace('&', '').Contains(title.Replace('&', '')) then begin
-            LLLini.WriteString('Language', 'SelectLanguageFile', ChangeFileExt(ExtractFileName(I), ''));
-            SetLanguage(ChangeFileExt(ExtractFileName(I), ''));
-            MyMessagebox(GetLanguage('messagebox_mainform.change_language.caption'), GetLanguage('messagebox_mainform.change_language.text'), MY_INFORMATION, [mybutton.myOK]);
-            exit;
-          end else abort;
-        except continue; end;
-      end;
-    end;
-  end;
+  var mn := strtoint(String(mi.Name).Replace('tm', ''));
+  LLLini.WriteInteger('Language', 'SelectLanguageFile', mn);
+  SetLanguage(mn);
+  MyMessagebox(GetLanguage('messagebox_mainform.change_language.caption'), GetLanguage('messagebox_mainform.change_language.text'), MY_INFORMATION, [mybutton.myOK]);
 end;
 //下载部分：模组加载器手动安装包：Fabric下载
 procedure Tform_mainform.listbox_download_modloader_fabricClick(
@@ -891,43 +883,34 @@ begin
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
+//var
+//  arr: array of String;
 begin
-//  var json := '["Hello","World","Nihao"]';
-//  var arr := TJSONArray.ParseJSONValue(json) as TJSONArray;
-//  showmessage(arr.ToString);
-//  var sp := 'C:\Users\Rechalow\AppData\Roaming\.minecraft\libraries\com\ibm\icu\icu4j\73.2\icu4j-73.2.jar';
-//  if deletefile(pchar(sp)) then begin
-//    showmessage('1');
-//  end else begin
-//    showmessage('2');
+  var s1 := 5;
+  var s2 := 8;
+  var s3 := s1 shr s2;
+  var s4 := s1 shl s2;
+  showmessage(inttostr(s3)); // 0
+  showmessage(inttostr(s4)); // 1280
+//  SetLength(arr, 10);
+//  randomize;
+//  for var O := 0 to 9 do begin
+//    var s := random(3) + 10;
+//    var t := GetTickCount;
+//    var sum: Int64 := 0;
+//    for var i := 0 to 40000 + s do begin
+//      for var j := 0 to 40000 do begin
+//        sum := sum + i * j;
+//      end;
+//    end;
+//    var f := floattostr((GetTickCount - t) / 1000);
+//    arr[O] := f;
 //  end;
-//  var a := 'https://libraries.minecraft.net/it/unimi/dsi/fastutil/8.5.12/fastutil-8.5.12.jar';
-//  var b := GetWebStream(a);
-//  b.SaveToFile('D:\lib.jar')
-//  var tab := TTabSheet.Create(form_mainform.pagecontrol_mainpage);
-//  tab.PageControl := form_mainform.pagecontrol_mainpage;
-//  tab.Parent := form_mainform.pagecontrol_mainpage;
-//  tab.Name := 'ww';
-//  tab.Caption := 'love';
-//  RunDOSOnlyWait('notepad.exe D:\Workspace\DelphiWork\DelphiWorkReset\LittleLimboLauncher\Win64\Debug\LLLauncher\configs\LittleLimboLauncher.ini');
-//  RunDOSAndGetPID('explorer.exe', 'explorer.exe https://rechalow.github.io', '');
-//  RunDOSOnlyWait('explorer.exe https://rechalow.github.io');
-//  shellexecute(Application.Handle, 'open', nil, 'explorer.exe https://rechalow.github.io', nil, SW_SHOWNORMAL);
-//  RunDOSAndGetPID('', 'C:\Windows\explorer.exe https://rechalow.github.io', '');
-//  RunDOSAndGetPID('C:\Windows\explorer.exe', 'https://rechalow.github.io', '');
-//  RunDOSAndGetPID('C:\Windows\explorer.exe https://rechalow.github.io', '', '');
-//  self.Name := '114514';
-//  var t := TTabSheet.Create(form_mainform);
-//  t.Parent := form_mainform;
-//  t.Caption := 'Hello';
-//  t.PageControl := self.pagecontrol_mainpage;
-//  t.TabVisible := false;
-//  self.pagecontrol_mainpage.ActivePage := t;
-//  showmessage(booltostr(strtobool('1'), True));
-//  var a := TMenuItem.Create(form_mainform);
-//  a.Caption := 'haha';
-//  form_mainform.mainmenu_mainpage.Items.Add(a);
-//  a.Destroy;
+//  var g := '';
+//  for var I := 0 to 9 do begin
+//    g := Concat(g, arr[I], #13#10);
+//  end;
+//  showmessage(g);
 end;
 //下载部分：查看MC版本信息
 procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
@@ -1057,7 +1040,7 @@ begin
     exit;
   end;
   if MyMessagebox(GetLanguage('messagebox_version.is_delete_ver.caption'), GetLanguage('messagebox_version.is_delete_ver.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
-  if DeleteDirectory(MCVersionSelect[mselect_ver]) then begin
+  if DeleteDirectory(((MCSelJSON.GetValue('mcsel') as TJSONArray)[mselect_ver] as TJSONObject).GetValue('path').Value) then begin
     mselect_ver := -1;
     SelVer;
     MyMessagebox(GetLanguage('messagebox_version.delete_ver_success.caption'), GetLanguage('messagebox_version.delete_ver_success.text'), MY_PASS, [mybutton.myOK]);
@@ -1360,8 +1343,6 @@ begin
   if MyMessagebox(GetLanguage('messagebox_version.is_remove_mc_dir.caption'), GetLanguage('messagebox_version.is_remove_mc_dir.text'), MY_INFORMATION, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
   (MCJson.GetValue('mc') as TJsonArray).Remove(combobox_select_file_list.ItemIndex); //移除Json
   combobox_select_game_version.Clear;
-  MCVersionList.Delete(combobox_select_file_list.ItemIndex);
-  MCVersionName.Delete(combobox_select_file_list.ItemIndex);
   combobox_select_file_list.Items.Delete(combobox_select_file_list.ItemIndex);
   mselect_mc := -1;
   mselect_ver := -1;
@@ -1384,7 +1365,7 @@ begin
   var CB := MyInputBox(GetLanguage('inputbox_version.enter_ver_rename.caption'), GetLanguage('inputbox_version.enter_ver_rename.text'), MY_INFORMATION);
   if CB = '' then exit;
   var tpv := mselect_ver; //将原始记录添加一个至本目标。至一个临时变量。
-  var mcp := MCVersionSelect[mselect_ver];  //获取MC查询版本后的文件目录
+  var mcp := ((MCSelJSON.GetValue('mcsel') as TJSONArray)[mselect_ver] as TJSONObject).GetValue('path').Value;  //获取MC查询版本后的文件目录
   var tmp := ExtractFileDir(mcp);   //消除最后一个文件夹目录
   var newmcp := Concat(tmp, '\', cb); //将cb目录添加
   var bo := RenDirectory(mcp, newmcp);  //调用重命名文件夹的指令。
@@ -1405,8 +1386,6 @@ begin
   if CB = '' then exit;
   ((MCJson.GetValue('mc') as TJsonArray)[form_mainform.combobox_select_file_list.ItemIndex] as TJsonObject).RemovePair('name');
   ((MCJson.GetValue('mc') as TJsonArray)[form_mainform.combobox_select_file_list.ItemIndex] as TJsonObject).AddPair('name', cb);
-  MCVersionName.Delete(mselect_mc); //删除原元素并添加新元素。
-  MCVersionName.Insert(mselect_mc, cb);
   combobox_select_file_list.Items.Delete(mselect_mc);
   combobox_select_file_list.Items.Insert(mselect_mc, cb);
   combobox_select_file_list.ItemIndex := mselect_mc;
@@ -1449,9 +1428,12 @@ var
   name: String;
 begin
   if SelectDirectory(GetLanguage('selectdialog_version.select_mc_path'), '', path) then begin
-    if MCVersionList.Contains(path) then begin
-      MyMessagebox(GetLanguage('messagebox_version.path_is_exists.caption'), GetLanguage('messagebox_version.path_is_exists.text'), MY_ERROR, [mybutton.myOK]);
-      exit;
+    for var I in MCJSON.GetValue('mc') as TJSONArray do begin
+      var J := I as TJSONObject;
+      if J.GetValue('path').Value.Equals(path) then begin
+        MyMessagebox(GetLanguage('messagebox_version.path_is_exists.caption'), GetLanguage('messagebox_version.path_is_exists.text'), MY_ERROR, [mybutton.myOK]);
+        exit;
+      end;
     end;
     name := MyInputBox(GetLanguage('inputbox_version.select_mc_name.caption'), GetLanguage('inputbox_version.select_mc_name.text'), MY_INFORMATION);
     if name = '' then exit;
@@ -1462,15 +1444,6 @@ end;
 procedure Tform_mainform.button_version_completeClick(Sender: TObject);
 begin
   CompleteVersion;
-end;
-//重设语言为中文
-procedure Tform_mainform.c1Click(Sender: TObject);
-begin
-  if MyMessagebox(GetLanguage('messagebox_mainform.reset_language_to_chinese.caption'), GetLanguage('messagebox_mainform.reset_language_to_chinese.text'), MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 1 then exit;
-  deletefile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\lang\zh_cn.json'));
-  InitLanguage;
-  SetLanguage('zh_cn');
-  LLLini.WriteString('Language', 'SelectLanguageFile', 'zh_cn');
 end;
 //独立设置：开启单独隔离
 procedure Tform_mainform.checkbox_isolation_is_partitionClick(Sender: TObject);
@@ -1753,7 +1726,7 @@ begin
   end;
   form_mainform.label_mainform_tips.Caption := '';
   Log.Write('正在读取语言文件……', LOG_INFO, LOG_START);
-  var langtle := LLLini.ReadString('Language', 'SelectLanguageFile', '');
+  var langtle := LLLini.ReadInteger('Language', 'SelectLanguageFile', -1);
   SetLanguage(langtle);
   Log.Write('开始判断窗口显示事件！', LOG_INFO, LOG_START);
   try  //判断打开启动器的次数
@@ -1815,8 +1788,8 @@ begin
     mselect_mc := LLLini.ReadInteger('MC', 'SelectMC', -1);
     var sjn := GetFile(Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\configs\MCSelJson.json'));
     var svr := ((TJsonObject.ParseJSONValue(sjn) as TJsonObject).GetValue('mcsel') as TJsonArray)[mselect_ver - 1] as TJsonObject;
-    var svv := svr.GetValue('name').Value;
     var svp := svr.GetValue('path').Value;
+    var svv := ExtractFileName(svp);
     if IsVersionError(svp) then begin
       Log.Write('游戏版本：错误，未找到Json。', LOG_ERROR, LOG_START);
       svv := Concat(svv, GetLanguage('button_launch_game.caption.error.cannot_find_json'));
@@ -2335,6 +2308,9 @@ procedure Tform_mainform.timer_all_ticksTimer(Sender: TObject);
 begin
   if open_form then begin
     open_form := false;
+    u := false;
+    l := True;
+    m := false;
     try
       Log.Write('开始判断是否播放音乐。', LOG_START, LOG_INFO);
       var p := LLLini.ReadInteger('Misc', 'SelectType', -1);
@@ -2344,9 +2320,6 @@ begin
       Log.Write('是否打开启动器时播放音乐的ini配置文件不符。', LOG_START, LOG_ERROR);
       LLLini.WriteInteger('Misc', 'SelectType', 3);
     end;
-    u := false;
-    l := True;
-    m := false;
     Log.Write('开始判断是否需要捐款。', LOG_START, LOG_INFO);
     case mopen_number of
       100, 200, 300, 500, 700, 1000, 1300, 1800, 2400, 3000: Isafdian(false, mopen_number);
@@ -2375,20 +2348,36 @@ begin
         end else continue; //如果不为dll，则继续。
       end;
     end;
-    Log.Write('开始判断语言是否存在于文件夹中，并且后缀为Json。', LOG_START, LOG_INFO);
-    var ldir := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\lang');
-    if SysUtils.DirectoryExists(ldir) then begin
-      var Files := TDirectory.GetFiles(ldir);
-      for var I in Files do begin //遍历plugins文件夹
-        if (RightStr(I, 5) = '.json') then begin //如果文件后缀为.json或者dll，则执行。
-          var json := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
-          var title := json.GetValue('file_language_title').Value;
-          var TM := TMenuItem.Create(mainmenu_mainpage); //设置一个菜单栏
-          TM.OnClick := LanguageMenuClick; //给菜单栏设置点击事件。
-          TM.Caption := title; //给菜单栏设置标题，为Json的名字。
-          mainmenu_mainpage.Items[3].Add(TM); //给主菜单栏添加这个菜单。
-          Log.Write(Concat('判定成功，语言文件名为：', I), LOG_START, LOG_INFO);
-        end else continue; //如果不为json或dll，则继续。
+    Log.Write('开始判断语言。', LOG_START, LOG_INFO);
+    for var I := 0 to alllangjson.Count - 1 do begin
+      var json := alllangjson[i].Clone as TJSONObject;
+      var tle := json.GetValue('file_language_title').Value;
+      var TM := TMenuItem.Create(mainmenu_mainpage);
+      TM.OnClick := LanguageMenuClick; //给菜单栏设置点击事件。
+      TM.Caption := tle; //给菜单栏设置标题，为Json的名字。
+      TM.Name := Concat('tm', inttostr(I));
+      mainmenu_mainpage.Items[3].Add(TM); //给主菜单栏添加这个菜单。
+      Log.Write(Concat('判定成功，语言文件名为：', tle), LOG_START, LOG_INFO);
+    end;
+//    var ldir := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\lang');
+//    if SysUtils.DirectoryExists(ldir) then begin
+//      var Files := TDirectory.GetFiles(ldir);
+//      for var I in Files do begin //遍历plugins文件夹
+//        if (RightStr(I, 5) = '.json') then begin //如果文件后缀为.json或者dll，则执行。
+//          var json := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
+//          var title := json.GetValue('file_language_title').Value;
+//          var TM := TMenuItem.Create(mainmenu_mainpage); //设置一个菜单栏
+//          TM.OnClick := LanguageMenuClick; //给菜单栏设置点击事件。
+//          TM.Caption := title; //给菜单栏设置标题，为Json的名字。
+//          mainmenu_mainpage.Items[3].Add(TM); //给主菜单栏添加这个菜单。
+//          Log.Write(Concat('判定成功，语言文件名为：', I), LOG_START, LOG_INFO);
+//        end else continue; //如果不为json或dll，则继续。
+//      end;
+//    end;
+    Log.Write('开始判断愚人节彩蛋。', LOG_START, LOG_INFO);
+    if (Now.GetMonth = 4) and (Now.GetDay = 1) then begin
+      if MyMessagebox('虦뾍囻숳삑眒좘뼧ۼ형莗硏⤰ዋ㽊ᗻ⹍燝ꛬ췍ﯱ멌텆캾ゅ幕㴙☥⩓ݬ봺턎䋥㹨ੱḴ꜇䡩㿬헰纯ⓢ﬒䴏ꍚ霜⌢�䥭諺缗蕉毻⟁翿蟃蔌劫쨫⏣飪�밇㫴㘕㵖愇�᩹듩䄎쌜ꦤ鱏쳂翝縁䆷契鬧៳뱩巶谪舒춉ȵ', '凞큂焸褒޽儕䨭읾躴ⱳ镑⫲䤈淹য়쁇婷Ҿ᷁뒎螣楗老', MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 2 then begin
+        timer_eggshell.Enabled := true;
       end;
     end;
   end;
@@ -2487,6 +2476,12 @@ begin
   mtotal_memory := ceil(ms.dwTotalPhys / 1024 / 1024);
   mavail_memory := ceil(ms.dwAvailPhys / 1024 / 1024);
   label_launch_max_memory.Caption := GetLanguage('label_launch_max_memory.caption').Replace('${memory}', inttostr(mmax_memory)).Replace('${total_memory}', inttostr(mtotal_memory)).Replace('${avail_memory}', inttostr(mavail_memory));
+end;
+//愚人节彩蛋喵
+procedure Tform_mainform.timer_eggshellTimer(Sender: TObject);
+begin
+  image_mainpage_background_image.Picture := nil;
+  self.Color := random(16777215);
 end;
 //主窗口：窗口渐变产生计时器
 var mgradient_temp: Integer = 0;

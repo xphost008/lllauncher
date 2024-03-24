@@ -131,7 +131,7 @@ object form_mainform: Tform_mainform
     Top = 8
     Width = 838
     Height = 464
-    ActivePage = tabsheet_mainpage_part
+    ActivePage = tabsheet_version_part
     TabOrder = 0
     OnChange = pagecontrol_mainpageChange
     OnChanging = pagecontrol_mainpageChanging
@@ -633,7 +633,7 @@ object form_mainform: Tform_mainform
         Top = 94
         Width = 824
         Height = 146
-        ActivePage = tabsheet_account_thirdparty_part
+        ActivePage = tabsheet_account_microsoft_part
         TabOrder = 5
         OnChange = pagecontrol_account_partChange
         object tabsheet_account_offline_part: TTabSheet
@@ -2469,7 +2469,7 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_version_control_part
+        ActivePage = tabsheet_version_isolation_part
         TabOrder = 0
         OnChange = pagecontrol_version_partChange
         object tabsheet_version_control_part: TTabSheet
@@ -3239,6 +3239,10 @@ object form_mainform: Tform_mainform
         OnChange = pagecontrol_all_plugin_partChange
       end
     end
+    object tabsheet_help_part: TTabSheet
+      Caption = #24110#21161#30028#38754
+      ImageIndex = 10
+    end
   end
   object mainmenu_mainpage: TMainMenu
     Left = 752
@@ -3303,11 +3307,6 @@ object form_mainform: Tform_mainform
         ShortCut = 49229
         OnClick = n_memory_optimizeClick
       end
-      object c1: TMenuItem
-        Caption = #37325#35774#35821#35328#20026#20013#25991
-        ShortCut = 49219
-        OnClick = c1Click
-      end
       object n_test_button: TMenuItem
         Caption = #27979#35797#25353#38062
         ShortCut = 49236
@@ -3343,8 +3342,8 @@ object form_mainform: Tform_mainform
   end
   object timer_all_ticks: TTimer
     OnTimer = timer_all_ticksTimer
-    Left = 668
-    Top = 58
+    Left = 676
+    Top = 42
   end
   object timer_form_gradient_tick: TTimer
     OnTimer = timer_form_gradient_tickTimer
@@ -3355,5 +3354,12 @@ object form_mainform: Tform_mainform
     OnTimer = timer_check_memoryTimer
     Left = 756
     Top = 106
+  end
+  object timer_eggshell: TTimer
+    Enabled = False
+    Interval = 20
+    OnTimer = timer_eggshellTimer
+    Left = 692
+    Top = 170
   end
 end
