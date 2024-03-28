@@ -97,7 +97,7 @@ begin //重新又双叒叕再再再再写一遍。。
     var n2 := name.Substring(name.IndexOf(':') + 1, name.Length);
     var c1 := SplitString(n1, '.');
     for var I in c1 do all.Add(Concat(I, '\'));
-    var c2: TArray<String> := SplitString(n2, ':');
+    var c2 := SplitString(n2, ':');
     for var I := 0 to Length(c2) - 1 do begin
       if Length(c2) >= 3 then begin
         if I < Length(c2) - 1 then begin
@@ -227,8 +227,8 @@ begin
         end;
       end);
     except
-      result := selpath;
-      if inheritsorjar = 'jar' then result := '';
+      if (inheritsorjar.Equals('jar')) or (inheritsorjar.Equals('inheritsFrom')) then result := ''
+      else result := selpath;
       Rt.Free;
       exit;
     end;
@@ -239,7 +239,6 @@ end;
 var
   //非必需参数: javapath、accname、accuuid、accat、acctype、basecode, serpath
   //必需参数: mcpath, mcselpath, maxm, heig, widh, cuif, addion, addgon, serv, port
-  isExports: Boolean;
   javapath, mcpath, mcselpath, accname, accuuid, accat, acctype, prels: String;
   //Java路径、MC路径、MC版本路径、账号名称、账号UUID、账号AccessToken、账号类型、前置运行参数。后置运行参数
   maxm, heig, widh: Integer;

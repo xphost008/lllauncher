@@ -25,7 +25,6 @@ uses
   MainForm, MyCustomWindow, LanguageMethod, MainMethod, LauncherMethod, ProgressMethod;
 
 var
-  webjson: String;
   mcwe, fabme, quime: String;
   urlsl, reltmr: TStringList;                         
   mrelease, msnapshot, mbeta, malpha, mlll: Boolean;
@@ -41,16 +40,19 @@ begin
   result := reversedArray;
 end;
 //解决MCJSON解析。
-procedure SoluteMC;
+procedure SoluteMC(isReset: Boolean);
 begin
   form_mainform.listbox_select_minecraft.Items.Clear;
   urlsl.Clear;
   reltmr.Clear;
-  if webjson = '' then begin
-    form_mainform.listbox_select_minecraft.Items.Add(GetLanguage('listbox_select_minecraft.item.get_mc_error'));
-    exit;
+//  if webjson = '' then begin
+//    form_mainform.listbox_select_minecraft.Items.Add(GetLanguage('listbox_select_minecraft.item.get_mc_error'));
+//    exit;
+//  end;
+//  if MCRootJSON = nil then MCRootJSON := TJSONObject.ParseJSONValue(webjson) as TJSONObject;
+  if isReset or (MCRootJSON = nil) then begin
+    MCRootJSON := TJSONObject.ParseJSONValue(GetWebText(Concat(mcwe, '/mc/game/version_manifest.json'))) as TJSONObject;
   end;
-  MCRootJSON := TJSONObject.ParseJSONValue(webjson) as TJSONObject;
   var JArr := (MCRootJSON.GetValue('versions') as TJsonArray); //获取versions下的所有元素
   form_mainform.listbox_select_minecraft.Items.BeginUpdate;
   for var I := 0 to JArr.Count - 1 do begin //以下皆为判断版本
@@ -449,7 +451,7 @@ begin
   malpha := form_mainform.checklistbox_choose_view_mode.Checked[3];
   mlll := form_mainform.checklistbox_choose_view_mode.Checked[4];
   form_mainform.listbox_select_modloader.Items.Clear;
-  SoluteMC;
+  SoluteMC(false);
 end;
 //重置下载界面    
 procedure ResetDownload;
@@ -461,8 +463,7 @@ begin
   form_mainform.button_reset_download_part.Enabled := false;
   form_mainform.button_download_start_download_minecraft.Enabled := false;
   TThread.CreateAnonymousThread(procedure begin
-    webjson := GetWebText(Concat(mcwe, '/mc/game/version_manifest.json'));   
-    SoluteMC;
+    SoluteMC(true);
     form_mainform.label_download_return_value.Caption := GetLanguage('label_downlaod_return_value.caption.reset_mc_web_success');   
     form_mainform.button_load_modloader.Enabled := true;
     form_mainform.button_reset_download_part.Enabled := true; 
@@ -508,7 +509,7 @@ begin
   form_mainform.listbox_select_modloader.Items.Clear;
 end;
 //加载模组加载器                 
-procedure LoadModLoader;          
+procedure LoadModLoader;
 begin
   if form_mainform.listbox_select_minecraft.ItemIndex <> -1 then begin
     form_mainform.listbox_select_modloader.Items.Clear;
@@ -556,7 +557,7 @@ begin
           var neojson := GetWebText('https://bmclapi2.bangbang93.com/neoforge/list/' + vername);
           SoluteForgeJSON(neojson);
         end;
-      end; 
+      end;
       form_mainform.button_load_modloader.Enabled := true;
       form_mainform.button_reset_download_part.Enabled := true;
       form_mainform.button_download_start_download_minecraft.Enabled := true;
@@ -579,8 +580,7 @@ begin
   end;
   var tef := '';
   try
-    var Root := TJsonObject.ParseJSONValue(webjson) as TJsonObject; //获取Json
-    var JArr := Root.GetValue('versions') as TJsonArray; //获取版本
+    var JArr := MCRootJSON.GetValue('versions') as TJsonArray; //获取版本
     for var I := 0 to JArr.Count - 1 do begin//用循环判断版本
       if JArr[I].GetValue<String>('id') = form_mainform.listbox_select_minecraft.Items[form_mainform.listbox_select_minecraft.ItemIndex] then //获取id是否等于选中的版本
       begin  //如果等于则赋值
@@ -662,12 +662,11 @@ begin
   form_mainform.listbox_select_modloader.Items.Clear;
   form_mainform.label_download_return_value.Caption := GetLanguage('label_download_return_value.caption.get_mc_web');
   form_mainform.button_load_modloader.Enabled := false;
-  form_mainform.button_reset_download_part.Enabled := false; 
+  form_mainform.button_reset_download_part.Enabled := false;
   form_mainform.button_download_start_download_minecraft.Enabled := false;
   form_mainform.label_download_biggest_thread.Caption := GetLanguage('label_download_biggest_thread.caption').Replace('${biggest_thread}', inttostr(mbiggest_thread));
   TThread.CreateAnonymousThread(procedure begin
-    webjson := GetWebText(Concat(mcwe, '/mc/game/version_manifest.json'));
-    SoluteMC;
+    SoluteMC(false);
     form_mainform.label_download_return_value.Caption := GetLanguage('label_downlaod_return_value.caption.get_mc_web_success');
     form_mainform.button_load_modloader.Enabled := true;
     form_mainform.button_reset_download_part.Enabled := true; 

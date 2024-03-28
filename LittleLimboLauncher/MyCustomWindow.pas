@@ -16,7 +16,8 @@ procedure MyPictureBox(title, content: String; web: TStream);
 function MyPicMsgBox(title, content: String; web: TStream): Boolean;
 function MyMultiButtonBox(title: String; color: Integer; button: TArray<String>; defbutton: Integer = 1): Integer;
 implementation
-uses LanguageMethod;
+uses
+  LanguageMethod, MainForm;
 type
   btn = class(TForm)
     procedure MCWButtonClick(Sender: TObject);
@@ -201,7 +202,7 @@ begin
       Left := 8;
       VertScrollBar.Tracking := true;
       HorzScrollBar.Tracking := true;
-      OnMouseWheel := bt.MCWScrollBoxMouseWheel;
+      OnMouseWheel := form_mainform.onAllMouseWheel;
     end;
     exit;
   end;

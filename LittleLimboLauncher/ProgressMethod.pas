@@ -177,6 +177,7 @@ begin
   if not DirectoryExists(ExtractFileDir(SavePath)) then ForceDirectories(ExtractFileDir(SavePath));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.window.download_success').Replace('${file_success_name}', ViewName));
   srr.SaveToFile(SavePath);
+  srr.Free;
 end;
 //下载MC资源时显示下载进度
 procedure TDownloadMethod.ShowCurrentProgress(current, mmax: Integer);
@@ -308,7 +309,7 @@ begin
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.input_url_error_and_this_url_doesnot_has_file'));
       form_mainform.button_progress_clean_download_list.Enabled := true;
       result := -3;
-      abort;
+      exit;
     end;
   finally
     http.Free;
@@ -514,6 +515,7 @@ begin
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(ForgeProfileRoot.Count));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.current_download_library'));
   var TDFCount := 0;
+  var TVFCount := 0;
   var DownloadForgeLibTask: TMyProc := procedure begin
     while TDFCount < ForgeProfileRoot.Count do begin
       var RealJSON := ForgeProfileRoot[TDFCount] as TJsonObject;
@@ -541,7 +543,8 @@ begin
         RealURL := Concat(lul, ConvertNameToPath(RealJSON.GetValue('name').Value).Replace('\', '/'));
       except end;
       try DownloadAsWindow(RealPath, RealURL, '', ExtractFileName(RealPath), true, SelectMode); except end;
-      ShowCurrentProgress(TDFCount, ForgeProfileRoot.Count);
+      inc(TVFCount);
+      ShowCurrentProgress(TVFCount, ForgeProfileRoot.Count);
     end;
   end;
   for var I := 0 to BiggestThread - 1 do begin
@@ -601,6 +604,7 @@ begin
     end else begin
       stt.SaveToFile(TempSavePath);
       if IsShowList then form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.cut_download_success').Replace('${cut_download_count}', inttostr(dt)));
+      stt.Free;
     end;
     inc(sf);
     var jd: Currency := 100 * sf / BiggestThread;

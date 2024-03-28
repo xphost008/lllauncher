@@ -893,18 +893,20 @@
 
 |属性名称|键名称|键值|
 |----|----|----|
-|messagebox|warning|rgb(255, 215, 10)|
-|messagebox|information|rgb(10, 10, 255)|
-|messagebox|error|rgb(255, 10, 10)|
-|messagebox|pass|rgb(10, 192, 10)|
-|text|blue|rgb(10, 10, 255)|
-|text|red|rgb(255, 10, 10)|
-|text|green|rgb(10, 255, 10)|
-|text|purple|rgb(255, 10, 255)|
-|text|yellow|rgb(255, 255, 10)|
-|text|cyan|rgb(10, 255, 255)|
-|text|black|rgb(10, 10, 10)|
-|text|white|rgb(255, 255, 255)|
+|messagebox|warning|rgb(255, 215, 10)黄色|
+|messagebox|information|rgb(10, 10, 255)蓝色|
+|messagebox|error|rgb(255, 10, 10)红色|
+|messagebox|pass|rgb(10, 192, 10)绿色|
+|text|blue|rgb(10, 10, 255)蓝色|
+|text|red|rgb(255, 10, 10)红色|
+|text|green|rgb(10, 255, 10)绿色|
+|text|purple|rgb(255, 10, 255)紫色|
+|text|yellow|rgb(255, 255, 10)黄色|
+|text|cyan|rgb(10, 255, 255)青色|
+|text|black|rgb(10, 10, 10)黑色|
+|text|white|rgb(255, 255, 255)白色|
+
+- 其中，messagebox仅适用与messagebox里，而text则适用于任何有文字的组件的font_color里！
 
 #### 文字默认值
 

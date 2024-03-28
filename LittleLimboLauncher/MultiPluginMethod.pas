@@ -34,9 +34,6 @@ type
     procedure PluginControlMouseLeave(Sender: TObject);
     procedure PluginControlScroll(Sender: TObject;
       ScrollCode: TScrollCode; var ScrollPos: Integer);
-    procedure PluginScrollBoxMouseWheel(Sender: TObject;
-      Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
-      var Handled: Boolean);
     function VariableToValue(text: String): String;
     function JudgeEvent(json: TJSONObject; isFant: Boolean): Boolean;
   end;
@@ -1538,7 +1535,7 @@ begin
     Hint := all;
     HorzScrollBar.Tracking := true;
     VertScrollBar.Tracking := true;
-    OnMouseWheel := PluginScrollBoxMouseWheel;
+    OnMouseWheel := form_mainform.onAllMouseWheel;
   end;
   var content := PluginJSON.GetValue('content') as TJSONArray;
   for var I in content do begin
@@ -1952,10 +1949,9 @@ begin
             try
               var f := imgc.GetValue('url').Value;
               var s := imgc.GetValue('suffix').Value;
-              var g := GetWebStream(f);
               if s.Equals('bmp') then begin
                 try
-                  Glyph.LoadFromStream(g);
+                  Glyph.LoadFromStream(GetWebStream(f));
                 except
                   Glyph := nil;
                 end;
@@ -1978,30 +1974,6 @@ begin
         OnMouseLeave := PluginControlMouseLeave;
       end;
     end;
-  end;
-end;
-//插件部分：滑动条框
-procedure TPluginForm.PluginScrollBoxMouseWheel(Sender: TObject;
-  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
-  var Handled: Boolean);
-var
-  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
-  LPoint: TPoint;
-  ScrollBox: TScrollBox;
-begin
-  ScrollBox := TScrollBox(Sender);
-  LPoint := ScrollBox.ClientToScreen(Point(0,0));
-  LTopLeft := LPoint.X;
-  LTopRight := LTopLeft + ScrollBox.ClientWidth;
-  LBottomLeft := LPoint.Y;
-  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
-  if (MousePos.X >= LTopLeft) and
-    (MousePos.X <= LTopRight) and
-    (MousePos.Y >= LBottomLeft) and
-    (MousePos.Y <= LBottomRight) then
-  begin
-    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
-    Handled := True;
   end;
 end;
 end.

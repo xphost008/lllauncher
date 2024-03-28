@@ -6,8 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
   ExtCtrls, Controls, MPlayer, Log4Delphi, Imaging.jpeg, Generics.Collections, FileCtrl,
-  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding, Vcl.Buttons,
-  System.Net.URLClient, System.Net.HttpClient, System.Net.HttpClientComponent;
+  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding, Vcl.Buttons;
 
 type
   Tform_mainform = class(TForm)
@@ -368,6 +367,41 @@ type
     n_plugins: TMenuItem;
     timer_eggshell: TTimer;
     tabsheet_help_part: TTabSheet;
+    scrollbox_help: TScrollBox;
+    speedbutton_lll_help: TSpeedButton;
+    label_lll_help: TLabel;
+    button_game_resource: TButton;
+    popupmenu_manage_mod_info: TPopupMenu;
+    n_view_mod_info: TMenuItem;
+    speedbutton_plugin_made: TSpeedButton;
+    speedbutton_plugin_market: TSpeedButton;
+    speedbutton_lll_license: TSpeedButton;
+    label_personal_resume: TLabel;
+    speedbutton_lll_feedback: TSpeedButton;
+    speedbutton_qq_group: TSpeedButton;
+    speedbutton_blog_url: TSpeedButton;
+    speedbutton_author_afdian: TSpeedButton;
+    label_contributor_developer: TLabel;
+    speedbutton_contributor_rechalow_developer: TSpeedButton;
+    speedbutton_contributor_mingyue_developer: TSpeedButton;
+    label_contributor_legend: TLabel;
+    label_contributor_rare: TLabel;
+    speedbutton_contributor_rare_hill233: TSpeedButton;
+    label_contributor_excellent: TLabel;
+    speedbutton_contributor_qingzihang_excellent: TSpeedButton;
+    speedbutton_contributor_hill233_excellent: TSpeedButton;
+    speedbutton_contributor_flower_excellent: TSpeedButton;
+    label_contributor_support: TLabel;
+    linklabel_contributor_support: TLinkLabel;
+    label_contributor_special: TLabel;
+    speedbutton_contributor_special_bangbang93: TSpeedButton;
+    label_contributor_development_tool: TLabel;
+    speedbutton_radstudio_tool: TSpeedButton;
+    speedbutton_cnpack_tool: TSpeedButton;
+    label_contributor_development_thirdparty_tool: TLabel;
+    speedbutton_delphilsp_tool: TSpeedButton;
+    speedbutton_delphichinese_tool: TSpeedButton;
+    label_lll_copyright: TLabel;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -441,8 +475,6 @@ type
     procedure n_view_mod_websiteClick(Sender: TObject);
     procedure listbox_resource_search_versionClick(Sender: TObject);
     procedure button_resource_start_downloadClick(Sender: TObject);
-    procedure scrollbox_launchMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure pagecontrol_resource_partChange(Sender: TObject);
     procedure WmDropFiles(var Msg: TMessage); message WM_DROPFILES;
     procedure listbox_manage_import_mapClick(Sender: TObject);
@@ -466,11 +498,7 @@ type
     procedure edit_launch_after_launch_scriptChange(Sender: TObject);
     procedure edit_launch_additional_jvmChange(Sender: TObject);
     procedure edit_launch_additional_gameChange(Sender: TObject);
-    procedure scrollbox_versionMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure scrollbox_isolationMouseWheel(Sender: TObject; Shift: TShiftState;
-      WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
-    procedure scrollbox_exportMouseWheel(Sender: TObject; Shift: TShiftState;
+    procedure onAllMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure button_launch_pre_launch_scriptClick(Sender: TObject);
     procedure button_launch_after_launch_scriptClick(Sender: TObject);
@@ -561,6 +589,10 @@ type
     procedure pagecontrol_all_plugin_partChange(Sender: TObject);
     procedure image_mainform_login_avatarClick(Sender: TObject);
     procedure timer_eggshellTimer(Sender: TObject);
+    procedure button_game_resourceClick(Sender: TObject);
+    procedure speedbutton_help_documentClick(Sender: TObject);
+    procedure linklabel_contributor_supportLinkClick(Sender: TObject;
+      const Link: string; LinkType: TSysLinkType);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -621,11 +653,6 @@ uses
 
 {$R *.dfm}
 
-{$IFDEF LCL}
-
-{$ELSE}
-
-{$ENDIF}
 //DLL插件点击事件
 procedure Tform_mainform.PluginMenuClick(Sender: TObject);
 begin
@@ -725,6 +752,12 @@ begin
   LLLini.WriteInteger('Language', 'SelectLanguageFile', mn);
   SetLanguage(mn);
   MyMessagebox(GetLanguage('messagebox_mainform.change_language.caption'), GetLanguage('messagebox_mainform.change_language.text'), MY_INFORMATION, [mybutton.myOK]);
+end;
+//赞助贡献人员点击
+procedure Tform_mainform.linklabel_contributor_supportLinkClick(Sender: TObject;
+  const Link: string; LinkType: TSysLinkType);
+begin
+  ShellExecute(Application.Handle, nil, pchar(Link), nil, nil, SW_SHOWNORMAL);
 end;
 //下载部分：模组加载器手动安装包：Fabric下载
 procedure Tform_mainform.listbox_download_modloader_fabricClick(
@@ -886,12 +919,13 @@ procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 //var
 //  arr: array of String;
 begin
-  var s1 := 5;
-  var s2 := 8;
-  var s3 := s1 shr s2;
-  var s4 := s1 shl s2;
-  showmessage(inttostr(s3)); // 0
-  showmessage(inttostr(s4)); // 1280
+//  linklabel_contributor_support.Font.Style := linklabel_contributor_support.Font.Style - [fsUnderLine];
+//  var s1 := 5;
+//  var s2 := 8;
+//  var s3 := s1 shr s2;
+//  var s4 := s1 shl s2;
+//  showmessage(inttostr(s3)); // 0
+//  showmessage(inttostr(s4)); // 1280
 //  SetLength(arr, 10);
 //  randomize;
 //  for var O := 0 to 9 do begin
@@ -1096,6 +1130,16 @@ end;
 procedure Tform_mainform.button_export_startClick(Sender: TObject);
 begin
   StartExport;
+end;
+//修改该版本游戏资源
+procedure Tform_mainform.button_game_resourceClick(Sender: TObject);
+begin
+  var s: Boolean := true;
+  pagecontrol_mainpageChanging(Sender, s);
+  pagecontrol_mainpage.ActivePage := tabsheet_resource_part;
+  pagecontrol_mainpageChange(Sender);
+  pagecontrol_resource_part.ActivePage := tabsheet_resource_manage_part;
+  pagecontrol_resource_partChange(Sender);
 end;
 //背景设置：小草绿
 procedure Tform_mainform.button_grass_colorClick(Sender: TObject);
@@ -1948,7 +1992,8 @@ begin
   else if pagecontrol_mainpage.ActivePage = tabsheet_version_part then
     InitVersion
   else if pagecontrol_mainpage.ActivePage = tabsheet_plugin_part then
-    PluginPageChange;
+    PluginPageChange
+  else exit;
 end;
 //主界面：切换该页前
 procedure Tform_mainform.pagecontrol_mainpageChanging(Sender: TObject;
@@ -1967,9 +2012,9 @@ begin
     SaveCustomDl;
   end else if pagecontrol_mainpage.ActivePage = tabsheet_version_part then
     SaveVersion
-  else if pagecontrol_mainpage.ActivePage = tabsheet_plugin_part then begin
-    PluginPageDestory;
-  end;
+  else if pagecontrol_mainpage.ActivePage = tabsheet_plugin_part then
+    PluginPageDestory
+  else exit;
 end;
 //玩法部分：玩法管理界面/下载玩法切换。
 procedure Tform_mainform.pagecontrol_resource_partChange(Sender: TObject);
@@ -2203,57 +2248,46 @@ procedure Tform_mainform.scrollbar_launch_window_widthChange(Sender: TObject);
 begin
   mwindow_width := scrollbar_launch_window_width.Position;      
   label_launch_window_width.Caption := GetLanguage('label_launch_window_width.caption').Replace('${window_width}', inttostr(mwindow_width));
-end;     
-//版本设置-导出整合包：滑动条框
-procedure Tform_mainform.scrollbox_exportMouseWheel(Sender: TObject;
-  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
-  var Handled: Boolean);
-var
-  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
-  LPoint: TPoint;
-  ScrollBox: TScrollBox;
-begin
-  ScrollBox := TScrollBox(Sender);
-  LPoint := ScrollBox.ClientToScreen(Point(0,0));
-  LTopLeft := LPoint.X;
-  LTopRight := LTopLeft + ScrollBox.ClientWidth;
-  LBottomLeft := LPoint.Y;
-  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
-  if (MousePos.X >= LTopLeft) and
-    (MousePos.X <= LTopRight) and
-    (MousePos.Y >= LBottomLeft) and
-    (MousePos.Y <= LBottomRight) then
-  begin
-    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
-    Handled := True;
-  end;
 end;
-//版本设置-独立设置：滑动条框
-procedure Tform_mainform.scrollbox_isolationMouseWheel(Sender: TObject;
-  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
-  var Handled: Boolean);
-var
-  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
-  LPoint: TPoint;
-  ScrollBox: TScrollBox;
+//帮助文档按钮点击
+procedure Tform_mainform.speedbutton_help_documentClick(Sender: TObject);
 begin
-  ScrollBox := TScrollBox(Sender);
-  LPoint := ScrollBox.ClientToScreen(Point(0,0));
-  LTopLeft := LPoint.X;
-  LTopRight := LTopLeft + ScrollBox.ClientWidth;
-  LBottomLeft := LPoint.Y;
-  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
-  if (MousePos.X >= LTopLeft) and
-    (MousePos.X <= LTopRight) and
-    (MousePos.Y >= LBottomLeft) and
-    (MousePos.Y <= LBottomRight) then
-  begin
-    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
-    Handled := True;
-  end;
+  var nme: String := (Sender as TSpeedButton).Name;
+  var ul := '';
+  if nme.Equals(speedbutton_lll_help.Name) then
+    ul := 'https://github.com/rechalow/lllauncher/blob/master/credits/Document.md'
+  else if nme.Equals(speedbutton_qq_group.Name) then
+    ul := 'https://qm.qq.com/q/hy6mU57aeW'
+  else if nme.Equals(speedbutton_blog_url.Name) then
+    ul := 'https://rechalow.github.io'
+  else if nme.Equals(speedbutton_plugin_made.Name) then
+    ul := 'https://github.com/rechalow/lllauncher/blob/master/credits/Plugins.md'
+  else if nme.Equals(speedbutton_cnpack_tool.Name) then
+    ul := 'https://cnpack.org/index.php'
+  else if nme.Equals(speedbutton_radstudio_tool.Name) then
+    ul := 'https://www.embarcadero.com/'
+  else if nme.Equals(speedbutton_lll_license.Name) then
+    ul := 'https://github.com/rechalow/lllauncher/blob/master/LICENSE'
+  else if nme.Equals(speedbutton_plugin_market.Name) then
+    ul := 'https://github.com/rechalow/lllauncher/blob/master/credits/PluginMarket.md'
+  else if nme.Equals(speedbutton_author_afdian.Name) then
+    ul := 'https://afdian.net/a/Rechalow'
+  else if nme.Equals(speedbutton_lll_feedback.Name) then
+    ul := 'https://github.com/rechalow/lllauncher/issues'
+  else if nme.Equals(speedbutton_delphilsp_tool.Name) then
+    ul := 'https://marketplace.visualstudio.com/items?itemName=EmbarcaderoTechnologies.delphilsp'
+  else if nme.Equals(speedbutton_delphichinese_tool.Name) then begin
+    MyMessageBox('暂无下载地址', '暂无下载地址，请加群下载：166637277', MY_INFORMATION, [mybutton.myOK]);
+    exit;
+  end else if nme.Equals(speedbutton_contributor_special_bangbang93.Name) then
+    ul := 'https://bmclapidoc.bangbang93.com/'
+  else if nme.Equals(speedbutton_contributor_rechalow_developer.Name) then
+    ul := 'https://github.com/rechalow'
+  else exit;
+  ShellExecute(Application.Handle, nil, pchar(ul), nil, nil, SW_SHOWNORMAL);
 end;
-//启动设置：滑动条框
-procedure Tform_mainform.scrollbox_launchMouseWheel(Sender: TObject;
+//滑动条框滑动事件
+procedure Tform_mainform.onAllMouseWheel(Sender: TObject;
   Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
   var Handled: Boolean);
 var
@@ -2261,31 +2295,7 @@ var
   LPoint: TPoint;
   ScrollBox: TScrollBox;
 begin
-  ScrollBox := TScrollBox(Sender);
-  LPoint := ScrollBox.ClientToScreen(Point(0,0));
-  LTopLeft := LPoint.X;
-  LTopRight := LTopLeft + ScrollBox.ClientWidth;
-  LBottomLeft := LPoint.Y;
-  LBottomRight := LBottomLeft + ScrollBox.ClientWidth;
-  if (MousePos.X >= LTopLeft) and
-    (MousePos.X <= LTopRight) and
-    (MousePos.Y >= LBottomLeft) and
-    (MousePos.Y <= LBottomRight) then
-  begin
-    ScrollBox.VertScrollBar.Position := ScrollBox.VertScrollBar.Position - WheelDelta;
-    Handled := True;
-  end;
-end;
-//版本设置-版本控制：滑动条框
-procedure Tform_mainform.scrollbox_versionMouseWheel(Sender: TObject;
-  Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint;
-  var Handled: Boolean);
-var
-  LTopLeft, LTopRight, LBottomLeft, LBottomRight: SmallInt;
-  LPoint: TPoint;
-  ScrollBox: TScrollBox;
-begin
-  ScrollBox := TScrollBox(Sender);
+  ScrollBox := Sender as TScrollBox;
   LPoint := ScrollBox.ClientToScreen(Point(0,0));
   LTopLeft := LPoint.X;
   LTopRight := LTopLeft + ScrollBox.ClientWidth;

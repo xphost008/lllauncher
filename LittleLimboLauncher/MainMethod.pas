@@ -371,7 +371,7 @@ begin
               else exit;
             end;
             if MCRootJSON = nil then begin
-              MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(Vv)) as TJSONObject;
+              MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(Vv).ToLower) as TJSONObject;
             end;
             for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
               var J := I as TJsonObject;

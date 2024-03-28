@@ -65,6 +65,10 @@ begin
   form_mainform.n_test_button.Caption := GetLanguage('menu_manual_test.caption');
   form_mainform.n_languages.Caption := GetLanguage('menu_manual_language.caption');
   form_mainform.n_plugins.Caption := GetLanguage('menu_manual_plugin.caption');
+  form_mainform.n_view_mod_profile.Caption := GetLanguage('menu_view_mod_profile.caption');
+  form_mainform.n_view_mod_website.Caption := GetLanguage('menu_view_mod_website.caption');
+  form_mainform.n_view_minecraft_info.Caption := GetLanguage('menu_view_minecraft_info.caption');
+  form_mainform.n_view_mod_info.Caption := GetLanguage('menu_view_mod_info.caption');
   //以下为下载进度窗口
   form_mainform.button_progress_hide_show_details.Caption := GetLanguage('button_progress_hide_show_details.caption.hide');
   form_mainform.button_progress_clean_download_list.Caption := GetLanguage('button_progress_clean_download_list.caption');
@@ -246,6 +250,7 @@ begin
   form_mainform.label_select_file_list.Caption := GetLanguage('label_select_file_list.caption');
   form_mainform.label_version_add_mc_path.Caption := GetLanguage('label_version_add_mc_path.caption');
   form_mainform.button_version_choose_any_directory.Caption := GetLanguage('button_version_choose_any_directory.caption');
+  form_mainform.button_game_resource.Caption := GetLanguage('button_game_resource.caption');
   form_mainform.radiogroup_partition_version.Caption := GetLanguage('radiogroup_partition_version.caption');
   form_mainform.radiogroup_partition_version.Items[0] := GetLanguage('radiogroup_partition_version.not_isolation.caption');
   form_mainform.radiogroup_partition_version.Items[1] := GetLanguage('radiogroup_partition_version.isolate_version.caption');
@@ -375,6 +380,10 @@ begin
     .AddPair('menu_manual_test.caption', '测试按钮')
     .AddPair('menu_manual_language.caption', '语言')
     .AddPair('menu_manual_plugin.caption', 'DLL插件')
+    .AddPair('menu_view_mod_profile.caption', '打开该模组的简介')
+    .AddPair('menu_view_mod_website.caption', '打开该模组的官网')
+    .AddPair('menu_view_minecraft_info.caption', '查看Minecraft版本信息')
+    .AddPair('menu_view_mod_info.caption', '查看模组信息')
     //以下为信息框
     .AddPair('messagebox_button_yes.caption', '是')
     .AddPair('messagebox_button_ok.caption', '确认')
@@ -1571,6 +1580,7 @@ begin
     .AddPair('label_select_file_list.caption', '选择文件列表')
     .AddPair('label_version_add_mc_path.caption', '添加MC路径')
     .AddPair('button_version_choose_any_directory.caption', '请选择任一文件夹')
+    .AddPair('button_game_resource.caption', '修改该版本游戏资源')
     .AddPair('radiogroup_partition_version.caption', '版本隔离')
     .AddPair('radiogroup_partition_version.not_isolation.caption', '不使用版本隔离')
     .AddPair('radiogroup_partition_version.isolate_version.caption', '隔离【正式版/快照版/远古Beta版/远古Alpha版】')
@@ -1745,6 +1755,10 @@ begin
     .AddPair('menu_manual_test.caption', 'Test Button')
     .AddPair('menu_manual_language.caption', 'Launcher')
     .AddPair('menu_manual_plugin.caption', 'DLL Plugin')
+    .AddPair('menu_view_mod_profile.caption', 'Open this mod Profile')
+    .AddPair('menu_view_mod_website.caption', 'Open this mod official url')
+    .AddPair('menu_view_minecraft_info.caption', 'View Minecraft Info')
+    .AddPair('menu_view_mod_info', 'View Mod Information')
     //以下为信息框
     .AddPair('messagebox_button_yes.caption', 'Yes')
     .AddPair('messagebox_button_ok.caption', 'OK')
@@ -2941,6 +2955,7 @@ begin
     .AddPair('label_select_file_list.caption', '选择文件列表')
     .AddPair('label_version_add_mc_path.caption', '添加MC路径')
     .AddPair('button_version_choose_any_directory.caption', '请选择任一文件夹')
+    .AddPair('button_game_resource.caption', '修改该版本游戏资源')
     .AddPair('radiogroup_partition_version.caption', '版本隔离')
     .AddPair('radiogroup_partition_version.not_isolation.caption', '不使用版本隔离')
     .AddPair('radiogroup_partition_version.isolate_version.caption', '隔离【正式版/快照版/远古Beta版/远古Alpha版】')

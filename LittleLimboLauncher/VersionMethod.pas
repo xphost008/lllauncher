@@ -143,14 +143,14 @@ begin
     form_mainform.label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', '');
     mselect_mc := -0;
   end;
-//  try //添加版本选择
-//    mselect_ver := LLLini.ReadInteger('MC', 'SelectVer', -1) - 1;
-//    if (mselect_ver < 0) and not (mselect_ver >= (MCSelJson.GetValue('mcsel') as TJsonArray).Count) then  //如果账号不为空，
-//      raise Exception.Create('Format Exception');
-//  except
-//    LLLini.WriteInteger('MC', 'SelectVer', 0); //如果没有，则赋值重新写入文件
-//    mselect_ver := -1;
-//  end;
+  try //添加版本选择
+    mselect_ver := LLLini.ReadInteger('MC', 'SelectVer', -1) - 1;
+    if (mselect_ver < 0) and not (mselect_ver >= (MCSelJson.GetValue('mcsel') as TJsonArray).Count) then  //如果账号不为空，
+      raise Exception.Create('Format Exception');
+  except
+    LLLini.WriteInteger('MC', 'SelectVer', 0); //如果没有，则赋值重新写入文件
+    mselect_ver := -1;
+  end;
   try //判断版本隔离（
     misolation_mode := LLLini.ReadInteger('Version', 'SelectIsolation', -1);
     if (misolation_mode < 1) or (misolation_mode > 4) then raise Exception.Create('No Isolation Choose');
