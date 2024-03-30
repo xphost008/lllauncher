@@ -604,7 +604,7 @@ type
   end;
 
 const
-  LauncherVersion = '1.0.0-Alpha-NewPluginTest-3';
+  LauncherVersion = '1.0.0-Alpha-31068';
 
 var
   form_mainform: Tform_mainform;
@@ -640,6 +640,10 @@ implementation
  * 如果你不仅赞助了，而且为作者做出贡献了！你的名字将会不仅存在于【赞助】上，而且还会逐步往上升！直到所有名单里都有你！
  * 也就是说一个人最多可以拥有4个名字存在我的贡献名单上噢！
  * 因此请努力吧！让我们为LLL启动器的未来做出伟大的贡献吧！
+
+ * 小提示：
+ * 开发人员：这个称号是内定的，只有为该启动器做出卓越贡献并且私聊我加入我的个人团队，而且不索要任何金钱，才可以进入开发人员名单。
+ * 特殊鸣谢人员：这个也是内定的，只有在你为【大概是所有启动器】开发了一款工具网站，例如BMCLAPI这种，我才会将你添加进去。
  *)
 
 uses
@@ -918,7 +922,58 @@ end;
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 //var
 //  arr: array of String;
+//var
+//  map: TJSONObject;
+//  currentMap: TJSONObject;
+//  newMap: TJSONObject;
+//  nestedJson: String;
+//  temp: string;
+//  currentLevel: TJSONObject;
+//  nestedJson: TJSONObject;
+//  Temp: TJSONObject;
+//  nw: TJSONObject;
+//  cur: TJSONArray;
+//var
+//  i: Integer;
 begin
+//  i := 35;
+//  inc(i);
+//  if i < 37 then
+//    n_test_buttonClick(Sender);
+//  ShowMessage('ss')
+//  var ss := 'abcdefg';
+//  showmessage(inttostr(ss.IndexOf('d', 2)));
+  showmessage(TTomlParser.TomlToJSON(GetFile('D:\tt.toml')).Format());
+//  map := TJSONObject.Create;
+//  currentMap := map;
+//  var aa := ['123', '456', '789'];
+//  for var I := 0 to Length(aa) - 1 do begin
+//    newMap := TJSONObject.Create;
+//    currentMap.AddPair(aa[I], newMap);
+//    currentMap := newMap;
+//  end;
+//  nestedJson := TJSONObject.Create;
+//  Temp := nestedJson;
+//  nestedJson := TJSONArray.Create;
+//    for var I := Length(aa) - 1 downto 0 do begin
+//      nw := TJSONObject.Create;
+//      cur := TJSONArray.Create;
+//      cur.Add(nw);
+//      Temp.AddPair(aa[i], cur);
+//      Temp := nw;
+//      nestedJson := TJSONArray.Create.Add(TJSONObject.Create.AddPair(aa[I], nestedJSON))
+//    end;
+//  cur.Free;
+//  nw.Free;
+//  for var I := Length(aa) -1 downto 0 do begin
+//    temp := TJSONObject.Create;
+//    temp.AddPair(aa[I], nestedJson);
+//    nestedJson := temp;
+//  end;
+//  ShowMessage(nestedJson);
+//    ShowMessage(map.ToString);
+//  var ss := '1234567890'.Substring(2, -3);
+//  showmessage(ss);
 //  linklabel_contributor_support.Font.Style := linklabel_contributor_support.Font.Style - [fsUnderLine];
 //  var s1 := 5;
 //  var s2 := 8;
@@ -1750,6 +1805,7 @@ begin
   scrollbox_version.VertScrollBar.Position := 0;
   scrollbox_isolation.VertScrollBar.Position := 0;
   scrollbox_export.VertScrollBar.Position := 0;
+  scrollbox_help.VertScrollBar.Position := 0;
   v.ParentWindow := Handle;
   v.Visible := False;
   v.AutoOpen := false;

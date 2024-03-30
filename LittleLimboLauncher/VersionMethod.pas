@@ -34,14 +34,15 @@ begin
       SearchDirProc(ver, true, true, procedure(T: String) begin
         var ccf := ExtractFileName(T);
         var igh := GetMCInheritsFrom(T, 'inheritsFrom');
-        if IsVersionError(T) then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.error.cannot_find_json'))
+        var ive := IsVersionError(T);
+        if ive then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.error.cannot_find_json'))
         else if igh.IsEmpty then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.error.missing_inherits_version'));
         var IsoIni := TIniFile.Create(Concat(T, '\LLLauncher.ini'));
         if IsoIni.ReadBool('Isolation', 'IsIsolation', false) then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.isolation'));
         var isf: String;
         try
           var jso := GetFile(GetMCRealPath(T, '.json')).ToLower;
-          if igh.IsEmpty then raise Exception.Create('Has no inheritsFrom');
+          if ive then raise Exception.Create('Has no inheritsFrom');
           if jso.IndexOf('com.mumfrey:liteloader:') <> -1 then isf := '（Liteloader）'
           else if jso.IndexOf('org.quiltmc:quilt-loader:') <> -1 then isf := '（Quilt）'
           else if jso.IndexOf('net.fabricmc:fabric-loader:') <> -1 then isf := '（Fabric）'

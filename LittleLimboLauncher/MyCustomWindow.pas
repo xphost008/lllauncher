@@ -2,9 +2,20 @@
 interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Threading, Vcl.ExtCtrls, Types;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Threading, Vcl.ExtCtrls, Types,
+  {$IFDEF MSWINDOWS}
+  json, System.Generics.Collections, Character, System.RegularExpressions, StrUtils;
+  {$ELSE}
+  {$ENDIF}
 type
   mybutton = (myYes, myOK, myNo, myCancel, myRetry, myAbort, myIgnore, myCustom);
+  TTomlParser = class
+  private
+    class procedure TomlToJSON(TomlContent: String; ResultJSON: TJSONValue); overload;
+  public
+    class function TomlToJSON(TomlContent: String): TJSONObject; overload;
+  end;
+  TTomlParserException = class(Exception) end;
 const
   MY_ERROR = 658175;
   MY_WARNING = 710655;
@@ -17,7 +28,7 @@ function MyPicMsgBox(title, content: String; web: TStream): Boolean;
 function MyMultiButtonBox(title: String; color: Integer; button: TArray<String>; defbutton: Integer = 1): Integer;
 implementation
 uses
-  LanguageMethod, MainForm;
+  LanguageMethod, MainForm, MainMethod;
 type
   btn = class(TForm)
     procedure MCWButtonClick(Sender: TObject);
@@ -453,5 +464,210 @@ begin
   Result := ResMsg;
   ResMsg := false;
 end;
+{ TTomlParser }
+{$IFDEF MSWINDOWS}
+//递归函数
+class procedure TTomlParser.TomlToJSON(TomlContent: String; ResultJSON: TJSONValue);
+var
+  tomlSplitLines, tomlSplitSection, tomlSplitSection2: TArray<String>;
+  tomlLine, tomlSection,
+  tomlRealSection, tomlReadBody, tomlSplitKey, tomlSplitValue, tomlMultiLines: string;
+  tomlLineIndex, tomlMultiLineIndex: Integer;
+  Temp1, Temp2, Temp3, Temp: TJSONValue;
+  I, J: Integer;
+label
+  tomlStep1, tomlStep2;
+begin
+  tomlLineIndex := -1;
+  tomlSplitLines := TomlContent.Split([#13, #10, #13#10]);
+  while tomlLineIndex < Length(tomlSplitLines) - 1 do
+  begin
+    inc(tomlLineIndex);
+    tomlLine := tomlSplitLines[tomlLineIndex].Trim;
+    if tomlLine.Substring(0,1).Equals('#') then continue
+    else
+    if tomlLine.IsEmpty then continue
+    else
+    if tomlLine.Substring(0,2).Equals('[[') then
+    begin
+      if tomlLine.LastIndexOf(']]') < 3 then raise TTomlParserException.Create('Parser Toml Failure');
+      tomlSection := tomlLine.Substring(2, tomlLine.LastIndexOf(']]') - 2);
+      tomlSplitSection := tomlSection.Split(['.']);
+      for I := 0 to Length(tomlSplitSection) - 1 do
+      begin
+        if tomlSplitSection[I].IsEmpty or tomlSplitSection[I].Equals('""') or (tomlSplitSection[I].CountChar(' ') > 0) then raise TTomlParserException.Create('Parser Toml Failure');
+        if not TRegex.IsMatch(tomlSplitSection[I].Replace('"', ''), '^[0-9A-Za-z_-]+$') then raise TTomlParserException.Create('Parser Toml Failure');
+        if (tomlSplitSection[I].IndexOf('"') = 0) or (tomlSplitSection[I].LastIndexOf('"') = Length(tomlSplitSection[I]) - 1) then
+        begin
+          tomlRealSection := tomlSplitSection[I].Substring(1, Length(tomlSplitSection[I]) - 2);
+          if tomlRealSection.IndexOf('"') <> -1 then raise TTomlParserException.Create('Parser Toml Failure');
+        end
+        else
+        if tomlSplitSection[I].IndexOf('"') <> -1 then raise TTomlParserException.Create('Parser Toml Failure')
+        else
+        begin
+          tomlRealSection := tomlSplitSection[I];
+        end;
+        SetLength(tomlSplitSection2, I + 1);
+        tomlSplitSection2[I] := tomlSplitSection[I];
+      end;
+      Temp1 := ResultJSON;
+      for I := 0 to Length(tomlSplitSection2) - 1 do
+      begin
+        Temp2 := TJSONObject.Create;
+        if I = Length(tomlSplitSection2) - 1 then
+        begin
+          tomlReadBody := '';
+          for J := tomlLineIndex + 1 to Length(tomlSplitLines) - 1 do
+          begin
+            if tomlSplitLines[J].Substring(0,2).Equals('[[') then break;
+            tomlLineIndex := J;
+            tomlReadBody := Concat(tomlReadBody, tomlSplitLines[J], #10);
+          end;
+          TomlToJSON(tomlReadBody, Temp2);
+        end;
+        Temp3 := TJSONArray.Create;
+        if Temp1.TryGetValue(tomlSplitSection2[I], Temp) then
+        begin
+          Temp2 := ((Temp1 as TJSONObject).GetValue(tomlSplitSection2[I]) as TJSONArray).Add(Temp2 as TJSONObject);
+        end
+        else
+        begin
+          (Temp3 as TJSONArray).Add(Temp2 as TJSONObject);
+          (Temp1 as TJSONObject).AddPair(tomlSplitSection2[I], Temp3);
+        end;
+        Temp1 := Temp2;
+      end;
+    end
+    else
+    if tomlLine.Substring(0,1).Equals('[') then
+    begin
+      if tomlLine.LastIndexOf(']') < 2 then raise TTomlParserException.Create('Parser Toml Failure');
+      tomlSection := tomlLine.Substring(1, tomlLine.LastIndexOf(']') - 1);
+      tomlSplitSection := tomlSection.Split(['.']);
+      for I := 0 to Length(tomlSplitSection) - 1 do
+      begin
+        if tomlSplitSection[I].IsEmpty or tomlSplitSection[I].Equals('""') or (tomlSplitSection[I].CountChar(' ') > 0) then raise TTomlParserException.Create('Parser Toml Failure');
+        if not TRegex.IsMatch(tomlSplitSection[I].Replace('"', ''), '^[0-9A-Za-z_-]+$') then raise TTomlParserException.Create('Parser Toml Failure');
+        if (tomlSplitSection[I].IndexOf('"') = 0) or (tomlSplitSection[I].LastIndexOf('"') = Length(tomlSplitSection[I]) - 1) then
+        begin
+          tomlRealSection := tomlSplitSection[I].Substring(1, Length(tomlSplitSection[I]) - 2);
+          if tomlRealSection.IndexOf('"') <> -1 then raise TTomlParserException.Create('Parser Toml Failure');
+        end
+        else
+        if tomlSplitSection[I].IndexOf('"') <> -1 then raise TTomlParserException.Create('Parser Toml Failure')
+        else
+        begin
+          tomlRealSection := tomlSplitSection[I];
+        end;
+        SetLength(tomlSplitSection2, I + 1);
+        tomlSplitSection2[I] := tomlSplitSection[I];
+      end;
+      Temp1 := ResultJSON;
+      for I := 0 to Length(tomlSplitSection2) - 1 do
+      begin
+        Temp2 := TJSONObject.Create;
+        if I = Length(tomlSplitSection2) - 1 then
+        begin
+          tomlReadBody := '';
+          for J := tomlLineIndex + 1 to Length(tomlSplitLines) - 1 do
+          begin
+            if (tomlSplitLines[J].Substring(0,1).Equals('[')) and (not tomlSplitLines[J].Substring(0,2).Equals('[[')) then break;
+            tomlLineIndex := J;
+            tomlReadBody := Concat(tomlReadBody, tomlSplitLines[J], #10);
+          end;
+          TomlToJSON(tomlReadBody, Temp2);
+        end;
+        if Temp1.TryGetValue(tomlSplitSection2[I], Temp) then
+        begin
+          Temp2 := (Temp1 as TJSONObject).GetValue(tomlSplitSection2[I]) as TJSONObject;
+        end
+        else
+        begin
+          (Temp1 as TJSONObject).AddPair(tomlSplitSection2[I], Temp2);
+        end;
+        Temp1 := Temp2;
+      end;
+    end
+    else
+    begin
+      tomlSplitKey := tomlLine.Substring(0, tomlLine.IndexOf('=')).Trim;
+      if not TRegex.IsMatch(tomlSplitKey, '^[0-9A-Za-z_-]+$') then raise TTomlParserException.Create('Parser Toml Failure');
+      tomlSplitValue := tomlLine.Substring(tomlLine.IndexOf('=') + 1).Trim;
+      if tomlSplitKey.IsEmpty or tomlSplitValue.IsEmpty then raise TTomlParserException.Create('Parser Toml Failure');
+      if tomlSplitValue.Substring(0,3).Equals('"""') then begin
+        tomlMultiLines := '';
+        for I := tomlLineIndex to Length(tomlSplitLines) - 1 do
+        begin
+          if I = tomlLineIndex then
+          begin
+            tomlMultiLines := Concat(tomlMultiLines, tomlSplitValue.Substring(tomlSplitValue.IndexOf('"""') + 3));
+            if tomlMultiLines.IndexOf('"""') <> 0 then begin
+
+            end;
+          end
+          else
+          begin
+
+          end;
+//          begin
+//            tomlMultiLineIndex := tomlSplitValue.IndexOf('"""', 3);
+//            if tomlMultiLineIndex <> 3 then
+//            begin
+//              tomlStep1:;
+//              if tomlSplitValue[tomlMultiLineIndex - 1] = '\' then
+//              begin
+//                tomlMultiLineIndex := tomlSplitValue.IndexOf('"""', tomlMultiLineIndex + 3);
+//                goto tomlStep1;
+//              end
+//              else
+//              begin
+//                tomlMultiLineIndex := tomlMultiLineIndex + 2;
+//                break;
+//              end;
+//            end else begin
+//              tomlMultiLines := tomlMultiLines + tomlSplitLines[tomlLineIndex];
+//            end;
+//          end
+//          else
+//          begin
+//            tomlMultiLineIndex := tomlSplitValue.IndexOf('"""');
+//            if tomlMultiLineIndex <> 0 then
+//            begin
+//              tomlStep2:;
+//              if tomlSplitValue[tomlMultiLineIndex - 1] = '\' then
+//              begin
+//                tomlMultiLineIndex := tomlSplitValue.IndexOf('"""', tomlMultiLineIndex + 3);
+//                goto tomlStep2;
+//              end
+//              else
+//              begin
+//                tomlMultiLineIndex := tomlMultiLineIndex + 2;
+//                break;
+//              end;
+//            end else begin
+//              tomlMultiLines := tomlMultiLines + tomlSplitLines[tomlLineIndex];
+//            end;
+//          end;
+//      showmessage(tomlMultiLines);
+        end;
+      end;
+      showmessage(tomlSplitKey + '=' + tomlSplitValue);
+    end;
+  end;
+end;
+//Toml转换成JSON
+class function TTomlParser.TomlToJSON(TomlContent: String): TJSONObject;
+begin
+//  try
+    result := TJSONObject.Create;
+    TomlToJSON(TomlContent, result);
+//  except
+//    raise TTomlParserException.Create('Parser Toml Failure');
+//  end;
+end;
+{$ELSE}
+{$ENDIF}
+
 end.
 

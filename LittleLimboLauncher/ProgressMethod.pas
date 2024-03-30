@@ -666,7 +666,7 @@ begin
     var yid := SourceJSON.GetValue('inheritsFrom').Value; //查获inheritsForm的下载。。。
     var spf := GetMCInheritsFrom(savepath, 'inheritsFrom');
     if spf = savepath then raise Exception.Create('No InheritsFrom');
-    if spf = '' then begin
+    if spf.IsEmpty then begin
       form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.json_has_inheritsfrom'));
       var VanillaVer := '';
       case SelectMode of
@@ -704,9 +704,8 @@ begin
     end;
   except end;
   var tmp1 := GetMCInheritsFrom(SavePath, 'inheritsFrom');
-  var tmp2 := GetMCRealPath(tmp1, '.json');
-  var tmp3 := GetFile(tmp2);
-  url := ReplaceMCInheritsFrom(url, tmp3);
+  var tmp2 := GetFile(GetMCRealPath(tmp1, '.json'));
+  url := ReplaceMCInheritsFrom(url, tmp2);
   url := url.Replace('\', '');
   var ResourceRoot := '';
   var LibrariesRoot := '';
@@ -1046,6 +1045,7 @@ begin
     TDownloadMethod.InitDownload(url, SavePath, RootPath, BiggestThread, SelectMode, javapath, VanillaVersion, isShowList, isShowProgress).StartDownload(LoadSource);
 //    form_mainform.button_progress_clean_download_list.Enabled := true;
   except
+    form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.source.download_failure'));
     form_mainform.button_progress_clean_download_list.Enabled := true;
     abort;
   end;

@@ -1050,6 +1050,7 @@ begin
     .AddPair('downloadlist.version.get_complete_version', '正在补全该版本的资源索引……')
     .AddPair('downloadlist.version.complete_version_success', '补全资源完成！')
     .AddPair('downloadlist.modpack.download_modpack_start', '正在下载整合包中……')
+    .AddPair('downloadlist.source.download_failure', '下载失败，请重试！')
     //以下为下载进度窗口
     .AddPair('button_progress_hide_show_details.caption.show', '显示详情')
     .AddPair('button_progress_hide_show_details.caption.hide', '隐藏详情')
@@ -2425,6 +2426,7 @@ begin
     .AddPair('downloadlist.version.get_complete_version', '正在补全该版本的资源索引……')
     .AddPair('downloadlist.version.complete_version_success', '补全资源完成！')
     .AddPair('downloadlist.modpack.download_modpack_start', '正在下载整合包中……')
+    .AddPair('downloadlist.source.download_failure', '下载失败，请重试！')
     //以下为下载进度窗口
     .AddPair('button_progress_hide_show_details.caption.show', '显示详情')
     .AddPair('button_progress_hide_show_details.caption.hide', '隐藏详情')

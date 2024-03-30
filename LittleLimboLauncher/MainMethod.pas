@@ -371,11 +371,11 @@ begin
               else exit;
             end;
             if MCRootJSON = nil then begin
-              MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(Vv).ToLower) as TJSONObject;
+              MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(Vv)) as TJSONObject;
             end;
             for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
               var J := I as TJsonObject;
-              var release := J.GetValue('releaseTime').Value;
+              var release := J.GetValue('releaseTime').Value.ToLower;
               if release.Equals(releaseTime) then begin
                 mcid := J.GetValue('id').Value;
               end;

@@ -131,7 +131,7 @@ object form_mainform: Tform_mainform
     Top = 8
     Width = 838
     Height = 464
-    ActivePage = tabsheet_help_part
+    ActivePage = tabsheet_version_part
     TabOrder = 0
     OnChange = pagecontrol_mainpageChange
     OnChanging = pagecontrol_mainpageChanging
@@ -2470,7 +2470,7 @@ object form_mainform: Tform_mainform
         Top = 24
         Width = 824
         Height = 407
-        ActivePage = tabsheet_version_control_part
+        ActivePage = tabsheet_version_export_part
         TabOrder = 0
         OnChange = pagecontrol_version_partChange
         object tabsheet_version_control_part: TTabSheet
@@ -3257,7 +3257,6 @@ object form_mainform: Tform_mainform
         Top = 0
         Width = 830
         Height = 434
-        VertScrollBar.Position = 546
         VertScrollBar.Tracking = True
         Align = alClient
         Color = clBtnFace
@@ -3268,7 +3267,7 @@ object form_mainform: Tform_mainform
         OnMouseWheel = onAllMouseWheel
         object speedbutton_lll_help: TSpeedButton
           Left = 3
-          Top = -509
+          Top = 37
           Width = 794
           Height = 72
           Caption = 
@@ -3674,7 +3673,7 @@ object form_mainform: Tform_mainform
         end
         object label_lll_help: TLabel
           Left = 3
-          Top = -543
+          Top = 3
           Width = 117
           Height = 28
           Caption = 'LLL'#24110#21161#25991#26723
@@ -3687,7 +3686,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_plugin_made: TSpeedButton
           Left = 3
-          Top = -431
+          Top = 115
           Width = 794
           Height = 72
           Caption = 
@@ -4092,7 +4091,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_plugin_market: TSpeedButton
           Left = 3
-          Top = -353
+          Top = 193
           Width = 794
           Height = 72
           Caption = 
@@ -4498,7 +4497,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_lll_license: TSpeedButton
           Left = 3
-          Top = -275
+          Top = 271
           Width = 794
           Height = 72
           Caption = 
@@ -4903,7 +4902,7 @@ object form_mainform: Tform_mainform
         end
         object label_personal_resume: TLabel
           Left = 3
-          Top = -119
+          Top = 427
           Width = 42
           Height = 28
           Caption = #20010#20154
@@ -4916,7 +4915,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_lll_feedback: TSpeedButton
           Left = 3
-          Top = -197
+          Top = 349
           Width = 494
           Height = 72
           Caption = 
@@ -5320,7 +5319,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_qq_group: TSpeedButton
           Left = 503
-          Top = -197
+          Top = 349
           Width = 294
           Height = 72
           Caption = 'LLL'#21453#39304#28192#36947#65306#21152#32676#13'792484446            '
@@ -5722,7 +5721,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_blog_url: TSpeedButton
           Left = 3
-          Top = -85
+          Top = 461
           Width = 394
           Height = 72
           Caption = #20010#20154#21338#23458#22320#22336#65306'                       '#13'https://rechalow.github.io'
@@ -6124,7 +6123,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_author_afdian: TSpeedButton
           Left = 403
-          Top = -85
+          Top = 461
           Width = 394
           Height = 72
           Caption = 
@@ -6528,7 +6527,7 @@ object form_mainform: Tform_mainform
         end
         object label_contributor_developer: TLabel
           Left = 3
-          Top = -7
+          Top = 539
           Width = 189
           Height = 28
           Caption = #40483#35874#20154#21592#65306#24320#21457#20154#21592
@@ -6541,7 +6540,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_contributor_rechalow_developer: TSpeedButton
           Left = 3
-          Top = 27
+          Top = 573
           Width = 794
           Height = 72
           Caption = #30742#38656'                                    '#13#25152#26377#20195#30721#37117#26159#36825#19968#20010#20154#25970#30340
@@ -6943,7 +6942,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_contributor_mingyue_developer: TSpeedButton
           Left = 3
-          Top = 105
+          Top = 651
           Width = 794
           Height = 72
           Caption = 
@@ -7347,7 +7346,7 @@ object form_mainform: Tform_mainform
         end
         object label_contributor_legend: TLabel
           Left = 3
-          Top = 183
+          Top = 729
           Width = 315
           Height = 28
           Caption = #40483#35874#20154#21592#65306#20256#22855#36129#29486#20154#21592#12304#26242#26080#12305
@@ -7360,7 +7359,7 @@ object form_mainform: Tform_mainform
         end
         object label_contributor_rare: TLabel
           Left = 3
-          Top = 217
+          Top = 763
           Width = 231
           Height = 28
           Caption = #40483#35874#20154#21592#65306#31934#21697#36129#29486#20154#21592
@@ -7373,7 +7372,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_contributor_rare_hill233: TSpeedButton
           Left = 3
-          Top = 251
+          Top = 797
           Width = 794
           Height = 72
           Caption = 
@@ -7778,7 +7777,7 @@ object form_mainform: Tform_mainform
         end
         object label_contributor_excellent: TLabel
           Left = 3
-          Top = 329
+          Top = 875
           Width = 231
           Height = 28
           Caption = #40483#35874#20154#21592#65306#20248#31168#36129#29486#20154#21592
@@ -7791,7 +7790,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_contributor_qingzihang_excellent: TSpeedButton
           Left = 3
-          Top = 441
+          Top = 987
           Width = 794
           Height = 72
           Caption = 
@@ -8196,7 +8195,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_contributor_hill233_excellent: TSpeedButton
           Left = 3
-          Top = 363
+          Top = 909
           Width = 794
           Height = 72
           Caption = 
@@ -8601,7 +8600,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_contributor_flower_excellent: TSpeedButton
           Left = 3
-          Top = 519
+          Top = 1065
           Width = 794
           Height = 72
           Caption = 
@@ -9006,7 +9005,7 @@ object form_mainform: Tform_mainform
         end
         object label_contributor_support: TLabel
           Left = 3
-          Top = 597
+          Top = 1143
           Width = 362
           Height = 28
           Caption = #40483#35874#20154#21592#65306#36190#21161#20154#21592#12304#36190#21161'10'#20803#20197#19978#12305
@@ -9019,7 +9018,7 @@ object form_mainform: Tform_mainform
         end
         object label_contributor_special: TLabel
           Left = 3
-          Top = 761
+          Top = 1307
           Width = 231
           Height = 28
           Caption = #40483#35874#20154#21592#65306#29305#27530#40483#35874#20154#21592
@@ -9032,7 +9031,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_contributor_special_bangbang93: TSpeedButton
           Left = 3
-          Top = 795
+          Top = 1341
           Width = 794
           Height = 72
           Caption = 'BangBang93                '#13#25552#20379#20102'BMCLAPI'#19979#36733#28304
@@ -9434,7 +9433,7 @@ object form_mainform: Tform_mainform
         end
         object label_contributor_development_tool: TLabel
           Left = 3
-          Top = 873
+          Top = 1419
           Width = 366
           Height = 28
           Caption = #26412#21551#21160#22120#20351#29992#30340#12304#24320#21457#24037#20855'-'#24320#21457#35821#35328#12305
@@ -9447,7 +9446,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_radstudio_tool: TSpeedButton
           Left = 3
-          Top = 907
+          Top = 1453
           Width = 794
           Height = 72
           Caption = 'RAD Studio-Delphi/Object Pascal'#13'https://www.embarcadero.com/ '
@@ -9849,7 +9848,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_cnpack_tool: TSpeedButton
           Left = 3
-          Top = 1019
+          Top = 1565
           Width = 794
           Height = 72
           Caption = 
@@ -11078,7 +11077,7 @@ object form_mainform: Tform_mainform
         end
         object label_contributor_development_thirdparty_tool: TLabel
           Left = 3
-          Top = 985
+          Top = 1531
           Width = 366
           Height = 28
           Caption = #26412#21551#21160#22120#20351#29992#30340#12304#24320#21457#24037#20855'-'#24320#21457#35821#35328#12305
@@ -11091,7 +11090,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_delphilsp_tool: TSpeedButton
           Left = 3
-          Top = 1097
+          Top = 1643
           Width = 794
           Height = 72
           Caption = 
@@ -11496,7 +11495,7 @@ object form_mainform: Tform_mainform
         end
         object speedbutton_delphichinese_tool: TSpeedButton
           Left = 3
-          Top = 1175
+          Top = 1721
           Width = 794
           Height = 72
           Caption = 'Delphi'#19968#38190#20013#33521#25991#20999#25442#21161#25163'                      '#13#19968#27454#23545#20110'RAD Studio'#36825#27454'IDE'#30340#27721#21270#24037#20855
@@ -11898,7 +11897,7 @@ object form_mainform: Tform_mainform
         end
         object label_lll_copyright: TLabel
           Left = 3
-          Top = 1253
+          Top = 1799
           Width = 359
           Height = 56
           Caption = 'Copyright '#169' 2022-2024 Rechalow'#13#10#26412#21551#21160#22120#20316#32773#25317#26377#26368#32456#35299#37322#26435
@@ -11911,7 +11910,7 @@ object form_mainform: Tform_mainform
         end
         object linklabel_contributor_support: TLinkLabel
           Left = 3
-          Top = 631
+          Top = 1177
           Width = 264
           Height = 124
           Caption = 

@@ -227,8 +227,7 @@ begin
         end;
       end);
     except
-      if (inheritsorjar.Equals('jar')) or (inheritsorjar.Equals('inheritsFrom')) then result := ''
-      else result := selpath;
+      result := selpath;
       Rt.Free;
       exit;
     end;

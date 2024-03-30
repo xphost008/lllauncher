@@ -50,6 +50,7 @@ begin
 //    exit;
 //  end;
 //  if MCRootJSON = nil then MCRootJSON := TJSONObject.ParseJSONValue(webjson) as TJSONObject;
+//  Clipboard.setTextBuf(PChar(Concat(mcwe, '/mc/game/version_manifest.json')));
   if isReset or (MCRootJSON = nil) then begin
     MCRootJSON := TJSONObject.ParseJSONValue(GetWebText(Concat(mcwe, '/mc/game/version_manifest.json'))) as TJSONObject;
   end;
