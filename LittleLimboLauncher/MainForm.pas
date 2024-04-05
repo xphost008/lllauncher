@@ -254,7 +254,7 @@ type
     button_launch_remove_java: TButton;
     label_launch_download_java: TLabel;
     button_launch_download_java_8: TButton;
-    button_launch_download_java_16: TButton;
+    button_launch_download_java_21: TButton;
     button_launch_download_java_17: TButton;
     button_launch_official_java: TButton;
     label_launch_max_memory: TLabel;
@@ -365,7 +365,6 @@ type
     tabsheet_plugin_part: TTabSheet;
     pagecontrol_all_plugin_part: TPageControl;
     n_plugins: TMenuItem;
-    timer_eggshell: TTimer;
     tabsheet_help_part: TTabSheet;
     scrollbox_help: TScrollBox;
     speedbutton_lll_help: TSpeedButton;
@@ -476,7 +475,7 @@ type
     procedure listbox_resource_search_versionClick(Sender: TObject);
     procedure button_resource_start_downloadClick(Sender: TObject);
     procedure pagecontrol_resource_partChange(Sender: TObject);
-    procedure WmDropFiles(var Msg: TMessage); message WM_DROPFILES;
+    procedure WmDragFiles(var Msg: TMessage); message WM_DROPFILES;
     procedure listbox_manage_import_mapClick(Sender: TObject);
     procedure listbox_manage_import_modClick(Sender: TObject);
     procedure listbox_manage_import_resourcepackClick(Sender: TObject);
@@ -510,7 +509,7 @@ type
     procedure button_launch_manual_importClick(Sender: TObject);
     procedure button_launch_remove_javaClick(Sender: TObject);
     procedure button_launch_download_java_8Click(Sender: TObject);
-    procedure button_launch_download_java_16Click(Sender: TObject);
+    procedure button_launch_download_java_21Click(Sender: TObject);
     procedure button_launch_download_java_17Click(Sender: TObject);
     procedure button_launch_official_javaClick(Sender: TObject);
     procedure checklistbox_choose_view_modeClick(Sender: TObject);
@@ -588,23 +587,25 @@ type
     procedure timer_check_memoryTimer(Sender: TObject);
     procedure pagecontrol_all_plugin_partChange(Sender: TObject);
     procedure image_mainform_login_avatarClick(Sender: TObject);
-    procedure timer_eggshellTimer(Sender: TObject);
     procedure button_game_resourceClick(Sender: TObject);
     procedure speedbutton_help_documentClick(Sender: TObject);
     procedure linklabel_contributor_supportLinkClick(Sender: TObject;
       const Link: string; LinkType: TSysLinkType);
+    procedure n_view_mod_infoClick(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
     procedure LanguageMenuClick(Sender: TObject);
     procedure PluginPageChange;
     procedure PluginPageDestory;
+    procedure DoEggShell();
+    procedure EggShellFormClick(Sender: TObject);
   public
     { Public declarations }
   end;
 
 const
-  LauncherVersion = '1.0.0-Alpha-31068';
+  LauncherVersion = '1.0.0-Alpha-19622';
 
 var
   form_mainform: Tform_mainform;
@@ -649,7 +650,7 @@ implementation
 uses
   MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow, ExportMethod,
   resourceMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod,
-  OnlineIPv6Method, MultiPluginMethod;
+  OnlineIPv6Method, MultiPluginMethod, PrivacyMethod;
 
 //var
 //  Cave, Answer, Lucky: array of String;
@@ -920,91 +921,23 @@ begin
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
-//var
-//  arr: array of String;
-//var
-//  map: TJSONObject;
-//  currentMap: TJSONObject;
-//  newMap: TJSONObject;
-//  nestedJson: String;
-//  temp: string;
-//  currentLevel: TJSONObject;
-//  nestedJson: TJSONObject;
-//  Temp: TJSONObject;
-//  nw: TJSONObject;
-//  cur: TJSONArray;
-//var
-//  i: Integer;
 begin
-//  i := 35;
-//  inc(i);
-//  if i < 37 then
-//    n_test_buttonClick(Sender);
-//  ShowMessage('ss')
-//  var ss := 'abcdefg';
-//  showmessage(inttostr(ss.IndexOf('d', 2)));
-  showmessage(TTomlParser.TomlToJSON(GetFile('D:\tt.toml')).Format());
-//  map := TJSONObject.Create;
-//  currentMap := map;
-//  var aa := ['123', '456', '789'];
-//  for var I := 0 to Length(aa) - 1 do begin
-//    newMap := TJSONObject.Create;
-//    currentMap.AddPair(aa[I], newMap);
-//    currentMap := newMap;
-//  end;
-//  nestedJson := TJSONObject.Create;
-//  Temp := nestedJson;
-//  nestedJson := TJSONArray.Create;
-//    for var I := Length(aa) - 1 downto 0 do begin
-//      nw := TJSONObject.Create;
-//      cur := TJSONArray.Create;
-//      cur.Add(nw);
-//      Temp.AddPair(aa[i], cur);
-//      Temp := nw;
-//      nestedJson := TJSONArray.Create.Add(TJSONObject.Create.AddPair(aa[I], nestedJSON))
-//    end;
-//  cur.Free;
-//  nw.Free;
-//  for var I := Length(aa) -1 downto 0 do begin
-//    temp := TJSONObject.Create;
-//    temp.AddPair(aa[I], nestedJson);
-//    nestedJson := temp;
-//  end;
-//  ShowMessage(nestedJson);
-//    ShowMessage(map.ToString);
-//  var ss := '1234567890'.Substring(2, -3);
-//  showmessage(ss);
-//  linklabel_contributor_support.Font.Style := linklabel_contributor_support.Font.Style - [fsUnderLine];
-//  var s1 := 5;
-//  var s2 := 8;
-//  var s3 := s1 shr s2;
-//  var s4 := s1 shl s2;
-//  showmessage(inttostr(s3)); // 0
-//  showmessage(inttostr(s4)); // 1280
-//  SetLength(arr, 10);
-//  randomize;
-//  for var O := 0 to 9 do begin
-//    var s := random(3) + 10;
-//    var t := GetTickCount;
-//    var sum: Int64 := 0;
-//    for var i := 0 to 40000 + s do begin
-//      for var j := 0 to 40000 do begin
-//        sum := sum + i * j;
-//      end;
-//    end;
-//    var f := floattostr((GetTickCount - t) / 1000);
-//    arr[O] := f;
-//  end;
-//  var g := '';
-//  for var I := 0 to 9 do begin
-//    g := Concat(g, arr[I], #13#10);
-//  end;
-//  showmessage(g);
+//  var tbar := FindWindow('Shell_TrayWnd', nil);
+//  ShowWindow(tbar, SW_SHOW);
+  var a := '11%s';
+  showmessage(Format('%s%s%s^%s%s%s%s', [a, '22', a, a, '33', '44']));
+//  showmessage(TTomlParser.TomlToJSON(GetFile('D:\tt.toml')).Format());
+//  showmessage(TTomlParser.TomlToJSON(GetFile('D:\ttp.toml')).Format());
 end;
 //下载部分：查看MC版本信息
 procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
 begin
   ViewMinecraftInfo;
+end;
+//管理界面：查看模组信息
+procedure Tform_mainform.n_view_mod_infoClick(Sender: TObject);
+begin
+  CheckModInfo;
 end;
 //玩法部分：打开该模组的简介
 procedure Tform_mainform.n_view_mod_profileClick(Sender: TObject);
@@ -1240,10 +1173,10 @@ procedure Tform_mainform.button_launch_default_jvmClick(Sender: TObject);
 begin
   MyMessagebox(GetLanguage('messagebox_launch.default_jvm_tip.caption'), GetLanguage('messagebox_launch.default_jvm_tip.text'), MY_INFORMATION, [mybutton.myYes]);
 end;
-//下载Java16
-procedure Tform_mainform.button_launch_download_java_16Click(Sender: TObject);
+//下载Java21
+procedure Tform_mainform.button_launch_download_java_21Click(Sender: TObject);
 begin
-  DownloadJava('java-runtime-alpha');
+  DownloadJava('java-runtime-delta');
 end;
 //下载Java17
 procedure Tform_mainform.button_launch_download_java_17Click(Sender: TObject);
@@ -1712,7 +1645,7 @@ begin
   SaveVersion;
   ShellExecute(Application.Handle, 'open', 'taskkill.exe', '/F /IM LittleLimboLauncher.exe', nil, SW_HIDE);
 end;
-procedure Tform_mainform.WmDropFiles(var Msg: TMessage);
+procedure Tform_mainform.WmDragFiles(var Msg: TMessage);
 begin
   if pagecontrol_mainpage.ActivePage = tabsheet_resource_part then begin
     if pagecontrol_resource_part.ActivePage = tabsheet_resource_manage_part then begin
@@ -2366,6 +2299,41 @@ begin
     Handled := True;
   end;
 end;
+//制作愚人节彩蛋喵！
+var
+  tbar: HWND;
+  eform: TForm;
+procedure Tform_mainform.DoEggShell();
+begin
+  tbar := FindWindow('Shell_TrayWnd', nil);
+  ShowWindow(tbar, SW_HIDE);
+  eform := TForm.Create(nil);
+  var eimg := TImage.Create(eform);
+  var epng := TPngImage.Create;
+  try
+    eform.BorderStyle := bsNone;
+    eform.Left := 0;
+    eform.Top := 0;
+    eform.Width := Screen.Width;
+    eform.Height := Screen.Height;
+    eimg.Parent := eform;
+    eimg.Align := alClient;
+    eimg.Stretch := true;
+    epng.LoadFromStream(Base64ToStream(e_blue));  //此处使用了私有函数里的愚人节彩蛋图片Base64码。
+    eimg.Picture.Assign(epng);
+    eimg.OnClick := EggShellFormClick;
+    eform.ShowModal;
+  finally
+    eform.free;
+    ShowWindow(tbar, SW_SHOW);
+  end;
+//  form_mainform.timer_eggshell.Enabled := true;
+end;
+procedure Tform_mainform.EggShellFormClick(Sender: TObject);
+begin
+  ShellExecute(Application.Handle, nil, 'https://www.bilibili.com/video/BV1GJ411x7h7', nil, nil, SW_SHOWNORMAL);
+  eform.Close;
+end;
 //主窗口：总体计时器
 var
   open_form: Boolean = true;
@@ -2443,7 +2411,7 @@ begin
     Log.Write('开始判断愚人节彩蛋。', LOG_START, LOG_INFO);
     if (Now.GetMonth = 4) and (Now.GetDay = 1) then begin
       if MyMessagebox('虦뾍囻숳삑眒좘뼧ۼ형莗硏⤰ዋ㽊ᗻ⹍燝ꛬ췍ﯱ멌텆캾ゅ幕㴙☥⩓ݬ봺턎䋥㹨ੱḴ꜇䡩㿬헰纯ⓢ﬒䴏ꍚ霜⌢�䥭諺缗蕉毻⟁翿蟃蔌劫쨫⏣飪�밇㫴㘕㵖愇�᩹듩䄎쌜ꦤ鱏쳂翝縁䆷契鬧៳뱩巶谪舒춉ȵ', '凞큂焸褒޽儕䨭읾躴ⱳ镑⫲䤈淹য়쁇婷Ҿ᷁뒎螣楗老', MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 2 then begin
-        timer_eggshell.Enabled := true;
+        DoEggShell;
       end;
     end;
   end;
@@ -2542,12 +2510,6 @@ begin
   mtotal_memory := ceil(ms.dwTotalPhys / 1024 / 1024);
   mavail_memory := ceil(ms.dwAvailPhys / 1024 / 1024);
   label_launch_max_memory.Caption := GetLanguage('label_launch_max_memory.caption').Replace('${memory}', inttostr(mmax_memory)).Replace('${total_memory}', inttostr(mtotal_memory)).Replace('${avail_memory}', inttostr(mavail_memory));
-end;
-//愚人节彩蛋喵
-procedure Tform_mainform.timer_eggshellTimer(Sender: TObject);
-begin
-  image_mainpage_background_image.Picture := nil;
-  self.Color := random(16777215);
 end;
 //主窗口：窗口渐变产生计时器
 var mgradient_temp: Integer = 0;

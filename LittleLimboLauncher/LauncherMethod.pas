@@ -14,6 +14,7 @@ function Unzip(zippath, extpath: String): Boolean;
 function JudgeIsolation: String;
 function IsJSONError(path: String): Boolean;
 procedure StartLaunch(isExportArgs: Boolean);
+function JudgeMCRule(rl: TJsonObject): Boolean;
 
 implementation
 
@@ -84,43 +85,44 @@ begin
 end;
 // 将名称转换成路径 （此方法简称，把json中的name文件转换成path的格式。）
 function ConvertNameToPath(name: String): String;
-begin //重新又双叒叕再再再再写一遍。。
-  var all := TStringList.Create;
-  var sb := TStringBuilder.Create;
+begin //重新再又再双再叒再叕写一遍。。
+  var suffix := '';
+  if name.IndexOf('@') <> -1 then begin
+    suffix := name.Substring(name.IndexOf('@') + 1);
+    name := name.Substring(0, name.IndexOf('@'))
+  end else begin
+    suffix := 'jar'
+  end;
+  var spl := name.Split([':']);
+  if Length(spl) = 4 then begin
+    result := Format('%s\%s\%s\%s-%s-%s.%s', [spl[0].Replace('.', '\'), spl[1], spl[2], spl[1], spl[2], spl[3], suffix]);
+    result := Concat(spl[0].Replace('.', '\'), '\', spl[1], '\', spl[2], '\', spl[1], '-', spl[2], '-', spl[3], '.', suffix)
+  end else if Length(spl) = 3 then begin
+    result := Format('%s\%s\%s\%s-%s.jar', ['']);
+    result := Concat(spl[0].Replace('.', '\'), '\', spl[1], '\', spl[2], '\', spl[1], '-', spl[2], '.', suffix)
+  end else raise Exception.Create('Cannot Convert Name To Path!!');
+end;
+//单独判断MC的部分Libraries的Rule键值是否正确。
+function JudgeMCRule(rl: TJsonObject): Boolean;
+begin
+  result := true;
   try
-    var hou := '';
-    if name.LastIndexOf('@') > 0 then begin //不按照@切了，直接判断name里面是否含有@符号，如果有则执行。。
-      hou := name.Substring(name.LastIndexOf('@') + 1);
-      name := name.Substring(0, name.LastIndexOf('@'));
-    end;
-    var n1 := name.Substring(0, name.IndexOf(':'));
-    var n2 := name.Substring(name.IndexOf(':') + 1, name.Length);
-    var c1 := SplitString(n1, '.');
-    for var I in c1 do all.Add(Concat(I, '\'));
-    var c2 := SplitString(n2, ':');
-    for var I := 0 to Length(c2) - 1 do begin
-      if Length(c2) >= 3 then begin
-        if I < Length(c2) - 1 then begin
-          all.Add(Concat(c2[I], '\'));
-        end;
-      end else all.Add(Concat(c2[I], '\'));
-    end;
-    for var I := 0 to Length(c2) - 1 do begin
-      if I < Length(c2) - 1 then begin
-        all.Add(Concat(c2[I], '-'));
-      end else begin
-        if hou.IsEmpty then begin
-          all.Add(Concat(c2[I], '.jar'));
-        end else begin
-          all.Add(Concat(c2[I], '.', hou));
-        end;
+    var rq := rl.GetValue('rules') as TJSonArray;
+    for var J in rq do begin  //下面开始判断rule值里面的action的os是否支持windows
+      var r1 := J as TJsonObject;
+      var an := r1.GetValue('action').Value;
+      if an = 'allow' then begin
+        var r2 := r1.GetValue('os') as TJsonObject;
+        var r3 := r2.GetValue('name').Value;
+        if r3 <> 'windows' then begin result := false; exit; end;
+      end else if an = 'disallow' then begin
+        var r2 := r1.GetValue('os') as TJsonObject;
+        var r3 := r2.GetValue('name').Value;
+        if r3 = 'windows' then begin result := false; exit; end;
       end;
     end;
-    for var I in all do sb.Append(I);
-    result := sb.ToString;
-  finally
-    all.Free;
-    sb.Free;
+  except
+    result := true;
   end;
 end;
 //反馈给程序——将原来的MCJson与有着InheritsFrom键的JSON给合并之后再返回。
@@ -275,23 +277,7 @@ begin
     begin
       try //找不同游戏，本次找不同你的对手是：Mojang！
         var Jr1 := I as TJsonObject;
-        var pdd := true;
-        try
-          var rl := Jr1.GetValue('rules') as TJsonArray; //获取某一个元素的rule值。
-          for var J in rl do begin  //下面开始判断rule值里面的action的os是否支持windows
-            var r1 := J as TJsonObject;
-            var an := r1.GetValue('action').Value;
-            if an = 'allow' then begin
-              var r2 := r1.GetValue('os') as TJsonObject;
-              var r3 := r2.GetValue('name').Value;
-              if r3 <> 'windows' then begin pdd := false; end; //如果支持windows，则pdd为true，反之则为false
-            end else if an = 'disallow' then begin
-              var r2 := r1.GetValue('os') as TJsonObject;
-              var r3 := r2.GetValue('name').Value;
-              if r3 = 'windows' then begin pdd := false; end;
-            end;
-          end;
-        except end;
+        var pdd := JudgeMCRule(Jr1);
         var Jr2 := Jr1.GetValue('name').Value;
         var Jr3 := Jr1.GetValue('natives') as TJsonObject;
         var Jr4 := Jr3.GetValue('windows').Value.Replace('${arch}', '64');
@@ -363,25 +349,8 @@ begin
         var r3 := r1.GetValue('artifact').ToString;
         pdd := true;
       except end;
-      try
-        var rl := Jr2.GetValue('rules') as TJsonArray; //获取某一个元素的rule值。
-        for var J in rl do begin  //下面开始判断rule值里面的action的os是否支持windows
-          var r1 := J as TJsonObject;
-          var an := r1.GetValue('action').Value;
-          if an = 'allow' then begin
-            var r2 := r1.GetValue('os') as TJsonObject;
-            var r3 := r2.GetValue('name').Value;
-            if r3 <> 'windows' then begin pdd := false; end; //如果支持windows，则没有continue，反之则为false
-          end else if an = 'disallow' then begin
-            var r2 := r1.GetValue('os') as TJsonObject;
-            var r3 := r2.GetValue('name').Value;
-            if r3 = 'windows' then begin pdd := false; end;
-          end;
-        end;
-      except end;
-      if pdd then begin
-        Yuan.Add(Jr2.GetValue('name').Value);
-      end;
+      pdd := JudgeMCRule(Jr2);
+      if pdd then Yuan.Add(Jr2.GetValue('name').Value);
     end; //去除重复
     for var N in Yuan do
       if LibNo.IndexOf(N) = -1 then // 去除重复

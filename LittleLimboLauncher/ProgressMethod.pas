@@ -43,7 +43,6 @@ type
     procedure BackupFile(yuanpath, backuppath: String);
     function ExtractMainClass(jarpath: String): String;
     procedure SimpleForge(profile: String);
-    function JudgeMCRule(rl: TJsonObject): Boolean;
     procedure ShowCurrentProgress(current, mmax: Integer);
     procedure RunProcessors(profile: String);
     procedure DownloadCustomFile;
@@ -313,29 +312,6 @@ begin
     end;
   finally
     http.Free;
-  end;
-end;
-//单独判断MC的部分Libraries的Rule键值是否正确。
-function TDownloadMethod.JudgeMCRule(rl: TJsonObject): Boolean;
-begin
-  result := true;
-  try
-    var rq := rl.GetValue('rules') as TJSonArray;
-    for var J in rq do begin  //下面开始判断rule值里面的action的os是否支持windows
-      var r1 := J as TJsonObject;
-      var an := r1.GetValue('action').Value;
-      if an = 'allow' then begin
-        var r2 := r1.GetValue('os') as TJsonObject;
-        var r3 := r2.GetValue('name').Value;
-        if r3 <> 'windows' then begin result := false; exit; end;
-      end else if an = 'disallow' then begin
-        var r2 := r1.GetValue('os') as TJsonObject;
-        var r3 := r2.GetValue('name').Value;
-        if r3 = 'windows' then begin result := false; exit; end;
-      end;
-    end;
-  except
-    result := true;
   end;
 end;
 //跑Forge的Processors。

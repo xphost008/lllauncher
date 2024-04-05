@@ -131,7 +131,7 @@ object form_mainform: Tform_mainform
     Top = 8
     Width = 838
     Height = 464
-    ActivePage = tabsheet_version_part
+    ActivePage = tabsheet_resource_part
     TabOrder = 0
     OnChange = pagecontrol_mainpageChange
     OnChanging = pagecontrol_mainpageChanging
@@ -2290,17 +2290,17 @@ object form_mainform: Tform_mainform
           TabOrder = 7
           OnClick = button_launch_download_java_8Click
         end
-        object button_launch_download_java_16: TButton
-          Left = 203
+        object button_launch_download_java_21: TButton
+          Left = 403
           Top = 248
           Width = 194
           Height = 23
-          Caption = #19979#36733'Java16'
+          Caption = #19979#36733'Java21'
           TabOrder = 8
-          OnClick = button_launch_download_java_16Click
+          OnClick = button_launch_download_java_21Click
         end
         object button_launch_download_java_17: TButton
-          Left = 403
+          Left = 203
           Top = 248
           Width = 194
           Height = 23
@@ -12043,18 +12043,12 @@ object form_mainform: Tform_mainform
     Left = 788
     Top = 42
   end
-  object timer_eggshell: TTimer
-    Enabled = False
-    Interval = 20
-    OnTimer = timer_eggshellTimer
-    Left = 820
-    Top = 42
-  end
   object popupmenu_manage_mod_info: TPopupMenu
     Left = 580
     Top = 42
     object n_view_mod_info: TMenuItem
       Caption = #26597#30475#27169#32452#20449#24687
+      OnClick = n_view_mod_infoClick
     end
   end
 end

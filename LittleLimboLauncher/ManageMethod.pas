@@ -15,6 +15,7 @@ procedure ManageEnableresource;
 procedure ManageDeleteresource;
 procedure ManageRenameresource;
 procedure ManageOpenresource;
+procedure CheckModInfo();
 
 implementation
 
@@ -23,9 +24,8 @@ uses
 
 type
   TIni2File = class
-  private
-    var
-      rf: TStringList;
+  private var
+    rf: TStringList;
   public
     constructor Create(path: String);
     function ReadString(key, default: String): String;
@@ -42,6 +42,7 @@ var
   mcrlpth: String;
 var
   ModPackMetadata: TJSONObject;
+  ModInfoMetaData: TJSONObject;
 //自制Ini读取
 function TIni2File.ReadInteger(key: String; default: Integer): Integer;
 begin
@@ -53,7 +54,7 @@ begin
     var ss := SplitString(I, '=');
     if ss[0].Trim.Equals(key) then begin
       try
-        result := strtoint(ss[1]);
+        result := strtoint(ss[1].Trim);
         c := true;
       except
         b := true;
@@ -70,7 +71,7 @@ begin
     if I.Trim.IndexOf('#') = 0 then continue;
     var ss := SplitString(I, '=');
     if ss[0].Trim.Equals(key) then begin
-      result := ss[1];
+      result := ss[1].Trim;
       break;
     end;
   end;
@@ -83,7 +84,7 @@ begin
   rf.LoadFromFile(path)
 end;
 //导入整合包函数，按照键值对来获取
-function JudgeException(index: Integer; key: String; isemp: Boolean): String;
+function JudgeException(index: Integer; key: String; isemp: Boolean): String; overload;
 begin
   try
     case index of
@@ -127,6 +128,32 @@ begin
   except
     if isemp then result := '' else
     result := GetLanguage('picturebox_resource.has_no_data');
+  end;
+end;
+function JudgeException(index: Integer; key: String): String; overload;
+begin
+  try
+    case index of
+      1: begin
+        result := ModPackMetadata.GetValue(key).Value;
+      end;
+    end;
+  except
+    result := GetLanguage('picturebox_resource.has_no_data');
+  end;
+end;
+//查看模组信息
+procedure CheckModInfo();
+begin
+  var S := '';
+  if form_mainform.listbox_manage_import_mod.ItemIndex <> -1 then S := ModSelect[form_mainform.listbox_manage_import_mod.ItemIndex] else begin
+    MyMessagebox(GetLanguage('messagebox_manage.disable_resource_not_choose.caption'), GetLanguage('messagebox_manage.disable_resource_not_choose.text'), MY_ERROR, [mybutton.myOK]);
+    exit;
+  end;
+  var E := Concat(LocalTemp, 'LLLauncher\YourCheckModInfo');
+  Unzip(S, E);
+  if FileExists(Concat(E, '\fabric.mod.json')) then begin
+
   end;
 end;
 //导入整合包函数

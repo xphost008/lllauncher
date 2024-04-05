@@ -182,8 +182,8 @@ begin
   form_mainform.button_launch_remove_java.Caption := GetLanguage('button_launch_remove_java.caption');
   form_mainform.label_launch_download_java.Caption := GetLanguage('label_launch_download_java.caption');
   form_mainform.button_launch_download_java_8.Caption := GetLanguage('button_launch_download_java_8.caption');
-  form_mainform.button_launch_download_java_16.Caption := GetLanguage('button_launch_download_java_16.caption');
   form_mainform.button_launch_download_java_17.Caption := GetLanguage('button_launch_download_java_17.caption');
+  form_mainform.button_launch_download_java_21.Caption := GetLanguage('button_launch_download_java_21.caption');
   form_mainform.button_launch_official_java.Caption := GetLanguage('button_launch_official_java.caption');
   form_mainform.label_launch_custom_info.Caption := GetLanguage('label_launch_custom_info.caption');
   form_mainform.edit_launch_custom_info.TextHint := GetLanguage('edit_launch_custom_info.texthint');
@@ -962,6 +962,12 @@ begin
     .AddPair('messagebox_plugin.plugin_suffix_error.text', '插件部分检测到suffix值。但是似乎suffix值不是json，于是加载失败啦！')
     .AddPair('messagebox_plugin.plugin_context_error.caption', '插件部分加载失败')
     .AddPair('messagebox_plugin.plugin_context_error.text', '插件部分检测内容为空，加载失败！')
+    .AddPair('picturebox_manage.check_mod_info_fabric.text', Concat(
+            '模组隶属加载器：${mod_game}',
+            '模组ID：${mod_id}',
+            '模组版本：${mod_version}',
+            '模组名称：${mod_name}'
+    ))
     //以下为下载进度列表框
     .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
     .AddPair('downloadlist.custom.judge_can_multi_thread_download', '正在判断是否可以多线程下载。')
@@ -1494,8 +1500,8 @@ begin
     .AddPair('button_launch_remove_java.caption', '移除Java')
     .AddPair('label_launch_download_java.caption', '下载Java')
     .AddPair('button_launch_download_java_8.caption', '下载Java8')
-    .AddPair('button_launch_download_java_16.caption', '下载Java16')
     .AddPair('button_launch_download_java_17.caption', '下载Java17')
+    .AddPair('button_launch_download_java_21.caption', '下载Java21')
     .AddPair('button_launch_official_java.caption', '打开Java官网')
     .AddPair('label_launch_custom_info.caption', '自定义信息（默认LLLauncher）')
     .AddPair('edit_launch_custom_info.texthint', '随便填')
@@ -2870,8 +2876,8 @@ begin
     .AddPair('button_launch_remove_java.caption', '移除Java')
     .AddPair('label_launch_download_java.caption', '下载Java')
     .AddPair('button_launch_download_java_8.caption', '下载Java8')
-    .AddPair('button_launch_download_java_16.caption', '下载Java16')
     .AddPair('button_launch_download_java_17.caption', '下载Java17')
+    .AddPair('button_launch_download_java_21.caption', '下载Java21')
     .AddPair('button_launch_official_java.caption', '打开Java官网')
     .AddPair('label_launch_custom_info.caption', '自定义信息（默认LLLauncher）')
     .AddPair('edit_launch_custom_info.texthint', '随便填')
