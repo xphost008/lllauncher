@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Windows, IOUtils, StrUtils, JSON, Zip, Forms, IniFiles, Math, Character, DateUtils,
-  Dialogs, Generics.Collections;
+  Dialogs, Generics.Collections, ClipBrd;
 
 function GetMCRealPath(path, suffix: string): String;
 function GetMCInheritsFrom(selpath, inheritsorjar: String): String;
@@ -15,6 +15,7 @@ function JudgeIsolation: String;
 function IsJSONError(path: String): Boolean;
 procedure StartLaunch(isExportArgs: Boolean);
 function JudgeMCRule(rl: TJsonObject): Boolean;
+function UnzipContent(zippath, filepath: String): String;
 
 implementation
 
@@ -66,6 +67,19 @@ begin
     end;
   end;
 end;
+//解压单个zip文件，并返回内容。多半是解压toml、json以及一些小文件用。
+//如果返回内容为空，则没有解压成功。
+function UnzipContent(zippath, filepath: String): String;
+begin
+  var zip := TZipFile.Create;
+  try
+    for var f in zip.FileNames do begin
+
+    end;
+  finally
+    zip.free;
+  end;
+end;
 //解压Zip
 function Unzip(zippath, extpath: String): Boolean;
 begin
@@ -80,6 +94,7 @@ begin
       result := true;
     except end;
   finally
+    zp.Close;
     zp.Free;
   end;
 end;
@@ -96,10 +111,10 @@ begin //重新再又再双再叒再叕写一遍。。
   var spl := name.Split([':']);
   if Length(spl) = 4 then begin
     result := Format('%s\%s\%s\%s-%s-%s.%s', [spl[0].Replace('.', '\'), spl[1], spl[2], spl[1], spl[2], spl[3], suffix]);
-    result := Concat(spl[0].Replace('.', '\'), '\', spl[1], '\', spl[2], '\', spl[1], '-', spl[2], '-', spl[3], '.', suffix)
+//    result := Concat(spl[0].Replace('.', '\'), '\', spl[1], '\', spl[2], '\', spl[1], '-', spl[2], '-', spl[3], '.', suffix);
   end else if Length(spl) = 3 then begin
-    result := Format('%s\%s\%s\%s-%s.jar', ['']);
-    result := Concat(spl[0].Replace('.', '\'), '\', spl[1], '\', spl[2], '\', spl[1], '-', spl[2], '.', suffix)
+    result := Format('%s\%s\%s\%s-%s.%s', [spl[0].Replace('.', '\'), spl[1], spl[2], spl[1], spl[2], suffix]);
+//    result := Concat(spl[0].Replace('.', '\'), '\', spl[1], '\', spl[2], '\', spl[1], '-', spl[2], '.', suffix);
   end else raise Exception.Create('Cannot Convert Name To Path!!');
 end;
 //单独判断MC的部分Libraries的Rule键值是否正确。
@@ -573,6 +588,7 @@ begin
   end;
   var param := '';
   var mcpv := JudgeIsolation;
+  ClipBoard.SetTextbuf(pchar(ReplaceMCInheritsFrom(jsn, jnn)));
   try
     if not SetParam113(ReplaceMCInheritsFrom(jsn, jnn), mcpv, defjvm, addjvm, param) then raise Exception.Create('MC Not 1.13 upper');
   except
@@ -580,7 +596,7 @@ begin
       if not SetParam112(ReplaceMCInheritsFrom(jsn, jnn), mcpv, defjvm, addjvm, param) then raise Exception.Create('MC Not 1.12 lower');
     except
       form_mainform.label_mainform_tips.Caption := GetLanguage('label_mainform_tips.caption.cannot_set_launch_args');
-      Log.Write('解压Natives文件夹失误，请重试！', LOG_INFO, LOG_LAUNCH);
+      Log.Write('无法设置参数，请检查json是否有误。', LOG_INFO, LOG_LAUNCH);
       MyMessagebox(GetLanguage('messagebox_launcher.cannot_set_launch_args.caption'), GetLanguage('messagebox_launcher.cannot_set_launch_args.text'), MY_ERROR, [mybutton.myOK]);
       exit;
     end;

@@ -963,10 +963,70 @@ begin
     .AddPair('messagebox_plugin.plugin_context_error.caption', '插件部分加载失败')
     .AddPair('messagebox_plugin.plugin_context_error.text', '插件部分检测内容为空，加载失败！')
     .AddPair('picturebox_manage.check_mod_info_fabric.text', Concat(
-            '模组隶属加载器：${mod_game}',
-            '模组ID：${mod_id}',
-            '模组版本：${mod_version}',
-            '模组名称：${mod_name}'
+            '模组隶属加载器：${mod_game}', #13#10,
+            '模组运行环境【*代表server/client】：${mod_env}', #13#10,
+            '模组依赖：${mod_depends}', #13#10,
+            '模组联动：${mod_suggests}', #13#10,
+            '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+            '模组ID：${mod_id}', #13#10,
+            '模组版本：${mod_version}', #13#10,
+            '模组名称：${mod_name}', #13#10,
+            '模组描述：${mod_description}', #13#10,
+            '模组联系方式：${mod_contact}', #13#10,
+            '模组作者：${mod_author}', #13#10,
+            '模组贡献者：${mod_contributor}', #13#10,
+            '模组许可证：${mod_license}', #13#10,
+            '目前暂时未实现模组自动更新功能，请自行去模组源仓库更新吧！'
+    ))
+    .AddPair('picturebox_manage.check_mod_info_quilt.text', Concat(
+            '模组隶属加载器：${mod_game}', #13#10,
+            '模组Group：${mod_group}', #13#10,
+            '模组依赖：${mod_depends}', #13#10,
+            '模组联动：${mod_suggests}', #13#10,
+            '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+            '模组ID：${mod_id}', #13#10,
+            '模组版本：${mod_version}', #13#10,
+            '模组名称：${mod_name}', #13#10,
+            '模组描述：${mod_description}', #13#10,
+            '模组联系方式：${mod_contact}', #13#10,
+            '模组贡献者：${mod_contributor}', #13#10,
+            '目前暂时未实现模组自动更新功能，请自行去模组源仓库更新吧！'
+    ))
+    .AddPair('picturebox_manage.check_mod_info_forge12d.text', Concat(
+            '模组隶属加载器：${mod_game}', #13#10,
+            '模组依赖：${mod_depends}', #13#10,
+            '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+            '模组ID：${mod_id}', #13#10,
+            '模组名称：${mod_name}', #13#10,
+            '模组描述：${mod_description}', #13#10,
+            '模组版本：${mod_version}', #13#10,
+            '模组MC版本：${mod_mcversion}', #13#10,
+            '模组网站：${mod_url}', #13#10,
+            '模组更新网站：${mod_updateurl}', #13#10,
+            '模组作者：${mod_author}', #13#10,
+            '模组鸣谢人员：${mod_credits}', #13#10,
+            '目前暂时未实现模组自动更新功能，请自行去模组源仓库更新吧！'
+    ))
+    .AddPair('messagebox_manage.found_modtoml_error.caption', '模组可能已损坏')
+    .AddPair('messagebox_manage.found_modtoml_error.text', '你的模组在解析mods.toml文件时出错了！这个模组可能已损坏，请尝试重新检测或更换模组！错误信息：'#13#10'${error_info}')
+    .AddPair('messagebox_manage.cannot_pause_modgame.caption', '无法找到模组隶属加载器')
+    .AddPair('messagebox_manage.cannot_pause_modgame.text', '你的模组toml结构有误，未能正确解析到模组隶属加载器。请尝试重新下载一次该mod！')
+    .AddPair('picturebox_manage.check_mod_info_forge13u.text', Concat(
+            '模组隶属加载器：${mod_game}', #13#10,
+            '模组加载器版本范围：${mod_range}', #13#10,
+            '模组MC版本范围：${mc_range}', #13#10,
+            '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+            '模组ID：${mod_id}', #13#10,
+            '模组名称：${mod_name}', #13#10,
+            '模组描述：${mod_description}', #13#10,
+            '模组版本：${mod_version}', #13#10,
+            '模组网站：${mod_url}', #13#10,
+            '模组更新网站：${mod_updateurl}', #13#10,
+            '模组作者：${mod_author}', #13#10,
+            '模组鸣谢人员：${mod_credits}', #13#10,
+            '模组许可证：${mod_license}', #13#10,
+            '模组问题提交网址：${mod_issue}', #13#10,
+            '目前暂时未实现模组自动更新功能，请自行去模组源仓库更新吧！'
     ))
     //以下为下载进度列表框
     .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
@@ -1713,10 +1773,6 @@ begin
     .AddPair('plugin_menu_back.caption', '回退')
     ;
   alllangjson.Add(zhcnjson);
-//    SetFile(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\zh_cn.json'), zhcnjson.Format);
-//  end;
-
-//  if not FileExists(Concat(ExtractFilePath(Application.ExeName), 'LLLauncher\lang\en_us.json')) then begin
   var enusjson := TJSONObject.Create
     .AddPair('file_language_title', 'English(US)')
     //以下为页
@@ -2063,7 +2119,7 @@ begin
     .AddPair('messagebox_launch.additional_game_tip.text', Concat('额外game参数，又称额外游戏参数：这个会将你输入的参数名当作启动脚本的最后一个新增上去，顺带一提，请用空格分隔你的参数，还有，非专业人士请勿修改。', #13#10,
             '关于额外game参数的提示：不仅可以输入以下Hint中的参数，你还可以输入quickPlayMultiplayer然后附带<服务器地址>:<服务器端口>来进入服务器，其中如果服务器没有端口，则默认为25565。甚至可以适用quickPlayRealms，后面附带你的Realms代号。', #13#10,
             '自然，除了这些，你还可以指定quickPlayPath，该值接受一个log【输出】路径，你可以填入这个log，它将会记录你进入的世界的所有类型，你可以根据这些类型来填写quickPlay啥啥的参数。其实以上所有参数仅适用于23w14a以上，若你在其以下，你依旧需要在此指定--server和--port，如果一个服务器没有端口，则默认是25565。', #13#10,
-            '不仅如此，你还可以在此输入--demo进入试玩模式或--fullScreen进入全屏，具体内容请参见：https://www.mcbbs.net/thread-1447730-1-1.html，切记，如果你的MC版本低于23w14a，你将无法使用以上quick等参数，只能使用--server、--port。'))
+            '不仅如此，你还可以在此输入--demo进入试玩模式或--fullScreen进入全屏，具体内容请参见：https://zh.minecraft.wiki/w/23w14a，切记，如果你的MC版本低于23w14a，你将无法使用以上quick等参数，只能使用--server、--port。'))
     .AddPair('messagebox_launch.is_full_scan_java.caption', '全盘扫描Java')
     .AddPair('messagebox_launch.is_full_scan_java.text', '你选择的是全盘扫描Java，可能会卡很久很久，耗时非常长，在此期间请勿关闭启动器哦！是否继续？')
     .AddPair('messagebox_launch.full_scan_java_error.caption', '扫描Java失败')
@@ -2344,6 +2400,72 @@ begin
     .AddPair('messagebox_plugin.plugin_suffix_error.text', '插件部分检测到suffix值。但是似乎suffix值不是json，于是加载失败啦！')
     .AddPair('messagebox_plugin.plugin_context_error.caption', '插件部分加载失败')
     .AddPair('messagebox_plugin.plugin_context_error.text', '插件部分检测内容为空，加载失败！')
+    .AddPair('picturebox_manage.check_mod_info_fabric.text', Concat(
+            '模组隶属加载器：${mod_game}', #13#10,
+            '模组运行环境【*代表server/client】：${mod_env}', #13#10,
+            '模组依赖：${mod_depends}', #13#10,
+            '模组联动：${mod_suggests}', #13#10,
+            '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+            '模组ID：${mod_id}', #13#10,
+            '模组版本：${mod_version}', #13#10,
+            '模组名称：${mod_name}', #13#10,
+            '模组描述：${mod_description}', #13#10,
+            '模组联系方式：${mod_contact}', #13#10,
+            '模组作者：${mod_author}', #13#10,
+            '模组贡献者：${mod_contributor}', #13#10,
+            '模组许可证：${mod_license}', #13#10,
+            '目前暂时未实现模组自动更新功能，请自行去模组源仓库更新吧！'
+    ))
+    .AddPair('picturebox_manage.check_mod_info_quilt.text', Concat(
+            '模组隶属加载器：${mod_game}', #13#10,
+            '模组Group：${mod_group}', #13#10,
+            '模组依赖：${mod_depends}', #13#10,
+            '模组联动：${mod_suggests}', #13#10,
+            '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+            '模组ID：${mod_id}', #13#10,
+            '模组版本：${mod_version}', #13#10,
+            '模组名称：${mod_name}', #13#10,
+            '模组描述：${mod_description}', #13#10,
+            '模组联系方式：${mod_contact}', #13#10,
+            '模组贡献者：${mod_contributor}', #13#10,
+            '目前暂时未实现模组自动更新功能，请自行去模组源仓库更新吧！'
+    ))
+    .AddPair('picturebox_manage.check_mod_info_forge12d.text', Concat(
+            '模组隶属加载器：${mod_game}', #13#10,
+            '模组依赖：${mod_depends}', #13#10,
+            '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+            '模组ID：${mod_id}', #13#10,
+            '模组名称：${mod_name}', #13#10,
+            '模组描述：${mod_description}', #13#10,
+            '模组版本：${mod_version}', #13#10,
+            '模组MC版本：${mod_mcversion}', #13#10,
+            '模组网站：${mod_url}', #13#10,
+            '模组更新网站：${mod_updateurl}', #13#10,
+            '模组作者：${mod_author}', #13#10,
+            '模组鸣谢人员：${mod_credits}', #13#10,
+            '目前暂时未实现模组自动更新功能，请自行去模组源仓库更新吧！'
+    ))
+    .AddPair('messagebox_manage.found_modtoml_error.caption', '模组可能已损坏')
+    .AddPair('messagebox_manage.found_modtoml_error.text', '你的模组在解析mods.toml文件时出错了！这个模组可能已损坏，请尝试重新检测或更换模组！错误信息：'#13#10'${error_info}')
+    .AddPair('messagebox_manage.cannot_pause_modgame.caption', '无法找到模组隶属加载器')
+    .AddPair('messagebox_manage.cannot_pause_modgame.text', '你的模组toml结构有误，未能正确解析到模组隶属加载器。请尝试重新下载一次该mod！')
+    .AddPair('picturebox_manage.check_mod_info_forge13u.text', Concat(
+            '模组隶属加载器：${mod_game}', #13#10,
+            '模组加载器版本范围：${mod_range}', #13#10,
+            '模组MC版本范围：${mc_range}', #13#10,
+            '-----------------------------------------------------------------------------------------------------------------------', #13#10,
+            '模组ID：${mod_id}', #13#10,
+            '模组名称：${mod_name}', #13#10,
+            '模组描述：${mod_description}', #13#10,
+            '模组版本：${mod_version}', #13#10,
+            '模组网站：${mod_url}', #13#10,
+            '模组更新网站：${mod_updateurl}', #13#10,
+            '模组作者：${mod_author}', #13#10,
+            '模组鸣谢人员：${mod_credits}', #13#10,
+            '模组许可证：${mod_license}', #13#10,
+            '模组问题提交网址：${mod_issue}', #13#10,
+            '目前暂时未实现模组自动更新功能，请自行去模组源仓库更新吧！'
+    ))
     //以下为下载进度列表框
     .AddPair('label_progress_download_progress.caption', '下载进度：${download_progress}% | ${download_current_count}/${download_all_count}')
     .AddPair('downloadlist.custom.judge_can_multi_thread_download', '正在判断是否可以多线程下载。')
@@ -2487,7 +2609,7 @@ begin
     .AddPair('groupbox_background_gradient.caption', '窗口渐变产生')
     .AddPair('toggleswitch_background_gradient.on.caption', '开启渐变')
     .AddPair('toggleswitch_background_gradient.off.caption', '关闭渐变')
-    .AddPair('label_background_gradient_value.caption', '渐变值')       
+    .AddPair('label_background_gradient_value.caption', '渐变值')
     .AddPair('label_background_gradient_current_value.caption', '当前选中：${gradient_value}')
     .AddPair('label_background_gradient_step.caption', '渐变步长')
     .AddPair('label_background_gradient_current_step.caption', '当前选中：${gradient_step}')

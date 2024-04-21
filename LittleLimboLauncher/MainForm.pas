@@ -385,7 +385,7 @@ type
     speedbutton_contributor_mingyue_developer: TSpeedButton;
     label_contributor_legend: TLabel;
     label_contributor_rare: TLabel;
-    speedbutton_contributor_rare_hill233: TSpeedButton;
+    speedbutton_contributor_hill233_rare: TSpeedButton;
     label_contributor_excellent: TLabel;
     speedbutton_contributor_qingzihang_excellent: TSpeedButton;
     speedbutton_contributor_hill233_excellent: TSpeedButton;
@@ -401,6 +401,7 @@ type
     speedbutton_delphilsp_tool: TSpeedButton;
     speedbutton_delphichinese_tool: TSpeedButton;
     label_lll_copyright: TLabel;
+    speedbutton_contributor_inkerbot_legend: TSpeedButton;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -747,7 +748,7 @@ end;
 //插件页切换！
 procedure Tform_mainform.pagecontrol_all_plugin_partChange(Sender: TObject);
 begin
-  //
+  // TODO: 插件页切换
 end;
 //任意语言菜单栏点击的事件
 procedure Tform_mainform.LanguageMenuClick(Sender: TObject);
@@ -922,12 +923,9 @@ end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
 begin
-//  var tbar := FindWindow('Shell_TrayWnd', nil);
-//  ShowWindow(tbar, SW_SHOW);
-  var a := '11%s';
-  showmessage(Format('%s%s%s^%s%s%s%s', [a, '22', a, a, '33', '44']));
-//  showmessage(TTomlParser.TomlToJSON(GetFile('D:\tt.toml')).Format());
-//  showmessage(TTomlParser.TomlToJSON(GetFile('D:\ttp.toml')).Format());
+  var ss := '{}';
+  var sj := TJSONObject.ParseJSONValue(ss) as TJSONObject;
+  ShowMessage(IfThen(sj.GetValue('displayURL') <> nil, sj.GetValue('displayURL').Value, GetLanguage('picturebox_resource.has_no_data')));
 end;
 //下载部分：查看MC版本信息
 procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
@@ -2272,7 +2270,9 @@ begin
     ul := 'https://bmclapidoc.bangbang93.com/'
   else if nme.Equals(speedbutton_contributor_rechalow_developer.Name) then
     ul := 'https://github.com/rechalow'
-  else exit;
+  else if nme.Equals(speedbutton_contributor_inkerbot_legend.Name) then begin
+    ul := 'https://github.com/inkerbot'
+  end else exit;
   ShellExecute(Application.Handle, nil, pchar(ul), nil, nil, SW_SHOWNORMAL);
 end;
 //滑动条框滑动事件
@@ -2393,21 +2393,6 @@ begin
       mainmenu_mainpage.Items[3].Add(TM); //给主菜单栏添加这个菜单。
       Log.Write(Concat('判定成功，语言文件名为：', tle), LOG_START, LOG_INFO);
     end;
-//    var ldir := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\lang');
-//    if SysUtils.DirectoryExists(ldir) then begin
-//      var Files := TDirectory.GetFiles(ldir);
-//      for var I in Files do begin //遍历plugins文件夹
-//        if (RightStr(I, 5) = '.json') then begin //如果文件后缀为.json或者dll，则执行。
-//          var json := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
-//          var title := json.GetValue('file_language_title').Value;
-//          var TM := TMenuItem.Create(mainmenu_mainpage); //设置一个菜单栏
-//          TM.OnClick := LanguageMenuClick; //给菜单栏设置点击事件。
-//          TM.Caption := title; //给菜单栏设置标题，为Json的名字。
-//          mainmenu_mainpage.Items[3].Add(TM); //给主菜单栏添加这个菜单。
-//          Log.Write(Concat('判定成功，语言文件名为：', I), LOG_START, LOG_INFO);
-//        end else continue; //如果不为json或dll，则继续。
-//      end;
-//    end;
     Log.Write('开始判断愚人节彩蛋。', LOG_START, LOG_INFO);
     if (Now.GetMonth = 4) and (Now.GetDay = 1) then begin
       if MyMessagebox('虦뾍囻숳삑眒좘뼧ۼ형莗硏⤰ዋ㽊ᗻ⹍燝ꛬ췍ﯱ멌텆캾ゅ幕㴙☥⩓ݬ봺턎䋥㹨ੱḴ꜇䡩㿬헰纯ⓢ﬒䴏ꍚ霜⌢�䥭諺缗蕉毻⟁翿蟃蔌劫쨫⏣飪�밇㫴㘕㵖愇�᩹듩䄎쌜ꦤ鱏쳂翝縁䆷契鬧៳뱩巶谪舒춉ȵ', '凞큂焸褒޽儕䨭읾躴ⱳ镑⫲䤈淹য়쁇婷Ҿ᷁뒎螣楗老', MY_WARNING, [mybutton.myNo, mybutton.myYes]) = 2 then begin
