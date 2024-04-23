@@ -31,7 +31,7 @@ begin
     form_mainform.label_version_current_path.Caption := GetLanguage('label_version_current_path.caption').Replace('${current_path}', path);
     var ver := Concat(path, '\versions');
     if DirectoryExists(ver) then begin
-      SearchDirProc(ver, true, true, procedure(T: String) begin
+      SearchDirProc(ver, true, true, function(T: String): Boolean begin
         var ccf := ExtractFileName(T);
         var igh := GetMCInheritsFrom(T, 'inheritsFrom');
         var ive := IsVersionError(T);
@@ -53,8 +53,10 @@ begin
           isf := '（Unknown）';
         end;
         ccf := Concat(isf, ccf);
-        (MCSelJSON.GetValue('mcsel') as TJSONArray).Add(TJSONObject.Create.AddPair('path', T));
+        (MCSelJSON.GetValue('mcsel') as TJSONArray).Add(TJSONObject.Create
+            .AddPair('path', T));
         form_mainform.combobox_select_game_version.Items.Add(ccf);
+        result := false;
       end);
       form_mainform.combobox_select_game_version.ItemIndex := mselect_ver;
       LLLini.WriteString('MC', 'SelectMC', inttostr(mselect_mc + 1));

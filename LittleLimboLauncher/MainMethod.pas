@@ -37,7 +37,7 @@ function Base64ToStream(base64: String): TStringStream;
 function StreamToBase64(pStream: TStringStream): String;
 function NameToDefaultUUID(text: String): String;
 function ConvertHexToColor(color: String): Integer;
-procedure SearchDirProc(path: String; isReadDir: Boolean; isOnly: Boolean; proc: TProc<String>);
+procedure SearchDirProc(path: String; isReadDir: Boolean; isOnly: Boolean; proc: TFunc<String, Boolean>);
 procedure MemoryReduct(isShow: Boolean);
 
 var
@@ -55,7 +55,7 @@ uses
 //3. 是否为遍历文件夹
 //4. 是否只遍历外层
 //5. 执行函数【内含有一个参数，参数为搜索出的文件路径。】
-procedure SearchDirProc(path: String; isReadDir: Boolean; isOnly: Boolean; proc: TProc<String>);
+procedure SearchDirProc(path: String; isReadDir: Boolean; isOnly: Boolean; proc: TFunc<String, Boolean>);
 var
   F: TSearchRec;
 begin
@@ -69,7 +69,9 @@ begin
         begin
           if isReadDir then begin
             if (S <> '.') and (S <> '..') then begin
-              proc(Concat(path, '\', S));
+              if proc(Concat(path, '\', S)) then begin
+                exit;
+              end;
               if isOnly then continue;
               SearchDirProc(Concat(path, '\', S), isOnly, isReadDir, proc);
             end;
@@ -78,10 +80,11 @@ begin
             if (S <> '.') and (S <> '..') then
               SearchDirProc(Concat(path, '\', S), isOnly, isReadDir, proc);
           end;
-        end
-        else begin
+        end else begin
           if isReadDir then continue;
-          proc(Concat(path, '\', S)); //直接执行。
+          if proc(Concat(path, '\', S)) then begin //直接执行。
+            Exit;
+          end;
         end;
       until SysUtils.FindNext(F) <> 0; //查询下一个。
     finally
@@ -333,14 +336,14 @@ end;
 //获取根据json原版键值
 function GetVanillaVersion(json: String): String;
 begin
-  var jsonRoot := TJSONObject.ParseJSONValue(json.ToLower) as TJSONObject;
+  var jsonRoot := TJSONObject.ParseJSONValue(json) as TJSONObject;
   var mcid := '';
   try
-    mcid := jsonRoot.GetValue('inheritsfrom').Value;
+    mcid := jsonRoot.GetValue('inheritsFrom').Value;
     if mcid.IsEmpty then raise Exception.Create('Not Support!');
   except
     try
-      mcid := jsonRoot.GetValue('clientversion').Value;
+      mcid := jsonRoot.GetValue('clientVersion').Value;
       if mcid.IsEmpty then raise Exception.Create('Not Support!');
     except
       try
@@ -363,7 +366,7 @@ begin
           if mcid.IsEmpty then raise Exception.Create('Cannot get forge vanilla key');
         except
           try
-            var releaseTime := jsonRoot.GetValue('releasetime').Value;
+            var releaseTime := jsonRoot.GetValue('releaseTime').Value;
             var Vv := '';
             case mdownload_source of
               1: Vv := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
@@ -375,7 +378,7 @@ begin
             end;
             for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
               var J := I as TJsonObject;
-              var release := J.GetValue('releaseTime').Value.ToLower;
+              var release := J.GetValue('releaseTime').Value;
               if release.Equals(releaseTime) then begin
                 mcid := J.GetValue('id').Value;
               end;
@@ -841,18 +844,19 @@ begin
   var widres := true;
   if DirectoryExists(path) then // 判断文件夹是否存在
   begin
-    SearchDirProc(path, false, true, procedure(I: String) begin
-      if I.IndexOf('.json') <> -1 then begin
-        var god := GetFile(I);
+    SearchDirProc(path, false, true, function(I: String): Boolean begin
+      if RightStr(I, 5).equals('.json') then begin
         try
-          var Root := TJsonObject.ParseJSONValue(god) as TJsonObject;
+          var Root := TJsonObject.ParseJSONValue(GetFile(I)) as TJsonObject;
           Root.GetValue('id').Value;
           Root.GetValue('libraries').ToString;
           Root.GetValue('mainClass').Value;
           widres := false;
+          Result := true;
           exit;
         except end;
       end;
+      result := false;
     end);
   end;
   result := widres;

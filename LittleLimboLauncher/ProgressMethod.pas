@@ -718,13 +718,16 @@ begin
   var SHA := ClientJSON.GetValue('sha1').Value;
   var AssetURL := (SourceJSON.GetValue('assetIndex') as TJsonObject).GetValue('url').Value;
   var bo := true;
-  SearchDirProc(VanillaPath, false, true, procedure(T: String) begin
+  SearchDirProc(VanillaPath, false, true, function(T: String): Boolean begin
     if RightStr(T, 4).Equals('.jar') then begin
       if GetFileHash(T).Equals(SHA) then begin
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.main_version_jar_exists'));
         bo := false;
+        result := true;
+        exit;
       end;
     end;
+    result := false;
   end);
   if bo then begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.downloading_main_version_jar'));

@@ -606,7 +606,7 @@ type
   end;
 
 const
-  LauncherVersion = '1.0.0-Alpha-19622';
+  LauncherVersion = '1.0.0-Beta-7';
 
 var
   form_mainform: Tform_mainform;
@@ -666,12 +666,13 @@ begin
   var mic := mi.Caption.Replace('[', '').Replace(']', '').Replace('&', '');
   var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
   if SysUtils.DirectoryExists(ld) then begin
-    SearchDirProc(ld, false, true, procedure(T: String) begin
+    SearchDirProc(ld, false, true, function(T: String): Boolean begin
       if RightStr(T, 4).Equals('.dll') then
       if mic.IndexOf(ExtractFileName(T).Replace('&', '').Replace('[', '').Replace(']', '')) <> -1 then begin
         var inst := LoadLibrary(pchar(T));
         FreeLibrary(inst);
       end;
+      result := false;
     end)
   end;
 end;
@@ -681,7 +682,7 @@ begin
   Log.Write('你点击了插件部分，现在立刻开始加载插件！', LOG_INFO, LOG_PLUGIN);
   var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
   PluginFormList := TList<TPluginForm>.Create;
-  SearchDirProc(ld, false, true, procedure(T: String) begin
+  SearchDirProc(ld, false, true, function(T: String): Boolean begin
     if RightStr(T, 5).Equals('.json') then begin
       var f := GetFile(T);
       var ise := TJSONObject.ParseJSONValue(f) as TJSONObject;
@@ -734,6 +735,7 @@ begin
       end;
       PluginFormList.Add(TPluginForm.ConstructorPluginForm(nme, f))
     end;
+    result := false;
   end);
 end;
 //点击插件以外部分页的销毁事件

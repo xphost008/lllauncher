@@ -179,28 +179,33 @@ function GetMCRealPath(path, suffix: string): String;
 begin
   var widres := '';
   if DirectoryExists(path) then begin // 判断文件夹是否存在
-    SearchDirProc(path, false, true, procedure(I: String) begin
-      if I.IndexOf(suffix) <> -1 then begin // 是否符合条件
-        if suffix.Equals('.json') then begin
-          var god := GetFile(I);
+    SearchDirProc(path, false, true, function(T: String): Boolean begin
+      if T.IndexOf(suffix) <> -1 then begin // 是否符合条件
+        if suffix.Equals('.json') and RightStr(T, 5).Equals(suffix) then begin
           try
-            var Root := TJsonObject.ParseJSONValue(god) as TJsonObject;
+            var Root := TJsonObject.ParseJSONValue(GetFile(T)) as TJsonObject;
             Root.GetValue('libraries').ToString;
             Root.GetValue('mainClass').Value;
             Root.GetValue('id').Value;
-            widres := I;
+            widres := T;
+            result := true;
             exit;
-          except end;
+          except
+            widres := '';
+          end;
         end else begin
-          widres := I;
+          widres := T;
+          result := true;
           exit;
         end;
       end else if suffix.IndexOf('.') <> 0 then begin
-        if GetFileHash(I).Equals(suffix) then begin
-          widres := I;
+        if GetFileHash(T).Equals(suffix) then begin
+          widres := T;
+          result := true;
           exit;
         end;
       end;
+      Result := false;
     end);
   end;
   result := widres;
@@ -236,12 +241,14 @@ begin
       var ihtf := Rt.GetValue(inheritsorjar).Value;
       if ihtf.IsEmpty then raise Exception.Create('Judge Json Error');
       var vdir := ExtractFileDir(selpath);
-      SearchDirProc(vdir, true, true, procedure(J: String) begin
-        var vpth := GetMCRealPath(J, '.json');
+      SearchDirProc(vdir, true, true, function(T: String): Boolean begin
+        var vpth := GetMCRealPath(T, '.json');
         if GetVanillaVersion(GetFile(vpth)).Equals(ihtf) then begin
-          widres := J;
+          widres := T;
+          result := true;
           exit;
         end;
+        result := false;
       end);
     except
       result := selpath;
@@ -437,14 +444,13 @@ begin
   try
     jaram.Append(JudgeArguments(Root.ToString, 'jvm'));
   except exit; end;
-  var launver := ExtractNumber(LauncherVersion, true);
   if mcid.CountChar(' ') > 0 then begin
     mcid := Concat('"', mcid, '"');
   end;
   jaram := jaram  //替换字符串模板中的内容。
     .Replace('${natives_directory}', Concat('"', Concat(mcselpath, '\', ExtractFileName(mcselpath), '-LLL-natives'), '"'))
     .Replace('${launcher_name}', 'LLL')
-    .Replace('${launcher_version}', launver)
+    .Replace('${launcher_version}', ExtractNumber(LauncherVersion, true))
     .Replace('${classpath}', Concat('"', getMCAllLibs(json, mcpath, mcselpath), '"'))
     .Replace('${version_name}', mcid)
     .Replace('${library_directory}', Concat('"', mcpath, '\libraries"'))
@@ -588,7 +594,6 @@ begin
   end;
   var param := '';
   var mcpv := JudgeIsolation;
-  ClipBoard.SetTextbuf(pchar(ReplaceMCInheritsFrom(jsn, jnn)));
   try
     if not SetParam113(ReplaceMCInheritsFrom(jsn, jnn), mcpv, defjvm, addjvm, param) then raise Exception.Create('MC Not 1.13 upper');
   except

@@ -528,7 +528,7 @@ begin
   try //模组
     var rpath := Concat(mcrlpth, '\mods');
     if DirectoryExists(rpath) then begin
-      SearchDirProc(rpath, false, true, procedure(T: String) begin
+      SearchDirProc(rpath, false, true, function(T: String): Boolean begin
         var ex := ExtractFileName(T);
         if (RightStr(ex, 4) = '.jar') or (RightStr(ex, 4) = '.zip') then begin
           ModSelect.Add(T);
@@ -537,46 +537,50 @@ begin
           ModSelect.Add(T);
           form_mainform.listbox_manage_import_mod.Items.Add(Concat('[禁用]', ex.Substring(0, ex.Length - 13)));
         end;
+        result := false;
       end);
     end;
   except end;
   try //地图
     var rpath := Concat(mcrlpth, '\saves');
     if DirectoryExists(rpath) then begin
-      SearchDirProc(rpath, true, true, procedure(T: String) begin
+      SearchDirProc(rpath, true, true, function(T: String): Boolean begin
         SavSelect.Add(T);
         form_mainform.listbox_manage_import_map.Items.Add(ExtractFilename(T));
+        result := false;
       end);
     end;
   except end;
   try //纹理
     var rpath := Concat(mcrlpth, '\resourcepacks');
     if DirectoryExists(rpath) then begin
-      SearchDirProc(rpath, false, true, procedure(T: String) begin
+      SearchDirProc(rpath, false, true, function(T: String): Boolean begin
         var ex := ExtractFileName(T);
         if (RightStr(ex, 4) = '.zip') then begin
           ResSelect.Add(T);
           form_mainform.listbox_manage_import_resourcepack.Items.Add(ex.Substring(0, ex.Length - 4));
         end;
+        result := false;
       end);
     end;
   except end;
   try //光影
     var rpath := Concat(mcrlpth, '\shaderpacks');
     if DirectoryExists(rpath) then begin
-      SearchDirProc(rpath, false, true, procedure(T: String) begin
+      SearchDirProc(rpath, false, true, function(T: String): Boolean begin
         var ex := ExtractFileName(T);
         if (RightStr(ex, 4) = '.zip') then begin
           ShaSelect.Add(T);
           form_mainform.listbox_manage_import_shader.Items.Add(ex.Substring(0, ex.Length - 4));
         end;
+        result := false;
       end);
     end;
   except end;
   try //插件
     var rpath := Concat(mcrlpth, '\plugins');
     if DirectoryExists(rpath) then begin
-      SearchDirProc(rpath, false, true, procedure(T: String) begin
+      SearchDirProc(rpath, false, true, function(T: String): Boolean begin
         var ex := ExtractFileName(T);
         if (RightStr(ex, 4) = '.jar') or (RightStr(ex, 4) = '.zip') then begin
           PluSelect.Add(T);
@@ -585,6 +589,7 @@ begin
           PluSelect.Add(T);
           form_mainform.listbox_manage_import_plugin.Items.Add(Concat('[禁用]', ex.Substring(0, ex.Length - 13)));
         end;
+        result := false;
       end);
     end;
   except end;
@@ -951,11 +956,12 @@ begin
   DatSelect.Clear;
   try
     var rpath := Concat(SavSelect[form_mainform.listbox_manage_import_map.ItemIndex], '\datapacks\');
-    SearchDirProc(rpath, false, true, procedure(T: String) begin
+    SearchDirProc(rpath, false, true, function(T: String): Boolean begin
       if RightStr(T, 4) = '.zip' then begin
         DatSelect.Add(T);
         form_mainform.listbox_manage_import_datapack.Items.Add(ChangeFileExt(ExtractFileName(T), ''));
       end;
+      result := false;
     end);
   except end;
 end;
