@@ -20,6 +20,7 @@ type
 
 procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMode, LoadSource: Integer; javapath: String = ''; VanillaVersion: String = ''; isShowList: Boolean = false; isShowProgress: Boolean = true);
 function GetURLFileName(aURL: String): String;
+procedure CleanDownloadReceive();
 
 implementation
 
@@ -35,10 +36,13 @@ type
       isShowList, isShowProgress: Boolean;
       javapath, VanillaVersion: String;
     function GetFileSize(aurl: String): Integer;
+    function GetWebStreamRD(id: Integer; FileName, url: String): TStringStream;
     function GetHTTPNormal(url: String): TStringStream;
     procedure ReceiveData(const Sender: TObject;
       AContentLength, AReadCount: Int64; var AAbort: Boolean);
-    function GetHTTPRange(url: String; tstart, tend: Integer;
+    procedure ReceiveDetale(const Sender: TObject;
+      AContentLength, AReadCount: Int64; var AAbort: Boolean);
+    function GetHTTPRange(id: Integer; FileName, url: String; tstart, tend: Integer;
       showProg: Boolean): TStringStream;
     procedure BackupFile(yuanpath, backuppath: String);
     function ExtractMainClass(jarpath: String): String;
@@ -52,10 +56,10 @@ type
     procedure DownloadModpack;
     constructor InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);
     procedure StartDownload(LoadSource: Integer);
+    procedure DownloadAsWindow(id: Integer; SavePath, DownloadURL, FileHash, ViewName: String; isLibraries: Boolean; SelectMode: Integer);
 {$IFDEF DEBUG}
     procedure ReceverError(const Sender: TObject; const AError: String);
 {$ENDIF}
-    procedure DownloadAsWindow(SavePath, DownloadURL, FileHash, ViewName: String; isLibraries: Boolean; SelectMode: Integer);
   end;
 //新的线程模式！
 constructor TMyThread.Create(CreateSuspended: Boolean; MyProc: TMyProc);
@@ -79,20 +83,29 @@ begin
   result := aURL.Substring(aurl.LastIndexOf('/') + 1, aurl.Length - aurl.LastIndexOf('/') - 1 - (aurl.Length - aurl.LastIndexOf('?')));
   if result = '' then result := 'XXX';
 end;
+procedure CleanDownloadReceive();
+begin
+  form_mainform.stringgrid_progress_download_details.Cols[0].Clear;
+  form_mainform.stringgrid_progress_download_details.Cells[0, 0] := GetLanguage('stringgrid_progress_download_details.caption.filename');
+  form_mainform.stringgrid_progress_download_details.Cols[1].Clear;
+  form_mainform.stringgrid_progress_download_details.Cells[1, 0] := GetLanguage('stringgrid_progress_download_details.caption.current');
+end;
 //提取主类
 function TDownloadMethod.ExtractMainClass(jarpath: String): String;
 begin
   var rdp := Concat(LocalTemp, 'LLLauncher\', inttostr(random(99999)));
-  Unzip(jarpath, rdp);
-  var cot := TStringList.Create;
-  cot.LoadFromFile(Concat(rdp, '\META-INF\MANIFEST.MF'));
-  for var I in cot do begin
-    if I.IndexOf('Main-Class') <> -1 then begin
-      result := I.Substring(12);
-      break;
+  if UnzipFile(jarpath, 'META-INF/MANIFEST.MF', rdp) then begin
+    var cot := TStringList.Create;
+    cot.DefaultEncoding := TEncoding.UTF8;
+    cot.LoadFromFile(Concat(rdp, '\META-INF\MANIFEST.MF'));
+    for var I in cot do begin
+      if I.IndexOf('Main-Class') <> -1 then begin
+        result := I.Substring(12);
+        break;
+      end;
     end;
-  end;
-  DeleteDirectory(rdp);
+    DeleteDirectory(rdp);
+  end else raise Exception.Create('Cannot Extract Main Class File');
 end;
 //备份文件
 procedure TDownloadMethod.BackupFile(yuanpath, backuppath: String);
@@ -109,7 +122,7 @@ begin
   end;
 end;
 //第一个是保存位置，第二个是下载网址，第三个是文件hash【如果没有可以为空】，第四个是显示在列表框上的名字，第五个为是否为资源文件，第六个为选择源。
-procedure TDownloadMethod.DownloadAsWindow(SavePath, DownloadURL, FileHash, ViewName: String; isLibraries: Boolean; SelectMode: Integer);
+procedure TDownloadMethod.DownloadAsWindow(id: Integer; SavePath, DownloadURL, FileHash, ViewName: String; isLibraries: Boolean; SelectMode: Integer);
 label
   Retry;
 begin
@@ -127,7 +140,7 @@ begin
     raise Exception.Create('Not support');
   end;
   Retry: ;
-  var srr := GetWebStream(DownloadURL);
+  var srr := GetWebStreamRD(id, ViewName, DownloadURL);
   if srr = nil then begin
     inc(ret);
     if ret < 3 then begin
@@ -201,15 +214,53 @@ begin
 //  if isShowList then form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(Concat('目前已经下载到：', inttostr(AReadCount)));
   if isShowProgress then ShowCurrentProgress(AReadCount, AContentLength);
 end;
+//多线程下载时，显示下载详情。
+procedure TDownloadMethod.ReceiveDetale(const Sender: TObject;
+  AContentLength, AReadCount: Int64; var AAbort: Boolean);
+begin
+  //
+end;
+//现在可以回显出进度了。
+function TDownloadMethod.GetWebStreamRD(id: Integer; FileName, url: String): TStringStream;
+begin
+  var http := TNetHttpClient.Create(nil); //给初始变量赋值
+  var strt := TStringStream.Create('', TEncoding.UTF8, False);
+  result := nil;
+  form_mainform.stringgrid_progress_download_details.RowCount := id + 1;
+  try
+    with http do begin
+      Name := Concat('d', inttostr(id), '@', FileName);
+      AcceptCharSet := 'utf-8';
+      AcceptEncoding := '65001';
+      AcceptLanguage := 'en-US';
+      ResponseTimeout := 300000;
+      ConnectionTimeout := 300000;
+      SendTimeout := 300000;
+      ContentType := 'text/html';
+      SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
+      HandleRedirects := True;  //可以网址重定向
+      OnReceiveData := ReceiveDetale;
+    end;
+    try
+      var h := http.Get(url, strt);  //获取网络文本
+      result := strt; //给最后变量赋值为网络文本的变量，返回
+      if LeftStr(IntToStr(h.StatusCode), 1) = '4' then result := nil;
+    except end; //如果无法获取，则抛出报错
+  finally
+    http.Free; //释放资源
+  end;
+end;
 //获取特定位置的Http流
-function TDownloadMethod.GetHTTPRange(url: String; tstart, tend: Integer;
+function TDownloadMethod.GetHTTPRange(id: Integer; FileName, url: String; tstart, tend: Integer;
   showProg: Boolean): TStringStream;
 begin
   var http := TNetHttpClient.Create(nil); //初始化
   var strt := TStringStream.Create('', TEncoding.UTF8, False); //初始化一个流
   result := nil; //将result定义为一个nil，因为返回值就是一个流。
+  if showProg then form_mainform.stringgrid_progress_download_details.RowCount := id + 1;
   try
     with http do begin //以下与上面一样。
+      Name := Concat('h', inttostr(id), '@', FileName);
       AcceptCharSet := 'utf-8';
       AcceptEncoding := '65001';
       AcceptLanguage := 'en-US';
@@ -218,7 +269,7 @@ begin
       SendTimeout := 300000;
       SecureProtocols := [THTTPSecureProtocol.SSL3, THTTPSecureProtocol.TLS12, THTTPSecureProtocol.TLS13];
       HandleRedirects := True;
-      if showProg then OnReceiveData := ReceiveData;
+      if showProg then OnReceiveData := ReceiveDetale;
     end;
     try
       http.GetRange(url, tstart, tend, strt);  //获取网络文件流。要存储的流放在最后面。start和end放在中间
@@ -233,6 +284,7 @@ function TDownloadMethod.GetHTTPNormal(url: String): TStringStream;
 begin
   var http := TNetHttpClient.Create(nil); //给初始变量赋值
   var strt := TStringStream.Create('', TEncoding.UTF8, False);
+  result := nil;
   try
     with http do begin
       AcceptCharSet := 'utf-8';
@@ -253,9 +305,7 @@ begin
       var h := http.Get(url, strt);  //获取网络文本
       result := strt; //给最后变量赋值为网络文本的变量，返回
       if LeftStr(IntToStr(h.StatusCode), 1) = '4' then result := nil;
-    except  //如果无法获取，则抛出报错
-      result := nil;
-    end;
+    except end;
   finally
     http.Free; //释放资源
   end;
@@ -285,7 +335,7 @@ begin
       end;
       if st.StatusCode <> 206 then begin
         form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.url_statucode_is_not_206_and_try_to_cut'));
-        var ss := GetHTTPRange(aURL, 1, 10, true);
+        var ss := GetHTTPRange(1, '', aURL, 1, 10, false);
         if ss.Size > 10 then begin
           ss.SaveToFile(savepath);
           form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.not_allow_cut_use_single_thread_download'));
@@ -368,33 +418,18 @@ begin
       abort;
     end;
   end;
-  try
-    dic['{INSTALLER}'] := Concat('"', LocalTemp, 'LLLauncher\tmp.jar"');
-  except
-    dic.Add('{INSTALLER}', Concat('"', LocalTemp, 'LLLauncher\tmp.jar"'));
-  end;
+  dic.AddOrSetValue('{INSTALLER}', Concat('"', LocalTemp, 'LLLauncher\tmp.jar"'));
   if FileExists(Concat(LocalTemp, 'LLLauncher\forgetmp\data\client.lzma')) then begin
-    try
-      dic['{BINPATCH}'] := Concat('"', LocalTemp, 'LLLauncher\forgetmp\data\client.lzma"');
-    except
-      dic.Add('{BINPATCH}', Concat('"', LocalTemp, 'LLLauncher\forgetmp\data\client.lzma"'));
-    end;
+    dic.AddOrSetValue('{BINPATCH}', Concat('"', LocalTemp, 'LLLauncher\forgetmp\data\client.lzma"'));
   end else begin
     form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.cannot_extra_lzma'));
     exit;
   end;
-  try
-    dic['{ROOT}'] := Concat('"', LocalTemp, 'LLLauncher\', inttostr(random(100000)), '"');
-  except
-    dic.Add('{ROOT}', Concat('"', LocalTemp, 'LLLauncher\', inttostr(random(100000)), '"'));
-  end;
-  try
-    dic['{SIDE}'] := 'client';
-  except
-    dic.Add('{SIDE}', 'client');
-  end;
+  dic.AddOrSetValue('{ROOT}', Concat('"', LocalTemp, 'LLLauncher\', inttostr(random(100000)), '"'));
+  dic.AddOrSetValue('{SIDE}', 'client');
   form_mainform.progressbar_progress_download_bar.Max := processors.Count;
   form_mainform.progressbar_progress_download_bar.Position := 0;
+  CleanDownloadReceive;
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(processors.Count));
   var TDPCount := 0;
   for var I in processors do begin
@@ -488,6 +523,7 @@ begin
   end;
   form_mainform.progressbar_progress_download_bar.Max := ForgeProfileRoot.Count;
   form_mainform.progressbar_progress_download_bar.Position := 0;
+  CleanDownloadReceive;
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(ForgeProfileRoot.Count));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.current_download_library'));
   var TDFCount := 0;
@@ -505,7 +541,7 @@ begin
         var usl := da.GetValue('url').Value;
         if usl = '' then usl := Concat(ForgeRoot, '/', sap);
         var sapth := Concat(RootPath, '\libraries\', sap.Replace('/', '\'));
-        DownloadAsWindow(sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
+        DownloadAsWindow(TDFCount, sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
       except end;
       var RealURL := '';
       try RealURL := RealJSON.GetValue('name').Value; except continue; end;
@@ -518,7 +554,7 @@ begin
         if RightStr(lul, 1) <> '/' then lul := Concat(lul, '/');
         RealURL := Concat(lul, ConvertNameToPath(RealJSON.GetValue('name').Value).Replace('\', '/'));
       except end;
-      try DownloadAsWindow(RealPath, RealURL, '', ExtractFileName(RealPath), true, SelectMode); except end;
+      try DownloadAsWindow(TDFCount, RealPath, RealURL, '', ExtractFileName(RealPath), true, SelectMode); except end;
       inc(TVFCount);
       ShowCurrentProgress(TVFCount, ForgeProfileRoot.Count);
     end;
@@ -560,6 +596,7 @@ begin
   if isShowList then form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.url_file_size').Replace('${url_file_size}', inttostr(filesize)));
   form_mainform.progressbar_progress_download_bar.Max := BiggestThread;
   form_mainform.progressbar_progress_download_bar.Position := 0;
+  CleanDownloadReceive;
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(BiggestThread));
   var fileavg := trunc(filesize / BiggestThread); //记录网络文件除以最大线程后的平均值。
   var sc := 0;
@@ -572,7 +609,7 @@ begin
   begin
     var TempSavePath := Concat(LocalTemp, 'LLLauncher\downloadtmp', ChangeFileExt(ExtractFileName(savepath), ''), '-', inttostr(dt), '.tmp');
     Retry: ;
-    var stt: TStringStream := GetHttpRange(url, tstart, tend, false); //Get特定位置的流。
+    var stt: TStringStream := GetHttpRange(dt, IntToStr(dt), url, tstart, tend, true); //Get特定位置的流。
     if stt = nil then begin
       if IsShowList then form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.custom.cut_download_error'));
       DeleteDirectory(Concat(LocalTemp, 'LLLauncher\downloadtmp')); //删掉所有tmp文件
@@ -583,9 +620,10 @@ begin
       stt.Free;
     end;
     inc(sf);
-    var jd: Currency := 100 * sf / BiggestThread;
-    if isShowProgress then form_mainform.progressbar_progress_download_bar.Position := sf;
-    if isShowProgress then form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(sf)).Replace('${download_all_count}', inttostr(BiggestThread));
+    if isShowProgress then ShowCurrentProgress(sf, BiggestThread);
+//    var jd: Currency := 100 * sf / BiggestThread;
+//    if isShowProgress then form_mainform.progressbar_progress_download_bar.Position := sf;
+//    if isShowProgress then form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', floattostr(SimpleRoundTo(jd))).Replace('${download_current_count}', inttostr(sf)).Replace('${download_all_count}', inttostr(BiggestThread));
   end;
   var downp: TMyProc := procedure
   begin
@@ -599,7 +637,7 @@ begin
     DownloadTask[I] := TMyThread.CreateAnonymousThread(downp);
     DownloadTask[I].Start;
   end;
-  for var I := 0 to BiggestThread - 1 do begin
+  for var I := 0 to BiggestThread - 1 do begin //等待执行完成。
     if Assigned(DownloadTask[I]) then begin
       DownloadTask[I].WaitFor;
       DownloadTask[I].Destroy;
@@ -751,6 +789,7 @@ begin
   var LibrariesJSONRoot := SourceJSON.GetValue('libraries') as TJsonArray;
   form_mainform.progressbar_progress_download_bar.Max := LibrariesJSONRoot.Count;
   form_mainform.progressbar_progress_download_bar.Position := 0;
+  CleanDownloadReceive;
   form_mainform.label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', inttostr(LibrariesJSONRoot.Count));
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.current_download_library'));
   var TDLCount := 0;
@@ -768,7 +807,7 @@ begin
         var usl := da.GetValue('url').Value;
         if usl = '' then usl := Concat(LibrariesRoot, '/', sap);
         var sapth := Concat(RootPath, '\libraries\', sap.Replace('/', '\'));
-        DownloadAsWindow(sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
+        DownloadAsWindow(TDLCount, sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
       except end;
       try
         var dn := RealJSON.GetValue('downloads') as TJsonObject;
@@ -778,7 +817,7 @@ begin
         var sha := soo.GetValue('sha1').Value;
         var usl := soo.GetValue('url').Value;
         var sapth := Concat(RootPath, '\libraries\', sap.Replace('/', '\'));
-        DownloadAsWindow(sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
+        DownloadAsWindow(TDLCount, sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
       except end;
       try
         var dn := RealJSON.GetValue('downloads') as TJsonObject;
@@ -788,7 +827,7 @@ begin
         var sha := soo.GetValue('sha1').Value;
         var usl := soo.GetValue('url').Value;
         var sapth := Concat(RootPath, '\libraries\', sap.Replace('/', '\'));
-        DownloadAsWindow(sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
+        DownloadAsWindow(TDLCount, sapth, usl, sha, ExtractFileName(sapth), true, SelectMode);
       except end;
       var RealURL := '';
       try RealURL := RealJSON.GetValue('name').Value; except continue; end;
@@ -806,7 +845,7 @@ begin
         if RightStr(lul, 1) <> '/' then lul := Concat(lul, '/');
         RealURL := Concat(lul, ConvertNameToPath(RealJSON.GetValue('name').Value).Replace('\', '/'));
       except end;
-      try DownloadAsWindow(RealSave, RealURL, '', ExtractFileName(RealSave), true, SelectMode); except end;
+      try DownloadAsWindow(TDLCount, RealSave, RealURL, '', ExtractFileName(RealSave), true, SelectMode); except end;
       inc(TVLCount);
       ShowCurrentProgress(TVLCount, LibrariesJSONRoot.Count);
     end;
@@ -826,6 +865,7 @@ begin
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.mc.download_library_success'));
   form_mainform.progressbar_progress_download_bar.Max := AssetsJSONRoot.Count;
   form_mainform.progressbar_progress_download_bar.Position := 0;
+  CleanDownloadReceive;
   var TDACount := 0;
   var TVACount := 0;
   var DownloadAssetsTask: TMyProc := procedure begin
@@ -839,7 +879,7 @@ begin
       var lu := Concat(ResourceRoot, '/', lsr, '/', hs);
       var svp := Concat(RootPath, '\assets\objects\', lsr, '\', hs);
       var bfs := Concat(RootPath, '\assets\virtual\legacy\', er.Replace('/', '\'));
-      try DownloadAsWindow(svp, lu, hs, er, false, SelectMode); except end;
+      try DownloadAsWindow(TDACount, svp, lu, hs, er, false, SelectMode); except end;
       BackupFile(svp, bfs);
       inc(TVACount);
       ShowCurrentProgress(TVACount, AssetsJSONRoot.Count);
@@ -900,7 +940,7 @@ begin
           var robj := (ne.GetValue('downloads') as TJsonObject).GetValue('raw') as TJsonObject;
           var rurl := robj.GetValue('url').Value;
           var rsha := robj.GetValue('sha1').Value;
-          DownloadAsWindow(svp, rurl, rsha, er, false, SelectMode);
+          DownloadAsWindow(TDJCount, svp, rurl, rsha, er, false, SelectMode);
         except end;
       end;
       inc(TVJCount);
@@ -966,13 +1006,20 @@ begin
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.forge.download_forge_success').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000)));
 end;
 //下载你可爱的整合包去罢！
+//0. 整合包类型
+//1. 原版版本
+//2. 模组加载器类型
+//3. 模组加载 器版本
 procedure TDownloadMethod.DownloadModpack;
 begin
   var ttime := GetTickCount;
   form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modpack.download_modpack_start'));
   var dl := SplitString(url, '@');
+  if Length(dl) <> 4 then raise Exception.Create('Cannot set install modpack');
   if dl[0].Equals('Modrinth') then begin
+    if dl[2].ToLower.IndexOf('forge') <> -1 then begin
 
+    end;
   end else if dl[0].Equals('MultiMC') then begin
 
   end else if dl[0].Equals('MCBBS') then begin
@@ -980,6 +1027,7 @@ begin
   end else if dl[0].Equals('CurseForge') then begin
 
   end;
+  form_mainform.listbox_progress_download_list.ItemIndex := form_mainform.listbox_progress_download_list.Items.Add(GetLanguage('downloadlist.modpack.download_modpack_success').Replace('${download_finish_time}', floattostr((GetTickCount - ttime) / 1000)));
 end;
 //设置所有参数。
 constructor TDownloadMethod.InitDownload(url, SavePath, RootPath: String; BiggestThread, SelectMode: Integer; javapath, VanillaVersion: String; isShowList: Boolean; isShowProgress: Boolean);
@@ -1021,6 +1069,7 @@ procedure DownloadStart(url, SavePath, RootPath: String; BiggestThread, SelectMo
 begin
   try
 //    form_mainform.button_progress_clean_download_list.Enabled := false;
+    CleanDownloadReceive;
     TDownloadMethod.InitDownload(url, SavePath, RootPath, BiggestThread, SelectMode, javapath, VanillaVersion, isShowList, isShowProgress).StartDownload(LoadSource);
 //    form_mainform.button_progress_clean_download_list.Enabled := true;
   except

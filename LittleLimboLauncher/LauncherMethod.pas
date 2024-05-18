@@ -15,7 +15,7 @@ function JudgeIsolation: String;
 function IsJSONError(path: String): Boolean;
 procedure StartLaunch(isExportArgs: Boolean);
 function JudgeMCRule(rl: TJsonObject): Boolean;
-function UnzipContent(zippath, filepath: String): String;
+function UnzipFile(zippath, filepath, extpath: String): Boolean;
 
 implementation
 
@@ -69,14 +69,23 @@ begin
 end;
 //解压单个zip文件，并返回内容。多半是解压toml、json以及一些小文件用。
 //如果返回内容为空，则没有解压成功。
-function UnzipContent(zippath, filepath: String): String;
+function UnzipFile(zippath, filepath, extpath: String): Boolean;
 begin
+  result := false;
+  if not FileExists(zippath) then begin result := false; exit; end;
+  if not DirectoryExists(extpath) then ForceDirectories(extpath);
+  if filepath.Contains('\') then filepath := filepath.Replace('\', '/');
   var zip := TZipFile.Create;
   try
-    for var f in zip.FileNames do begin
-
-    end;
+    try
+      zip.Open(zippath, zmRead);
+      if zip.IndexOf(filepath) >= 0 then begin
+        zip.Extract(filepath, extpath, True);
+        result := true;
+      end;
+    except end;
   finally
+    zip.Close;
     zip.free;
   end;
 end;
@@ -84,18 +93,18 @@ end;
 function Unzip(zippath, extpath: String): Boolean;
 begin
   result := false;
-  if not DirectoryExists(extpath) then ForceDirectories(extpath);
   if not FileExists(zippath) then begin result := false; exit; end;
-  var zp := TZipFile.Create;
+  if not DirectoryExists(extpath) then ForceDirectories(extpath);
+  var zip := TZipFile.Create;
   try
     try
-      zp.Open(zippath, zmRead); //打开压缩包
-      zp.ExtractAll(extpath); //解压压缩包
+      zip.Open(zippath, zmRead); //打开压缩包
+      zip.ExtractAll(extpath); //解压压缩包
       result := true;
     except end;
   finally
-    zp.Close;
-    zp.Free;
+    zip.Close;
+    zip.Free;
   end;
 end;
 // 将名称转换成路径 （此方法简称，把json中的name文件转换成path的格式。）
@@ -243,8 +252,13 @@ begin
       var vdir := ExtractFileDir(selpath);
       SearchDirProc(vdir, true, true, function(T: String): Boolean begin
         var vpth := GetMCRealPath(T, '.json');
-        if GetVanillaVersion(GetFile(vpth)).Equals(ihtf) then begin
+        var gv := GetVanillaVersion(GetFile(vpth));
+        if gv.Equals(ihtf) then begin
           widres := T;
+          result := true;
+          exit;
+        end else if gv.Equals('Unknown') then begin
+          widres := 'Unknown';
           result := true;
           exit;
         end;
@@ -263,7 +277,7 @@ var
   //非必需参数: javapath、accname、accuuid、accat、acctype、basecode, serpath
   //必需参数: mcpath, mcselpath, maxm, heig, widh, cuif, addion, addgon, serv, port
   javapath, mcpath, mcselpath, accname, accuuid, accat, acctype, prels: String;
-  //Java路径、MC路径、MC版本路径、账号名称、账号UUID、账号AccessToken、账号类型、前置运行参数。后置运行参数
+  //Java路径、MC路径、MC版本路径、账号名称、账号UUID、账号AccessToken、账号类型、前置运行参数。
   maxm, heig, widh: Integer;
   cuif, addion, addgame, basecode, serpath: String;
   //最大内存、窗口高度、窗口宽度、版本类型、额外JVM参数、额外game参数、外置登录元数据base64码、authlib-injector文件路径。

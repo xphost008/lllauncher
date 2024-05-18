@@ -154,6 +154,7 @@ begin
         ContentType := Concat('application/x-www-form-urlencoded;charset=utf-8'); //如果that为true，则设定请求类型为form，反之则为json
       end else begin
         ContentType := Concat('application/json;charset=utf-8');
+        Accept := 'application/json;charset=utf-8';
       end;
       try
         var res := Post(web, ss);
@@ -231,7 +232,7 @@ var
   k1: String;
   t1: String;
 begin
-  if client_id = '' then begin
+  if client_id.IsEmpty then begin
     if rr = 'refresh' then begin
       k1 := Concat('client_id=00000000402b5328',
         '&refresh_token=', token,
@@ -809,7 +810,7 @@ begin
       Log.Write('正在获取用户代码……', LOG_ACCOUNT, LOG_INFO);
       var k1 := Concat('client_id=', MS_CLIENT_ID, '&scope=XboxLive.signin%20offline_access');  //此处使用了私有函数中的MS_CLIENT_ID
       var w1 := TAccount.GetHttpf(k1, dcurl, true);
-      if w1 = '' then begin
+      if w1.IsEmpty then begin
         form_mainform.label_account_return_value.Caption := GetLanguage('label_account_return_value.caption.cannot_get_user_code');
         MyMessagebox(GetLanguage('messagebox_account_microsoft_error.cannot_get_user_code.caption'), GetLanguage('messagebox_account_microsoft_error.cannot_get_user_code.caption'), MY_ERROR, [mybutton.myOK]);
         exit;

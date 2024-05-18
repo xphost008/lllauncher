@@ -1,11 +1,8 @@
 ﻿unit ExportMethod;
-
 interface
-
 uses
   Windows, SysUtils, Forms, IniFiles, WinXCtrls, Math, JSON, Classes,
   ComCtrls, StrUtils, DateUtils, Dialogs, Zip, pngimage, NetEncoding, Generics.Collections;
-
 procedure InitIsolation;
 procedure InitExport;
 procedure IsoMethod(k: Integer; v: String);
@@ -13,19 +10,16 @@ procedure SelectNode(AllCheck: Boolean; ANode: TTreeNode);
 procedure StartExport;
 procedure ImportModPackIcon(path: String);
 procedure RemoveModPackIcon;
-
 implementation
-
 uses
   VersionMethod, MainForm, LanguageMethod, MyCustomWindow, MainMethod, LauncherMethod;
-
 var
   IsoIni: TIniFile;
-
 var
   mexport_mcpath, mexport_mcname, mexport_mcid, mexport_vanillaid, mexport_loader, mexport_loadversion: String;
   NodePath: TStringList;
   mpicon: String = '';
+  CantVanilla: Boolean = false;
 //导入整合包图标
 procedure ImportModPackIcon(path: String);
 begin
@@ -142,6 +136,9 @@ begin
       break;
     end;
     desc := Concat(desc, Concat(form_mainform.memo_export_modpack_profile.Lines[I], #10));
+  end;
+  if CantVanilla then begin
+    mexport_mcid := MyInputBox(GetLanguage('inputbox_export.cannot_get_vanilla.caption'), GetLanguage('inputbox_export.cannot_get_vanilla.caption'), MY_INFORMATION);
   end;
   var root := TJSONObject.Create;
   root
@@ -362,7 +359,7 @@ begin
     form_mainform.label_export_return_value.Caption := GetLanguage('label_export_return_value.caption.init_success');
   end).Start;
 end;     
-//初始化导出部分
+//初始化独立部分
 procedure InitIsolation;
 var
   status: TMemoryStatus;
@@ -585,9 +582,11 @@ begin
     end;
   end;
   mcid := GetVanillaVersion(json);
-  if mcid = '' then begin
-    MyMessagebox(GetLanguage('messagebox_export.cannot_find_vanilla_key.caption'), GetLanguage('messagebox_export.cannot_find_vanilla_key.text'), MY_ERROR, [mybutton.myOK]);
-    exit;
+  if mcid.Equals('Unknown') then begin
+//    MyMessagebox(GetLanguage('messagebox_export.cannot_find_vanilla_key.caption'), GetLanguage('messagebox_export.cannot_find_vanilla_key.text'), MY_ERROR, [mybutton.myOK]);
+//    exit;
+    CantVanilla := true;
+    mcid := 'Unknown';
   end;
   LoadExport(rcth, cname, mcid, muid, isloader, islver);
 end;

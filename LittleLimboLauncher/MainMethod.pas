@@ -39,6 +39,7 @@ function NameToDefaultUUID(text: String): String;
 function ConvertHexToColor(color: String): Integer;
 procedure SearchDirProc(path: String; isReadDir: Boolean; isOnly: Boolean; proc: TFunc<String, Boolean>);
 procedure MemoryReduct(isShow: Boolean);
+function SortedLANGJSON(langjson: TJSONObject): TJSONObject;
 
 var
   MCRootJSON: TJSONObject;
@@ -339,60 +340,45 @@ begin
   var jsonRoot := TJSONObject.ParseJSONValue(json) as TJSONObject;
   var mcid := '';
   try
-    mcid := jsonRoot.GetValue('inheritsFrom').Value;
+    mcid := jsonRoot.GetValue('clientVersion').Value;
     if mcid.IsEmpty then raise Exception.Create('Not Support!');
   except
     try
-      mcid := jsonRoot.GetValue('clientVersion').Value;
-      if mcid.IsEmpty then raise Exception.Create('Not Support!');
+      var patch := jsonRoot.GetValue('patches') as TJsonArray;
+      for var I in patch do begin
+        var id := I.GetValue<String>('id').ToLower;
+        if id = 'game' then begin
+          mcid := I.GetValue<String>('version');
+        end;
+      end;
+      if mcid.IsEmpty then raise Exception.Create('Cannot get hmcl vanilla key');
     except
       try
-        var patch := jsonRoot.GetValue('patches') as TJsonArray;
-        for var I in patch do begin
-          var id := I.GetValue<String>('id').ToLower;
-          if id = 'game' then begin
-            mcid := I.GetValue<String>('version');
+        var releaseTime := jsonRoot.GetValue('releaseTime').Value;
+        var Vv := '';
+        case mdownload_source of
+          1: Vv := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
+          2: Vv := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
+          else exit;
+        end;
+        if MCRootJSON = nil then begin
+          MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(Vv)) as TJSONObject;
+        end;
+        for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
+          var J := I as TJsonObject;
+          var release := J.GetValue('releaseTime').Value;
+          if release.Equals(releaseTime) then begin
+            mcid := J.GetValue('id').Value;
           end;
         end;
-        if mcid.IsEmpty then raise Exception.Create('Cannot get hmcl vanilla key');
+        if mcid.IsEmpty then raise Exception.Create('Cannot get releaseTime vanilla key');
       except
         try
-          var game := (jsonRoot.GetValue('arguments') as TJsonObject).GetValue('game') as TJsonArray;
-          for var I := 0 to game.Count - 1 do begin
-            if game[I].Value.ToLower = '--fml.mcversion'.ToLower then begin
-              mcid := game[I + 1].Value;
-            end;
-          end;
-          if mcid.IsEmpty then raise Exception.Create('Cannot get forge vanilla key');
+          mcid := jsonRoot.GetValue('id').Value;
+          if mcid.IsEmpty then raise Exception.Create('Cannot get hmcl vanilla key');
         except
-          try
-            var releaseTime := jsonRoot.GetValue('releaseTime').Value;
-            var Vv := '';
-            case mdownload_source of
-              1: Vv := 'https://piston-meta.mojang.com/mc/game/version_manifest.json';
-              2: Vv := 'https://bmclapi2.bangbang93.com/mc/game/version_manifest.json';
-              else exit;
-            end;
-            if MCRootJSON = nil then begin
-              MCRootJSON := TJsonObject.ParseJSONValue(GetWebText(Vv)) as TJSONObject;
-            end;
-            for var I in MCRootJSON.GetValue('versions') as TJSONArray do begin
-              var J := I as TJsonObject;
-              var release := J.GetValue('releaseTime').Value;
-              if release.Equals(releaseTime) then begin
-                mcid := J.GetValue('id').Value;
-              end;
-            end;
-            if mcid.IsEmpty then raise Exception.Create('Cannot get releaseTime vanilla key');
-          except
-            try
-              mcid := jsonRoot.GetValue('id').Value;
-              if mcid.IsEmpty then raise Exception.Create('Cannot get hmcl vanilla key');
-            except
-              MyMessagebox(GetLanguage('messagebox_export.cannot_find_vanilla_key.caption'), GetLanguage('messagebox_export.cannot_find_vanilla_key.text'), MY_ERROR, [mybutton.myOK]);
-              mcid := '';
-            end;
-          end;
+//          MyMessagebox(GetLanguage('messagebox_export.cannot_find_vanilla_key.caption'), GetLanguage('messagebox_export.cannot_find_vanilla_key.text'), MY_ERROR, [mybutton.myOK]);
+          mcid := 'Unknown';
         end;
       end;
     end;
@@ -655,6 +641,25 @@ begin
       end;
     end;
     result := ten;
+  end;
+end;
+function SortedLANGJSON(langjson: TJSONObject): TJSONObject;
+begin
+  try
+    var cc := TStringList.Create;
+    for var I in langjson do begin
+      var f := I.JsonString.Value + '@@@===@=@=@===@@@' + I.JsonValue.Value;
+      cc.Add(f);
+    end;
+    cc.Sort;
+    var sr := TJSONObject.Create;
+    for var I in cc do begin
+      var ty := I.Split(['@@@===@=@=@===@@@']);
+      sr.AddPair(ty[0], ty[1]);
+    end;
+    result := sr;
+  finally
+    langjson.Free;
   end;
 end;
 //获取网络流

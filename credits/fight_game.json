@@ -2,7 +2,7 @@
 	"plugin_name": "fight_game",
 	"plugin_description": "LLL插件款的对战游戏！",
 	"plugin_author": "砖需",
-	"plugin_copyright": "MIT",
+	"plugin_copyright": "Copyright © Rechalow 2024 MIT",
 	"plugin_update_time": "2024-3-12",
 	"plugin_version": "1.0",
 	"form_caption": "对战游戏",

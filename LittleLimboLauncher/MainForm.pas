@@ -6,7 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, DateUtils, Dialogs, Zip,
   StdCtrls, pngimage, WinXCtrls, ComCtrls, CheckLst, JSON, ShellAPI, Math, IniFiles, Menus,
   ExtCtrls, Controls, MPlayer, Log4Delphi, Imaging.jpeg, Generics.Collections, FileCtrl,
-  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding, Vcl.Buttons;
+  ClipBrd, RegularExpressions, IOUtils, StrUtils, Types, NetEncoding, Vcl.Buttons,
+  Vcl.Grids;
 
 type
   Tform_mainform = class(TForm)
@@ -402,6 +403,8 @@ type
     speedbutton_delphichinese_tool: TSpeedButton;
     label_lll_copyright: TLabel;
     speedbutton_contributor_inkerbot_legend: TSpeedButton;
+    n_unlock: TMenuItem;
+    stringgrid_progress_download_details: TStringGrid;
     procedure button_launch_gameClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -593,6 +596,7 @@ type
     procedure linklabel_contributor_supportLinkClick(Sender: TObject;
       const Link: string; LinkType: TSysLinkType);
     procedure n_view_mod_infoClick(Sender: TObject);
+    procedure n_unlockClick(Sender: TObject);
   private
     { Private declarations }
     procedure PluginMenuClick(Sender: TObject);
@@ -606,13 +610,12 @@ type
   end;
 
 const
-  LauncherVersion = '1.0.0-Beta-7';
+  LauncherVersion = '1.0.0-Alpha-24875';
 
 var
   form_mainform: Tform_mainform;
   LLLini, OtherIni: TIniFile;
-  AppData: String;
-  LocalTemp: String;
+  AppData, LocalTemp: String;
   Log: Log4D;
   crash_count: Integer = 0;
   mcpid: Integer = 0;
@@ -651,8 +654,10 @@ implementation
 uses
   MainMethod, LauncherMethod, BackgroundMethod, LanguageMethod, AccountMethod, MyCustomWindow, ExportMethod,
   resourceMethod, ManageMethod, LaunchMethod, DownloadMethod, CustomDlMethod, VersionMethod,
-  OnlineIPv6Method, MultiPluginMethod, PrivacyMethod;
+  OnlineIPv6Method, MultiPluginMethod, PrivacyMethod, ProgressMethod;
 
+var
+  is_unlock_plugin: Boolean = False;
 //var
 //  Cave, Answer, Lucky: array of String;
 //  Intro: array of array of String;
@@ -679,6 +684,12 @@ end;
 //点击插件部分页的加载事件
 procedure Tform_mainform.PluginPageChange;
 begin
+  if not is_unlock_plugin then begin
+    MyMessageBox(GetLanguage('messagebox_plugin.has_not_unlock_plugin.caption'), GetLanguage('messagebox_plugin.has_not_unlock_plugin.text'), MY_ERROR, [mybutton.myOK]);
+//    MyMessagebox('您还暂未解锁插件部分', '您还暂未解锁插件部分，请进入内测群私聊作者获取解锁码后再来！', MY_ERROR, [mybutton.myOK]);
+    pagecontrol_mainpage.ActivePage := self.tabsheet_mainpage_part;
+    exit;
+  end;
   Log.Write('你点击了插件部分，现在立刻开始加载插件！', LOG_INFO, LOG_PLUGIN);
   var ld := Concat(ExtractFileDir(Application.ExeName), '\LLLauncher\plugins');
   PluginFormList := TList<TPluginForm>.Create;
@@ -924,10 +935,32 @@ begin
 end;
 //测试按钮
 procedure Tform_mainform.n_test_buttonClick(Sender: TObject);
+{$IFDEF DEBUG}
+{$ENDIF}
 begin
-  var ss := '{}';
-  var sj := TJSONObject.ParseJSONValue(ss) as TJSONObject;
-  ShowMessage(IfThen(sj.GetValue('displayURL') <> nil, sj.GetValue('displayURL').Value, GetLanguage('picturebox_resource.has_no_data')));
+{$IFDEF DEBUG}
+//  form_mainform.stringgrid_progress_download_details.RowCount := 3 + 1;
+{$ENDIF}
+end;
+//解锁码
+//该函数使用了PrivacyMethod中的ScrectUnlockPlugin，在使用该源码进行编译时要注意！
+procedure Tform_mainform.n_unlockClick(Sender: TObject);
+begin
+{$IFDEF DEBUG}
+  var i := MyInputBox('请输入对方的解锁码原密钥', '请输入对方的解锁码原密钥', MY_INFORMATION);
+//  Clipboard.SetTextBuf(pchar(SecretUnlockPlugin(i)));
+  MyMessagebox('插件部分解锁码解密钥', SecretUnlockPlugin(i), MY_INFORMATION, [mybutton.myOK]);
+{$ELSE}
+  var j := NameToDefaultUUID(RunDOSBack1('wmic csproduct get UUID'));
+  var i := MyInputBox(GetLanguage('inputbox_mainform.unlock_check.caption'), GetLanguage('inputbox_mainform.unlock_check.text').Replace('${unlock_code}', j), MY_INFORMATION);
+  if i.Equals(SecretUnlockPlugin(j)) then begin
+    MyMessagebox(GetLanguage('messagebox_mainform.unlock_check_plugin.caption'), GetLanguage('messagebox_mainform.unlock_check_plugin.text'), MY_PASS, [mybutton.myOK]);
+    is_unlock_plugin := True;
+    OtherIni.WriteString('Secret', j, i)
+  end else begin
+    MyMessagebox(GetLanguage('messagebox_mainform.unlock_check_error.caption'), GetLanguage('messagebox_mainform.unlock_check_error.text'), MY_ERROR, [mybutton.myOK]);
+  end;
+{$ENDIF}
 end;
 //下载部分：查看MC版本信息
 procedure Tform_mainform.n_view_minecraft_infoClick(Sender: TObject);
@@ -1343,6 +1376,7 @@ begin
   progressbar_progress_download_bar.Position := 0;
   listbox_progress_download_list.Items.Clear;
   label_progress_download_progress.Caption := GetLanguage('label_progress_download_progress.caption').Replace('${download_progress}', '0').Replace('${download_current_count}', '0').Replace('${download_all_count}', '0');
+  CleanDownloadReceive();
 end;
 //下载进度界面：显示/隐藏详情
 procedure Tform_mainform.button_progress_hide_show_detailsClick(
@@ -1351,9 +1385,11 @@ begin
   if listbox_progress_download_list.Visible then begin
     button_progress_hide_show_details.Caption := GetLanguage('button_progress_hide_show_details.caption.show');
     listbox_progress_download_list.Visible := false;
+    stringgrid_progress_download_details.Visible := false;
   end else begin
     button_progress_hide_show_details.Caption := GetLanguage('button_progress_hide_show_details.caption.hide');
     listbox_progress_download_list.Visible := true;
+    stringgrid_progress_download_details.Visible := true;
   end;
 end;
 //刷新账号
@@ -1739,6 +1775,7 @@ begin
   scrollbox_isolation.VertScrollBar.Position := 0;
   scrollbox_export.VertScrollBar.Position := 0;
   scrollbox_help.VertScrollBar.Position := 0;
+  stringgrid_progress_download_details.ColWidths[0] := 350;
   v.ParentWindow := Handle;
   v.Visible := False;
   v.AutoOpen := false;
@@ -1757,6 +1794,11 @@ begin
       mjudge_lang_chinese := false;
     end;
   end;
+  var n := NameToDefaultUUID(RunDOSBack1('wmic csproduct get UUID'));
+{$IFDEF DEBUG}
+  Otherini.WriteString('Secret', n, SecretUnlockPlugin(n));
+{$ENDIF}
+  is_unlock_plugin := OtherIni.ReadString('Secret', n, '').Equals(SecretUnlockPlugin(n));
   form_mainform.label_mainform_tips.Caption := '';
   Log.Write('正在读取语言文件……', LOG_INFO, LOG_START);
   var langtle := LLLini.ReadInteger('Language', 'SelectLanguageFile', -1);
@@ -1901,6 +1943,8 @@ begin
       LLLini.WriteInteger('Version', 'SelectDownloadSource', 1);
     end;
   end;
+  stringgrid_progress_download_details.Cells[0, 0] := GetLanguage('stringgrid_progress_download_details.caption.filename');
+  stringgrid_progress_download_details.Cells[1, 0] := GetLanguage('stringgrid_progress_download_details.caption.current');
   timer_form_gradient_tick.Interval := mgradient_value;
   SetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE, GetWindowLong(pagecontrol_mainpage.Handle, GWL_EXSTYLE) or WS_EX_LAYERED);
   SetLayeredWindowAttributes(pagecontrol_mainpage.Handle, RGB(255, 255, 255), mcontrol_alpha, LWA_ALPHA);

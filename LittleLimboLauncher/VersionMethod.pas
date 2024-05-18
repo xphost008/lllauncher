@@ -1,25 +1,18 @@
 ﻿unit VersionMethod;
-
 interface
-
 uses
   SysUtils, Windows, Forms, Classes, JSON, IOUtils, IniFiles, ShellAPI, Generics.Collections;
-
 procedure InitVersion;
 procedure SaveVersion;
 procedure ChooseVersionDir(name, path: String; isShow: Boolean);
 procedure SelVer();
 procedure CompleteVersion;
-
 var
   mselect_mc, mselect_ver, misolation_mode: Integer;
   MCJSON, MCSelJSON: TJSONObject;
-
 implementation
-
 uses
   MainMethod, MainForm, LanguageMethod, LauncherMethod, MyCustomWindow, ProgressMethod;
-
 //选择版本
 procedure SelVer();
 begin
@@ -36,7 +29,7 @@ begin
         var igh := GetMCInheritsFrom(T, 'inheritsFrom');
         var ive := IsVersionError(T);
         if ive then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.error.cannot_find_json'))
-        else if igh.IsEmpty then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.error.missing_inherits_version'));
+        else if igh.Equals('Unknown') then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.error.missing_inherits_version'));
         var IsoIni := TIniFile.Create(Concat(T, '\LLLauncher.ini'));
         if IsoIni.ReadBool('Isolation', 'IsIsolation', false) then ccf := Concat(ccf, GetLanguage('button_launch_game.caption.isolation'));
         var isf: String;

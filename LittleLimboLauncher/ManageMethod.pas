@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, IOUtils, StrUtils, Winapi.Messages, ShellAPI, Windows, Forms, JSON,
-  pngimage, NetEncoding, Generics.Collections;
+  pngimage, NetEncoding, Generics.Collections, Vcl.Clipbrd;
 
 function InitManage: Boolean;
 procedure DragFileInWindow(var Msg: TMessage);
@@ -174,7 +174,10 @@ begin
     exit;
   end;
   var E := Concat(LocalTemp, 'LLLauncher\YourCheckModInfo');
-  if not Unzip(S, E) then begin
+  if  not UnzipFile(S, 'fabric.mod.json', E) and
+      not UnzipFile(S, 'quilt.mod.json', E) and
+      not UnzipFile(S, 'mcmod.info', E) and
+      not UnzipFile(S, 'META-INF/mods.toml', E) then begin
     MyMessagebox(GetLanguage('messagebox_manage.cannot_unzip_modpack.caption'), GetLanguage('messagebox_manage.cannot_unzip_modpack.text'), MY_ERROR, [mybutton.myOK]);
     exit;
   end;
@@ -189,7 +192,11 @@ begin
       var icon := JudgeException(ModInfoMetaData, 1, ['icon']);
       var ss := TStringStream.Create;
       if not icon.Equals(GetLanguage('picturebox_resource.has_no_data')) then begin
-        ss.LoadFromFile(Concat(E, '\', icon.Replace('/', '\').Replace('.\', '')))
+        if UnzipFile(S, icon.Replace('/', '\').Replace('.\', ''), E) then begin
+          ss.LoadFromFile(Concat(E, '\', icon.Replace('/', '\').Replace('.\', '')));
+        end else begin
+          ss := nil;
+        end;
       end else begin
         ss := nil;
       end;
@@ -216,7 +223,11 @@ begin
       var icon := JudgeException(ModInfoMetaData, 3, ['quilt_loader', 'metadata', 'icon']);
       var ss := TStringStream.Create;
       if not icon.Equals(GetLanguage('picturebox_resource.has_no_data')) then begin
-        ss.LoadFromFile(Concat(E, '\', icon.Replace('/', '\').Replace('.\', '')))
+        if UnzipFile(S, icon.Replace('/', '\').Replace('.\', ''), E) then begin
+          ss.LoadFromFile(Concat(E, '\', icon.Replace('/', '\').Replace('.\', '')));
+        end else begin
+          ss := nil;
+        end;
       end else begin
         ss := nil;
       end;
@@ -238,7 +249,11 @@ begin
       var icon := JudgeException(((ModInfoMetaData as TJSONArray)[0] as TJSONObject), 1, ['logoFile']);
       var ss := TStringStream.Create;
       if not icon.Equals(GetLanguage('picturebox_resource.has_no_data')) then begin
-        ss.LoadFromFile(Concat(E, '\', icon.Replace('/', '\').Replace('.\', '')))
+        if UnzipFile(S, icon.Replace('/', '\').Replace('.\', ''), E) then begin
+          ss.LoadFromFile(Concat(E, '\', icon.Replace('/', '\').Replace('.\', '')));
+        end else begin
+          ss := nil;
+        end;
       end else begin
         ss := nil;
       end;
@@ -271,7 +286,7 @@ begin
       var ModInfoMetaData := TJSONObject.ParseJSONValue(resjson) as TJSONObject;
       var modss :=  (ModInfoMetaData as TJSONObject).GetValue('mods') as TJSONArray;
       var modnamew := JudgeException(modss[0] as TJSONObject, 1, ['displayName']);
-      var logofile := '';
+      var logofile := JudgeException(modss[0] as TJSONObject, 1, ['logoFile']);
       var all := '';
       for var i in modss do begin
         var mods := i as TJSONObject;
@@ -281,7 +296,6 @@ begin
         var modgame := '';
         var modrange := '';
         var mcrange := '';
-        logofile := JudgeException((modss[0] as TJSONObject), 1, ['logoFile']);
         for var depw in deps do begin
           var dep := depw as TJSONObject;
           if not dep.TryGetValue<String>('modId', modtemp) then begin
@@ -314,7 +328,11 @@ begin
       end;
       var ss := TStringStream.Create;
       if not logofile.Equals(GetLanguage('picturebox_resource.has_no_data')) then begin
-        ss.LoadFromFile(Concat(E, '\', logofile.Replace('/', '\').Replace('.\', '')))
+        if UnzipFile(S, logofile.Replace('/', '\').Replace('.\', ''), E) then begin
+          ss.LoadFromFile(Concat(E, '\', logofile.Replace('/', '\').Replace('.\', '')));
+        end else begin
+          ss := nil;
+        end;
       end else begin
         ss := nil;
       end;
