@@ -3,6 +3,18 @@
 > Even though this launcher is mainly designed for the Chinese, it provides vast numbers of functions, which is suitable and useful for everyone. 
 [Click me for a Chinese README | 中文文档](./README_CN.md)
 
+# 2024/5/18
+
+我来说几点事情：
+1. 宣布暂时停更！我要写小说完成梦想了！下一次更新也许得等到暑假去了吧……也许吧。
+2. LLL启动器目前已更新的进度为：【
+    1. ProgressMethod（安装整合包）没更完。。
+    2. 一些不易察觉的小bug。。
+    3. 下载进度界面可视化下载进度（每个文件）
+】
+好了，不多说了，就这样吧。。
+
+
 ### Introduction
 
  **This is an easy-to-use Launcher for Minecraft. Lightweight, Simple and fast.**
