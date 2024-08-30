@@ -14,6 +14,10 @@
 】
 好了，不多说了，就这样吧。。
 
+# 2024/8/31
+
+1. 由于我目前正在忙活MMCLL以及TankLauncherModule的原因，本启动器正式停更啦！
+2. 那么，敬请期待我的新启动器：Tank Trait Trigger吧！！
 
 ### Introduction
 
